@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M005 — Rink Diagram Mockup | Hockey League Hub</title>
+<style>
+/* ── Font Faces ── */
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2'); }
+
+/* ── Design Tokens ── */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1; --bg-banner: #000000; --bg-nav: #1A1A1A; --bg-card: #FFFDF5;
+  --text-primary: #1A1A1A; --text-secondary: #4A4A4A; --text-muted: #7A7A7A;
+  --text-on-banner: #F5F0E1; --border-default: rgba(0,0,0,0.12);
+  --color-link: #2C5F8A; --color-live: #C0392B;
+}
+[data-theme="dark"] {
+  --bg-page: #0A1628; --bg-card: #112240;
+  --text-primary: #F5F0E1; --text-secondary: #B8B0A0; --text-muted: #807868;
+  --border-default: rgba(255,255,255,0.1); --color-link: #6BA3D6; --color-live: #E74C3C;
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-primary);
+  letter-spacing: -0.02em;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── Shell Header ── */
+.site-banner {
+  background: var(--bg-banner);
+  color: var(--text-on-banner);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.site-banner h1 { font-size: 18px; font-weight: 700; }
+.site-banner .live-badge {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  color: var(--color-live); border: 1px solid var(--color-live);
+  padding: 2px 8px; border-radius: 3px;
+}
+
+.site-nav {
+  background: var(--bg-nav);
+  padding: 0 24px;
+  display: flex; gap: 0;
+}
+.site-nav a {
+  color: var(--text-on-banner); text-decoration: none; font-size: 13px;
+  padding: 10px 16px; opacity: 0.65; transition: opacity 0.15s;
+}
+.site-nav a:hover, .site-nav a.active { opacity: 1; }
+.site-nav a.active { border-bottom: 2px solid var(--text-on-banner); }
+
+/* ── Page Layout ── */
+.page-wrap { max-width: 1120px; margin: 0 auto; padding: 24px 24px 48px; }
+.page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.page-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+/* ── Theme Toggle ── */
+.theme-toggle {
+  position: fixed; top: 12px; right: 24px; z-index: 100;
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  color: var(--text-primary); font-family: var(--font-primary);
+  font-size: 12px; padding: 4px 10px; border-radius: 4px; cursor: pointer;
+}
+
+/* ── View Switcher ── */
+.view-switcher {
+  display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.view-btn {
+  font-family: var(--font-primary); font-size: 13px; font-weight: 400;
+  padding: 6px 16px; border: 1px solid var(--border-default);
+  background: var(--bg-card); color: var(--text-secondary);
+  border-radius: 4px; cursor: pointer; transition: all 0.15s;
+  letter-spacing: -0.02em;
+}
+.view-btn:hover { color: var(--text-primary); border-color: var(--text-muted); }
+.view-btn.active {
+  background: var(--text-primary); color: var(--bg-page);
+  border-color: var(--text-primary); font-weight: 700;
+}
+
+/* ── Rink Container ── */
+.rink-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 24px;
+  overflow-x: auto;
+}
+.rink-svg-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 1060px;
+  margin: 0 auto;
+}
+.rink-svg-wrap svg { display: block; width: 100%; height: auto; }
+
+/* ── Event Dots ── */
+.event-dot { cursor: pointer; transition: transform 0.15s ease; transform-origin: center; }
+.event-dot:hover { transform: scale(1.35); }
+
+/* ── Tooltip ── */
+.rink-tooltip {
+  position: absolute;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+}
+.rink-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px; left: 50%; transform: translateX(-50%);
+  width: 10px; height: 10px; background: var(--bg-card);
+  border-right: 1px solid var(--border-default);
+  border-bottom: 1px solid var(--border-default);
+  transform: translateX(-50%) rotate(45deg);
+}
+.rink-tooltip .tt-type { font-weight: 700; font-size: 11px; text-transform: uppercase; }
+.rink-tooltip .tt-detail { color: var(--text-secondary); }
+.rink-tooltip .tt-time { color: var(--text-muted); font-size: 11px; }
+
+/* ── Legend ── */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 20px; align-items: center;
+  margin-top: 16px; padding: 12px 16px;
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  border-radius: 6px; font-size: 12px; color: var(--text-secondary);
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-swatch {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1px solid var(--border-default); flex-shrink: 0;
+}
+.legend-swatch.goal-swatch {
+  background: linear-gradient(to right, #22C55E 50%, #FCB514 50%);
+}
+.legend-swatch.shot-swatch { background: #FCB514; width: 12px; height: 12px; }
+.legend-swatch.hit-swatch {
+  background: #00205B; width: 14px; height: 14px;
+  border-radius: 2px; transform: rotate(45deg);
+}
+.legend-swatch.video-swatch {
+  background: #FCB514; position: relative;
+}
+.legend-swatch.video-swatch::after {
+  content: ''; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 5px; height: 5px; background: #000; border-radius: 50%;
+}
+
+/* ── Dark mode SVG adjustments ── */
+[data-theme="dark"] .ice-surface { fill: rgba(255,255,255,0.06); }
+[data-theme="dark"] .rink-boards { stroke: #4A6A8A; }
+[data-theme="dark"] .stands-section { fill: #1A2A40; }
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="document.documentElement.toggleAttribute('data-theme')?0:document.documentElement.setAttribute('data-theme','dark');
+  this.textContent = document.documentElement.hasAttribute('data-theme') ? 'Light' : 'Dark';">Dark</button>
+
+<script>
+document.querySelector('.theme-toggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  if (html.getAttribute('data-theme') === 'dark') {
+    html.removeAttribute('data-theme');
+    this.textContent = 'Dark';
+  } else {
+    html.setAttribute('data-theme', 'dark');
+    this.textContent = 'Light';
+  }
+});
+</script>
+
+<!-- Shell Header -->
+<header class="site-banner">
+  <h1>Hockey League Hub</h1>
+  <span class="live-badge">Live</span>
+</header>
+<nav class="site-nav">
+  <a href="#">Scores</a>
+  <a href="#">Standings</a>
+  <a href="#" class="active">Games</a>
+  <a href="#">Teams</a>
+  <a href="#">Players</a>
+  <a href="#">Trades</a>
+</nav>
+
+<!-- Page Content -->
+<main class="page-wrap">
+  <h2 class="page-title">BOS vs TOR — Rink Diagram</h2>
+  <p class="page-subtitle">2026-03-14 &middot; TD Garden &middot; Final: 4 &ndash; 2</p>
+
+  <!-- View Switcher -->
+  <div class="view-switcher">
+    <button class="view-btn active">Goals</button>
+    <button class="view-btn">Shots</button>
+    <button class="view-btn">Hits</button>
+    <button class="view-btn">Giveaways</button>
+    <button class="view-btn">Takeaways</button>
+  </div>
+
+  <!-- Rink Diagram -->
+  <div class="rink-container">
+    <div class="rink-svg-wrap">
+
+      <!-- Tooltip (permanently visible for demo) -->
+      <div class="rink-tooltip" style="left: 62%; top: 18%;">
+        <div class="tt-type">Goal</div>
+        <div class="tt-detail">D. Pastrnak</div>
+        <div class="tt-time">1st 8:42</div>
+      </div>
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="-160 -100 2320 1050" aria-label="NHL rink diagram showing event locations for BOS vs TOR">
+
+        <defs>
+          <!-- Rink outline clip path (rounded rectangle) -->
+          <clipPath id="rink-clip">
+            <rect x="0" y="0" width="2000" height="850" rx="280" ry="280"/>
+          </clipPath>
+
+          <!-- Goal split pattern: left green / right team color (Boston) -->
+          <linearGradient id="goal-bos" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="50%" stop-color="#22C55E"/>
+            <stop offset="50%" stop-color="#FCB514"/>
+          </linearGradient>
+          <!-- Goal split pattern: left green / right team color (Toronto) -->
+          <linearGradient id="goal-tor" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="50%" stop-color="#22C55E"/>
+            <stop offset="50%" stop-color="#00205B"/>
+          </linearGradient>
+        </defs>
+
+        <!-- ============================================================ -->
+        <!-- ARENA STANDS (simplified sections surrounding the rink)      -->
+        <!-- ============================================================ -->
+        <!-- Outer arena shell -->
+        <rect class="stands-section" x="-140" y="-80" width="2280" height="1010" rx="340" ry="340" fill="#D3D3D3" stroke="#B0B0B0" stroke-width="2"/>
+        <!-- Inner cutout to reveal ice — draw white over stands -->
+        <rect x="-20" y="-20" width="2040" height="890" rx="300" ry="300" fill="var(--bg-page, #F5F0E1)"/>
+
+        <!-- Section labels -->
+        <text x="1000" y="-40" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="24" fill="#7A7A7A" letter-spacing="0.15em">SECTION 301&ndash;320</text>
+        <text x="1000" y="910" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="24" fill="#7A7A7A" letter-spacing="0.15em">SECTION 101&ndash;120</text>
+        <text x="-70" y="425" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="22" fill="#7A7A7A" transform="rotate(-90 -70 425)" letter-spacing="0.15em">SEC 201&ndash;210</text>
+        <text x="2070" y="425" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="22" fill="#7A7A7A" transform="rotate(90 2070 425)" letter-spacing="0.15em">SEC 211&ndash;220</text>
+
+        <!-- ============================================================ -->
+        <!-- BENCH & PENALTY BOX LABELS (outside the rink boards)         -->
+        <!-- ============================================================ -->
+        <!-- Home bench: bottom side, left of center -->
+        <rect x="480" y="862" width="340" height="36" rx="4" fill="var(--bg-card, #FFFDF5)" stroke="var(--border-default, rgba(0,0,0,0.12))" stroke-width="1.5"/>
+        <text x="650" y="886" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="20" font-weight="700" fill="var(--text-secondary, #4A4A4A)">HOME BENCH</text>
+
+        <!-- Away bench: bottom side, right of center -->
+        <rect x="1180" y="862" width="340" height="36" rx="4" fill="var(--bg-card, #FFFDF5)" stroke="var(--border-default, rgba(0,0,0,0.12))" stroke-width="1.5"/>
+        <text x="1350" y="886" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="20" font-weight="700" fill="var(--text-secondary, #4A4A4A)">AWAY BENCH</text>
+
+        <!-- Penalty boxes: top side, flanking center -->
+        <rect x="870" y="-50" width="100" height="30" rx="4" fill="var(--bg-card, #FFFDF5)" stroke="var(--border-default, rgba(0,0,0,0.12))" stroke-width="1.5"/>
+        <text x="920" y="-29" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="16" font-weight="700" fill="var(--text-secondary, #4A4A4A)">HOME</text>
+
+        <!-- Scorer's table -->
+        <rect x="970" y="-50" width="60" height="30" rx="4" fill="var(--text-primary, #1A1A1A)" stroke="var(--border-default)" stroke-width="1"/>
+        <text x="1000" y="-29" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="13" font-weight="700" fill="var(--bg-page, #F5F0E1)">SCORE</text>
+
+        <rect x="1030" y="-50" width="100" height="30" rx="4" fill="var(--bg-card, #FFFDF5)" stroke="var(--border-default, rgba(0,0,0,0.12))" stroke-width="1.5"/>
+        <text x="1080" y="-29" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="16" font-weight="700" fill="var(--text-secondary, #4A4A4A)">AWAY</text>
+
+        <!-- ============================================================ -->
+        <!-- ICE SURFACE                                                  -->
+        <!-- ============================================================ -->
+        <rect class="ice-surface" x="0" y="0" width="2000" height="850" rx="280" ry="280" fill="rgba(220,235,250,0.45)"/>
+
+        <!-- Rink boards (outline) -->
+        <rect class="rink-boards" x="0" y="0" width="2000" height="850" rx="280" ry="280"
+              fill="none" stroke="#1A1A1A" stroke-width="6"/>
+
+        <!-- ============================================================ -->
+        <!-- LINES                                                        -->
+        <!-- ============================================================ -->
+        <!-- Center red line -->
+        <line x1="1000" y1="0" x2="1000" y2="850" stroke="#C0392B" stroke-width="12" clip-path="url(#rink-clip)"/>
+        <!-- Center line dashes (white breaks for puck visibility) -->
+        <line x1="1000" y1="0" x2="1000" y2="850" stroke="white" stroke-width="4" stroke-dasharray="30 30" clip-path="url(#rink-clip)"/>
+
+        <!-- Blue lines (1ft = 10px wide) -->
+        <rect x="745" y="0" width="10" height="850" fill="#2C5F8A" clip-path="url(#rink-clip)"/>
+        <rect x="1245" y="0" width="10" height="850" fill="#2C5F8A" clip-path="url(#rink-clip)"/>
+
+        <!-- Goal lines (11ft = 110px from end boards) -->
+        <line x1="110" y1="50" x2="110" y2="800" stroke="#C0392B" stroke-width="4" clip-path="url(#rink-clip)"/>
+        <line x1="1890" y1="50" x2="1890" y2="800" stroke="#C0392B" stroke-width="4" clip-path="url(#rink-clip)"/>
+
+        <!-- ============================================================ -->
+        <!-- CENTER ICE                                                   -->
+        <!-- ============================================================ -->
+        <!-- Center circle (15ft radius = 150px) -->
+        <circle cx="1000" cy="425" r="150" fill="none" stroke="#2C5F8A" stroke-width="4"/>
+        <!-- Center dot -->
+        <circle cx="1000" cy="425" r="12" fill="#2C5F8A"/>
+
+        <!-- Referee's crease (semicircle at center ice, top side) -->
+        <path d="M 990 0 A 100 100 0 0 1 1010 0" fill="none" stroke="#C0392B" stroke-width="3" clip-path="url(#rink-clip)"/>
+        <rect x="960" y="0" width="80" height="35" rx="0" fill="none" stroke="#C0392B" stroke-width="3" clip-path="url(#rink-clip)"/>
+
+        <!-- ============================================================ -->
+        <!-- FACEOFF CIRCLES — LEFT (DEFENSIVE/OFFENSIVE) ZONE            -->
+        <!-- ============================================================ -->
+        <!-- Left zone: dots at approx (200, 225) and (200, 625) -->
+        <!-- Top-left faceoff circle -->
+        <circle cx="200" cy="225" r="150" fill="none" stroke="#C0392B" stroke-width="3"/>
+        <circle cx="200" cy="225" r="10" fill="#C0392B"/>
+        <!-- Hash marks on faceoff circle (top-left) -->
+        <line x1="185" y1="75" x2="185" y2="105" stroke="#C0392B" stroke-width="3"/>
+        <line x1="215" y1="75" x2="215" y2="105" stroke="#C0392B" stroke-width="3"/>
+        <line x1="185" y1="345" x2="185" y2="375" stroke="#C0392B" stroke-width="3"/>
+        <line x1="215" y1="345" x2="215" y2="375" stroke="#C0392B" stroke-width="3"/>
+
+        <!-- Bottom-left faceoff circle -->
+        <circle cx="200" cy="625" r="150" fill="none" stroke="#C0392B" stroke-width="3"/>
+        <circle cx="200" cy="625" r="10" fill="#C0392B"/>
+        <!-- Hash marks (bottom-left) -->
+        <line x1="185" y1="475" x2="185" y2="505" stroke="#C0392B" stroke-width="3"/>
+        <line x1="215" y1="475" x2="215" y2="505" stroke="#C0392B" stroke-width="3"/>
+        <line x1="185" y1="745" x2="185" y2="775" stroke="#C0392B" stroke-width="3"/>
+        <line x1="215" y1="745" x2="215" y2="775" stroke="#C0392B" stroke-width="3"/>
+
+        <!-- ============================================================ -->
+        <!-- FACEOFF CIRCLES — RIGHT (DEFENSIVE/OFFENSIVE) ZONE           -->
+        <!-- ============================================================ -->
+        <!-- Top-right faceoff circle -->
+        <circle cx="1800" cy="225" r="150" fill="none" stroke="#C0392B" stroke-width="3"/>
+        <circle cx="1800" cy="225" r="10" fill="#C0392B"/>
+        <!-- Hash marks (top-right) -->
+        <line x1="1785" y1="75" x2="1785" y2="105" stroke="#C0392B" stroke-width="3"/>
+        <line x1="1815" y1="75" x2="1815" y2="105" stroke="#C0392B" stroke-width="3"/>
+        <line x1="1785" y1="345" x2="1785" y2="375" stroke="#C0392B" stroke-width="3"/>
+        <line x1="1815" y1="345" x2="1815" y2="375" stroke="#C0392B" stroke-width="3"/>
+
+        <!-- Bottom-right faceoff circle -->
+        <circle cx="1800" cy="625" r="150" fill="none" stroke="#C0392B" stroke-width="3"/>
+        <circle cx="1800" cy="625" r="10" fill="#C0392B"/>
+        <!-- Hash marks (bottom-right) -->
+        <line x1="1785" y1="475" x2="1785" y2="505" stroke="#C0392B" stroke-width="3"/>
+        <line x1="1815" y1="475" x2="1815" y2="505" stroke="#C0392B" stroke-width="3"/>
+        <line x1="1785" y1="745" x2="1785" y2="775" stroke="#C0392B" stroke-width="3"/>
+        <line x1="1815" y1="745" x2="1815" y2="775" stroke="#C0392B" stroke-width="3"/>
+
+        <!-- ============================================================ -->
+        <!-- NEUTRAL ZONE FACEOFF DOTS                                    -->
+        <!-- ============================================================ -->
+        <circle cx="800" cy="225" r="10" fill="#C0392B"/>
+        <circle cx="800" cy="625" r="10" fill="#C0392B"/>
+        <circle cx="1200" cy="225" r="10" fill="#C0392B"/>
+        <circle cx="1200" cy="625" r="10" fill="#C0392B"/>
+
+        <!-- ============================================================ -->
+        <!-- GOAL CREASES (semicircular, 6ft radius = 60px)               -->
+        <!-- ============================================================ -->
+        <!-- Left goal crease -->
+        <path d="M 110 365 A 60 60 0 0 1 110 485" fill="rgba(135,206,250,0.35)" stroke="#C0392B" stroke-width="3"/>
+        <line x1="110" y1="365" x2="110" y2="485" stroke="#C0392B" stroke-width="3"/>
+
+        <!-- Right goal crease -->
+        <path d="M 1890 365 A 60 60 0 0 0 1890 485" fill="rgba(135,206,250,0.35)" stroke="#C0392B" stroke-width="3"/>
+        <line x1="1890" y1="365" x2="1890" y2="485" stroke="#C0392B" stroke-width="3"/>
+
+        <!-- Goal nets (small rectangles behind goal line) -->
+        <rect x="70" y="395" width="40" height="60" rx="6" fill="none" stroke="#1A1A1A" stroke-width="3"/>
+        <rect x="1890" y="395" width="40" height="60" rx="6" fill="none" stroke="#1A1A1A" stroke-width="3"/>
+
+        <!-- ============================================================ -->
+        <!-- TRAPEZOIDS (behind each net)                                 -->
+        <!-- ============================================================ -->
+        <!-- Left trapezoid -->
+        <polygon points="0,310 110,365 110,485 0,540" fill="none" stroke="#C0392B" stroke-width="3" clip-path="url(#rink-clip)"/>
+
+        <!-- Right trapezoid -->
+        <polygon points="2000,310 1890,365 1890,485 2000,540" fill="none" stroke="#C0392B" stroke-width="3" clip-path="url(#rink-clip)"/>
+
+        <!-- ============================================================ -->
+        <!-- DIMENSION LABELS                                             -->
+        <!-- ============================================================ -->
+        <!-- Total length -->
+        <line x1="0" y1="-10" x2="2000" y2="-10" stroke="var(--text-muted, #7A7A7A)" stroke-width="1" stroke-dasharray="8 4"/>
+        <text x="1000" y="-16" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="18" fill="var(--text-muted, #7A7A7A)">200'</text>
+
+        <!-- Total width -->
+        <line x1="2020" y1="0" x2="2020" y2="850" stroke="var(--text-muted, #7A7A7A)" stroke-width="1" stroke-dasharray="8 4"/>
+        <text x="2036" y="430" text-anchor="start" font-family="'Courier Prime','Courier New',monospace" font-size="18" fill="var(--text-muted, #7A7A7A)" transform="rotate(90 2036 430)">85'</text>
+
+        <!-- Corner radius -->
+        <text x="60" y="80" font-family="'Courier Prime','Courier New',monospace" font-size="16" fill="var(--text-muted, #7A7A7A)">28' r</text>
+
+        <!-- Goal line distance from end board -->
+        <line x1="0" y1="820" x2="110" y2="820" stroke="var(--text-muted, #7A7A7A)" stroke-width="1"/>
+        <text x="55" y="838" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="16" fill="var(--text-muted, #7A7A7A)">11'</text>
+
+        <!-- Right side goal line distance -->
+        <line x1="1890" y1="820" x2="2000" y2="820" stroke="var(--text-muted, #7A7A7A)" stroke-width="1"/>
+        <text x="1945" y="838" text-anchor="middle" font-family="'Courier Prime','Courier New',monospace" font-size="16" fill="var(--text-muted, #7A7A7A)">11'</text>
+
+        <!-- ============================================================ -->
+        <!-- EVENT DOTS                                                   -->
+        <!-- ============================================================ -->
+
+        <!-- === GOAL DOTS (split circle: green left / team color right) === -->
+        <!-- BOS Goal #1 — Pastrnak (the one with tooltip) -->
+        <g class="event-dot">
+          <circle cx="1720" cy="300" r="18" fill="url(#goal-bos)" stroke="#1A1A1A" stroke-width="2"/>
+          <!-- Has video indicator -->
+          <circle cx="1720" cy="300" r="4" fill="#000"/>
+        </g>
+
+        <!-- BOS Goal #2 — Marchand -->
+        <g class="event-dot">
+          <circle cx="1650" cy="520" r="18" fill="url(#goal-bos)" stroke="#1A1A1A" stroke-width="2"/>
+          <circle cx="1650" cy="520" r="4" fill="#000"/>
+        </g>
+
+        <!-- BOS Goal #3 — Bergeron -->
+        <g class="event-dot">
+          <circle cx="1780" cy="450" r="18" fill="url(#goal-bos)" stroke="#1A1A1A" stroke-width="2"/>
+        </g>
+
+        <!-- BOS Goal #4 — Zacha (empty net) -->
+        <g class="event-dot">
+          <circle cx="1850" cy="380" r="18" fill="url(#goal-bos)" stroke="#1A1A1A" stroke-width="2"/>
+          <circle cx="1850" cy="380" r="4" fill="#000"/>
+        </g>
+
+        <!-- TOR Goal #1 — Matthews -->
+        <g class="event-dot">
+          <circle cx="280" cy="350" r="18" fill="url(#goal-tor)" stroke="#1A1A1A" stroke-width="2"/>
+          <circle cx="280" cy="350" r="4" fill="#000"/>
+        </g>
+
+        <!-- TOR Goal #2 — Marner -->
+        <g class="event-dot">
+          <circle cx="220" cy="500" r="18" fill="url(#goal-tor)" stroke="#1A1A1A" stroke-width="2"/>
+        </g>
+
+        <!-- === SHOT DOTS (solid team color, smaller) === -->
+        <!-- BOS Shots -->
+        <g class="event-dot">
+          <circle cx="1600" cy="250" r="11" fill="#FCB514" stroke="#1A1A1A" stroke-width="1.5"/>
+        </g>
+        <g class="event-dot">
+          <circle cx="1750" cy="550" r="11" fill="#FCB514" stroke="#1A1A1A" stroke-width="1.5"/>
+          <!-- Has video -->
+          <circle cx="1750" cy="550" r="3" fill="#000"/>
+        </g>
+        <g class="event-dot">
+          <circle cx="1680" cy="380" r="11" fill="#FCB514" stroke="#1A1A1A" stroke-width="1.5"/>
+        </g>
+        <g class="event-dot">
+          <circle cx="1820" cy="280" r="11" fill="#FCB514" stroke="#1A1A1A" stroke-width="1.5"/>
+        </g>
+
+        <!-- TOR Shots -->
+        <g class="event-dot">
+          <circle cx="300" cy="250" r="11" fill="#00205B" stroke="#1A1A1A" stroke-width="1.5"/>
+        </g>
+        <g class="event-dot">
+          <circle cx="180" cy="400" r="11" fill="#00205B" stroke="#1A1A1A" stroke-width="1.5"/>
+          <!-- Has video -->
+          <circle cx="180" cy="400" r="3" fill="#000"/>
+        </g>
+        <g class="event-dot">
+          <circle cx="250" cy="600" r="11" fill="#00205B" stroke="#1A1A1A" stroke-width="1.5"/>
+        </g>
+        <g class="event-dot">
+          <circle cx="150" cy="320" r="11" fill="#00205B" stroke="#1A1A1A" stroke-width="1.5"/>
+        </g>
+
+        <!-- === HIT DOTS (diamond shape) === -->
+        <!-- BOS Hits -->
+        <g class="event-dot">
+          <rect x="1470" y="155" width="16" height="16" rx="2" fill="#FCB514" stroke="#1A1A1A" stroke-width="1.5" transform="rotate(45 1478 163)"/>
+        </g>
+        <g class="event-dot">
+          <rect x="542" y="672" width="16" height="16" rx="2" fill="#FCB514" stroke="#1A1A1A" stroke-width="1.5" transform="rotate(45 550 680)"/>
+        </g>
+
+        <!-- TOR Hits -->
+        <g class="event-dot">
+          <rect x="492" y="222" width="16" height="16" rx="2" fill="#00205B" stroke="#1A1A1A" stroke-width="1.5" transform="rotate(45 500 230)"/>
+        </g>
+        <g class="event-dot">
+          <rect x="1392" y="622" width="16" height="16" rx="2" fill="#00205B" stroke="#1A1A1A" stroke-width="1.5" transform="rotate(45 1400 630)"/>
+          <!-- Has video -->
+          <circle cx="1400" cy="630" r="3" fill="#000"/>
+        </g>
+
+      </svg>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <strong style="font-size: 13px;">Legend:</strong>
+
+    <div class="legend-item">
+      <span class="legend-swatch goal-swatch"></span>
+      <span>Goal (split: green + team color)</span>
+    </div>
+
+    <div class="legend-item">
+      <span class="legend-swatch shot-swatch"></span>
+      <span>Shot (solid team color)</span>
+    </div>
+
+    <div class="legend-item">
+      <span class="legend-swatch hit-swatch"></span>
+      <span>Hit (diamond, team color)</span>
+    </div>
+
+    <div class="legend-item">
+      <span class="legend-swatch video-swatch"></span>
+      <span>Has video (black dot inside)</span>
+    </div>
+
+    <div class="legend-item" style="gap: 8px;">
+      <svg width="32" height="18" viewBox="0 0 32 18">
+        <circle cx="9" cy="9" r="8" fill="#FCB514" stroke="#1A1A1A" stroke-width="1"/>
+        <circle cx="23" cy="9" r="8" fill="#00205B" stroke="#1A1A1A" stroke-width="1"/>
+      </svg>
+      <span>BOS <span style="color:#FCB514;font-weight:700;">&#9632;</span> &nbsp; TOR <span style="color:#00205B;font-weight:700;">&#9632;</span></span>
+    </div>
+  </div>
+</main>
+
+<!-- Interactive View Switcher (minimal JS) -->
+<script>
+document.querySelectorAll('.view-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.view-btn').forEach(function(b) { b.classList.remove('active'); });
+    this.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>

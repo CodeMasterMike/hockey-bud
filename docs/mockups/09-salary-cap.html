@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M009 - Salary Cap | Hockey League Hub</title>
+
+<!-- Self-hosted Courier Prime -->
+<style>
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: italic; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-italic.woff2') format('woff2'); }
+</style>
+
+<style>
+/* ===================================================================
+   DESIGN TOKENS
+   =================================================================== */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1; --bg-banner: #000000; --bg-nav: #1A1A1A; --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04); --text-primary: #1A1A1A; --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A; --text-on-banner: #F5F0E1; --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25); --color-link: #2C5F8A; --color-link-hover: #1A3D5C;
+  --color-live: #C0392B; --color-pending: #D4A017; --color-final: #4A4A4A;
+  --bg-ticker: #111111; --text-ticker: #F5F0E1;
+  --color-cap-used: #2C5F8A; --color-cap-avail: #27ae60; --color-cap-danger: #C0392B;
+  --color-ltir: #D4A017;
+}
+[data-theme="dark"] {
+  --bg-page: #0A1628; --bg-nav: #0D1B2A; --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06); --text-primary: #F5F0E1; --text-secondary: #B8B0A0;
+  --text-muted: #807868; --border-default: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6; --color-link-hover: #8DC0F0;
+  --color-live: #E74C3C; --color-pending: #F1C40F; --color-final: #B8B0A0;
+  --bg-ticker: #050D1A;
+  --color-cap-used: #6BA3D6; --color-cap-avail: #2ecc71; --color-cap-danger: #E74C3C;
+  --color-ltir: #F1C40F;
+}
+
+/* ===================================================================
+   RESET + BASE
+   =================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--color-link); text-decoration: none; }
+a:hover { color: var(--color-link-hover); text-decoration: underline; }
+
+/* ===================================================================
+   GLOBAL SHELL: BANNER
+   =================================================================== */
+.site-banner {
+  background: var(--bg-banner);
+  color: var(--text-on-banner);
+  text-align: center;
+  padding: 18px 24px 14px;
+}
+.site-banner h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.site-banner .subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+/* ===================================================================
+   GLOBAL SHELL: TICKER
+   =================================================================== */
+.ticker-bar {
+  background: var(--bg-ticker);
+  color: var(--text-ticker);
+  font-size: 0.72rem;
+  padding: 6px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.ticker-track {
+  display: inline-block;
+  animation: ticker-scroll 40s linear infinite;
+}
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-track span { padding: 0 28px; }
+.ticker-score { opacity: 0.55; }
+
+/* ===================================================================
+   GLOBAL SHELL: NAV
+   =================================================================== */
+.site-nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+.site-nav a {
+  color: var(--text-on-banner);
+  font-size: 0.78rem;
+  font-weight: 400;
+  padding: 10px 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: background 0.15s;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.site-nav a:hover {
+  background: rgba(255,255,255,0.06);
+  text-decoration: none;
+}
+.site-nav a.active {
+  border-bottom-color: var(--text-on-banner);
+  font-weight: 700;
+}
+
+/* ===================================================================
+   THEME TOGGLE
+   =================================================================== */
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.theme-toggle:hover { opacity: 0.8; }
+
+/* ===================================================================
+   PAGE CONTAINER
+   =================================================================== */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+.page-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.page-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* ===================================================================
+   TAB NAVIGATION
+   =================================================================== */
+.tab-nav {
+  display: flex;
+  gap: 0;
+  margin-bottom: 28px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  overflow: hidden;
+  width: fit-content;
+}
+.tab-nav button {
+  font-family: var(--font-primary);
+  font-size: 0.78rem;
+  padding: 10px 22px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: none;
+  border-right: 1px solid var(--border-default);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.tab-nav button:last-child { border-right: none; }
+.tab-nav button:hover {
+  background: var(--bg-row-alt);
+  color: var(--text-primary);
+}
+.tab-nav button.active {
+  background: var(--text-primary);
+  color: var(--bg-card);
+  font-weight: 700;
+}
+
+/* ===================================================================
+   CAP HEADER BAR
+   =================================================================== */
+.cap-header {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.cap-header .cap-value {
+  color: var(--color-cap-used);
+}
+.cap-header .floor-value {
+  color: var(--text-muted);
+}
+.cap-header .separator {
+  color: var(--border-strong);
+  font-weight: 400;
+}
+
+/* ===================================================================
+   SECTION HEADERS
+   =================================================================== */
+.section-header {
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 40px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border-strong);
+}
+.section-header:first-of-type {
+  margin-top: 0;
+}
+.section-desc {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+/* ===================================================================
+   TEAM CARDS GRID (Overview)
+   =================================================================== */
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+@media (max-width: 1024px) {
+  .teams-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .teams-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .teams-grid { grid-template-columns: 1fr; }
+}
+
+.team-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 18px;
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+}
+.team-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+.team-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.team-card__logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+.team-card__name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.team-card__stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  padding: 3px 0;
+  color: var(--text-secondary);
+}
+.team-card__stat-value {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.team-card__stat--ltir .team-card__stat-value {
+  color: var(--color-ltir);
+}
+
+/* Cap bar visualization */
+.cap-bar {
+  height: 8px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 4px;
+  margin: 10px 0 6px;
+  overflow: hidden;
+  position: relative;
+}
+[data-theme="dark"] .cap-bar {
+  background: rgba(255,255,255,0.08);
+}
+.cap-bar__fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+.cap-bar__fill--normal { background: var(--color-cap-used); }
+.cap-bar__fill--high { background: var(--color-cap-danger); }
+.cap-bar__fill--ltir { background: var(--color-ltir); }
+.cap-bar__pct {
+  font-size: 0.64rem;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* ===================================================================
+   TABLE CARD
+   =================================================================== */
+.table-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.table-card-header {
+  padding: 12px 16px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.table-card-header .header-meta {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ===================================================================
+   DATA TABLES
+   =================================================================== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+}
+.data-table thead th {
+  padding: 8px 10px;
+  text-align: right;
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border-strong);
+  white-space: nowrap;
+}
+.data-table thead th.col-left {
+  text-align: left;
+}
+.data-table tbody td {
+  padding: 7px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.data-table tbody td.col-left {
+  text-align: left;
+}
+.data-table tbody tr:nth-child(even) td {
+  background: var(--bg-row-alt);
+}
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.data-table tbody td.col-player {
+  font-weight: 700;
+  text-align: left;
+}
+.data-table tbody td.col-player a {
+  color: var(--text-primary);
+}
+.data-table tbody td.col-player a:hover {
+  color: var(--color-link);
+}
+
+/* Clause badges */
+.clause-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--bg-row-alt);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  cursor: help;
+  letter-spacing: 0.02em;
+  margin-right: 2px;
+}
+.clause-badge:hover {
+  background: var(--text-primary);
+  color: var(--bg-card);
+  border-color: var(--text-primary);
+}
+
+/* Expiry status coloring */
+.expiry-ufa { color: var(--color-cap-danger); font-weight: 700; }
+.expiry-rfa { color: var(--color-cap-used); font-weight: 700; }
+
+/* ===================================================================
+   TEAM DETAIL SECTION
+   =================================================================== */
+.team-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.team-detail-header .team-logo-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  background: #000;
+  flex-shrink: 0;
+}
+.team-detail-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.team-detail-summary {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  font-size: 0.78rem;
+}
+.team-detail-summary .summary-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 12px 20px;
+  text-align: center;
+}
+.team-detail-summary .summary-label {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.team-detail-summary .summary-value {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* ===================================================================
+   FUTURE PROJECTIONS
+   =================================================================== */
+.projections-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.projection-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 16px;
+  text-align: center;
+}
+.projection-season {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.projection-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.projection-bar {
+  height: 10px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 5px;
+  overflow: hidden;
+}
+[data-theme="dark"] .projection-bar {
+  background: rgba(255,255,255,0.08);
+}
+.projection-bar__fill {
+  height: 100%;
+  border-radius: 5px;
+  background: var(--color-cap-used);
+}
+.projection-label {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ===================================================================
+   DRAFT PICKS
+   =================================================================== */
+.draft-picks {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+.draft-year {
+  margin-bottom: 12px;
+}
+.draft-year:last-child {
+  margin-bottom: 0;
+}
+.draft-year__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.draft-picks-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pick-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 3px;
+  background: var(--bg-row-alt);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+.pick-badge--acquired {
+  background: rgba(39,174,96,0.1);
+  border-color: rgba(39,174,96,0.3);
+  color: var(--color-cap-avail);
+}
+.pick-badge--missing {
+  background: rgba(192,57,43,0.08);
+  border-color: rgba(192,57,43,0.2);
+  color: var(--color-cap-danger);
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* ===================================================================
+   BUYOUT CALCULATOR
+   =================================================================== */
+.buyout-calc {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.buyout-calc__controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.buyout-calc__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.buyout-calc__label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.buyout-calc__select {
+  font-family: var(--font-primary);
+  font-size: 0.78rem;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234A4A4A'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  letter-spacing: -0.02em;
+  min-width: 220px;
+}
+.buyout-calc__info {
+  display: flex;
+  gap: 20px;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  padding: 10px 0;
+}
+.buyout-calc__info strong {
+  color: var(--text-primary);
+}
+.buyout-calc__note {
+  font-size: 0.70rem;
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-default);
+}
+
+/* ===================================================================
+   CAP EXPLAINED
+   =================================================================== */
+.cap-explained-search {
+  margin-bottom: 24px;
+}
+.cap-explained-search input {
+  width: 100%;
+  max-width: 480px;
+  font-family: var(--font-primary);
+  font-size: 0.78rem;
+  padding: 10px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+.cap-explained-search input::placeholder {
+  color: var(--text-muted);
+}
+.cap-explained-search input:focus {
+  outline: none;
+  border-color: var(--color-link);
+  box-shadow: 0 0 0 2px rgba(44,95,138,0.15);
+}
+
+.cap-entry {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.cap-entry__title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--border-default);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cap-entry__body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+@media (max-width: 768px) {
+  .cap-entry__body { grid-template-columns: 1fr; }
+}
+.cap-entry__col {
+  padding: 16px 18px;
+}
+.cap-entry__col:first-child {
+  border-right: 1px solid var(--border-default);
+}
+@media (max-width: 768px) {
+  .cap-entry__col:first-child {
+    border-right: none;
+    border-bottom: 1px solid var(--border-default);
+  }
+}
+.cap-entry__col-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.cap-entry__col-text {
+  font-size: 0.74rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+.cap-entry__col-text--cba {
+  font-style: italic;
+}
+
+/* Glossary */
+.glossary {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 20px;
+}
+.glossary__title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border-strong);
+}
+.glossary__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 24px;
+}
+@media (max-width: 768px) {
+  .glossary__grid { grid-template-columns: 1fr; }
+}
+.glossary__item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-default);
+}
+.glossary__term {
+  font-size: 0.74rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.glossary__def {
+  font-size: 0.70rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ===================================================================
+   FOOTER
+   =================================================================== */
+.site-footer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  border-top: 1px solid var(--border-default);
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+.site-footer a { color: var(--color-link); }
+.site-footer a:hover { color: var(--color-link-hover); }
+
+/* ===================================================================
+   SECTION DIVIDERS
+   =================================================================== */
+.section-divider {
+  margin: 48px 0 0;
+  padding-top: 32px;
+  border-top: 2px solid var(--border-strong);
+}
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()">Toggle Dark/Light</button>
+
+<!-- =================================================================
+     GLOBAL SHELL
+     ================================================================= -->
+
+<!-- Banner -->
+<header class="site-banner">
+  <h1>Hockey League Hub</h1>
+  <div class="subtitle">The Encyclopedic Record of Professional Hockey</div>
+</header>
+
+<!-- Ticker -->
+<div class="ticker-bar">
+  <div class="ticker-track">
+    <span>TOR 4 &ndash; MTL 2 <span class="ticker-score">Final</span></span>
+    <span>BOS 3 &ndash; FLA 1 <span class="ticker-score">Final</span></span>
+    <span>NYR 2 &ndash; CAR 5 <span class="ticker-score">Final</span></span>
+    <span>TBL 3 &ndash; OTT 2 <span class="ticker-score">OT</span></span>
+    <span>DET 1 &ndash; BUF 4 <span class="ticker-score">Final</span></span>
+    <span>NJD 2 &ndash; WSH 3 <span class="ticker-score">SO</span></span>
+    <span>DAL 5 &ndash; COL 4 <span class="ticker-score">OT</span></span>
+    <span>WPG 3 &ndash; MIN 1 <span class="ticker-score">Final</span></span>
+    <span>TOR 4 &ndash; MTL 2 <span class="ticker-score">Final</span></span>
+    <span>BOS 3 &ndash; FLA 1 <span class="ticker-score">Final</span></span>
+    <span>NYR 2 &ndash; CAR 5 <span class="ticker-score">Final</span></span>
+    <span>TBL 3 &ndash; OTT 2 <span class="ticker-score">OT</span></span>
+    <span>DET 1 &ndash; BUF 4 <span class="ticker-score">Final</span></span>
+    <span>NJD 2 &ndash; WSH 3 <span class="ticker-score">SO</span></span>
+    <span>DAL 5 &ndash; COL 4 <span class="ticker-score">OT</span></span>
+    <span>WPG 3 &ndash; MIN 1 <span class="ticker-score">Final</span></span>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="site-nav">
+  <a href="#">Home</a>
+  <a href="#">Standings</a>
+  <a href="#">Teams</a>
+  <a href="#">Players</a>
+  <a href="#">Scores</a>
+  <a href="#">Stats</a>
+  <a href="#" class="active">Salary Cap</a>
+  <a href="#">Trades</a>
+  <a href="#">Free Agents</a>
+</nav>
+
+<!-- =================================================================
+     PAGE CONTENT
+     ================================================================= -->
+<main class="page-container">
+
+  <h2 class="page-title">Salary Cap</h2>
+  <p class="page-subtitle">2025&ndash;26 NHL Season &mdash; Updated March 17, 2026</p>
+
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <button class="active">Overview</button>
+    <button>Team Detail</button>
+    <button>Buyout Calculator</button>
+    <button>Cap Explained</button>
+  </div>
+
+  <!-- =============================================================
+       SECTION 1 — OVERVIEW
+       ============================================================= -->
+  <div class="cap-header">
+    <span>2025&ndash;26 Salary Cap: <span class="cap-value">$88,000,000</span></span>
+    <span class="separator">|</span>
+    <span>Floor: <span class="floor-value">$65,000,000</span></span>
+  </div>
+
+  <div class="teams-grid">
+
+    <!-- Team 1: Florida Panthers (near cap) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#C8102E;">FLA</div>
+        <div class="team-card__name">Florida Panthers</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">23</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--high" style="width:96.6%;"></div>
+      </div>
+      <div class="cap-bar__pct">96.6%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$85,000,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$3,000,000</span>
+      </div>
+    </div>
+
+    <!-- Team 2: Toronto Maple Leafs (over cap using LTIR) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#00205B;">TOR</div>
+        <div class="team-card__name">Toronto Maple Leafs</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">24</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--ltir" style="width:100%;"></div>
+      </div>
+      <div class="cap-bar__pct">102.3%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$90,024,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$0</span>
+      </div>
+      <div class="team-card__stat team-card__stat--ltir">
+        <span>LTIR Used</span>
+        <span class="team-card__stat-value">$4,500,000</span>
+      </div>
+    </div>
+
+    <!-- Team 3: Boston Bruins (moderate space) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#000000; border: 1px solid var(--border-default);">BOS</div>
+        <div class="team-card__name">Boston Bruins</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">22</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--normal" style="width:93.7%;"></div>
+      </div>
+      <div class="cap-bar__pct">93.7%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$82,450,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$5,550,000</span>
+      </div>
+    </div>
+
+    <!-- Team 4: Edmonton Oilers (tight) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#041E42;">EDM</div>
+        <div class="team-card__name">Edmonton Oilers</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">23</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--high" style="width:98.2%;"></div>
+      </div>
+      <div class="cap-bar__pct">98.2%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$86,416,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$1,584,000</span>
+      </div>
+    </div>
+
+    <!-- Team 5: Colorado Avalanche (LTIR) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#6F263D;">COL</div>
+        <div class="team-card__name">Colorado Avalanche</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">24</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--ltir" style="width:100%;"></div>
+      </div>
+      <div class="cap-bar__pct">101.1%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$88,968,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$0</span>
+      </div>
+      <div class="team-card__stat team-card__stat--ltir">
+        <span>LTIR Used</span>
+        <span class="team-card__stat-value">$7,200,000</span>
+      </div>
+    </div>
+
+    <!-- Team 6: Carolina Hurricanes (comfortable) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#CE1126;">CAR</div>
+        <div class="team-card__name">Carolina Hurricanes</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">21</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--normal" style="width:87.5%;"></div>
+      </div>
+      <div class="cap-bar__pct">87.5%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$77,000,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$11,000,000</span>
+      </div>
+    </div>
+
+    <!-- Team 7: New York Rangers (near cap) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#0038A8;">NYR</div>
+        <div class="team-card__name">New York Rangers</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">23</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--high" style="width:97.7%;"></div>
+      </div>
+      <div class="cap-bar__pct">97.7%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$85,976,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$2,024,000</span>
+      </div>
+    </div>
+
+    <!-- Team 8: Chicago Blackhawks (rebuilding, lots of space) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#CF0A2C;">CHI</div>
+        <div class="team-card__name">Chicago Blackhawks</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">19</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--normal" style="width:74.4%;"></div>
+      </div>
+      <div class="cap-bar__pct">74.4%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$65,472,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$22,528,000</span>
+      </div>
+    </div>
+
+  </div><!-- /.teams-grid -->
+
+
+  <!-- =============================================================
+       SECTION 2 — TEAM DETAIL
+       ============================================================= -->
+  <div class="section-divider">
+    <h3 class="section-header" style="margin-top:0;">Team Detail</h3>
+  </div>
+
+  <div class="team-detail-header">
+    <div class="team-logo-lg" style="background:#000000; border: 1px solid var(--border-default);">BOS</div>
+    <div>
+      <h3>Boston Bruins &mdash; Cap Detail</h3>
+      <div style="font-size: 0.72rem; color: var(--text-muted);">2025&ndash;26 Season</div>
+    </div>
+  </div>
+
+  <div class="team-detail-summary">
+    <div class="summary-item">
+      <div class="summary-label">Cap Used</div>
+      <div class="summary-value">$82,450,000</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Cap Available</div>
+      <div class="summary-value" style="color: var(--color-cap-avail);">$5,550,000</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">LTIR</div>
+      <div class="summary-value">$0</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Players</div>
+      <div class="summary-value">22</div>
+    </div>
+  </div>
+
+  <!-- Per-player cap table -->
+  <div class="table-card">
+    <div class="table-card-header">
+      Active Roster &mdash; Cap Hits
+      <span class="header-meta">Sorted by Cap Hit</span>
+    </div>
+    <div style="overflow-x: auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="col-left" style="width:180px;">Player</th>
+            <th style="width:40px;">Pos</th>
+            <th>Cap Hit</th>
+            <th>Base Salary</th>
+            <th>Signing Bonus</th>
+            <th>Yrs Rem</th>
+            <th>Expiry</th>
+            <th class="col-left" style="width:120px;">Clauses</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-player"><a href="#">D. Pastrnak</a></td>
+            <td>RW</td>
+            <td>$11,250,000</td>
+            <td>$9,500,000</td>
+            <td>$1,750,000</td>
+            <td>5</td>
+            <td class="expiry-ufa">UFA</td>
+            <td class="col-left"><span class="clause-badge" title="No Movement Clause: Player cannot be moved to another team or placed on waivers without consent">NMC</span></td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">C. McAvoy</a></td>
+            <td>D</td>
+            <td>$9,500,000</td>
+            <td>$8,000,000</td>
+            <td>$1,500,000</td>
+            <td>4</td>
+            <td class="expiry-ufa">UFA</td>
+            <td class="col-left"><span class="clause-badge" title="No Movement Clause: Player cannot be moved to another team or placed on waivers without consent">NMC</span></td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">E. Lindholm</a></td>
+            <td>C</td>
+            <td>$7,750,000</td>
+            <td>$7,000,000</td>
+            <td>$750,000</td>
+            <td>5</td>
+            <td class="expiry-ufa">UFA</td>
+            <td class="col-left"><span class="clause-badge" title="Modified No Trade Clause: Player can submit a limited list of teams they would accept a trade to">M-NTC</span></td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">H. Lindholm</a></td>
+            <td>D</td>
+            <td>$6,500,000</td>
+            <td>$6,000,000</td>
+            <td>$500,000</td>
+            <td>4</td>
+            <td class="expiry-ufa">UFA</td>
+            <td class="col-left"><span class="clause-badge" title="No Trade Clause: Player cannot be traded without consent">NTC</span></td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">J. Swayman</a></td>
+            <td>G</td>
+            <td>$6,500,000</td>
+            <td>$5,500,000</td>
+            <td>$1,000,000</td>
+            <td>6</td>
+            <td class="expiry-ufa">UFA</td>
+            <td class="col-left">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">P. Zacha</a></td>
+            <td>C</td>
+            <td>$4,750,000</td>
+            <td>$4,750,000</td>
+            <td>$0</td>
+            <td>3</td>
+            <td class="expiry-ufa">UFA</td>
+            <td class="col-left">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">B. Marchand</a></td>
+            <td>LW</td>
+            <td>$4,900,000</td>
+            <td>$4,500,000</td>
+            <td>$400,000</td>
+            <td>1</td>
+            <td class="expiry-ufa">UFA</td>
+            <td class="col-left"><span class="clause-badge" title="No Movement Clause: Player cannot be moved to another team or placed on waivers without consent">NMC</span></td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">T. Frederic</a></td>
+            <td>C</td>
+            <td>$2,300,000</td>
+            <td>$2,300,000</td>
+            <td>$0</td>
+            <td>2</td>
+            <td class="expiry-rfa">RFA</td>
+            <td class="col-left">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">M. Grzelcyk</a></td>
+            <td>D</td>
+            <td>$3,687,500</td>
+            <td>$3,687,500</td>
+            <td>$0</td>
+            <td>1</td>
+            <td class="expiry-ufa">UFA</td>
+            <td class="col-left"><span class="clause-badge" title="Modified No Trade Clause: Player can submit a limited list of teams they would accept a trade to">M-NTC</span></td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">M. Lohrei</a></td>
+            <td>D</td>
+            <td>$894,167</td>
+            <td>$894,167</td>
+            <td>$0</td>
+            <td>2</td>
+            <td class="expiry-rfa">RFA</td>
+            <td class="col-left">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">J. Beecher</a></td>
+            <td>C</td>
+            <td>$1,100,000</td>
+            <td>$1,100,000</td>
+            <td>$0</td>
+            <td>2</td>
+            <td class="expiry-rfa">RFA</td>
+            <td class="col-left">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">M. Kastelic</a></td>
+            <td>C</td>
+            <td>$1,200,000</td>
+            <td>$1,200,000</td>
+            <td>$0</td>
+            <td>1</td>
+            <td class="expiry-rfa">RFA</td>
+            <td class="col-left">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">D. Coyle</a></td>
+            <td>C</td>
+            <td>$5,250,000</td>
+            <td>$5,000,000</td>
+            <td>$250,000</td>
+            <td>2</td>
+            <td class="expiry-ufa">UFA</td>
+            <td class="col-left"><span class="clause-badge" title="Modified No Trade Clause: Player can submit a limited list of teams they would accept a trade to">M-NTC</span></td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">A. Lauko</a></td>
+            <td>LW</td>
+            <td>$800,000</td>
+            <td>$800,000</td>
+            <td>$0</td>
+            <td>1</td>
+            <td class="expiry-rfa">RFA</td>
+            <td class="col-left">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="col-player"><a href="#">B. Carlo</a></td>
+            <td>D</td>
+            <td>$4,100,000</td>
+            <td>$4,100,000</td>
+            <td>$0</td>
+            <td>2</td>
+            <td class="expiry-ufa">UFA</td>
+            <td class="col-left"><span class="clause-badge" title="No Trade Clause: Player cannot be traded without consent">NTC</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Future Projections -->
+  <h4 style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px;">Future Cap Commitments</h4>
+  <div class="projections-grid">
+    <div class="projection-card">
+      <div class="projection-season">2026&ndash;27</div>
+      <div class="projection-amount">$65,000,000</div>
+      <div class="projection-bar">
+        <div class="projection-bar__fill" style="width:73.9%;"></div>
+      </div>
+      <div class="projection-label">73.9% of projected $88M cap</div>
+    </div>
+    <div class="projection-card">
+      <div class="projection-season">2027&ndash;28</div>
+      <div class="projection-amount">$52,000,000</div>
+      <div class="projection-bar">
+        <div class="projection-bar__fill" style="width:59.1%;"></div>
+      </div>
+      <div class="projection-label">59.1% of projected $88M cap</div>
+    </div>
+    <div class="projection-card">
+      <div class="projection-season">2028&ndash;29</div>
+      <div class="projection-amount">$38,000,000</div>
+      <div class="projection-bar">
+        <div class="projection-bar__fill" style="width:43.2%;"></div>
+      </div>
+      <div class="projection-label">43.2% of projected $88M cap</div>
+    </div>
+  </div>
+
+  <!-- Draft Pick Inventory -->
+  <h4 style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px;">Draft Pick Inventory</h4>
+  <div class="draft-picks">
+    <div class="draft-year">
+      <div class="draft-year__label">2026 NHL Draft</div>
+      <div class="draft-picks-list">
+        <span class="pick-badge">1st</span>
+        <span class="pick-badge">2nd</span>
+        <span class="pick-badge">3rd</span>
+        <span class="pick-badge">4th</span>
+        <span class="pick-badge pick-badge--acquired">5th (OTT)</span>
+        <span class="pick-badge">6th</span>
+        <span class="pick-badge">7th</span>
+      </div>
+    </div>
+    <div class="draft-year">
+      <div class="draft-year__label">2027 NHL Draft</div>
+      <div class="draft-picks-list">
+        <span class="pick-badge">1st</span>
+        <span class="pick-badge pick-badge--missing">2nd</span>
+        <span class="pick-badge">3rd</span>
+        <span class="pick-badge">4th</span>
+        <span class="pick-badge">5th</span>
+        <span class="pick-badge">6th</span>
+        <span class="pick-badge">7th</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =============================================================
+       SECTION 3 — BUYOUT CALCULATOR
+       ============================================================= -->
+  <div class="section-divider">
+    <h3 class="section-header" style="margin-top:0;">Buyout Calculator</h3>
+    <p class="section-desc">Estimate the cap impact of buying out a player's contract.</p>
+  </div>
+
+  <div class="buyout-calc">
+    <div class="buyout-calc__controls">
+      <div class="buyout-calc__field">
+        <span class="buyout-calc__label">Select Player</span>
+        <select class="buyout-calc__select">
+          <option>Select Player...</option>
+          <option selected>D. Pastrnak</option>
+          <option>C. McAvoy</option>
+          <option>E. Lindholm</option>
+          <option>H. Lindholm</option>
+          <option>J. Swayman</option>
+          <option>B. Marchand</option>
+          <option>D. Coyle</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="buyout-calc__info">
+      <span>Cap Hit: <strong>$11,250,000</strong></span>
+      <span>Age: <strong>29</strong></span>
+      <span>Years Remaining: <strong>5</strong></span>
+      <span>Total Remaining: <strong>$56,250,000</strong></span>
+    </div>
+
+    <div class="table-card" style="margin-bottom:0;">
+      <div class="table-card-header">
+        Year-by-Year Buyout Impact
+        <span class="header-meta">D. Pastrnak</span>
+      </div>
+      <div style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="col-left">Season</th>
+              <th>Cap Savings</th>
+              <th>Cap Charge</th>
+              <th>Dead Cap</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="col-left" style="font-weight:700;">2026&ndash;27</td>
+              <td style="color: var(--color-cap-avail);">$7,500,000</td>
+              <td>$3,750,000</td>
+              <td>$3,750,000</td>
+            </tr>
+            <tr>
+              <td class="col-left" style="font-weight:700;">2027&ndash;28</td>
+              <td style="color: var(--color-cap-avail);">$7,500,000</td>
+              <td>$3,750,000</td>
+              <td>$3,750,000</td>
+            </tr>
+            <tr>
+              <td class="col-left" style="font-weight:700;">2028&ndash;29</td>
+              <td style="color: var(--color-cap-avail);">$7,500,000</td>
+              <td>$3,750,000</td>
+              <td>$3,750,000</td>
+            </tr>
+            <tr>
+              <td class="col-left" style="font-weight:700;">2029&ndash;30</td>
+              <td style="color: var(--color-cap-avail);">$7,500,000</td>
+              <td>$3,750,000</td>
+              <td>$3,750,000</td>
+            </tr>
+            <tr>
+              <td class="col-left" style="font-weight:700;">2030&ndash;31</td>
+              <td style="color: var(--color-cap-avail);">$7,500,000</td>
+              <td>$3,750,000</td>
+              <td>$3,750,000</td>
+            </tr>
+            <tr>
+              <td class="col-left" style="font-weight:700;">2031&ndash;32</td>
+              <td>&mdash;</td>
+              <td>$3,750,000</td>
+              <td>$3,750,000</td>
+            </tr>
+            <tr>
+              <td class="col-left" style="font-weight:700;">2032&ndash;33</td>
+              <td>&mdash;</td>
+              <td>$3,750,000</td>
+              <td>$3,750,000</td>
+            </tr>
+            <tr>
+              <td class="col-left" style="font-weight:700;">2033&ndash;34</td>
+              <td>&mdash;</td>
+              <td>$3,750,000</td>
+              <td>$3,750,000</td>
+            </tr>
+            <tr>
+              <td class="col-left" style="font-weight:700;">2034&ndash;35</td>
+              <td>&mdash;</td>
+              <td>$3,750,000</td>
+              <td>$3,750,000</td>
+            </tr>
+            <tr>
+              <td class="col-left" style="font-weight:700;">2035&ndash;36</td>
+              <td>&mdash;</td>
+              <td>$3,750,000</td>
+              <td>$3,750,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="buyout-calc__note">
+      Buyout formula: Players age 26 and older receive 2/3 of remaining salary spread over twice the remaining contract term. Actual cap charges may vary based on signing bonus proration and performance bonus overages.
+    </div>
+  </div>
+
+
+  <!-- =============================================================
+       SECTION 4 — CAP EXPLAINED
+       ============================================================= -->
+  <div class="section-divider">
+    <h3 class="section-header" style="margin-top:0;">Cap Explained</h3>
+    <p class="section-desc">CBA language side by side with plain-language explanations. Search for specific terms below.</p>
+  </div>
+
+  <div class="cap-explained-search">
+    <input type="text" placeholder="Search cap terms...">
+  </div>
+
+  <!-- Entry 1: Upper Limit -->
+  <div class="cap-entry">
+    <div class="cap-entry__title">Upper Limit (Salary Cap)</div>
+    <div class="cap-entry__body">
+      <div class="cap-entry__col">
+        <div class="cap-entry__col-label">CBA / Legal Text</div>
+        <div class="cap-entry__col-text cap-entry__col-text--cba">
+          "The Upper Limit for each League Year shall be the Midpoint plus the Range. No Club at any point during the League Year may have an Averaged Club Salary that exceeds the Upper Limit. The determination of Upper Limit is based on Hockey Related Revenue as defined in Article 50." &mdash; CBA Article 50.5(b)
+        </div>
+      </div>
+      <div class="cap-entry__col">
+        <div class="cap-entry__col-label">Plain Language</div>
+        <div class="cap-entry__col-text">
+          The salary cap is the maximum amount a team can spend on player salaries in a given season. It is calculated from total league revenue. For 2025-26, it is set at <strong>$88,000,000</strong>. No team may exceed this amount at any point during the season, though mechanisms like LTIR (Long-Term Injured Reserve) provide some relief for injured player salaries.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entry 2: LTIR -->
+  <div class="cap-entry">
+    <div class="cap-entry__title">LTIR (Long-Term Injured Reserve)</div>
+    <div class="cap-entry__body">
+      <div class="cap-entry__col">
+        <div class="cap-entry__col-label">CBA / Legal Text</div>
+        <div class="cap-entry__col-text cap-entry__col-text--cba">
+          "If a Player has been on Injured Reserve for not less than twenty-four (24) days and has missed not less than ten (10) consecutive Regular Season Games, the Club may designate the Player as a Long-Term Injured Reserve Player. Upon such designation, the Club's Averaged Club Salary may exceed the Upper Limit by the Player's Averaged Amount." &mdash; CBA Article 50.10(d)
+        </div>
+      </div>
+      <div class="cap-entry__col">
+        <div class="cap-entry__col-label">Plain Language</div>
+        <div class="cap-entry__col-text">
+          When a player is injured long-term (out at least 24 days and 10 games), the team can place them on LTIR. This effectively allows the team to exceed the salary cap by the injured player's cap hit, giving them room to call up replacement players. However, LTIR does not truly "remove" the cap hit &mdash; it provides conditional relief that can limit a team's ability to bank cap space.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entry 3: Performance Bonuses -->
+  <div class="cap-entry">
+    <div class="cap-entry__title">Performance Bonuses</div>
+    <div class="cap-entry__body">
+      <div class="cap-entry__col">
+        <div class="cap-entry__col-label">CBA / Legal Text</div>
+        <div class="cap-entry__col-text cap-entry__col-text--cba">
+          "Performance Bonuses may be included in Entry-Level SPCs and in SPCs of Players who are 35 years of age or older, and in SPCs of Players who have returned from a career-threatening injury or illness. Individual Performance Bonus criteria must be reasonable and achievable. The aggregate amount of all Performance Bonuses in a single season shall not exceed the lesser of 7.5% of Paragraph 1 compensation or $850,000." &mdash; CBA Article 50.2(b)(iii)
+        </div>
+      </div>
+      <div class="cap-entry__col">
+        <div class="cap-entry__col-label">Plain Language</div>
+        <div class="cap-entry__col-text">
+          Young players on entry-level contracts (and some veterans) can earn extra money through performance bonuses. If a team exceeds the salary cap because a player hits their bonuses, the overage is applied to the <strong>following season's</strong> cap. For example, if a rookie earns $500,000 in bonuses that push the team $200,000 over the cap, that $200,000 penalty carries over to the next year.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entry 4: Retained Salary -->
+  <div class="cap-entry">
+    <div class="cap-entry__title">Retained Salary in Trades</div>
+    <div class="cap-entry__body">
+      <div class="cap-entry__col">
+        <div class="cap-entry__col-label">CBA / Legal Text</div>
+        <div class="cap-entry__col-text cap-entry__col-text--cba">
+          "In connection with the Trade of a Player, the Traded From Club may elect to retain a portion of the Player's Averaged Amount. Such retained Salary Benefit may not exceed 50% of the Player's Averaged Amount at the time of the trade. A Club may not have more than three (3) retained Salary Benefit agreements outstanding at any one time." &mdash; CBA Article 50.5(d)(ii)
+        </div>
+      </div>
+      <div class="cap-entry__col">
+        <div class="cap-entry__col-label">Plain Language</div>
+        <div class="cap-entry__col-text">
+          When trading a player, a team can agree to continue paying up to <strong>50%</strong> of the player's cap hit. This counts against the trading team's cap, not the receiving team's. A team can only retain salary on a maximum of <strong>three</strong> contracts at a time. This mechanism is often used to facilitate trades involving high-salaried players.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glossary -->
+  <div style="margin-top: 32px;">
+    <div class="glossary">
+      <div class="glossary__title">Salary Cap Glossary</div>
+      <div class="glossary__grid">
+        <div class="glossary__item">
+          <div class="glossary__term">AAV (Average Annual Value)</div>
+          <div class="glossary__def">The total contract value divided by its length. This is the figure that counts against the salary cap each year, regardless of actual salary paid in any given season.</div>
+        </div>
+        <div class="glossary__item">
+          <div class="glossary__term">Cap Hit</div>
+          <div class="glossary__def">The amount a player's contract counts against the team's salary cap. Equals the AAV of the contract plus any applicable performance bonus overages from the prior season.</div>
+        </div>
+        <div class="glossary__item">
+          <div class="glossary__term">Dead Cap</div>
+          <div class="glossary__def">Cap charge for a player no longer on the roster, typically from a buyout or retained salary in a trade. The team carries this hit even though the player is gone.</div>
+        </div>
+        <div class="glossary__item">
+          <div class="glossary__term">LTIR (Long-Term Injured Reserve)</div>
+          <div class="glossary__def">A designation for players injured 24+ days and 10+ games. Provides conditional cap relief equal to the player's cap hit, allowing roster flexibility.</div>
+        </div>
+        <div class="glossary__item">
+          <div class="glossary__term">NMC (No Movement Clause)</div>
+          <div class="glossary__def">Contract clause preventing a team from trading, waiving, or sending a player to the minors without the player's consent. The most restrictive form of trade protection.</div>
+        </div>
+        <div class="glossary__item">
+          <div class="glossary__term">NTC (No Trade Clause)</div>
+          <div class="glossary__def">Contract clause requiring the player's approval before being traded to another team. Does not protect against waivers or minor-league assignment.</div>
+        </div>
+        <div class="glossary__item">
+          <div class="glossary__term">UFA (Unrestricted Free Agent)</div>
+          <div class="glossary__def">A player who is free to sign with any team once their contract expires. Generally applies to players age 27 or older, or with 7+ years of NHL service.</div>
+        </div>
+        <div class="glossary__item">
+          <div class="glossary__term">RFA (Restricted Free Agent)</div>
+          <div class="glossary__def">A player whose contract has expired but whose current team retains the right to match any offer sheet from another team. Younger players with limited service time.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+  Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
+</footer>
+
+<!-- =================================================================
+     SCRIPTS
+     ================================================================= -->
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme',
+    html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+  );
+}
+</script>
+
+</body>
+</html>

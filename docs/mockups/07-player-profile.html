@@ -1,0 +1,2343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M007 - Player Profile Mockup | Hockey League Hub</title>
+
+<!-- Self-hosted Courier Prime -->
+<style>
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: italic; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-italic.woff2') format('woff2'); }
+</style>
+
+<style>
+/* ===================================================================
+   DESIGN TOKENS
+   =================================================================== */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1; --bg-banner: #000000; --bg-nav: #1A1A1A; --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04); --text-primary: #1A1A1A; --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A; --text-on-banner: #F5F0E1; --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25); --color-link: #2C5F8A; --color-link-hover: #1A3D5C;
+  --color-live: #C0392B; --color-pending: #D4A017; --color-final: #4A4A4A;
+  --bg-ticker: #111111; --text-ticker: #F5F0E1;
+  --bg-era-original-six: rgba(139,90,43,0.05); --bg-era-expansion: rgba(34,85,102,0.05);
+  --bg-era-salary-cap: rgba(60,60,60,0.05);
+}
+
+[data-theme="dark"] {
+  --bg-page: #0A1628; --bg-nav: #0D1B2A; --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06); --text-primary: #F5F0E1; --text-secondary: #B8B0A0;
+  --text-muted: #807868; --border-default: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6; --color-link-hover: #8DC0F0;
+  --color-live: #E74C3C; --color-pending: #F1C40F; --color-final: #B8B0A0;
+  --bg-ticker: #050D1A;
+  --bg-era-original-six: rgba(218,165,32,0.08); --bg-era-expansion: rgba(70,160,190,0.08);
+  --bg-era-salary-cap: rgba(180,180,180,0.06);
+}
+
+/* ===================================================================
+   RESET + BASE
+   =================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  background: #E8E0D0;
+  color: #1A1A1A;
+}
+
+/* ===================================================================
+   MOCKUP LAYOUT
+   =================================================================== */
+.mockup-label {
+  text-align: center;
+  padding: 18px 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #555;
+  background: #E8E0D0;
+}
+
+.shell-wrapper {
+  max-width: 1280px;
+  margin: 0 auto 40px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.18);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-page);
+  color: var(--text-primary);
+}
+
+/* ===================================================================
+   BANNER
+   =================================================================== */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-banner, #000);
+  color: var(--text-on-banner);
+  padding: 0 24px;
+  height: 56px;
+}
+
+.banner__brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.banner__brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--text-on-banner);
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.banner__search {
+  flex: 0 1 420px;
+  margin: 0 24px;
+}
+
+.banner__search input {
+  width: 100%;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-on-banner);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  outline: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.banner__search input::placeholder { color: rgba(245,240,225,0.5); }
+.banner__search input:focus { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.4); }
+
+.banner__search-wrap { position: relative; }
+.banner__search-wrap::before {
+  content: "\1F50D";
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  font-size: 14px; opacity: 0.5; pointer-events: none;
+}
+
+.banner__hamburger {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  color: var(--text-on-banner);
+  font-size: 22px;
+  cursor: pointer;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  line-height: 1;
+}
+
+.banner__hamburger:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.35); }
+
+/* ===================================================================
+   LIVE SCORE TICKER
+   =================================================================== */
+.ticker {
+  background: var(--bg-ticker);
+  color: var(--text-ticker);
+  height: 40px;
+  overflow: hidden;
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.ticker__track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 0;
+  animation: ticker-scroll 30s linear infinite;
+  width: max-content;
+}
+
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker__game {
+  display: flex; align-items: center;
+  padding: 0 28px;
+  font-size: 12px; font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  height: 100%;
+}
+
+.ticker__game:last-child { border-right: none; }
+.ticker__teams { display: flex; align-items: center; gap: 6px; }
+.ticker__team { color: var(--text-ticker); }
+.ticker__score { color: var(--text-ticker); margin: 0 4px; }
+.ticker__score--live { color: var(--color-live); }
+.ticker__dash { color: rgba(245,240,225,0.4); margin: 0 2px; }
+.ticker__status { margin-left: 10px; font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; }
+.ticker__status--live { color: var(--color-live); }
+.ticker__status--final { color: var(--color-final); opacity: 0.7; }
+.ticker__status--pending { color: var(--color-pending); }
+.ticker__live-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--color-live); margin-right: 5px;
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* ===================================================================
+   SECONDARY NAV
+   =================================================================== */
+.nav {
+  background: var(--bg-nav);
+  display: flex; align-items: center; justify-content: center;
+  height: 44px; padding: 0 16px; gap: 0;
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+
+.nav__link {
+  color: rgba(245,240,225,0.65);
+  text-decoration: none;
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+  height: 100%;
+  display: flex; align-items: center;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nav__link:hover { color: rgba(245,240,225,0.9); }
+.nav__link--active { color: #F5F0E1; border-bottom-color: #F5F0E1; }
+
+/* ===================================================================
+   FOOTER
+   =================================================================== */
+.footer {
+  padding: 24px 48px;
+  border-top: 1px solid var(--border-default);
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-page);
+}
+
+.footer a { color: var(--color-link); text-decoration: none; }
+.footer a:hover { color: var(--color-link-hover); }
+
+/* ===================================================================
+   BREADCRUMB
+   =================================================================== */
+.breadcrumb {
+  padding: 16px 48px 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg-page);
+}
+
+.breadcrumb a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover { color: var(--color-link-hover); }
+
+.breadcrumb__sep {
+  margin: 0 6px;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* ===================================================================
+   PLAYER PROFILE - HERO SECTION
+   =================================================================== */
+.profile {
+  padding: 24px 48px 40px;
+  background: var(--bg-page);
+}
+
+.profile__hero {
+  display: grid;
+  grid-template-columns: 200px 1fr 320px;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+/* Headshot area */
+.headshot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.headshot__main {
+  width: 200px;
+  height: 240px;
+  background: #000000;
+  border: 3px solid #FCB514;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.headshot__initials {
+  font-size: 56px;
+  font-weight: 700;
+  color: #FCB514;
+  line-height: 1;
+}
+
+.headshot__number {
+  font-size: 28px;
+  font-weight: 700;
+  color: rgba(252,181,20,0.6);
+  margin-top: 4px;
+}
+
+.headshot__main:hover .headshot__gallery-label {
+  opacity: 1;
+}
+
+.headshot__gallery-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.75);
+  color: #FCB514;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+  padding: 6px 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+/* Career gallery thumbnails (visible by default for demo) */
+.headshot__thumbnails {
+  display: flex;
+  gap: 6px;
+}
+
+.headshot__thumb {
+  width: 45px;
+  height: 54px;
+  border-radius: 3px;
+  border: 2px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.headshot__thumb:hover {
+  border-color: var(--border-strong);
+}
+
+.headshot__thumb--active {
+  border-color: #FCB514;
+}
+
+.headshot__thumb-initials {
+  font-size: 14px;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+
+.headshot__thumb-label {
+  font-size: 8px;
+  letter-spacing: 0.02em;
+  opacity: 0.7;
+}
+
+.headshot__gallery-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Bio info */
+.bio {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.bio__name {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 2px;
+  color: var(--text-primary);
+}
+
+.bio__team-line {
+  font-size: 14px;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}
+
+.bio__team-link {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.bio__team-link:hover { color: var(--color-link-hover); }
+
+.bio__details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 24px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.bio__detail-label {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bio__detail-value {
+  color: var(--text-primary);
+}
+
+.bio__draft {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-default);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.bio__draft-label {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+/* Career history (right column) */
+.career-history {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 20px;
+}
+
+.career-history__title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.career-history__team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-default);
+  font-size: 13px;
+}
+
+.career-history__team:last-of-type { border-bottom: none; }
+
+.career-history__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.career-history__team-name {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.career-history__jersey {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.career-history__years {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.career-history__awards {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-default);
+}
+
+.career-history__awards-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.career-history__award {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.career-history__award-icon {
+  color: #D4A017;
+  font-size: 14px;
+}
+
+/* ===================================================================
+   STATS TABS + TABLE
+   =================================================================== */
+.stats-section {
+  margin-bottom: 40px;
+}
+
+.stats-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.stats-section__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stats-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border-default);
+  margin-bottom: 0;
+}
+
+.stats-tab {
+  padding: 10px 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font-primary);
+}
+
+.stats-tab:hover { color: var(--text-secondary); }
+
+.stats-tab--active {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}
+
+.stats-table-wrap {
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.stats-table th {
+  background: var(--bg-nav);
+  color: #F5F0E1;
+  text-align: right;
+  padding: 10px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  position: sticky;
+  top: 0;
+}
+
+.stats-table th:first-child,
+.stats-table th:nth-child(2) {
+  text-align: left;
+}
+
+.stats-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.stats-table td:first-child,
+.stats-table td:nth-child(2) {
+  text-align: left;
+}
+
+.stats-table td:first-child {
+  font-weight: 700;
+}
+
+.stats-table tr:last-child td { border-bottom: none; }
+
+/* Era tint rows */
+.stats-table tr.era-salary-cap td {
+  background: var(--bg-era-salary-cap);
+}
+
+/* Alternating within era */
+.stats-table tr.era-salary-cap:nth-child(odd) td {
+  background: var(--bg-era-salary-cap);
+}
+
+.stats-table tr.era-salary-cap:nth-child(even) td {
+  background: color-mix(in srgb, var(--bg-era-salary-cap), var(--bg-row-alt));
+}
+
+/* Era separator */
+.stats-table tr.era-separator td {
+  background: var(--bg-nav);
+  color: #F5F0E1;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: left;
+  padding: 6px 12px;
+  border-bottom: 2px solid var(--border-strong);
+}
+
+/* Career totals */
+.stats-table tr.career-totals td {
+  font-weight: 700;
+  border-top: 2px solid var(--border-strong);
+  background: var(--bg-card);
+}
+
+/* Team link in table */
+.stats-table .team-link {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+.stats-table .team-link:hover { color: var(--color-link-hover); }
+
+/* ===================================================================
+   PLAYING STYLE SECTION
+   =================================================================== */
+.playing-style {
+  margin-bottom: 40px;
+}
+
+.playing-style__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.playing-style__narrative {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 800px;
+  margin-bottom: 20px;
+}
+
+.playing-style__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.style-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 18px 16px;
+  text-align: center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.style-stat-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.style-stat-card__value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.style-stat-card__label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ===================================================================
+   CONTRACT SECTION
+   =================================================================== */
+.contract-section {
+  margin-bottom: 40px;
+}
+
+.contract-section__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.contract-current {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.contract-current__highlight {
+  display: flex;
+  flex-direction: column;
+}
+
+.contract-current__label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.contract-current__value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.contract-current__value--small {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.contract-table-wrap {
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.contract-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.contract-table th {
+  background: var(--bg-nav);
+  color: #F5F0E1;
+  text-align: right;
+  padding: 10px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.contract-table th:first-child { text-align: left; }
+
+.contract-table td {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.contract-table td:first-child {
+  text-align: left;
+  font-weight: 700;
+}
+
+.contract-table tr:nth-child(even) td { background: var(--bg-row-alt); }
+.contract-table tr:last-child td { border-bottom: none; }
+
+.contract-history-row {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.contract-history-row__label {
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.contract-sub {
+  margin-bottom: 20px;
+}
+
+.contract-sub__title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.contract-link {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-link);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: color 0.15s;
+}
+
+.contract-link:hover { color: var(--color-link-hover); }
+
+/* ===================================================================
+   EBUG DEMO SECTION
+   =================================================================== */
+.ebug-demo {
+  margin-bottom: 0;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-default);
+}
+
+.ebug-demo__title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.ebug-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  max-width: 600px;
+}
+
+.ebug-card__headshot {
+  width: 64px;
+  height: 76px;
+  background: #2C3E50;
+  border: 2px solid #E74C3C;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ebug-card__initials {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ECF0F1;
+  line-height: 1;
+}
+
+.ebug-card__number {
+  font-size: 11px;
+  color: rgba(236,240,241,0.5);
+}
+
+.ebug-card__info {
+  flex: 1;
+}
+
+.ebug-card__name-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.ebug-card__name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ebug-badge {
+  display: inline-block;
+  background: #E74C3C;
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.ebug-card__meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.ebug-card__note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.5;
+}
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     LIGHT MODE
+     ================================================================ -->
+<div class="mockup-label">Light Mode &mdash; Player Profile: David Pastrnak</div>
+<div class="shell-wrapper" id="shell-light">
+
+  <!-- Banner -->
+  <header class="banner">
+    <div class="banner__brand">
+      <span class="banner__brand-icon">H</span>
+      Hockey League Hub
+    </div>
+    <div class="banner__search">
+      <div class="banner__search-wrap">
+        <input type="text" placeholder="Search players, teams, trades...">
+      </div>
+    </div>
+    <button class="banner__hamburger" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <!-- Live Score Ticker -->
+  <div class="ticker">
+    <div class="ticker__track">
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score ticker__score--live">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 05:22</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+      <!-- Duplicate for seamless scroll -->
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score ticker__score--live">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 05:22</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav__link">Scores</a>
+    <a href="#" class="nav__link">Standings</a>
+    <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link">Teams</a>
+    <a href="#" class="nav__link">Schedule</a>
+    <a href="#" class="nav__link nav__link--active">Players</a>
+    <a href="#" class="nav__link">Salary Cap</a>
+    <a href="#" class="nav__link">Trades</a>
+    <a href="#" class="nav__link">Free Agents</a>
+    <a href="#" class="nav__link">Personnel</a>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="#">Players</a>
+    <span class="breadcrumb__sep">/</span>
+    <a href="#">Boston Bruins</a>
+    <span class="breadcrumb__sep">/</span>
+    David Pastrnak
+  </div>
+
+  <!-- Player Profile Content -->
+  <main class="profile">
+
+    <!-- ============================================================
+         1. HERO: Headshot + Bio + Career History
+         ============================================================ -->
+    <div class="profile__hero">
+
+      <!-- Headshot area -->
+      <div class="headshot">
+        <div class="headshot__main">
+          <span class="headshot__initials">DP</span>
+          <span class="headshot__number">#88</span>
+          <div class="headshot__gallery-label">Career Gallery</div>
+        </div>
+        <div class="headshot__thumbnails">
+          <div class="headshot__thumb headshot__thumb--active" style="background: #000; color: #FCB514; border-color: #FCB514;">
+            <span class="headshot__thumb-initials">DP</span>
+            <span class="headshot__thumb-label">BOS '25</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #FCB514;">
+            <span class="headshot__thumb-initials">DP</span>
+            <span class="headshot__thumb-label">BOS '22</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #FCB514;">
+            <span class="headshot__thumb-initials">DP</span>
+            <span class="headshot__thumb-label">BOS '18</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #FCB514;">
+            <span class="headshot__thumb-initials">DP</span>
+            <span class="headshot__thumb-label">BOS '14</span>
+          </div>
+        </div>
+        <span class="headshot__gallery-hint">Career Gallery &mdash; 4 photos</span>
+      </div>
+
+      <!-- Biographical info -->
+      <div class="bio">
+        <h1 class="bio__name">David Pastrnak</h1>
+        <div class="bio__team-line">
+          <a href="#" class="bio__team-link">Boston Bruins</a> &nbsp;&bull;&nbsp; #88 &nbsp;&bull;&nbsp; RW
+        </div>
+        <div class="bio__details">
+          <div>
+            <div class="bio__detail-label">Age</div>
+            <div class="bio__detail-value">29 (Born: May 25, 1996)</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Birthplace</div>
+            <div class="bio__detail-value">Hav&iacute;&rcaron;ov, Czech Republic</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Height</div>
+            <div class="bio__detail-value">6'1"</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Weight</div>
+            <div class="bio__detail-value">195 lbs</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Position(s)</div>
+            <div class="bio__detail-value">RW</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Handedness</div>
+            <div class="bio__detail-value">Right</div>
+          </div>
+        </div>
+        <div class="bio__draft">
+          <div class="bio__draft-label">Draft</div>
+          2014 Round 1, Pick 25 &mdash; Boston Bruins
+        </div>
+      </div>
+
+      <!-- Career history -->
+      <div class="career-history">
+        <div class="career-history__title">Career History</div>
+        <div class="career-history__team">
+          <span class="career-history__dot" style="background: #FCB514; border: 2px solid #000;"></span>
+          <span class="career-history__team-name">BOS</span>
+          <span class="career-history__jersey">#88</span>
+          <span class="career-history__years">2014&ndash;present</span>
+        </div>
+
+        <div class="career-history__awards">
+          <div class="career-history__awards-label">Awards &amp; Trophies</div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            Art Ross Trophy (2023)
+          </div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            Maurice Richard Trophy (2023)
+          </div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            Ted Lindsay Award (2023)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         2. SEASON-BY-SEASON STATS
+         ============================================================ -->
+    <div class="stats-section">
+      <div class="stats-section__header">
+        <h2 class="stats-section__title">Season Statistics</h2>
+      </div>
+      <div class="stats-tabs">
+        <button class="stats-tab stats-tab--active">NHL</button>
+        <button class="stats-tab">Other Leagues</button>
+        <button class="stats-tab">Combined</button>
+      </div>
+      <div class="stats-table-wrap">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>Season</th>
+              <th>Team</th>
+              <th>GP</th>
+              <th>G</th>
+              <th>A</th>
+              <th>PTS</th>
+              <th>+/-</th>
+              <th>PIM</th>
+              <th>PPG</th>
+              <th>SHG</th>
+              <th>GWG</th>
+              <th>SOG</th>
+              <th>SH%</th>
+              <th>TOI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Era separator -->
+            <tr class="era-separator">
+              <td colspan="14">Salary Cap Era (2005&ndash;present)</td>
+            </tr>
+            <!-- 2014-15 -->
+            <tr class="era-salary-cap">
+              <td>2014-15</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>46</td>
+              <td>10</td>
+              <td>17</td>
+              <td>27</td>
+              <td>-1</td>
+              <td>8</td>
+              <td>3</td>
+              <td>0</td>
+              <td>2</td>
+              <td>99</td>
+              <td>10.1</td>
+              <td>14:52</td>
+            </tr>
+            <!-- 2015-16 -->
+            <tr class="era-salary-cap">
+              <td>2015-16</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>51</td>
+              <td>15</td>
+              <td>11</td>
+              <td>26</td>
+              <td>0</td>
+              <td>16</td>
+              <td>4</td>
+              <td>0</td>
+              <td>1</td>
+              <td>138</td>
+              <td>10.9</td>
+              <td>15:38</td>
+            </tr>
+            <!-- 2016-17 -->
+            <tr class="era-salary-cap">
+              <td>2016-17</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>75</td>
+              <td>34</td>
+              <td>36</td>
+              <td>70</td>
+              <td>+8</td>
+              <td>28</td>
+              <td>12</td>
+              <td>0</td>
+              <td>6</td>
+              <td>221</td>
+              <td>15.4</td>
+              <td>17:32</td>
+            </tr>
+            <!-- 2017-18 -->
+            <tr class="era-salary-cap">
+              <td>2017-18</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>82</td>
+              <td>35</td>
+              <td>45</td>
+              <td>80</td>
+              <td>+23</td>
+              <td>22</td>
+              <td>11</td>
+              <td>0</td>
+              <td>7</td>
+              <td>264</td>
+              <td>13.3</td>
+              <td>18:44</td>
+            </tr>
+            <!-- 2018-19 -->
+            <tr class="era-salary-cap">
+              <td>2018-19</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>66</td>
+              <td>38</td>
+              <td>43</td>
+              <td>81</td>
+              <td>+10</td>
+              <td>18</td>
+              <td>15</td>
+              <td>1</td>
+              <td>4</td>
+              <td>234</td>
+              <td>16.2</td>
+              <td>19:10</td>
+            </tr>
+            <!-- 2019-20 -->
+            <tr class="era-salary-cap">
+              <td>2019-20</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>70</td>
+              <td>48</td>
+              <td>47</td>
+              <td>95</td>
+              <td>+21</td>
+              <td>24</td>
+              <td>16</td>
+              <td>1</td>
+              <td>8</td>
+              <td>318</td>
+              <td>15.1</td>
+              <td>19:34</td>
+            </tr>
+            <!-- 2020-21 -->
+            <tr class="era-salary-cap">
+              <td>2020-21</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>48</td>
+              <td>20</td>
+              <td>28</td>
+              <td>48</td>
+              <td>+3</td>
+              <td>12</td>
+              <td>6</td>
+              <td>0</td>
+              <td>3</td>
+              <td>172</td>
+              <td>11.6</td>
+              <td>19:25</td>
+            </tr>
+            <!-- 2021-22 -->
+            <tr class="era-salary-cap">
+              <td>2021-22</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>72</td>
+              <td>40</td>
+              <td>37</td>
+              <td>77</td>
+              <td>+11</td>
+              <td>26</td>
+              <td>17</td>
+              <td>1</td>
+              <td>5</td>
+              <td>282</td>
+              <td>14.2</td>
+              <td>19:48</td>
+            </tr>
+            <!-- 2022-23 -->
+            <tr class="era-salary-cap">
+              <td>2022-23</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>82</td>
+              <td>61</td>
+              <td>52</td>
+              <td>113</td>
+              <td>+32</td>
+              <td>30</td>
+              <td>22</td>
+              <td>0</td>
+              <td>10</td>
+              <td>365</td>
+              <td>16.7</td>
+              <td>20:02</td>
+            </tr>
+            <!-- 2023-24 -->
+            <tr class="era-salary-cap">
+              <td>2023-24</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>82</td>
+              <td>47</td>
+              <td>63</td>
+              <td>110</td>
+              <td>+28</td>
+              <td>20</td>
+              <td>18</td>
+              <td>0</td>
+              <td>9</td>
+              <td>330</td>
+              <td>14.2</td>
+              <td>20:15</td>
+            </tr>
+            <!-- 2024-25 -->
+            <tr class="era-salary-cap">
+              <td>2024-25</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>78</td>
+              <td>42</td>
+              <td>50</td>
+              <td>92</td>
+              <td>+14</td>
+              <td>22</td>
+              <td>15</td>
+              <td>0</td>
+              <td>7</td>
+              <td>298</td>
+              <td>14.1</td>
+              <td>20:08</td>
+            </tr>
+            <!-- 2025-26 (current season) -->
+            <tr class="era-salary-cap">
+              <td>2025-26</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>64</td>
+              <td>35</td>
+              <td>41</td>
+              <td>76</td>
+              <td>+10</td>
+              <td>16</td>
+              <td>12</td>
+              <td>0</td>
+              <td>6</td>
+              <td>241</td>
+              <td>14.5</td>
+              <td>19:55</td>
+            </tr>
+            <!-- Career totals -->
+            <tr class="career-totals">
+              <td>Career</td>
+              <td></td>
+              <td>816</td>
+              <td>425</td>
+              <td>470</td>
+              <td>895</td>
+              <td>+159</td>
+              <td>242</td>
+              <td>151</td>
+              <td>3</td>
+              <td>68</td>
+              <td>2,962</td>
+              <td>14.3</td>
+              <td>19:05</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         3. PLAYING STYLE
+         ============================================================ -->
+    <div class="playing-style">
+      <h2 class="playing-style__title">Playing Style</h2>
+      <p class="playing-style__narrative">
+        Elite goal scorer with an exceptional release and one-timer. Combines natural finishing ability with creative playmaking, consistently generating high-danger scoring chances from the half-wall and slot. Pastrnak's quick hands and deceptive skating allow him to create space in tight areas, making him one of the most dangerous offensive threats in the league. His chemistry with top-line centers has produced some of the most prolific scoring partnerships in modern Bruins history, and he has evolved into a reliable two-way presence capable of contributing in all situations.
+      </p>
+      <div class="playing-style__stats">
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">1.42</div>
+          <div class="style-stat-card__label">Goals / 60</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">13.8%</div>
+          <div class="style-stat-card__label">Shooting %</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">3.21</div>
+          <div class="style-stat-card__label">PP Points / 60</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">+24.3</div>
+          <div class="style-stat-card__label">xG Above Expected</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         4. CONTRACT SECTION
+         ============================================================ -->
+    <div class="contract-section">
+      <h2 class="contract-section__title">Contract &amp; Salary</h2>
+
+      <!-- Current contract summary -->
+      <div class="contract-current">
+        <div class="contract-current__highlight">
+          <span class="contract-current__label">Current Contract</span>
+          <span class="contract-current__value">8 yrs &times; $11.25M AAV</span>
+        </div>
+        <div class="contract-current__highlight">
+          <span class="contract-current__label">Term</span>
+          <span class="contract-current__value--small">2023&ndash;2031</span>
+        </div>
+        <div class="contract-current__highlight">
+          <span class="contract-current__label">Total Value</span>
+          <span class="contract-current__value--small">$90,000,000</span>
+        </div>
+        <div class="contract-current__highlight">
+          <span class="contract-current__label">Status</span>
+          <span class="contract-current__value--small">Year 3 of 8</span>
+        </div>
+      </div>
+
+      <!-- Contract history table -->
+      <div class="contract-sub">
+        <div class="contract-sub__title">Contract History</div>
+        <div class="contract-table-wrap">
+          <table class="contract-table">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Cap Hit</th>
+                <th>Base Salary</th>
+                <th>Signing Bonuses</th>
+                <th>Clause</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2023-24</td>
+                <td>$11,250,000</td>
+                <td>$3,250,000</td>
+                <td>$8,000,000</td>
+                <td>NMC</td>
+              </tr>
+              <tr>
+                <td>2024-25</td>
+                <td>$11,250,000</td>
+                <td>$4,000,000</td>
+                <td>$7,250,000</td>
+                <td>NMC</td>
+              </tr>
+              <tr>
+                <td>2025-26</td>
+                <td>$11,250,000</td>
+                <td>$5,000,000</td>
+                <td>$6,250,000</td>
+                <td>NMC</td>
+              </tr>
+              <tr>
+                <td>2026-27</td>
+                <td>$11,250,000</td>
+                <td>$6,000,000</td>
+                <td>$5,250,000</td>
+                <td>NMC</td>
+              </tr>
+              <tr>
+                <td>2027-28</td>
+                <td>$11,250,000</td>
+                <td>$7,500,000</td>
+                <td>$3,750,000</td>
+                <td>NMC</td>
+              </tr>
+              <tr>
+                <td>2028-29</td>
+                <td>$11,250,000</td>
+                <td>$8,000,000</td>
+                <td>$3,250,000</td>
+                <td>M-NTC</td>
+              </tr>
+              <tr>
+                <td>2029-30</td>
+                <td>$11,250,000</td>
+                <td>$9,000,000</td>
+                <td>$2,250,000</td>
+                <td>M-NTC</td>
+              </tr>
+              <tr>
+                <td>2030-31</td>
+                <td>$11,250,000</td>
+                <td>$10,000,000</td>
+                <td>$1,250,000</td>
+                <td>M-NTC</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Trade history -->
+      <div class="contract-sub">
+        <div class="contract-sub__title">Trade History</div>
+        <div class="contract-history-row">
+          <span class="contract-history-row__label">Trades:</span>
+          No trades &mdash; Pastrnak has spent his entire NHL career with Boston.
+        </div>
+      </div>
+
+      <!-- Free agency history -->
+      <div class="contract-sub">
+        <div class="contract-sub__title">Free Agency History</div>
+        <div class="contract-history-row">
+          <span class="contract-history-row__label">RFA (2017):</span>
+          Signed 6-year / $40,000,000 extension ($6.67M AAV)
+        </div>
+        <div class="contract-history-row">
+          <span class="contract-history-row__label">UFA (2023):</span>
+          Signed 8-year / $90,000,000 extension ($11.25M AAV)
+        </div>
+      </div>
+
+      <a href="#" class="contract-link">View full salary cap details &rarr;</a>
+    </div>
+
+    <!-- ============================================================
+         5. EBUG INDICATOR VARIANT
+         ============================================================ -->
+    <div class="ebug-demo">
+      <div class="ebug-demo__title">EBUG Profile Variant (Demo)</div>
+      <div class="ebug-card">
+        <div class="ebug-card__headshot">
+          <span class="ebug-card__initials">DA</span>
+          <span class="ebug-card__number">#90</span>
+        </div>
+        <div class="ebug-card__info">
+          <div class="ebug-card__name-line">
+            <span class="ebug-card__name">David Ayres</span>
+            <span class="ebug-badge">EBUG</span>
+          </div>
+          <div class="ebug-card__meta">
+            G &nbsp;&bull;&nbsp; Carolina Hurricanes &nbsp;&bull;&nbsp; Feb 22, 2020
+          </div>
+          <div class="ebug-card__note">
+            Emergency Backup Goalie &mdash; 1 career appearance. The 42-year-old Zamboni driver entered the game in relief and stopped 8 of 10 shots to earn the victory as Carolina defeated Toronto 6&ndash;3.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
+  </footer>
+
+</div>
+
+
+<!-- ================================================================
+     DARK MODE
+     ================================================================ -->
+<div class="mockup-label">Dark Mode &mdash; Player Profile: David Pastrnak</div>
+<div class="shell-wrapper" id="shell-dark" data-theme="dark">
+
+  <!-- Banner -->
+  <header class="banner">
+    <div class="banner__brand">
+      <span class="banner__brand-icon">H</span>
+      Hockey League Hub
+    </div>
+    <div class="banner__search">
+      <div class="banner__search-wrap">
+        <input type="text" placeholder="Search players, teams, trades...">
+      </div>
+    </div>
+    <button class="banner__hamburger" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <!-- Live Score Ticker -->
+  <div class="ticker">
+    <div class="ticker__track">
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score ticker__score--live">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 05:22</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+      <!-- Duplicate for seamless scroll -->
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score ticker__score--live">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 05:22</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav__link">Scores</a>
+    <a href="#" class="nav__link">Standings</a>
+    <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link">Teams</a>
+    <a href="#" class="nav__link">Schedule</a>
+    <a href="#" class="nav__link nav__link--active">Players</a>
+    <a href="#" class="nav__link">Salary Cap</a>
+    <a href="#" class="nav__link">Trades</a>
+    <a href="#" class="nav__link">Free Agents</a>
+    <a href="#" class="nav__link">Personnel</a>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="#">Players</a>
+    <span class="breadcrumb__sep">/</span>
+    <a href="#">Boston Bruins</a>
+    <span class="breadcrumb__sep">/</span>
+    David Pastrnak
+  </div>
+
+  <!-- Player Profile Content -->
+  <main class="profile">
+
+    <!-- HERO -->
+    <div class="profile__hero">
+
+      <!-- Headshot area -->
+      <div class="headshot">
+        <div class="headshot__main">
+          <span class="headshot__initials">DP</span>
+          <span class="headshot__number">#88</span>
+          <div class="headshot__gallery-label">Career Gallery</div>
+        </div>
+        <div class="headshot__thumbnails">
+          <div class="headshot__thumb headshot__thumb--active" style="background: #000; color: #FCB514; border-color: #FCB514;">
+            <span class="headshot__thumb-initials">DP</span>
+            <span class="headshot__thumb-label">BOS '25</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #FCB514;">
+            <span class="headshot__thumb-initials">DP</span>
+            <span class="headshot__thumb-label">BOS '22</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #FCB514;">
+            <span class="headshot__thumb-initials">DP</span>
+            <span class="headshot__thumb-label">BOS '18</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #FCB514;">
+            <span class="headshot__thumb-initials">DP</span>
+            <span class="headshot__thumb-label">BOS '14</span>
+          </div>
+        </div>
+        <span class="headshot__gallery-hint">Career Gallery &mdash; 4 photos</span>
+      </div>
+
+      <!-- Biographical info -->
+      <div class="bio">
+        <h1 class="bio__name">David Pastrnak</h1>
+        <div class="bio__team-line">
+          <a href="#" class="bio__team-link">Boston Bruins</a> &nbsp;&bull;&nbsp; #88 &nbsp;&bull;&nbsp; RW
+        </div>
+        <div class="bio__details">
+          <div>
+            <div class="bio__detail-label">Age</div>
+            <div class="bio__detail-value">29 (Born: May 25, 1996)</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Birthplace</div>
+            <div class="bio__detail-value">Hav&iacute;&rcaron;ov, Czech Republic</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Height</div>
+            <div class="bio__detail-value">6'1"</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Weight</div>
+            <div class="bio__detail-value">195 lbs</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Position(s)</div>
+            <div class="bio__detail-value">RW</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Handedness</div>
+            <div class="bio__detail-value">Right</div>
+          </div>
+        </div>
+        <div class="bio__draft">
+          <div class="bio__draft-label">Draft</div>
+          2014 Round 1, Pick 25 &mdash; Boston Bruins
+        </div>
+      </div>
+
+      <!-- Career history -->
+      <div class="career-history">
+        <div class="career-history__title">Career History</div>
+        <div class="career-history__team">
+          <span class="career-history__dot" style="background: #FCB514; border: 2px solid #000;"></span>
+          <span class="career-history__team-name">BOS</span>
+          <span class="career-history__jersey">#88</span>
+          <span class="career-history__years">2014&ndash;present</span>
+        </div>
+
+        <div class="career-history__awards">
+          <div class="career-history__awards-label">Awards &amp; Trophies</div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            Art Ross Trophy (2023)
+          </div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            Maurice Richard Trophy (2023)
+          </div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            Ted Lindsay Award (2023)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEASON-BY-SEASON STATS -->
+    <div class="stats-section">
+      <div class="stats-section__header">
+        <h2 class="stats-section__title">Season Statistics</h2>
+      </div>
+      <div class="stats-tabs">
+        <button class="stats-tab stats-tab--active">NHL</button>
+        <button class="stats-tab">Other Leagues</button>
+        <button class="stats-tab">Combined</button>
+      </div>
+      <div class="stats-table-wrap">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>Season</th>
+              <th>Team</th>
+              <th>GP</th>
+              <th>G</th>
+              <th>A</th>
+              <th>PTS</th>
+              <th>+/-</th>
+              <th>PIM</th>
+              <th>PPG</th>
+              <th>SHG</th>
+              <th>GWG</th>
+              <th>SOG</th>
+              <th>SH%</th>
+              <th>TOI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="era-separator">
+              <td colspan="14">Salary Cap Era (2005&ndash;present)</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2014-15</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>46</td>
+              <td>10</td>
+              <td>17</td>
+              <td>27</td>
+              <td>-1</td>
+              <td>8</td>
+              <td>3</td>
+              <td>0</td>
+              <td>2</td>
+              <td>99</td>
+              <td>10.1</td>
+              <td>14:52</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2015-16</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>51</td>
+              <td>15</td>
+              <td>11</td>
+              <td>26</td>
+              <td>0</td>
+              <td>16</td>
+              <td>4</td>
+              <td>0</td>
+              <td>1</td>
+              <td>138</td>
+              <td>10.9</td>
+              <td>15:38</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2016-17</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>75</td>
+              <td>34</td>
+              <td>36</td>
+              <td>70</td>
+              <td>+8</td>
+              <td>28</td>
+              <td>12</td>
+              <td>0</td>
+              <td>6</td>
+              <td>221</td>
+              <td>15.4</td>
+              <td>17:32</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2017-18</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>82</td>
+              <td>35</td>
+              <td>45</td>
+              <td>80</td>
+              <td>+23</td>
+              <td>22</td>
+              <td>11</td>
+              <td>0</td>
+              <td>7</td>
+              <td>264</td>
+              <td>13.3</td>
+              <td>18:44</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2018-19</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>66</td>
+              <td>38</td>
+              <td>43</td>
+              <td>81</td>
+              <td>+10</td>
+              <td>18</td>
+              <td>15</td>
+              <td>1</td>
+              <td>4</td>
+              <td>234</td>
+              <td>16.2</td>
+              <td>19:10</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2019-20</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>70</td>
+              <td>48</td>
+              <td>47</td>
+              <td>95</td>
+              <td>+21</td>
+              <td>24</td>
+              <td>16</td>
+              <td>1</td>
+              <td>8</td>
+              <td>318</td>
+              <td>15.1</td>
+              <td>19:34</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2020-21</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>48</td>
+              <td>20</td>
+              <td>28</td>
+              <td>48</td>
+              <td>+3</td>
+              <td>12</td>
+              <td>6</td>
+              <td>0</td>
+              <td>3</td>
+              <td>172</td>
+              <td>11.6</td>
+              <td>19:25</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2021-22</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>72</td>
+              <td>40</td>
+              <td>37</td>
+              <td>77</td>
+              <td>+11</td>
+              <td>26</td>
+              <td>17</td>
+              <td>1</td>
+              <td>5</td>
+              <td>282</td>
+              <td>14.2</td>
+              <td>19:48</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2022-23</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>82</td>
+              <td>61</td>
+              <td>52</td>
+              <td>113</td>
+              <td>+32</td>
+              <td>30</td>
+              <td>22</td>
+              <td>0</td>
+              <td>10</td>
+              <td>365</td>
+              <td>16.7</td>
+              <td>20:02</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2023-24</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>82</td>
+              <td>47</td>
+              <td>63</td>
+              <td>110</td>
+              <td>+28</td>
+              <td>20</td>
+              <td>18</td>
+              <td>0</td>
+              <td>9</td>
+              <td>330</td>
+              <td>14.2</td>
+              <td>20:15</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2024-25</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>78</td>
+              <td>42</td>
+              <td>50</td>
+              <td>92</td>
+              <td>+14</td>
+              <td>22</td>
+              <td>15</td>
+              <td>0</td>
+              <td>7</td>
+              <td>298</td>
+              <td>14.1</td>
+              <td>20:08</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2025-26</td>
+              <td><a href="#" class="team-link">BOS</a></td>
+              <td>64</td>
+              <td>35</td>
+              <td>41</td>
+              <td>76</td>
+              <td>+10</td>
+              <td>16</td>
+              <td>12</td>
+              <td>0</td>
+              <td>6</td>
+              <td>241</td>
+              <td>14.5</td>
+              <td>19:55</td>
+            </tr>
+            <tr class="career-totals">
+              <td>Career</td>
+              <td></td>
+              <td>816</td>
+              <td>425</td>
+              <td>470</td>
+              <td>895</td>
+              <td>+159</td>
+              <td>242</td>
+              <td>151</td>
+              <td>3</td>
+              <td>68</td>
+              <td>2,962</td>
+              <td>14.3</td>
+              <td>19:05</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PLAYING STYLE -->
+    <div class="playing-style">
+      <h2 class="playing-style__title">Playing Style</h2>
+      <p class="playing-style__narrative">
+        Elite goal scorer with an exceptional release and one-timer. Combines natural finishing ability with creative playmaking, consistently generating high-danger scoring chances from the half-wall and slot. Pastrnak's quick hands and deceptive skating allow him to create space in tight areas, making him one of the most dangerous offensive threats in the league. His chemistry with top-line centers has produced some of the most prolific scoring partnerships in modern Bruins history, and he has evolved into a reliable two-way presence capable of contributing in all situations.
+      </p>
+      <div class="playing-style__stats">
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">1.42</div>
+          <div class="style-stat-card__label">Goals / 60</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">13.8%</div>
+          <div class="style-stat-card__label">Shooting %</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">3.21</div>
+          <div class="style-stat-card__label">PP Points / 60</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">+24.3</div>
+          <div class="style-stat-card__label">xG Above Expected</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTRACT SECTION -->
+    <div class="contract-section">
+      <h2 class="contract-section__title">Contract &amp; Salary</h2>
+
+      <div class="contract-current">
+        <div class="contract-current__highlight">
+          <span class="contract-current__label">Current Contract</span>
+          <span class="contract-current__value">8 yrs &times; $11.25M AAV</span>
+        </div>
+        <div class="contract-current__highlight">
+          <span class="contract-current__label">Term</span>
+          <span class="contract-current__value--small">2023&ndash;2031</span>
+        </div>
+        <div class="contract-current__highlight">
+          <span class="contract-current__label">Total Value</span>
+          <span class="contract-current__value--small">$90,000,000</span>
+        </div>
+        <div class="contract-current__highlight">
+          <span class="contract-current__label">Status</span>
+          <span class="contract-current__value--small">Year 3 of 8</span>
+        </div>
+      </div>
+
+      <div class="contract-sub">
+        <div class="contract-sub__title">Contract History</div>
+        <div class="contract-table-wrap">
+          <table class="contract-table">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Cap Hit</th>
+                <th>Base Salary</th>
+                <th>Signing Bonuses</th>
+                <th>Clause</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2023-24</td>
+                <td>$11,250,000</td>
+                <td>$3,250,000</td>
+                <td>$8,000,000</td>
+                <td>NMC</td>
+              </tr>
+              <tr>
+                <td>2024-25</td>
+                <td>$11,250,000</td>
+                <td>$4,000,000</td>
+                <td>$7,250,000</td>
+                <td>NMC</td>
+              </tr>
+              <tr>
+                <td>2025-26</td>
+                <td>$11,250,000</td>
+                <td>$5,000,000</td>
+                <td>$6,250,000</td>
+                <td>NMC</td>
+              </tr>
+              <tr>
+                <td>2026-27</td>
+                <td>$11,250,000</td>
+                <td>$6,000,000</td>
+                <td>$5,250,000</td>
+                <td>NMC</td>
+              </tr>
+              <tr>
+                <td>2027-28</td>
+                <td>$11,250,000</td>
+                <td>$7,500,000</td>
+                <td>$3,750,000</td>
+                <td>NMC</td>
+              </tr>
+              <tr>
+                <td>2028-29</td>
+                <td>$11,250,000</td>
+                <td>$8,000,000</td>
+                <td>$3,250,000</td>
+                <td>M-NTC</td>
+              </tr>
+              <tr>
+                <td>2029-30</td>
+                <td>$11,250,000</td>
+                <td>$9,000,000</td>
+                <td>$2,250,000</td>
+                <td>M-NTC</td>
+              </tr>
+              <tr>
+                <td>2030-31</td>
+                <td>$11,250,000</td>
+                <td>$10,000,000</td>
+                <td>$1,250,000</td>
+                <td>M-NTC</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="contract-sub">
+        <div class="contract-sub__title">Trade History</div>
+        <div class="contract-history-row">
+          <span class="contract-history-row__label">Trades:</span>
+          No trades &mdash; Pastrnak has spent his entire NHL career with Boston.
+        </div>
+      </div>
+
+      <div class="contract-sub">
+        <div class="contract-sub__title">Free Agency History</div>
+        <div class="contract-history-row">
+          <span class="contract-history-row__label">RFA (2017):</span>
+          Signed 6-year / $40,000,000 extension ($6.67M AAV)
+        </div>
+        <div class="contract-history-row">
+          <span class="contract-history-row__label">UFA (2023):</span>
+          Signed 8-year / $90,000,000 extension ($11.25M AAV)
+        </div>
+      </div>
+
+      <a href="#" class="contract-link">View full salary cap details &rarr;</a>
+    </div>
+
+    <!-- EBUG DEMO -->
+    <div class="ebug-demo">
+      <div class="ebug-demo__title">EBUG Profile Variant (Demo)</div>
+      <div class="ebug-card">
+        <div class="ebug-card__headshot">
+          <span class="ebug-card__initials">DA</span>
+          <span class="ebug-card__number">#90</span>
+        </div>
+        <div class="ebug-card__info">
+          <div class="ebug-card__name-line">
+            <span class="ebug-card__name">David Ayres</span>
+            <span class="ebug-badge">EBUG</span>
+          </div>
+          <div class="ebug-card__meta">
+            G &nbsp;&bull;&nbsp; Carolina Hurricanes &nbsp;&bull;&nbsp; Feb 22, 2020
+          </div>
+          <div class="ebug-card__note">
+            Emergency Backup Goalie &mdash; 1 career appearance. The 42-year-old Zamboni driver entered the game in relief and stopped 8 of 10 shots to earn the victory as Carolina defeated Toronto 6&ndash;3.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hockey League Hub — Data Tables (Standings)</title>
+<style>
+/* ── Font Faces ─────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2');
+}
+
+/* ── Design Tokens ──────────────────────────────────────────────── */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1;
+  --bg-banner: #000000;
+  --bg-nav: #1A1A1A;
+  --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04);
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A;
+  --text-on-banner: #F5F0E1;
+  --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25);
+  --color-link: #2C5F8A;
+  --color-link-hover: #1A3D5C;
+  --bg-era-original-six: rgba(139,90,43,0.05);
+  --bg-era-expansion: rgba(34,85,102,0.05);
+  --bg-era-salary-cap: rgba(60,60,60,0.05);
+}
+[data-theme="dark"] {
+  --bg-page: #0A1628;
+  --bg-nav: #0D1B2A;
+  --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06);
+  --text-primary: #F5F0E1;
+  --text-secondary: #B8B0A0;
+  --text-muted: #807868;
+  --border-default: rgba(255,255,255,0.1);
+  --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6;
+  --color-link-hover: #8DC0F0;
+  --bg-era-original-six: rgba(218,165,32,0.08);
+  --bg-era-expansion: rgba(70,160,190,0.08);
+  --bg-era-salary-cap: rgba(180,180,180,0.06);
+}
+
+/* ── Reset & Base ───────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-primary);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--color-link); text-decoration: none; }
+a:hover { color: var(--color-link-hover); text-decoration: underline; }
+
+/* ── Global Shell: Banner ───────────────────────────────────────── */
+.site-banner {
+  background: var(--bg-banner);
+  color: var(--text-on-banner);
+  text-align: center;
+  padding: 18px 24px 14px;
+}
+.site-banner h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.site-banner .subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+/* ── Global Shell: Ticker ───────────────────────────────────────── */
+.ticker-bar {
+  background: var(--bg-nav);
+  color: var(--text-on-banner);
+  font-size: 0.72rem;
+  padding: 6px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-default);
+}
+.ticker-track {
+  display: inline-block;
+  animation: ticker-scroll 40s linear infinite;
+}
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-track span { padding: 0 28px; }
+.ticker-score { opacity: 0.55; }
+
+/* ── Global Shell: Nav ──────────────────────────────────────────── */
+.site-nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-default);
+}
+.site-nav a {
+  color: var(--text-on-banner);
+  font-size: 0.78rem;
+  font-weight: 400;
+  padding: 10px 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: background 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.site-nav a:hover {
+  background: rgba(255,255,255,0.06);
+  text-decoration: none;
+}
+.site-nav a.active {
+  border-bottom-color: var(--text-on-banner);
+  font-weight: 700;
+}
+
+/* ── Theme toggle ───────────────────────────────────────────────── */
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.theme-toggle:hover { opacity: 0.8; }
+
+/* ── Page Container ─────────────────────────────────────────────── */
+.page-container {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+.page-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.page-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* ── View Toggle ────────────────────────────────────────────────── */
+.view-toggle {
+  display: flex;
+  gap: 0;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  overflow: hidden;
+  width: fit-content;
+}
+.view-toggle button {
+  font-family: var(--font-primary);
+  font-size: 0.76rem;
+  padding: 8px 18px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: none;
+  border-right: 1px solid var(--border-default);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, color 0.15s;
+}
+.view-toggle button:last-child { border-right: none; }
+.view-toggle button:hover {
+  background: var(--bg-row-alt);
+  color: var(--text-primary);
+}
+.view-toggle button.active {
+  background: var(--text-primary);
+  color: var(--bg-card);
+  font-weight: 700;
+}
+
+/* ── Table Card ─────────────────────────────────────────────────── */
+.table-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.table-card-header {
+  padding: 12px 16px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.conference-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Data Table ─────────────────────────────────────────────────── */
+.standings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+  table-layout: fixed;
+}
+.standings-table colgroup .col-rank { width: 34px; }
+.standings-table colgroup .col-team { width: 180px; }
+.standings-table colgroup .col-stat { width: 52px; }
+.standings-table colgroup .col-stat-wide { width: 58px; }
+.standings-table colgroup .col-diff { width: 56px; }
+
+/* Group header rows */
+.standings-table .group-header td {
+  background: var(--bg-row-alt);
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  padding: 8px 10px;
+  border-top: 2px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-default);
+}
+
+/* Column headers */
+.standings-table thead th {
+  padding: 8px 8px;
+  text-align: right;
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border-strong);
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+.standings-table thead th:hover {
+  background: var(--bg-row-alt);
+  color: var(--text-primary);
+}
+.standings-table thead th.col-left {
+  text-align: left;
+}
+.standings-table thead th.sorted {
+  color: var(--text-primary);
+}
+.standings-table thead th .sort-indicator {
+  font-size: 0.62rem;
+  margin-left: 2px;
+  opacity: 0.7;
+}
+
+/* Data rows */
+.standings-table tbody td {
+  padding: 6px 8px;
+  text-align: right;
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.standings-table tbody td.col-left {
+  text-align: left;
+}
+.standings-table tbody td.col-rank {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+.standings-table tbody td.col-team {
+  font-weight: 700;
+}
+.standings-table tbody td.col-team a {
+  color: var(--text-primary);
+}
+.standings-table tbody td.col-team a:hover {
+  color: var(--color-link);
+}
+.standings-table tbody td.col-pts {
+  font-weight: 700;
+}
+.standings-table tbody td.col-diff-pos {
+  color: #2E7D32;
+}
+.standings-table tbody td.col-diff-neg {
+  color: #C62828;
+}
+
+/* Alternating rows */
+.standings-table tbody tr.row-alt td {
+  background: var(--bg-row-alt);
+}
+
+/* Wild Card divider */
+.standings-table .wc-divider td {
+  border-top: 2px dashed var(--border-strong);
+}
+
+/* Era tinting */
+.standings-table tbody tr.era-original-six td { background: var(--bg-era-original-six); }
+.standings-table tbody tr.era-original-six.row-alt td { background: var(--bg-era-original-six); }
+.standings-table tbody tr.era-expansion td { background: var(--bg-era-expansion); }
+.standings-table tbody tr.era-expansion.row-alt td { background: var(--bg-era-expansion); }
+.standings-table tbody tr.era-salary-cap td { background: var(--bg-era-salary-cap); }
+.standings-table tbody tr.era-salary-cap.row-alt td { background: var(--bg-era-salary-cap); }
+
+/* Era separator */
+.standings-table tbody tr.era-separator td {
+  border-top: 3px solid var(--border-strong);
+}
+
+/* ── Section Header ─────────────────────────────────────────────── */
+.section-header {
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 40px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border-strong);
+}
+.section-desc {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+/* ── Pagination ─────────────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-default);
+  background: var(--bg-card);
+}
+.pagination-info {
+  letter-spacing: 0.02em;
+}
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pagination-controls button,
+.pagination-controls span {
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  padding: 5px 10px;
+  border: 1px solid var(--border-default);
+  border-radius: 3px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.pagination-controls button:hover {
+  background: var(--bg-row-alt);
+  color: var(--text-primary);
+}
+.pagination-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.pagination-controls span.page-current {
+  background: var(--text-primary);
+  color: var(--bg-card);
+  font-weight: 700;
+  border-color: var(--text-primary);
+}
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()">Toggle Dark/Light</button>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     GLOBAL SHELL
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- Banner -->
+<header class="site-banner">
+  <h1>Hockey League Hub</h1>
+  <div class="subtitle">The Encyclopedic Record of Professional Hockey</div>
+</header>
+
+<!-- Ticker -->
+<div class="ticker-bar">
+  <div class="ticker-track">
+    <span>TOR 4 &ndash; MTL 2 <span class="ticker-score">Final</span></span>
+    <span>BOS 3 &ndash; FLA 1 <span class="ticker-score">Final</span></span>
+    <span>NYR 2 &ndash; CAR 5 <span class="ticker-score">Final</span></span>
+    <span>TBL 3 &ndash; OTT 2 <span class="ticker-score">OT</span></span>
+    <span>DET 1 &ndash; BUF 4 <span class="ticker-score">Final</span></span>
+    <span>NJD 2 &ndash; WSH 3 <span class="ticker-score">SO</span></span>
+    <span>DAL 5 &ndash; COL 4 <span class="ticker-score">OT</span></span>
+    <span>WPG 3 &ndash; MIN 1 <span class="ticker-score">Final</span></span>
+    <span>TOR 4 &ndash; MTL 2 <span class="ticker-score">Final</span></span>
+    <span>BOS 3 &ndash; FLA 1 <span class="ticker-score">Final</span></span>
+    <span>NYR 2 &ndash; CAR 5 <span class="ticker-score">Final</span></span>
+    <span>TBL 3 &ndash; OTT 2 <span class="ticker-score">OT</span></span>
+    <span>DET 1 &ndash; BUF 4 <span class="ticker-score">Final</span></span>
+    <span>NJD 2 &ndash; WSH 3 <span class="ticker-score">SO</span></span>
+    <span>DAL 5 &ndash; COL 4 <span class="ticker-score">OT</span></span>
+    <span>WPG 3 &ndash; MIN 1 <span class="ticker-score">Final</span></span>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="site-nav">
+  <a href="#">Home</a>
+  <a href="#" class="active">Standings</a>
+  <a href="#">Teams</a>
+  <a href="#">Players</a>
+  <a href="#">Scores</a>
+  <a href="#">Stats</a>
+  <a href="#">History</a>
+  <a href="#">Trades</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE CONTENT
+     ═══════════════════════════════════════════════════════════════ -->
+
+<main class="page-container">
+
+  <h2 class="page-title">2025&ndash;26 NHL Standings</h2>
+  <p class="page-subtitle">Updated March 17, 2026 &mdash; Regular season</p>
+
+  <!-- View Toggle -->
+  <div class="view-toggle">
+    <button class="active">Wild Card</button>
+    <button>Division</button>
+    <button>Conference</button>
+    <button>League</button>
+  </div>
+
+  <!-- ─── EASTERN CONFERENCE ─────────────────────────────────── -->
+  <div class="table-card">
+    <div class="table-card-header">
+      Eastern Conference
+      <span class="conference-label">Wild Card Format</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+    <table class="standings-table">
+      <colgroup>
+        <col class="col-rank">
+        <col class="col-team">
+        <col class="col-stat"><!-- GP -->
+        <col class="col-stat"><!-- W -->
+        <col class="col-stat"><!-- L -->
+        <col class="col-stat"><!-- OTL -->
+        <col class="col-stat"><!-- PTS -->
+        <col class="col-stat-wide"><!-- PTS% -->
+        <col class="col-stat"><!-- RW -->
+        <col class="col-stat"><!-- ROW -->
+        <col class="col-stat"><!-- GF -->
+        <col class="col-stat"><!-- GA -->
+        <col class="col-diff"><!-- DIFF -->
+        <col class="col-stat-wide"><!-- PP% -->
+        <col class="col-stat-wide"><!-- PK% -->
+        <col class="col-stat-wide"><!-- FO% -->
+      </colgroup>
+      <thead>
+        <tr>
+          <th class="col-left" title="Rank">#</th>
+          <th class="col-left" title="Team">Team</th>
+          <th title="Games Played">GP</th>
+          <th title="Wins">W</th>
+          <th title="Losses">L</th>
+          <th title="Overtime Losses">OTL</th>
+          <th class="sorted" title="Points">PTS<span class="sort-indicator">&#9660;</span></th>
+          <th title="Points Percentage">PTS%</th>
+          <th title="Regulation Wins">RW</th>
+          <th title="Regulation + Overtime Wins">ROW</th>
+          <th title="Goals For">GF</th>
+          <th title="Goals Against">GA</th>
+          <th title="Goal Differential">DIFF</th>
+          <th title="Power Play %">PP%</th>
+          <th title="Penalty Kill %">PK%</th>
+          <th title="Faceoff Win %">FO%</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- ATLANTIC DIVISION — Top 3 -->
+        <tr class="group-header">
+          <td colspan="16">Atlantic Division</td>
+        </tr>
+        <tr>
+          <td class="col-rank">1</td>
+          <td class="col-left col-team"><a href="#">Florida Panthers</a></td>
+          <td>68</td><td>42</td><td>18</td><td>8</td>
+          <td class="col-pts">92</td><td>.676</td>
+          <td>35</td><td>39</td>
+          <td>226</td><td>178</td>
+          <td class="col-diff-pos">+48</td>
+          <td>24.8</td><td>82.1</td><td>51.4</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">2</td>
+          <td class="col-left col-team"><a href="#">Toronto Maple Leafs</a></td>
+          <td>68</td><td>40</td><td>20</td><td>8</td>
+          <td class="col-pts">88</td><td>.647</td>
+          <td>33</td><td>37</td>
+          <td>218</td><td>189</td>
+          <td class="col-diff-pos">+29</td>
+          <td>23.1</td><td>80.6</td><td>52.1</td>
+        </tr>
+        <tr>
+          <td class="col-rank">3</td>
+          <td class="col-left col-team"><a href="#">Boston Bruins</a></td>
+          <td>68</td><td>38</td><td>22</td><td>8</td>
+          <td class="col-pts">84</td><td>.618</td>
+          <td>30</td><td>35</td>
+          <td>204</td><td>185</td>
+          <td class="col-diff-pos">+19</td>
+          <td>21.4</td><td>81.3</td><td>50.8</td>
+        </tr>
+
+        <!-- METROPOLITAN DIVISION — Top 3 -->
+        <tr class="group-header">
+          <td colspan="16">Metropolitan Division</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">1</td>
+          <td class="col-left col-team"><a href="#">Carolina Hurricanes</a></td>
+          <td>68</td><td>43</td><td>17</td><td>8</td>
+          <td class="col-pts">94</td><td>.691</td>
+          <td>36</td><td>40</td>
+          <td>232</td><td>170</td>
+          <td class="col-diff-pos">+62</td>
+          <td>25.2</td><td>84.5</td><td>53.0</td>
+        </tr>
+        <tr>
+          <td class="col-rank">2</td>
+          <td class="col-left col-team"><a href="#">New Jersey Devils</a></td>
+          <td>68</td><td>41</td><td>20</td><td>7</td>
+          <td class="col-pts">89</td><td>.654</td>
+          <td>34</td><td>38</td>
+          <td>224</td><td>186</td>
+          <td class="col-diff-pos">+38</td>
+          <td>23.7</td><td>79.8</td><td>49.6</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">3</td>
+          <td class="col-left col-team"><a href="#">Washington Capitals</a></td>
+          <td>68</td><td>39</td><td>21</td><td>8</td>
+          <td class="col-pts">86</td><td>.632</td>
+          <td>32</td><td>36</td>
+          <td>211</td><td>191</td>
+          <td class="col-diff-pos">+20</td>
+          <td>22.6</td><td>80.2</td><td>50.3</td>
+        </tr>
+
+        <!-- EASTERN WILD CARD -->
+        <tr class="group-header">
+          <td colspan="16">Eastern Wild Card</td>
+        </tr>
+        <tr>
+          <td class="col-rank">WC1</td>
+          <td class="col-left col-team"><a href="#">Tampa Bay Lightning</a></td>
+          <td>68</td><td>37</td><td>23</td><td>8</td>
+          <td class="col-pts">82</td><td>.603</td>
+          <td>29</td><td>34</td>
+          <td>215</td><td>198</td>
+          <td class="col-diff-pos">+17</td>
+          <td>24.0</td><td>78.9</td><td>49.1</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">WC2</td>
+          <td class="col-left col-team"><a href="#">New York Rangers</a></td>
+          <td>68</td><td>36</td><td>24</td><td>8</td>
+          <td class="col-pts">80</td><td>.588</td>
+          <td>28</td><td>33</td>
+          <td>202</td><td>194</td>
+          <td class="col-diff-pos">+8</td>
+          <td>21.9</td><td>79.4</td><td>48.7</td>
+        </tr>
+        <!-- Below the cut line -->
+        <tr class="wc-divider">
+          <td class="col-rank" style="color:var(--text-muted);">9</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Ottawa Senators</a></td>
+          <td>68</td><td>34</td><td>26</td><td>8</td>
+          <td class="col-pts">76</td><td>.559</td>
+          <td>27</td><td>31</td>
+          <td>199</td><td>202</td>
+          <td class="col-diff-neg">&minus;3</td>
+          <td>20.8</td><td>78.1</td><td>50.5</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank" style="color:var(--text-muted);">10</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Pittsburgh Penguins</a></td>
+          <td>68</td><td>33</td><td>27</td><td>8</td>
+          <td class="col-pts">74</td><td>.544</td>
+          <td>26</td><td>30</td>
+          <td>196</td><td>208</td>
+          <td class="col-diff-neg">&minus;12</td>
+          <td>19.6</td><td>77.4</td><td>49.8</td>
+        </tr>
+        <tr>
+          <td class="col-rank" style="color:var(--text-muted);">11</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Detroit Red Wings</a></td>
+          <td>68</td><td>32</td><td>28</td><td>8</td>
+          <td class="col-pts">72</td><td>.529</td>
+          <td>25</td><td>29</td>
+          <td>190</td><td>210</td>
+          <td class="col-diff-neg">&minus;20</td>
+          <td>18.9</td><td>76.8</td><td>48.3</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank" style="color:var(--text-muted);">12</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Buffalo Sabres</a></td>
+          <td>68</td><td>30</td><td>30</td><td>8</td>
+          <td class="col-pts">68</td><td>.500</td>
+          <td>23</td><td>27</td>
+          <td>184</td><td>216</td>
+          <td class="col-diff-neg">&minus;32</td>
+          <td>18.2</td><td>76.0</td><td>47.9</td>
+        </tr>
+        <tr>
+          <td class="col-rank" style="color:var(--text-muted);">13</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Montreal Canadiens</a></td>
+          <td>68</td><td>29</td><td>31</td><td>8</td>
+          <td class="col-pts">66</td><td>.485</td>
+          <td>22</td><td>26</td>
+          <td>180</td><td>218</td>
+          <td class="col-diff-neg">&minus;38</td>
+          <td>17.5</td><td>75.6</td><td>48.0</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank" style="color:var(--text-muted);">14</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Philadelphia Flyers</a></td>
+          <td>68</td><td>27</td><td>33</td><td>8</td>
+          <td class="col-pts">62</td><td>.456</td>
+          <td>20</td><td>24</td>
+          <td>174</td><td>224</td>
+          <td class="col-diff-neg">&minus;50</td>
+          <td>16.8</td><td>74.9</td><td>47.2</td>
+        </tr>
+        <tr>
+          <td class="col-rank" style="color:var(--text-muted);">15</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">New York Islanders</a></td>
+          <td>68</td><td>26</td><td>34</td><td>8</td>
+          <td class="col-pts">60</td><td>.441</td>
+          <td>19</td><td>23</td>
+          <td>168</td><td>226</td>
+          <td class="col-diff-neg">&minus;58</td>
+          <td>16.1</td><td>74.3</td><td>46.8</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank" style="color:var(--text-muted);">16</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Columbus Blue Jackets</a></td>
+          <td>68</td><td>24</td><td>36</td><td>8</td>
+          <td class="col-pts">56</td><td>.412</td>
+          <td>17</td><td>21</td>
+          <td>162</td><td>234</td>
+          <td class="col-diff-neg">&minus;72</td>
+          <td>15.4</td><td>73.6</td><td>46.2</td>
+        </tr>
+
+      </tbody>
+    </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <span class="pagination-info">Showing 1&ndash;16 of 32</span>
+      <div class="pagination-controls">
+        <button disabled>&larr; Prev</button>
+        <span class="page-current">1</span>
+        <span>2</span>
+        <button>Next &rarr;</button>
+      </div>
+    </div>
+  </div><!-- /.table-card -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       HISTORICAL EXAMPLE — ERA TINTS
+       ═══════════════════════════════════════════════════════════ -->
+  <h3 class="section-header">Historical Example &mdash; Era Background Tints</h3>
+  <p class="section-desc">
+    Rows are tinted by era to give visual context when browsing historical data.
+    Bold separator lines divide era groups.
+  </p>
+
+  <div class="table-card">
+    <div class="table-card-header">
+      All-Time Standings Sample
+      <span class="conference-label">Era-tinted rows</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+    <table class="standings-table">
+      <colgroup>
+        <col class="col-rank">
+        <col class="col-team">
+        <col class="col-stat">
+        <col class="col-stat">
+        <col class="col-stat">
+        <col class="col-stat">
+        <col class="col-stat">
+        <col class="col-stat-wide">
+        <col class="col-stat">
+        <col class="col-stat">
+        <col class="col-stat">
+        <col class="col-stat">
+        <col class="col-diff">
+        <col class="col-stat-wide">
+        <col class="col-stat-wide">
+        <col class="col-stat-wide">
+      </colgroup>
+      <thead>
+        <tr>
+          <th class="col-left" title="Rank">#</th>
+          <th class="col-left" title="Team">Team</th>
+          <th title="Games Played">GP</th>
+          <th title="Wins">W</th>
+          <th title="Losses">L</th>
+          <th title="Overtime Losses">OTL</th>
+          <th title="Points">PTS</th>
+          <th title="Points Percentage">PTS%</th>
+          <th title="Regulation Wins">RW</th>
+          <th title="Regulation + Overtime Wins">ROW</th>
+          <th title="Goals For">GF</th>
+          <th title="Goals Against">GA</th>
+          <th title="Goal Differential">DIFF</th>
+          <th title="Power Play %">PP%</th>
+          <th title="Penalty Kill %">PK%</th>
+          <th title="Faceoff Win %">FO%</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- Original Six Era (1942–1967) -->
+        <tr class="group-header">
+          <td colspan="16">Original Six Era (1942&ndash;1967)</td>
+        </tr>
+        <tr class="era-original-six">
+          <td class="col-rank">1</td>
+          <td class="col-left col-team"><a href="#">Montreal Canadiens</a></td>
+          <td>70</td><td>45</td><td>17</td><td>8</td>
+          <td class="col-pts">98</td><td>.700</td>
+          <td>42</td><td>44</td>
+          <td>258</td><td>168</td>
+          <td class="col-diff-pos">+90</td>
+          <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+        </tr>
+        <tr class="era-original-six row-alt">
+          <td class="col-rank">2</td>
+          <td class="col-left col-team"><a href="#">Detroit Red Wings</a></td>
+          <td>70</td><td>42</td><td>19</td><td>9</td>
+          <td class="col-pts">93</td><td>.664</td>
+          <td>39</td><td>41</td>
+          <td>244</td><td>176</td>
+          <td class="col-diff-pos">+68</td>
+          <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+        </tr>
+        <tr class="era-original-six">
+          <td class="col-rank">3</td>
+          <td class="col-left col-team"><a href="#">Toronto Maple Leafs</a></td>
+          <td>70</td><td>38</td><td>22</td><td>10</td>
+          <td class="col-pts">86</td><td>.614</td>
+          <td>34</td><td>37</td>
+          <td>230</td><td>188</td>
+          <td class="col-diff-pos">+42</td>
+          <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+        </tr>
+
+        <!-- Expansion Era (1967–2005) -->
+        <tr class="group-header">
+          <td colspan="16">Expansion Era (1967&ndash;2005)</td>
+        </tr>
+        <tr class="era-expansion era-separator">
+          <td class="col-rank">1</td>
+          <td class="col-left col-team"><a href="#">Edmonton Oilers</a></td>
+          <td>80</td><td>52</td><td>18</td><td>10</td>
+          <td class="col-pts">114</td><td>.713</td>
+          <td>48</td><td>50</td>
+          <td>312</td><td>204</td>
+          <td class="col-diff-pos">+108</td>
+          <td>28.4</td><td>85.2</td><td>&mdash;</td>
+        </tr>
+        <tr class="era-expansion row-alt">
+          <td class="col-rank">2</td>
+          <td class="col-left col-team"><a href="#">New York Islanders</a></td>
+          <td>80</td><td>50</td><td>20</td><td>10</td>
+          <td class="col-pts">110</td><td>.688</td>
+          <td>46</td><td>48</td>
+          <td>298</td><td>210</td>
+          <td class="col-diff-pos">+88</td>
+          <td>26.1</td><td>83.8</td><td>&mdash;</td>
+        </tr>
+        <tr class="era-expansion">
+          <td class="col-rank">3</td>
+          <td class="col-left col-team"><a href="#">Philadelphia Flyers</a></td>
+          <td>80</td><td>48</td><td>22</td><td>10</td>
+          <td class="col-pts">106</td><td>.663</td>
+          <td>44</td><td>46</td>
+          <td>286</td><td>218</td>
+          <td class="col-diff-pos">+68</td>
+          <td>25.0</td><td>82.6</td><td>&mdash;</td>
+        </tr>
+
+        <!-- Salary Cap Era (2005–present) -->
+        <tr class="group-header">
+          <td colspan="16">Salary Cap Era (2005&ndash;present)</td>
+        </tr>
+        <tr class="era-salary-cap era-separator">
+          <td class="col-rank">1</td>
+          <td class="col-left col-team"><a href="#">Tampa Bay Lightning</a></td>
+          <td>82</td><td>54</td><td>18</td><td>10</td>
+          <td class="col-pts">118</td><td>.720</td>
+          <td>46</td><td>51</td>
+          <td>282</td><td>198</td>
+          <td class="col-diff-pos">+84</td>
+          <td>26.3</td><td>84.1</td><td>52.6</td>
+        </tr>
+        <tr class="era-salary-cap row-alt">
+          <td class="col-rank">2</td>
+          <td class="col-left col-team"><a href="#">Colorado Avalanche</a></td>
+          <td>82</td><td>52</td><td>20</td><td>10</td>
+          <td class="col-pts">114</td><td>.695</td>
+          <td>44</td><td>49</td>
+          <td>276</td><td>204</td>
+          <td class="col-diff-pos">+72</td>
+          <td>25.8</td><td>83.4</td><td>51.8</td>
+        </tr>
+        <tr class="era-salary-cap">
+          <td class="col-rank">3</td>
+          <td class="col-left col-team"><a href="#">Florida Panthers</a></td>
+          <td>82</td><td>50</td><td>22</td><td>10</td>
+          <td class="col-pts">110</td><td>.671</td>
+          <td>42</td><td>47</td>
+          <td>268</td><td>210</td>
+          <td class="col-diff-pos">+58</td>
+          <td>24.9</td><td>82.7</td><td>51.2</td>
+        </tr>
+
+      </tbody>
+    </table>
+    </div>
+  </div><!-- /.table-card -->
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme',
+    html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+  );
+}
+</script>
+
+</body>
+</html>

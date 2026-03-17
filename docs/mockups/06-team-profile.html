@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boston Bruins - Team Profile | Hockey League Hub</title>
+<style>
+/* ── Font Faces ── */
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: italic; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-italic.woff2') format('woff2'); }
+
+/* ── Design Tokens ── */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1; --bg-banner: #000000; --bg-nav: #1A1A1A; --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04); --text-primary: #1A1A1A; --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A; --text-on-banner: #F5F0E1; --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25); --color-link: #2C5F8A; --color-link-hover: #1A3D5C;
+}
+[data-theme="dark"] {
+  --bg-page: #0A1628; --bg-nav: #0D1B2A; --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06); --text-primary: #F5F0E1; --text-secondary: #B8B0A0;
+  --text-muted: #807868; --border-default: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6; --color-link-hover: #8DC0F0;
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: var(--font-primary);
+  letter-spacing: -0.02em;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+a { color: var(--color-link); text-decoration: none; transition: color 0.15s; }
+a:hover { color: var(--color-link-hover); text-decoration: underline; }
+
+/* ── Global Shell: Banner ── */
+.banner {
+  background: var(--bg-banner);
+  color: var(--text-on-banner);
+  text-align: center;
+  padding: 10px 24px;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Global Shell: Ticker ── */
+.ticker {
+  background: #111;
+  color: #ccc;
+  overflow: hidden;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.72rem;
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+.ticker-track {
+  display: inline-flex;
+  gap: 32px;
+  animation: ticker-scroll 40s linear infinite;
+  padding-left: 100%;
+}
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-item { flex-shrink: 0; }
+.ticker-item .team { color: #aaa; }
+.ticker-item .score { color: #FCB514; font-weight: 700; margin: 0 4px; }
+
+/* ── Global Shell: Nav ── */
+.nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 48px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.nav-brand {
+  color: #F5F0E1;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.nav-links { display: flex; gap: 20px; align-items: center; }
+.nav-links a {
+  color: #B8B0A0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 14px 0;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.nav-links a:hover, .nav-links a.active {
+  color: #F5F0E1;
+  text-decoration: none;
+  border-bottom-color: #FCB514;
+}
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.theme-toggle {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #B8B0A0;
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+.theme-toggle:hover { background: rgba(255,255,255,0.18); color: #F5F0E1; }
+
+/* ── Page Container ── */
+.page { max-width: 1200px; margin: 0 auto; padding: 28px 24px 60px; }
+
+/* ── Team Header ── */
+.team-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: start;
+  margin-bottom: 32px;
+}
+.team-identity { display: flex; gap: 24px; align-items: flex-start; }
+.team-logo {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  background: #000;
+  border: 3px solid #FCB514;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.team-logo span {
+  color: #FCB514;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+}
+.team-info { flex: 1; }
+.team-name-row { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.team-name {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.team-record {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.team-meta {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.team-meta span { display: block; }
+.team-meta .label { color: var(--text-secondary); font-weight: 700; }
+
+/* ── Stanley Cups ── */
+.cups-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  padding: 20px 24px;
+  min-width: 240px;
+}
+.cups-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+.cups-total {
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.cups-breakdowns {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+.cups-years {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cup-year {
+  background: rgba(0,0,0,0.06);
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid var(--border-default);
+}
+[data-theme="dark"] .cup-year {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Timeline ── */
+.section-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-default);
+}
+.timeline {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  padding: 20px 24px;
+  margin-bottom: 32px;
+}
+.timeline-track {
+  position: relative;
+  padding-left: 24px;
+}
+.timeline-track::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--border-strong);
+}
+.timeline-entry {
+  position: relative;
+  padding-bottom: 16px;
+}
+.timeline-entry:last-child { padding-bottom: 0; }
+.timeline-entry::before {
+  content: '';
+  position: absolute;
+  left: -22px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #FCB514;
+  border: 2px solid var(--bg-card);
+}
+.timeline-entry .era {
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+.timeline-entry .note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* ── Roster Table ── */
+.roster-section { margin-bottom: 32px; }
+.roster-table-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+table.roster {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+table.roster thead th {
+  background: var(--bg-nav);
+  color: #B8B0A0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+table.roster thead th:hover { color: #F5F0E1; }
+table.roster thead th.sort-asc::after { content: ' \25B2'; font-size: 0.6rem; }
+table.roster thead th.sort-desc::after { content: ' \25BC'; font-size: 0.6rem; }
+table.roster thead th .sort-hint {
+  color: #666;
+  font-size: 0.55rem;
+  margin-left: 2px;
+}
+table.roster tbody tr { border-bottom: 1px solid var(--border-default); }
+table.roster tbody tr:nth-child(even) { background: var(--bg-row-alt); }
+table.roster tbody tr:hover { background: rgba(252,181,20,0.06); }
+table.roster tbody td { padding: 8px 12px; }
+table.roster tbody td.num {
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-secondary);
+  width: 40px;
+}
+table.roster tbody td.player-name a {
+  font-weight: 700;
+}
+table.roster tbody td.pos { text-align: center; width: 40px; }
+table.roster tbody td.hand { text-align: center; width: 50px; }
+table.roster tbody td.birthplace { color: var(--text-secondary); }
+table.roster tbody td.dob { color: var(--text-muted); }
+table.roster tbody td.draft { color: var(--text-secondary); font-size: 0.75rem; }
+table.roster tbody td.yrs { text-align: center; width: 40px; }
+
+/* ── Depth Chart ── */
+.depth-section { margin-bottom: 32px; }
+.depth-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.view-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+}
+.view-toggle button {
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 6px 16px;
+  border: none;
+  cursor: pointer;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+.view-toggle button.active {
+  background: var(--bg-nav);
+  color: #F5F0E1;
+}
+.view-toggle button:hover:not(.active) {
+  background: var(--bg-row-alt);
+  color: var(--text-primary);
+}
+
+.depth-group { margin-bottom: 24px; }
+.depth-group-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.line-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: stretch;
+}
+.line-label {
+  width: 56px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.player-card {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  padding: 10px 14px;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+.player-card:hover { border-color: var(--border-strong); }
+.player-card .pc-name {
+  font-weight: 700;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.player-card .pc-name a { color: var(--text-primary); }
+.player-card .pc-name a:hover { color: var(--color-link); }
+.player-card .pc-pos {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.player-card .pc-stats {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+.player-card .pc-stats .stat-label {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+/* Cap view (hidden by default) */
+.cap-view { display: none; }
+.cap-view .pc-stats .cap-hit { font-weight: 700; }
+.cap-view .pc-stats .cap-detail {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* ── Goalie Section ── */
+.goalie-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.goalie-card {
+  flex: 1;
+  max-width: 300px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  padding: 10px 14px;
+}
+.goalie-card:hover { border-color: var(--border-strong); }
+.goalie-card .gc-role {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+.goalie-card .gc-name { font-weight: 700; font-size: 0.82rem; }
+.goalie-card .gc-name a { color: var(--text-primary); }
+.goalie-card .gc-name a:hover { color: var(--color-link); }
+.goalie-card .gc-detail {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+.goalie-card .gc-detail .stat-label {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+/* ── Injured / Scratched ── */
+.injury-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+.injury-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.injury-list { list-style: none; }
+.injury-list li {
+  font-size: 0.8rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.injury-list li:last-child { border-bottom: none; }
+.injury-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.injury-badge.ir { background: #D32F2F; color: #fff; }
+.injury-badge.dtd { background: #F9A825; color: #1A1A1A; }
+.injury-badge.scratch { background: rgba(0,0,0,0.08); color: var(--text-muted); }
+[data-theme="dark"] .injury-badge.scratch { background: rgba(255,255,255,0.08); }
+.injury-name { font-weight: 700; }
+.injury-detail { color: var(--text-muted); font-size: 0.75rem; }
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .team-header { grid-template-columns: 1fr; }
+  .cups-card { min-width: unset; }
+  .line-row { flex-wrap: wrap; }
+  .player-card { min-width: 140px; }
+}
+@media (max-width: 600px) {
+  .team-identity { flex-direction: column; align-items: center; text-align: center; }
+  .team-name-row { justify-content: center; }
+  .team-meta { align-items: center; }
+  .nav-links { gap: 12px; }
+  .nav-links a { font-size: 0.7rem; }
+  .page { padding: 20px 12px 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ GLOBAL SHELL ══════════ -->
+
+<!-- Banner -->
+<div class="banner">Hockey League Hub &mdash; 2025&ndash;26 Season</div>
+
+<!-- Ticker -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="team">BOS</span><span class="score">4</span><span class="team">MTL</span><span class="score">2</span> Final</span>
+    <span class="ticker-item"><span class="team">TOR</span><span class="score">3</span><span class="team">OTT</span><span class="score">1</span> Final</span>
+    <span class="ticker-item"><span class="team">NYR</span><span class="score">2</span><span class="team">PIT</span><span class="score">5</span> Final</span>
+    <span class="ticker-item"><span class="team">DET</span><span class="score">3</span><span class="team">TBL</span><span class="score">3</span> OT</span>
+    <span class="ticker-item"><span class="team">FLA</span><span class="score">1</span><span class="team">CAR</span><span class="score">4</span> Final</span>
+    <span class="ticker-item"><span class="team">COL</span><span class="score">5</span><span class="team">DAL</span><span class="score">2</span> Final</span>
+    <span class="ticker-item"><span class="team">EDM</span><span class="score">3</span><span class="team">VAN</span><span class="score">1</span> Final</span>
+    <span class="ticker-item"><span class="team">WPG</span><span class="score">4</span><span class="team">MIN</span><span class="score">2</span> Final</span>
+    <!-- duplicate for seamless scroll -->
+    <span class="ticker-item"><span class="team">BOS</span><span class="score">4</span><span class="team">MTL</span><span class="score">2</span> Final</span>
+    <span class="ticker-item"><span class="team">TOR</span><span class="score">3</span><span class="team">OTT</span><span class="score">1</span> Final</span>
+    <span class="ticker-item"><span class="team">NYR</span><span class="score">2</span><span class="team">PIT</span><span class="score">5</span> Final</span>
+    <span class="ticker-item"><span class="team">DET</span><span class="score">3</span><span class="team">TBL</span><span class="score">3</span> OT</span>
+    <span class="ticker-item"><span class="team">FLA</span><span class="score">1</span><span class="team">CAR</span><span class="score">4</span> Final</span>
+    <span class="ticker-item"><span class="team">COL</span><span class="score">5</span><span class="team">DAL</span><span class="score">2</span> Final</span>
+    <span class="ticker-item"><span class="team">EDM</span><span class="score">3</span><span class="team">VAN</span><span class="score">1</span> Final</span>
+    <span class="ticker-item"><span class="team">WPG</span><span class="score">4</span><span class="team">MIN</span><span class="score">2</span> Final</span>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-brand">Hockey League Hub</div>
+  <div class="nav-links">
+    <a href="#">Scores</a>
+    <a href="#">Standings</a>
+    <a href="#" class="active">Teams</a>
+    <a href="#">Players</a>
+    <a href="#">Stats</a>
+    <a href="#">Trades</a>
+    <a href="#">Draft</a>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleTheme()">Dark / Light</button>
+  </div>
+</nav>
+
+<!-- ══════════ PAGE CONTENT ══════════ -->
+<div class="page">
+
+  <!-- ── Team Header ── -->
+  <div class="team-header">
+    <div class="team-identity">
+      <div class="team-logo"><span>B</span></div>
+      <div class="team-info">
+        <div class="team-name-row">
+          <h1 class="team-name">Boston Bruins</h1>
+          <span class="team-record">42-18-6 (90 PTS)</span>
+        </div>
+        <div class="team-meta">
+          <span><span class="label">All-Time Record:</span> 3,412-2,687-832-198</span>
+          <span><span class="label">Joined:</span> 1924 (Original Six)</span>
+          <span><span class="label">Conference:</span> Eastern &nbsp;|&nbsp; <span class="label">Division:</span> Atlantic</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stanley Cups -->
+    <div class="cups-card">
+      <div class="cups-title">Stanley Cups</div>
+      <div class="cups-total">6</div>
+      <div class="cups-breakdowns">
+        Since 1973: 2<br>
+        Since 2006: 1
+      </div>
+      <div class="cups-years">
+        <span class="cup-year">1929</span>
+        <span class="cup-year">1939</span>
+        <span class="cup-year">1941</span>
+        <span class="cup-year">1970</span>
+        <span class="cup-year">1972</span>
+        <span class="cup-year">2011</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Franchise History Timeline ── -->
+  <div class="timeline">
+    <div class="section-title">Franchise History</div>
+    <div class="timeline-track">
+      <div class="timeline-entry">
+        <div class="era">1924&ndash;present: Boston Bruins</div>
+        <div class="note">Single-franchise history &mdash; no relocations or name changes. One of the Original Six.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Roster Table ── -->
+  <div class="roster-section">
+    <div class="section-title">Active Roster</div>
+    <div class="roster-table-wrap">
+      <table class="roster">
+        <thead>
+          <tr>
+            <th class="sort-asc">#</th>
+            <th>Player</th>
+            <th>Pos</th>
+            <th>Hand</th>
+            <th>Birth Place</th>
+            <th>DOB</th>
+            <th>Draft</th>
+            <th>Yrs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">37</td>
+            <td class="player-name"><a href="#">Patrice Bergeron</a></td>
+            <td class="pos">C</td>
+            <td class="hand">L</td>
+            <td class="birthplace">L'Ancienne-Lorette, QC, CAN</td>
+            <td class="dob">1985-07-24</td>
+            <td class="draft">2003 BOS R2 #45</td>
+            <td class="yrs">20</td>
+          </tr>
+          <tr>
+            <td class="num">63</td>
+            <td class="player-name"><a href="#">Brad Marchand</a></td>
+            <td class="pos">LW</td>
+            <td class="hand">L</td>
+            <td class="birthplace">Halifax, NS, CAN</td>
+            <td class="dob">1988-05-11</td>
+            <td class="draft">2006 BOS R3 #71</td>
+            <td class="yrs">16</td>
+          </tr>
+          <tr>
+            <td class="num">88</td>
+            <td class="player-name"><a href="#">David Pastrnak</a></td>
+            <td class="pos">RW</td>
+            <td class="hand">R</td>
+            <td class="birthplace">Havirov, CZE</td>
+            <td class="dob">1996-05-25</td>
+            <td class="draft">2014 BOS R1 #25</td>
+            <td class="yrs">10</td>
+          </tr>
+          <tr>
+            <td class="num">71</td>
+            <td class="player-name"><a href="#">Taylor Hall</a></td>
+            <td class="pos">LW</td>
+            <td class="hand">L</td>
+            <td class="birthplace">Calgary, AB, CAN</td>
+            <td class="dob">1991-11-14</td>
+            <td class="draft">2010 EDM R1 #1</td>
+            <td class="yrs">14</td>
+          </tr>
+          <tr>
+            <td class="num">13</td>
+            <td class="player-name"><a href="#">Charlie Coyle</a></td>
+            <td class="pos">C</td>
+            <td class="hand">R</td>
+            <td class="birthplace">East Weymouth, MA, USA</td>
+            <td class="dob">1992-03-02</td>
+            <td class="draft">2010 SJS R1 #28</td>
+            <td class="yrs">12</td>
+          </tr>
+          <tr>
+            <td class="num">74</td>
+            <td class="player-name"><a href="#">Jake DeBrusk</a></td>
+            <td class="pos">LW</td>
+            <td class="hand">L</td>
+            <td class="birthplace">Edmonton, AB, CAN</td>
+            <td class="dob">1996-10-17</td>
+            <td class="draft">2015 BOS R1 #14</td>
+            <td class="yrs">7</td>
+          </tr>
+          <tr>
+            <td class="num">17</td>
+            <td class="player-name"><a href="#">Nick Foligno</a></td>
+            <td class="pos">LW</td>
+            <td class="hand">L</td>
+            <td class="birthplace">Buffalo, NY, USA</td>
+            <td class="dob">1987-10-31</td>
+            <td class="draft">2006 OTT R1 #28</td>
+            <td class="yrs">18</td>
+          </tr>
+          <tr>
+            <td class="num">92</td>
+            <td class="player-name"><a href="#">Tomas Nosek</a></td>
+            <td class="pos">C</td>
+            <td class="hand">L</td>
+            <td class="birthplace">Pardubice, CZE</td>
+            <td class="dob">1992-09-01</td>
+            <td class="draft">2011 DET R3 #75</td>
+            <td class="yrs">8</td>
+          </tr>
+          <tr>
+            <td class="num">55</td>
+            <td class="player-name"><a href="#">Justin Brazeau</a></td>
+            <td class="pos">RW</td>
+            <td class="hand">R</td>
+            <td class="birthplace">New Liskeard, ON, CAN</td>
+            <td class="dob">1998-01-02</td>
+            <td class="draft">Undrafted</td>
+            <td class="yrs">3</td>
+          </tr>
+          <tr>
+            <td class="num">73</td>
+            <td class="player-name"><a href="#">Charlie McAvoy</a></td>
+            <td class="pos">D</td>
+            <td class="hand">R</td>
+            <td class="birthplace">Long Beach, NY, USA</td>
+            <td class="dob">1997-12-21</td>
+            <td class="draft">2016 BOS R1 #14</td>
+            <td class="yrs">8</td>
+          </tr>
+          <tr>
+            <td class="num">27</td>
+            <td class="player-name"><a href="#">Hampus Lindholm</a></td>
+            <td class="pos">D</td>
+            <td class="hand">L</td>
+            <td class="birthplace">Helsingborg, SWE</td>
+            <td class="dob">1994-01-20</td>
+            <td class="draft">2012 ANA R1 #6</td>
+            <td class="yrs">11</td>
+          </tr>
+          <tr>
+            <td class="num">25</td>
+            <td class="player-name"><a href="#">Brandon Carlo</a></td>
+            <td class="pos">D</td>
+            <td class="hand">R</td>
+            <td class="birthplace">Colorado Springs, CO, USA</td>
+            <td class="dob">1996-11-26</td>
+            <td class="draft">2015 BOS R2 #37</td>
+            <td class="yrs">9</td>
+          </tr>
+          <tr>
+            <td class="num">26</td>
+            <td class="player-name"><a href="#">Mason Lohrei</a></td>
+            <td class="pos">D</td>
+            <td class="hand">L</td>
+            <td class="birthplace">Madison, WI, USA</td>
+            <td class="dob">2000-12-17</td>
+            <td class="draft">2020 BOS R2 #58</td>
+            <td class="yrs">2</td>
+          </tr>
+          <tr>
+            <td class="num">1</td>
+            <td class="player-name"><a href="#">Jeremy Swayman</a></td>
+            <td class="pos">G</td>
+            <td class="hand">L</td>
+            <td class="birthplace">Anchorage, AK, USA</td>
+            <td class="dob">1998-11-24</td>
+            <td class="draft">2017 BOS R4 #111</td>
+            <td class="yrs">4</td>
+          </tr>
+          <tr>
+            <td class="num">35</td>
+            <td class="player-name"><a href="#">Linus Ullmark</a></td>
+            <td class="pos">G</td>
+            <td class="hand">L</td>
+            <td class="birthplace">Lugnvik, SWE</td>
+            <td class="dob">1993-07-27</td>
+            <td class="draft">2012 BUF R6 #163</td>
+            <td class="yrs">8</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Depth Chart ── -->
+  <div class="depth-section">
+    <div class="depth-header">
+      <div class="section-title" style="margin-bottom:0; border-bottom:none; padding-bottom:0;">Depth Chart</div>
+      <div class="view-toggle">
+        <button class="active" id="btn-stats" onclick="showStats()">Stats View</button>
+        <button id="btn-cap" onclick="showCap()">Cap View</button>
+      </div>
+    </div>
+
+    <!-- Forward Lines -->
+    <div class="depth-group">
+      <div class="depth-group-title">Forward Lines</div>
+
+      <!-- STATS VIEW -->
+      <div class="stats-view" id="stats-forwards">
+        <!-- Line 1 -->
+        <div class="line-row">
+          <div class="line-label">Line 1</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Brad Marchand</a></div>
+            <div class="pc-pos">LW</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 62 &nbsp; <span class="stat-label">PTS</span> 68</div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Patrice Bergeron</a></div>
+            <div class="pc-pos">C</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 58 &nbsp; <span class="stat-label">PTS</span> 52</div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">David Pastrnak</a></div>
+            <div class="pc-pos">RW</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 64 &nbsp; <span class="stat-label">PTS</span> 82</div>
+          </div>
+        </div>
+        <!-- Line 2 -->
+        <div class="line-row">
+          <div class="line-label">Line 2</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Taylor Hall</a></div>
+            <div class="pc-pos">LW</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 60 &nbsp; <span class="stat-label">PTS</span> 48</div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Charlie Coyle</a></div>
+            <div class="pc-pos">C</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 64 &nbsp; <span class="stat-label">PTS</span> 42</div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Justin Brazeau</a></div>
+            <div class="pc-pos">RW</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 56 &nbsp; <span class="stat-label">PTS</span> 28</div>
+          </div>
+        </div>
+        <!-- Line 3 -->
+        <div class="line-row">
+          <div class="line-label">Line 3</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Jake DeBrusk</a></div>
+            <div class="pc-pos">LW</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 62 &nbsp; <span class="stat-label">PTS</span> 38</div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Pavel Zacha</a></div>
+            <div class="pc-pos">C</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 60 &nbsp; <span class="stat-label">PTS</span> 36</div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Danton Heinen</a></div>
+            <div class="pc-pos">RW</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 58 &nbsp; <span class="stat-label">PTS</span> 22</div>
+          </div>
+        </div>
+        <!-- Line 4 -->
+        <div class="line-row">
+          <div class="line-label">Line 4</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Nick Foligno</a></div>
+            <div class="pc-pos">LW</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 54 &nbsp; <span class="stat-label">PTS</span> 14</div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Tomas Nosek</a></div>
+            <div class="pc-pos">C</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 50 &nbsp; <span class="stat-label">PTS</span> 10</div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">A.J. Greer</a></div>
+            <div class="pc-pos">RW</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 42 &nbsp; <span class="stat-label">PTS</span> 8</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAP VIEW -->
+      <div class="cap-view" id="cap-forwards">
+        <!-- Line 1 -->
+        <div class="line-row">
+          <div class="line-label">Line 1</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Brad Marchand</a></div>
+            <div class="pc-pos">LW</div>
+            <div class="pc-stats"><span class="cap-hit">$6.125M</span><br><span class="cap-detail">1 yr &middot; UFA 2027</span></div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Patrice Bergeron</a></div>
+            <div class="pc-pos">C</div>
+            <div class="pc-stats"><span class="cap-hit">$2.500M</span><br><span class="cap-detail">1 yr &middot; UFA 2027</span></div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">David Pastrnak</a></div>
+            <div class="pc-pos">RW</div>
+            <div class="pc-stats"><span class="cap-hit">$11.250M</span><br><span class="cap-detail">6 yrs &middot; UFA 2031</span></div>
+          </div>
+        </div>
+        <!-- Line 2 -->
+        <div class="line-row">
+          <div class="line-label">Line 2</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Taylor Hall</a></div>
+            <div class="pc-pos">LW</div>
+            <div class="pc-stats"><span class="cap-hit">$6.000M</span><br><span class="cap-detail">1 yr &middot; UFA 2027</span></div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Charlie Coyle</a></div>
+            <div class="pc-pos">C</div>
+            <div class="pc-stats"><span class="cap-hit">$5.250M</span><br><span class="cap-detail">2 yrs &middot; UFA 2028</span></div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Justin Brazeau</a></div>
+            <div class="pc-pos">RW</div>
+            <div class="pc-stats"><span class="cap-hit">$1.000M</span><br><span class="cap-detail">1 yr &middot; RFA 2027</span></div>
+          </div>
+        </div>
+        <!-- Line 3 -->
+        <div class="line-row">
+          <div class="line-label">Line 3</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Jake DeBrusk</a></div>
+            <div class="pc-pos">LW</div>
+            <div class="pc-stats"><span class="cap-hit">$5.500M</span><br><span class="cap-detail">2 yrs &middot; UFA 2028</span></div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Pavel Zacha</a></div>
+            <div class="pc-pos">C</div>
+            <div class="pc-stats"><span class="cap-hit">$4.750M</span><br><span class="cap-detail">3 yrs &middot; UFA 2029</span></div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Danton Heinen</a></div>
+            <div class="pc-pos">RW</div>
+            <div class="pc-stats"><span class="cap-hit">$1.500M</span><br><span class="cap-detail">1 yr &middot; UFA 2027</span></div>
+          </div>
+        </div>
+        <!-- Line 4 -->
+        <div class="line-row">
+          <div class="line-label">Line 4</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Nick Foligno</a></div>
+            <div class="pc-pos">LW</div>
+            <div class="pc-stats"><span class="cap-hit">$3.800M</span><br><span class="cap-detail">1 yr &middot; UFA 2027</span></div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Tomas Nosek</a></div>
+            <div class="pc-pos">C</div>
+            <div class="pc-stats"><span class="cap-hit">$1.750M</span><br><span class="cap-detail">1 yr &middot; UFA 2027</span></div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">A.J. Greer</a></div>
+            <div class="pc-pos">RW</div>
+            <div class="pc-stats"><span class="cap-hit">$0.850M</span><br><span class="cap-detail">1 yr &middot; RFA 2027</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Defense Pairings -->
+    <div class="depth-group">
+      <div class="depth-group-title">Defense Pairings</div>
+
+      <!-- STATS VIEW -->
+      <div class="stats-view" id="stats-defense">
+        <div class="line-row">
+          <div class="line-label">Pair 1</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Hampus Lindholm</a></div>
+            <div class="pc-pos">LD</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 60 &nbsp; <span class="stat-label">PTS</span> 38</div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Charlie McAvoy</a></div>
+            <div class="pc-pos">RD</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 62 &nbsp; <span class="stat-label">PTS</span> 46</div>
+          </div>
+        </div>
+        <div class="line-row">
+          <div class="line-label">Pair 2</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Mason Lohrei</a></div>
+            <div class="pc-pos">LD</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 58 &nbsp; <span class="stat-label">PTS</span> 28</div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Brandon Carlo</a></div>
+            <div class="pc-pos">RD</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 62 &nbsp; <span class="stat-label">PTS</span> 16</div>
+          </div>
+        </div>
+        <div class="line-row">
+          <div class="line-label">Pair 3</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Andrew Peeke</a></div>
+            <div class="pc-pos">LD</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 48 &nbsp; <span class="stat-label">PTS</span> 8</div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Parker Wotherspoon</a></div>
+            <div class="pc-pos">RD</div>
+            <div class="pc-stats"><span class="stat-label">GP</span> 44 &nbsp; <span class="stat-label">PTS</span> 10</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAP VIEW -->
+      <div class="cap-view" id="cap-defense">
+        <div class="line-row">
+          <div class="line-label">Pair 1</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Hampus Lindholm</a></div>
+            <div class="pc-pos">LD</div>
+            <div class="pc-stats"><span class="cap-hit">$6.500M</span><br><span class="cap-detail">5 yrs &middot; UFA 2030</span></div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Charlie McAvoy</a></div>
+            <div class="pc-pos">RD</div>
+            <div class="pc-stats"><span class="cap-hit">$9.500M</span><br><span class="cap-detail">5 yrs &middot; UFA 2030</span></div>
+          </div>
+        </div>
+        <div class="line-row">
+          <div class="line-label">Pair 2</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Mason Lohrei</a></div>
+            <div class="pc-pos">LD</div>
+            <div class="pc-stats"><span class="cap-hit">$0.925M</span><br><span class="cap-detail">1 yr &middot; RFA 2027</span></div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Brandon Carlo</a></div>
+            <div class="pc-pos">RD</div>
+            <div class="pc-stats"><span class="cap-hit">$4.100M</span><br><span class="cap-detail">3 yrs &middot; UFA 2029</span></div>
+          </div>
+        </div>
+        <div class="line-row">
+          <div class="line-label">Pair 3</div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Andrew Peeke</a></div>
+            <div class="pc-pos">LD</div>
+            <div class="pc-stats"><span class="cap-hit">$2.750M</span><br><span class="cap-detail">2 yrs &middot; UFA 2028</span></div>
+          </div>
+          <div class="player-card">
+            <div class="pc-name"><a href="#">Parker Wotherspoon</a></div>
+            <div class="pc-pos">RD</div>
+            <div class="pc-stats"><span class="cap-hit">$0.800M</span><br><span class="cap-detail">1 yr &middot; RFA 2027</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goalies -->
+    <div class="depth-group">
+      <div class="depth-group-title">Goaltenders</div>
+
+      <!-- STATS VIEW -->
+      <div class="stats-view" id="stats-goalies">
+        <div class="goalie-row">
+          <div class="goalie-card">
+            <div class="gc-role">Starter</div>
+            <div class="gc-name"><a href="#">Jeremy Swayman</a></div>
+            <div class="gc-detail">Glove: L &nbsp;&middot;&nbsp; <span class="stat-label">GP</span> 48 &nbsp; <span class="stat-label">W</span> 30</div>
+          </div>
+          <div class="goalie-card">
+            <div class="gc-role">Backup</div>
+            <div class="gc-name"><a href="#">Linus Ullmark</a></div>
+            <div class="gc-detail">Glove: L &nbsp;&middot;&nbsp; <span class="stat-label">GP</span> 22 &nbsp; <span class="stat-label">W</span> 14</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAP VIEW -->
+      <div class="cap-view" id="cap-goalies">
+        <div class="goalie-row">
+          <div class="goalie-card">
+            <div class="gc-role">Starter</div>
+            <div class="gc-name"><a href="#">Jeremy Swayman</a></div>
+            <div class="gc-detail"><span class="cap-hit" style="font-weight:700">$8.250M</span> &nbsp;&middot;&nbsp; <span class="cap-detail">7 yrs &middot; UFA 2032</span></div>
+          </div>
+          <div class="goalie-card">
+            <div class="gc-role">Backup</div>
+            <div class="gc-name"><a href="#">Linus Ullmark</a></div>
+            <div class="gc-detail"><span class="cap-hit" style="font-weight:700">$5.000M</span> &nbsp;&middot;&nbsp; <span class="cap-detail">2 yrs &middot; UFA 2028</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Injured / Scratched -->
+    <div class="injury-section">
+      <div class="injury-title">Injured / Scratched</div>
+      <ul class="injury-list">
+        <li>
+          <span class="injury-badge ir">IR</span>
+          <span class="injury-name">Matt Grzelcyk</span>
+          <span class="injury-detail">&mdash; Upper body &middot; Week-to-week</span>
+        </li>
+        <li>
+          <span class="injury-badge dtd">DTD</span>
+          <span class="injury-name">Pavel Zacha</span>
+          <span class="injury-detail">&mdash; Lower body &middot; Day-to-day</span>
+        </li>
+        <li>
+          <span class="injury-badge scratch">Scratch</span>
+          <span class="injury-name">A.J. Greer</span>
+          <span class="injury-detail">&mdash; Healthy scratch</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+</div><!-- /.page -->
+
+<!-- ══════════ SCRIPTS ══════════ -->
+<script>
+// Theme toggle
+function toggleTheme() {
+  const html = document.documentElement;
+  if (html.getAttribute('data-theme') === 'dark') {
+    html.removeAttribute('data-theme');
+  } else {
+    html.setAttribute('data-theme', 'dark');
+  }
+}
+
+// Stats / Cap view toggle
+function showStats() {
+  document.getElementById('btn-stats').classList.add('active');
+  document.getElementById('btn-cap').classList.remove('active');
+  document.querySelectorAll('.stats-view').forEach(el => el.style.display = '');
+  document.querySelectorAll('.cap-view').forEach(el => el.style.display = 'none');
+}
+function showCap() {
+  document.getElementById('btn-cap').classList.add('active');
+  document.getElementById('btn-stats').classList.remove('active');
+  document.querySelectorAll('.stats-view').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.cap-view').forEach(el => el.style.display = '');
+}
+</script>
+
+</body>
+</html>

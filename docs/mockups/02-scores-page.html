@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M002 - Scores Page Mockup | Hockey League Hub</title>
+
+<!-- Self-hosted Courier Prime -->
+<style>
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: italic; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-italic.woff2') format('woff2'); }
+</style>
+
+<style>
+/* ===================================================================
+   DESIGN TOKENS
+   =================================================================== */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1; --bg-banner: #000000; --bg-nav: #1A1A1A; --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04); --text-primary: #1A1A1A; --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A; --text-on-banner: #F5F0E1; --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25); --color-link: #2C5F8A; --color-link-hover: #1A3D5C;
+  --color-live: #C0392B; --color-pending: #D4A017; --color-final: #4A4A4A;
+  --bg-ticker: #111111; --text-ticker: #F5F0E1;
+}
+[data-theme="dark"] {
+  --bg-page: #0A1628; --bg-nav: #0D1B2A; --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06); --text-primary: #F5F0E1; --text-secondary: #B8B0A0;
+  --text-muted: #807868; --border-default: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6; --color-link-hover: #8DC0F0; --color-live: #E74C3C;
+  --color-pending: #F1C40F; --color-final: #B8B0A0; --bg-ticker: #050D1A;
+}
+
+/* ===================================================================
+   RESET + BASE
+   =================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  background: #E8E0D0;
+  color: #1A1A1A;
+}
+
+/* ===================================================================
+   MOCKUP LAYOUT
+   =================================================================== */
+.mockup-label {
+  text-align: center;
+  padding: 18px 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #555;
+  background: #E8E0D0;
+}
+
+.shell-wrapper {
+  max-width: 1280px;
+  margin: 0 auto 40px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.18);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-page);
+  color: var(--text-primary);
+}
+
+/* ===================================================================
+   BANNER
+   =================================================================== */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-banner, #000);
+  color: var(--text-on-banner);
+  padding: 0 24px;
+  height: 56px;
+}
+
+.banner__brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.banner__brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--text-on-banner);
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.banner__search {
+  flex: 0 1 420px;
+  margin: 0 24px;
+}
+
+.banner__search input {
+  width: 100%;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-on-banner);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  outline: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.banner__search input::placeholder { color: rgba(245,240,225,0.5); }
+.banner__search input:focus { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.4); }
+
+.banner__search-wrap { position: relative; }
+.banner__search-wrap::before {
+  content: "\1F50D";
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.banner__hamburger {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  color: var(--text-on-banner);
+  font-size: 22px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  line-height: 1;
+}
+.banner__hamburger:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.35); }
+
+/* ===================================================================
+   LIVE SCORE TICKER
+   =================================================================== */
+.ticker {
+  background: var(--bg-ticker);
+  color: var(--text-ticker);
+  height: 40px;
+  overflow: hidden;
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.ticker__track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 0;
+  animation: ticker-scroll 30s linear infinite;
+  width: max-content;
+}
+
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker__game {
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  height: 100%;
+}
+.ticker__game:last-child { border-right: none; }
+.ticker__teams { display: flex; align-items: center; gap: 6px; }
+.ticker__team { color: var(--text-ticker); }
+.ticker__score { color: var(--text-ticker); margin: 0 4px; }
+.ticker__score--live { color: var(--color-live); }
+.ticker__dash { color: rgba(245,240,225,0.4); margin: 0 2px; }
+.ticker__status { margin-left: 10px; font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; }
+.ticker__status--live { color: var(--color-live); }
+.ticker__status--final { color: var(--color-final); opacity: 0.7; }
+.ticker__status--pending { color: var(--color-pending); }
+.ticker__live-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--color-live);
+  margin-right: 5px;
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* ===================================================================
+   SECONDARY NAV
+   =================================================================== */
+.nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 16px;
+  gap: 0;
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+
+.nav__link {
+  color: rgba(245,240,225,0.65);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.nav__link:hover { color: rgba(245,240,225,0.9); }
+.nav__link--active { color: #F5F0E1; border-bottom-color: #F5F0E1; }
+
+/* ===================================================================
+   CONTENT AREA
+   =================================================================== */
+.content {
+  min-height: 400px;
+  padding: 32px 48px 48px;
+  background: var(--bg-page);
+}
+
+/* ===================================================================
+   DATE HEADER
+   =================================================================== */
+.date-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.date-header__arrow {
+  background: none;
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-family: var(--font-primary);
+  transition: background 0.15s, border-color 0.15s;
+}
+.date-header__arrow:hover {
+  background: var(--bg-row-alt);
+  border-color: var(--border-strong);
+}
+
+.date-header__text {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-header__cal-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+.date-header__cal-icon:hover {
+  background: var(--bg-row-alt);
+}
+
+/* ===================================================================
+   SCORE GRID
+   =================================================================== */
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+/* ===================================================================
+   SCORE BOX (COLLAPSED)
+   =================================================================== */
+.score-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.score-box:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.score-box__status-bar {
+  padding: 6px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.score-box__status-bar--live {
+  color: var(--color-live);
+  background: rgba(192,57,43,0.06);
+}
+.score-box__status-bar--final {
+  color: var(--color-final);
+}
+.score-box__status-bar--pending {
+  color: var(--color-pending);
+}
+
+.score-box__teams {
+  padding: 10px 14px 6px;
+}
+
+.score-box__team-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+.score-box__team-row + .score-box__team-row {
+  border-top: 1px solid var(--border-default);
+}
+
+.score-box__team-info {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.score-box__team-abbr {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 38px;
+}
+.score-box__team-abbr--winner {
+  /* intentionally same weight; the score draws attention */
+}
+
+.score-box__team-record {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.score-box__team-rank {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.score-box__score-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.score-box__score {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.score-box__score--live {
+  color: var(--color-live);
+}
+
+.score-box__sog {
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.score-box__footer {
+  padding: 8px 14px;
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.score-box__link {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-link);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: color 0.15s;
+}
+.score-box__link:hover { color: var(--color-link-hover); }
+
+/* ===================================================================
+   SCORE BOX (EXPANDED) - spans 2 columns
+   =================================================================== */
+.score-box--expanded {
+  grid-column: span 2;
+}
+
+.score-box__expanded-body {
+  padding: 0 14px 10px;
+}
+
+/* Period breakdown table */
+.period-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 14px;
+}
+.period-table th,
+.period-table td {
+  padding: 5px 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-default);
+}
+.period-table th {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  background: var(--bg-row-alt);
+}
+.period-table th:first-child,
+.period-table td:first-child {
+  text-align: left;
+  font-weight: 700;
+}
+.period-table td.period-table__total {
+  font-weight: 700;
+  border-left: 1px solid var(--border-strong);
+}
+
+/* Team stats comparison row */
+.team-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.team-stat {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  padding: 6px 4px;
+  background: var(--bg-row-alt);
+  border-radius: 3px;
+}
+.team-stat__label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+.team-stat__values {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.team-stat__val { white-space: nowrap; }
+.team-stat__sep { color: var(--text-muted); font-weight: 400; }
+
+/* Goal + penalty summary sections */
+.summary-section {
+  margin-bottom: 12px;
+}
+.summary-section:last-child { margin-bottom: 0; }
+
+.summary-section__title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-default);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.summary-item {
+  display: flex;
+  gap: 10px;
+  padding: 3px 0;
+  font-size: 11px;
+  line-height: 1.4;
+  border-bottom: 1px solid var(--border-default);
+}
+.summary-item:last-child { border-bottom: none; }
+
+.summary-item__period {
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 28px;
+  flex-shrink: 0;
+}
+.summary-item__time {
+  color: var(--text-muted);
+  min-width: 40px;
+  flex-shrink: 0;
+}
+.summary-item__detail {
+  color: var(--text-secondary);
+  flex: 1;
+}
+.summary-item__detail strong {
+  color: var(--text-primary);
+}
+
+/* ===================================================================
+   PREGAME BOX
+   =================================================================== */
+.score-box__pregame-time {
+  text-align: center;
+  padding: 8px 14px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-pending);
+}
+
+.pregame-body {
+  padding: 0 14px 8px;
+}
+
+.pregame-section {
+  margin-bottom: 10px;
+}
+.pregame-section:last-child { margin-bottom: 0; }
+
+.pregame-section__title {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.pregame-matchup {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 4px;
+  align-items: start;
+  font-size: 11px;
+}
+
+.pregame-matchup__away { text-align: left; }
+.pregame-matchup__vs {
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0 2px;
+  align-self: center;
+}
+.pregame-matchup__home { text-align: right; }
+
+.pregame-matchup__name {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 11px;
+}
+.pregame-matchup__stat {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.pregame-h2h {
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 6px 0 2px;
+  border-top: 1px solid var(--border-default);
+  margin-top: 6px;
+}
+
+/* ===================================================================
+   FOOTER
+   =================================================================== */
+.footer {
+  padding: 24px 48px;
+  border-top: 1px solid var(--border-default);
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-page);
+}
+.footer a { color: var(--color-link); text-decoration: none; }
+.footer a:hover { color: var(--color-link-hover); }
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     LIGHT MODE
+     ================================================================ -->
+<div class="mockup-label">Light Mode &mdash; Scores Page</div>
+<div class="shell-wrapper" id="shell-light">
+
+  <!-- Banner -->
+  <header class="banner">
+    <div class="banner__brand">
+      <span class="banner__brand-icon">H</span>
+      Hockey League Hub
+    </div>
+    <div class="banner__search">
+      <div class="banner__search-wrap">
+        <input type="text" placeholder="Search players, teams, trades...">
+      </div>
+    </div>
+    <button class="banner__hamburger" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <!-- Live Score Ticker -->
+  <div class="ticker">
+    <div class="ticker__track">
+      <!-- First set -->
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 8:44</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">CAR</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">FLA</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final/OT</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__team">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final/SO</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">VGK</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">LAK</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+      <!-- Duplicate set for seamless scroll -->
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 8:44</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">CAR</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">FLA</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final/OT</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__team">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final/SO</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">VGK</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">LAK</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav__link nav__link--active">Scores</a>
+    <a href="#" class="nav__link">Standings</a>
+    <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link">Teams</a>
+    <a href="#" class="nav__link">Schedule</a>
+    <a href="#" class="nav__link">Players</a>
+    <a href="#" class="nav__link">Salary Cap</a>
+    <a href="#" class="nav__link">Trades</a>
+    <a href="#" class="nav__link">Free Agents</a>
+    <a href="#" class="nav__link">Personnel</a>
+  </nav>
+
+  <!-- Scores Content -->
+  <main class="content">
+
+    <!-- Date Header -->
+    <div class="date-header">
+      <button class="date-header__arrow" aria-label="Previous day">&#8592;</button>
+      <div class="date-header__text">
+        Tuesday, March 17, 2026
+        <span class="date-header__cal-icon" aria-label="Open calendar">&#128197;</span>
+      </div>
+      <button class="date-header__arrow" aria-label="Next day">&#8594;</button>
+    </div>
+
+    <!-- Score Grid: ordered live, then final, then upcoming -->
+    <div class="score-grid">
+
+      <!-- ============================================================
+           BOX 1: LIVE - NYR @ MTL (collapsed)
+           ============================================================ -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--live">
+          <span class="ticker__live-dot"></span> 2nd &mdash; 8:44
+        </div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">NYR</span>
+              <span class="score-box__team-record">40-20-6</span>
+              <span class="score-box__team-rank">(4)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score score-box__score--live">2</span>
+              <span class="score-box__sog">SOG: 18</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">MTL</span>
+              <span class="score-box__team-record">30-28-8</span>
+              <span class="score-box__team-rank">(11)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score score-box__score--live">1</span>
+              <span class="score-box__sog">SOG: 14</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           BOX 2: LIVE - NYR @ MTL (EXPANDED - spans 2 cols)
+           ============================================================ -->
+      <div class="score-box score-box--expanded">
+        <div class="score-box__status-bar score-box__status-bar--live">
+          <span class="ticker__live-dot"></span> 2nd &mdash; 8:44
+        </div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">NYR</span>
+              <span class="score-box__team-record">40-20-6</span>
+              <span class="score-box__team-rank">(4)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score score-box__score--live">2</span>
+              <span class="score-box__sog">SOG: 18</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">MTL</span>
+              <span class="score-box__team-record">30-28-8</span>
+              <span class="score-box__team-rank">(11)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score score-box__score--live">1</span>
+              <span class="score-box__sog">SOG: 14</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expanded Detail -->
+        <div class="score-box__expanded-body">
+
+          <!-- Period breakdown -->
+          <table class="period-table">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>1st</th>
+                <th>2nd</th>
+                <th>3rd</th>
+                <th>T</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>NYR</td>
+                <td>1</td>
+                <td>1</td>
+                <td>&ndash;</td>
+                <td class="period-table__total">2</td>
+              </tr>
+              <tr>
+                <td>MTL</td>
+                <td>0</td>
+                <td>1</td>
+                <td>&ndash;</td>
+                <td class="period-table__total">1</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Team stats comparison -->
+          <div class="team-stats">
+            <div class="team-stat">
+              <div class="team-stat__label">PP</div>
+              <div class="team-stat__values">
+                <span class="team-stat__val">1/3</span>
+                <span class="team-stat__sep">|</span>
+                <span class="team-stat__val">0/2</span>
+              </div>
+            </div>
+            <div class="team-stat">
+              <div class="team-stat__label">HIT</div>
+              <div class="team-stat__values">
+                <span class="team-stat__val">18</span>
+                <span class="team-stat__sep">|</span>
+                <span class="team-stat__val">22</span>
+              </div>
+            </div>
+            <div class="team-stat">
+              <div class="team-stat__label">FO%</div>
+              <div class="team-stat__values">
+                <span class="team-stat__val">48.6%</span>
+                <span class="team-stat__sep">|</span>
+                <span class="team-stat__val">51.4%</span>
+              </div>
+            </div>
+            <div class="team-stat">
+              <div class="team-stat__label">TK</div>
+              <div class="team-stat__values">
+                <span class="team-stat__val">5</span>
+                <span class="team-stat__sep">|</span>
+                <span class="team-stat__val">7</span>
+              </div>
+            </div>
+            <div class="team-stat">
+              <div class="team-stat__label">GV</div>
+              <div class="team-stat__values">
+                <span class="team-stat__val">8</span>
+                <span class="team-stat__sep">|</span>
+                <span class="team-stat__val">10</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Goal summary -->
+          <div class="summary-section">
+            <div class="summary-section__title">Goals</div>
+            <div class="summary-item">
+              <span class="summary-item__period">1st</span>
+              <span class="summary-item__time">07:23</span>
+              <span class="summary-item__detail"><strong>A. Panarin (28)</strong> &mdash; NYR &mdash; Assists: C. Kreider, M. Zibanejad</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-item__period">2nd</span>
+              <span class="summary-item__time">03:11</span>
+              <span class="summary-item__detail"><strong>C. Caufield (34)</strong> &mdash; MTL &mdash; Assists: N. Suzuki, J. Evans</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-item__period">2nd</span>
+              <span class="summary-item__time">12:05</span>
+              <span class="summary-item__detail"><strong>M. Zibanejad (22)</strong> &mdash; NYR (PP) &mdash; Assists: A. Panarin, A. Fox</span>
+            </div>
+          </div>
+
+          <!-- Penalty summary -->
+          <div class="summary-section">
+            <div class="summary-section__title">Penalties</div>
+            <div class="summary-item">
+              <span class="summary-item__period">1st</span>
+              <span class="summary-item__time">14:50</span>
+              <span class="summary-item__detail"><strong>J. Trocheck</strong> &mdash; NYR &mdash; Hooking (2:00)</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-item__period">2nd</span>
+              <span class="summary-item__time">05:33</span>
+              <span class="summary-item__detail"><strong>M. Matheson</strong> &mdash; MTL &mdash; Tripping (2:00)</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-item__period">2nd</span>
+              <span class="summary-item__time">10:48</span>
+              <span class="summary-item__detail"><strong>K. Dach</strong> &mdash; MTL &mdash; Slashing (2:00)</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Full Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           BOX 3: FINAL - BOS @ TOR (collapsed)
+           ============================================================ -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">BOS</span>
+              <span class="score-box__team-record">42-18-6</span>
+              <span class="score-box__team-rank">(2)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">4</span>
+              <span class="score-box__sog">SOG: 33</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">TOR</span>
+              <span class="score-box__team-record">38-22-6</span>
+              <span class="score-box__team-rank">(5)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">2</span>
+              <span class="score-box__sog">SOG: 28</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           BOX 4: FINAL - COL @ DAL (collapsed)
+           ============================================================ -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">COL</span>
+              <span class="score-box__team-record">41-19-5</span>
+              <span class="score-box__team-rank">(3)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">5</span>
+              <span class="score-box__sog">SOG: 36</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">DAL</span>
+              <span class="score-box__team-record">39-21-6</span>
+              <span class="score-box__team-rank">(6)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 29</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           BOX 5: FINAL - WPG @ NSH (collapsed)
+           ============================================================ -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">WPG</span>
+              <span class="score-box__team-record">43-17-5</span>
+              <span class="score-box__team-rank">(1)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 30</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">NSH</span>
+              <span class="score-box__team-record">28-32-6</span>
+              <span class="score-box__team-rank">(14)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">1</span>
+              <span class="score-box__sog">SOG: 22</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           BOX 6: FINAL/OT - CAR @ FLA (collapsed)
+           ============================================================ -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL/OT</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">CAR</span>
+              <span class="score-box__team-record">39-22-5</span>
+              <span class="score-box__team-rank">(7)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 31</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">FLA</span>
+              <span class="score-box__team-record">37-24-5</span>
+              <span class="score-box__team-rank">(8)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">2</span>
+              <span class="score-box__sog">SOG: 27</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           BOX 7: PREGAME - DET @ CHI
+           ============================================================ -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--pending">PREGAME</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">DET</span>
+              <span class="score-box__team-record">34-26-6</span>
+              <span class="score-box__team-rank">(9)</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">CHI</span>
+              <span class="score-box__team-record">24-36-6</span>
+              <span class="score-box__team-rank">(16)</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__pregame-time">7:00 PM ET</div>
+
+        <div class="pregame-body">
+          <div class="pregame-section">
+            <div class="pregame-section__title">Top Scorers</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__name">L. Raymond</div>
+                <div class="pregame-matchup__stat">28-34-62</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__name">C. Bedard</div>
+                <div class="pregame-matchup__stat">25-38-63</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pregame-section">
+            <div class="pregame-section__title">Starting Goalies</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__name">A. Lyon</div>
+                <div class="pregame-matchup__stat">2.68 GAA / .912 SV%</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__name">P. Mrazek</div>
+                <div class="pregame-matchup__stat">3.22 GAA / .901 SV%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pregame-section">
+            <div class="pregame-section__title">Special Teams</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__stat">PP: 22.4% | PK: 79.1%</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__stat">PP: 18.8% | PK: 76.5%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pregame-h2h">Season: 2-1-0 &nbsp;|&nbsp; All-Time: 371-333-88</div>
+        </div>
+
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           BOX 8: PREGAME - VGK @ LAK
+           ============================================================ -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--pending">PREGAME</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">VGK</span>
+              <span class="score-box__team-record">37-24-5</span>
+              <span class="score-box__team-rank">(8)</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">LAK</span>
+              <span class="score-box__team-record">33-27-6</span>
+              <span class="score-box__team-rank">(10)</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__pregame-time">10:00 PM ET</div>
+
+        <div class="pregame-body">
+          <div class="pregame-section">
+            <div class="pregame-section__title">Top Scorers</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__name">J. Eichel</div>
+                <div class="pregame-matchup__stat">30-42-72</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__name">A. Kopitar</div>
+                <div class="pregame-matchup__stat">18-40-58</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pregame-section">
+            <div class="pregame-section__title">Starting Goalies</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__name">A. Hill</div>
+                <div class="pregame-matchup__stat">2.45 GAA / .918 SV%</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__name">TBD</div>
+                <div class="pregame-matchup__stat">&mdash;</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pregame-section">
+            <div class="pregame-section__title">Special Teams</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__stat">PP: 24.1% | PK: 81.3%</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__stat">PP: 20.5% | PK: 78.9%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pregame-h2h">Season: 1-1-1 &nbsp;|&nbsp; All-Time: 14-12-3</div>
+        </div>
+
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+    </div><!-- /score-grid -->
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
+  </footer>
+</div>
+
+
+<!-- ================================================================
+     DARK MODE
+     ================================================================ -->
+<div class="mockup-label">Dark Mode &mdash; Scores Page</div>
+<div class="shell-wrapper" id="shell-dark" data-theme="dark">
+
+  <!-- Banner -->
+  <header class="banner">
+    <div class="banner__brand">
+      <span class="banner__brand-icon">H</span>
+      Hockey League Hub
+    </div>
+    <div class="banner__search">
+      <div class="banner__search-wrap">
+        <input type="text" placeholder="Search players, teams, trades...">
+      </div>
+    </div>
+    <button class="banner__hamburger" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <!-- Live Score Ticker -->
+  <div class="ticker">
+    <div class="ticker__track">
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 8:44</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">CAR</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">FLA</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final/OT</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__team">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final/SO</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">VGK</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">LAK</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+      <!-- Duplicate for seamless scroll -->
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 8:44</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">CAR</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">FLA</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final/OT</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__team">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final/SO</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">VGK</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">LAK</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav__link nav__link--active">Scores</a>
+    <a href="#" class="nav__link">Standings</a>
+    <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link">Teams</a>
+    <a href="#" class="nav__link">Schedule</a>
+    <a href="#" class="nav__link">Players</a>
+    <a href="#" class="nav__link">Salary Cap</a>
+    <a href="#" class="nav__link">Trades</a>
+    <a href="#" class="nav__link">Free Agents</a>
+    <a href="#" class="nav__link">Personnel</a>
+  </nav>
+
+  <!-- Scores Content -->
+  <main class="content">
+
+    <!-- Date Header -->
+    <div class="date-header">
+      <button class="date-header__arrow" aria-label="Previous day">&#8592;</button>
+      <div class="date-header__text">
+        Tuesday, March 17, 2026
+        <span class="date-header__cal-icon" aria-label="Open calendar">&#128197;</span>
+      </div>
+      <button class="date-header__arrow" aria-label="Next day">&#8594;</button>
+    </div>
+
+    <!-- Score Grid -->
+    <div class="score-grid">
+
+      <!-- BOX 1: LIVE - NYR @ MTL (collapsed) -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--live">
+          <span class="ticker__live-dot"></span> 2nd &mdash; 8:44
+        </div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">NYR</span>
+              <span class="score-box__team-record">40-20-6</span>
+              <span class="score-box__team-rank">(4)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score score-box__score--live">2</span>
+              <span class="score-box__sog">SOG: 18</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">MTL</span>
+              <span class="score-box__team-record">30-28-8</span>
+              <span class="score-box__team-rank">(11)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score score-box__score--live">1</span>
+              <span class="score-box__sog">SOG: 14</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- BOX 2: LIVE - NYR @ MTL (EXPANDED) -->
+      <div class="score-box score-box--expanded">
+        <div class="score-box__status-bar score-box__status-bar--live">
+          <span class="ticker__live-dot"></span> 2nd &mdash; 8:44
+        </div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">NYR</span>
+              <span class="score-box__team-record">40-20-6</span>
+              <span class="score-box__team-rank">(4)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score score-box__score--live">2</span>
+              <span class="score-box__sog">SOG: 18</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">MTL</span>
+              <span class="score-box__team-record">30-28-8</span>
+              <span class="score-box__team-rank">(11)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score score-box__score--live">1</span>
+              <span class="score-box__sog">SOG: 14</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-box__expanded-body">
+          <table class="period-table">
+            <thead>
+              <tr><th>Team</th><th>1st</th><th>2nd</th><th>3rd</th><th>T</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>NYR</td><td>1</td><td>1</td><td>&ndash;</td><td class="period-table__total">2</td></tr>
+              <tr><td>MTL</td><td>0</td><td>1</td><td>&ndash;</td><td class="period-table__total">1</td></tr>
+            </tbody>
+          </table>
+
+          <div class="team-stats">
+            <div class="team-stat">
+              <div class="team-stat__label">PP</div>
+              <div class="team-stat__values">
+                <span class="team-stat__val">1/3</span>
+                <span class="team-stat__sep">|</span>
+                <span class="team-stat__val">0/2</span>
+              </div>
+            </div>
+            <div class="team-stat">
+              <div class="team-stat__label">HIT</div>
+              <div class="team-stat__values">
+                <span class="team-stat__val">18</span>
+                <span class="team-stat__sep">|</span>
+                <span class="team-stat__val">22</span>
+              </div>
+            </div>
+            <div class="team-stat">
+              <div class="team-stat__label">FO%</div>
+              <div class="team-stat__values">
+                <span class="team-stat__val">48.6%</span>
+                <span class="team-stat__sep">|</span>
+                <span class="team-stat__val">51.4%</span>
+              </div>
+            </div>
+            <div class="team-stat">
+              <div class="team-stat__label">TK</div>
+              <div class="team-stat__values">
+                <span class="team-stat__val">5</span>
+                <span class="team-stat__sep">|</span>
+                <span class="team-stat__val">7</span>
+              </div>
+            </div>
+            <div class="team-stat">
+              <div class="team-stat__label">GV</div>
+              <div class="team-stat__values">
+                <span class="team-stat__val">8</span>
+                <span class="team-stat__sep">|</span>
+                <span class="team-stat__val">10</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <div class="summary-section__title">Goals</div>
+            <div class="summary-item">
+              <span class="summary-item__period">1st</span>
+              <span class="summary-item__time">07:23</span>
+              <span class="summary-item__detail"><strong>A. Panarin (28)</strong> &mdash; NYR &mdash; Assists: C. Kreider, M. Zibanejad</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-item__period">2nd</span>
+              <span class="summary-item__time">03:11</span>
+              <span class="summary-item__detail"><strong>C. Caufield (34)</strong> &mdash; MTL &mdash; Assists: N. Suzuki, J. Evans</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-item__period">2nd</span>
+              <span class="summary-item__time">12:05</span>
+              <span class="summary-item__detail"><strong>M. Zibanejad (22)</strong> &mdash; NYR (PP) &mdash; Assists: A. Panarin, A. Fox</span>
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <div class="summary-section__title">Penalties</div>
+            <div class="summary-item">
+              <span class="summary-item__period">1st</span>
+              <span class="summary-item__time">14:50</span>
+              <span class="summary-item__detail"><strong>J. Trocheck</strong> &mdash; NYR &mdash; Hooking (2:00)</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-item__period">2nd</span>
+              <span class="summary-item__time">05:33</span>
+              <span class="summary-item__detail"><strong>M. Matheson</strong> &mdash; MTL &mdash; Tripping (2:00)</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-item__period">2nd</span>
+              <span class="summary-item__time">10:48</span>
+              <span class="summary-item__detail"><strong>K. Dach</strong> &mdash; MTL &mdash; Slashing (2:00)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Full Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- BOX 3: FINAL - BOS @ TOR -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">BOS</span>
+              <span class="score-box__team-record">42-18-6</span>
+              <span class="score-box__team-rank">(2)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">4</span>
+              <span class="score-box__sog">SOG: 33</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">TOR</span>
+              <span class="score-box__team-record">38-22-6</span>
+              <span class="score-box__team-rank">(5)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">2</span>
+              <span class="score-box__sog">SOG: 28</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- BOX 4: FINAL - COL @ DAL -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">COL</span>
+              <span class="score-box__team-record">41-19-5</span>
+              <span class="score-box__team-rank">(3)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">5</span>
+              <span class="score-box__sog">SOG: 36</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">DAL</span>
+              <span class="score-box__team-record">39-21-6</span>
+              <span class="score-box__team-rank">(6)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 29</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- BOX 5: FINAL - WPG @ NSH -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">WPG</span>
+              <span class="score-box__team-record">43-17-5</span>
+              <span class="score-box__team-rank">(1)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 30</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">NSH</span>
+              <span class="score-box__team-record">28-32-6</span>
+              <span class="score-box__team-rank">(14)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">1</span>
+              <span class="score-box__sog">SOG: 22</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- BOX 6: FINAL/OT - CAR @ FLA -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL/OT</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">CAR</span>
+              <span class="score-box__team-record">39-22-5</span>
+              <span class="score-box__team-rank">(7)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 31</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">FLA</span>
+              <span class="score-box__team-record">37-24-5</span>
+              <span class="score-box__team-rank">(8)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">2</span>
+              <span class="score-box__sog">SOG: 27</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- BOX 7: PREGAME - DET @ CHI -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--pending">PREGAME</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">DET</span>
+              <span class="score-box__team-record">34-26-6</span>
+              <span class="score-box__team-rank">(9)</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">CHI</span>
+              <span class="score-box__team-record">24-36-6</span>
+              <span class="score-box__team-rank">(16)</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__pregame-time">7:00 PM ET</div>
+        <div class="pregame-body">
+          <div class="pregame-section">
+            <div class="pregame-section__title">Top Scorers</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__name">L. Raymond</div>
+                <div class="pregame-matchup__stat">28-34-62</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__name">C. Bedard</div>
+                <div class="pregame-matchup__stat">25-38-63</div>
+              </div>
+            </div>
+          </div>
+          <div class="pregame-section">
+            <div class="pregame-section__title">Starting Goalies</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__name">A. Lyon</div>
+                <div class="pregame-matchup__stat">2.68 GAA / .912 SV%</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__name">P. Mrazek</div>
+                <div class="pregame-matchup__stat">3.22 GAA / .901 SV%</div>
+              </div>
+            </div>
+          </div>
+          <div class="pregame-section">
+            <div class="pregame-section__title">Special Teams</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__stat">PP: 22.4% | PK: 79.1%</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__stat">PP: 18.8% | PK: 76.5%</div>
+              </div>
+            </div>
+          </div>
+          <div class="pregame-h2h">Season: 2-1-0 &nbsp;|&nbsp; All-Time: 371-333-88</div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- BOX 8: PREGAME - VGK @ LAK -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--pending">PREGAME</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">VGK</span>
+              <span class="score-box__team-record">37-24-5</span>
+              <span class="score-box__team-rank">(8)</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">LAK</span>
+              <span class="score-box__team-record">33-27-6</span>
+              <span class="score-box__team-rank">(10)</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__pregame-time">10:00 PM ET</div>
+        <div class="pregame-body">
+          <div class="pregame-section">
+            <div class="pregame-section__title">Top Scorers</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__name">J. Eichel</div>
+                <div class="pregame-matchup__stat">30-42-72</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__name">A. Kopitar</div>
+                <div class="pregame-matchup__stat">18-40-58</div>
+              </div>
+            </div>
+          </div>
+          <div class="pregame-section">
+            <div class="pregame-section__title">Starting Goalies</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__name">A. Hill</div>
+                <div class="pregame-matchup__stat">2.45 GAA / .918 SV%</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__name">TBD</div>
+                <div class="pregame-matchup__stat">&mdash;</div>
+              </div>
+            </div>
+          </div>
+          <div class="pregame-section">
+            <div class="pregame-section__title">Special Teams</div>
+            <div class="pregame-matchup">
+              <div class="pregame-matchup__away">
+                <div class="pregame-matchup__stat">PP: 24.1% | PK: 81.3%</div>
+              </div>
+              <div class="pregame-matchup__vs">vs</div>
+              <div class="pregame-matchup__home">
+                <div class="pregame-matchup__stat">PP: 20.5% | PK: 78.9%</div>
+              </div>
+            </div>
+          </div>
+          <div class="pregame-h2h">Season: 1-1-1 &nbsp;|&nbsp; All-Time: 14-12-3</div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+    </div><!-- /score-grid -->
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
+  </footer>
+</div>
+
+</body>
+</html>

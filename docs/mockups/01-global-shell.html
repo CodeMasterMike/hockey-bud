@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M001 - Global Shell Mockup | Hockey League Hub</title>
+
+<!-- Self-hosted Courier Prime -->
+<style>
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: italic; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-italic.woff2') format('woff2'); }
+</style>
+
+<style>
+/* ===================================================================
+   DESIGN TOKENS
+   =================================================================== */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1;
+  --bg-banner: #000000;
+  --bg-nav: #1A1A1A;
+  --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04);
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A;
+  --text-on-banner: #F5F0E1;
+  --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25);
+  --color-link: #2C5F8A;
+  --color-link-hover: #1A3D5C;
+  --color-live: #C0392B;
+  --color-pending: #D4A017;
+  --color-final: #4A4A4A;
+  --bg-ticker: #111111;
+  --text-ticker: #F5F0E1;
+  --bg-era-original-six: rgba(139,90,43,0.05);
+  --bg-era-expansion: rgba(34,85,102,0.05);
+  --bg-era-salary-cap: rgba(60,60,60,0.05);
+}
+
+[data-theme="dark"] {
+  --bg-page: #0A1628;
+  --bg-nav: #0D1B2A;
+  --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06);
+  --text-primary: #F5F0E1;
+  --text-secondary: #B8B0A0;
+  --text-muted: #807868;
+  --border-default: rgba(255,255,255,0.1);
+  --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6;
+  --color-link-hover: #8DC0F0;
+  --color-live: #E74C3C;
+  --color-pending: #F1C40F;
+  --color-final: #B8B0A0;
+  --bg-ticker: #050D1A;
+}
+
+/* ===================================================================
+   RESET + BASE
+   =================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  background: #E8E0D0;
+  color: #1A1A1A;
+}
+
+/* ===================================================================
+   MOCKUP LAYOUT  - Two panels stacked for review comparison
+   =================================================================== */
+.mockup-label {
+  text-align: center;
+  padding: 18px 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #555;
+  background: #E8E0D0;
+}
+
+.shell-wrapper {
+  max-width: 1280px;
+  margin: 0 auto 40px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.18);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-page);
+  color: var(--text-primary);
+}
+
+/* ===================================================================
+   BANNER
+   =================================================================== */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-banner, #000);
+  color: var(--text-on-banner);
+  padding: 0 24px;
+  height: 56px;
+}
+
+.banner__brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.banner__brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--text-on-banner);
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.banner__search {
+  flex: 0 1 420px;
+  margin: 0 24px;
+}
+
+.banner__search input {
+  width: 100%;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-on-banner);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  outline: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.banner__search input::placeholder {
+  color: rgba(245,240,225,0.5);
+}
+
+.banner__search input:focus {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.4);
+}
+
+.banner__search-wrap {
+  position: relative;
+}
+
+.banner__search-wrap::before {
+  content: "\1F50D";
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.banner__hamburger {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  color: var(--text-on-banner);
+  font-size: 22px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  line-height: 1;
+}
+
+.banner__hamburger:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.35);
+}
+
+/* ===================================================================
+   LIVE SCORE TICKER
+   =================================================================== */
+.ticker {
+  background: var(--bg-ticker);
+  color: var(--text-ticker);
+  height: 40px;
+  overflow: hidden;
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.ticker__track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 0;
+  animation: ticker-scroll 30s linear infinite;
+  width: max-content;
+}
+
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker__game {
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  height: 100%;
+}
+
+.ticker__game:last-child { border-right: none; }
+
+.ticker__teams {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ticker__team {
+  color: var(--text-ticker);
+}
+
+.ticker__score {
+  color: var(--text-ticker);
+  margin: 0 4px;
+}
+
+.ticker__score--live {
+  color: var(--color-live);
+}
+
+.ticker__dash {
+  color: rgba(245,240,225,0.4);
+  margin: 0 2px;
+}
+
+.ticker__status {
+  margin-left: 10px;
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ticker__status--live {
+  color: var(--color-live);
+}
+
+.ticker__status--final {
+  color: var(--color-final);
+  opacity: 0.7;
+}
+
+.ticker__status--pending {
+  color: var(--color-pending);
+}
+
+.ticker__live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-live);
+  margin-right: 5px;
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* ===================================================================
+   SECONDARY NAV
+   =================================================================== */
+.nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 16px;
+  gap: 0;
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+
+.nav__link {
+  color: rgba(245,240,225,0.65);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nav__link:hover {
+  color: rgba(245,240,225,0.9);
+}
+
+.nav__link--active {
+  color: #F5F0E1;
+  border-bottom-color: #F5F0E1;
+}
+
+/* ===================================================================
+   CONTENT AREA
+   =================================================================== */
+.content {
+  min-height: 400px;
+  padding: 40px 48px;
+  background: var(--bg-page);
+}
+
+.content__heading {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.content__subheading {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+  font-style: italic;
+}
+
+.content__cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.content__card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 24px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.content__card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.content__card-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.content__card-body {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.content__card-link {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-link);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: color 0.15s;
+}
+
+.content__card-link:hover {
+  color: var(--color-link-hover);
+}
+
+.content__table-placeholder {
+  margin-top: 32px;
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.content__table-placeholder table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.content__table-placeholder th {
+  background: var(--bg-nav);
+  color: #F5F0E1;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.content__table-placeholder td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-primary);
+}
+
+.content__table-placeholder tr:nth-child(even) td {
+  background: var(--bg-row-alt);
+}
+
+.content__table-placeholder tr:last-child td {
+  border-bottom: none;
+}
+
+/* ===================================================================
+   HAMBURGER FLYOUT MENU
+   =================================================================== */
+.flyout-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.flyout-overlay--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.flyout {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 320px;
+  height: 100%;
+  background: var(--bg-card);
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.flyout--open {
+  transform: translateX(0);
+}
+
+.flyout__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.flyout__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.flyout__close {
+  background: none;
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.flyout__close:hover {
+  background: var(--bg-row-alt);
+}
+
+.flyout__body {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.flyout__section {
+  margin-bottom: 28px;
+}
+
+.flyout__section:last-child {
+  margin-bottom: 0;
+}
+
+.flyout__section-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.flyout__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 14px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.flyout__item:last-child {
+  border-bottom: none;
+}
+
+.flyout__item-icon {
+  margin-right: 12px;
+  font-size: 16px;
+  opacity: 0.7;
+  width: 22px;
+  text-align: center;
+}
+
+.flyout__item-label {
+  flex: 1;
+}
+
+.flyout__item-value {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* League selector dropdown */
+.flyout__select {
+  font-family: var(--font-primary);
+  font-size: 13px;
+  padding: 6px 28px 6px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234A4A4A'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  letter-spacing: -0.02em;
+}
+
+/* Dark mode toggle */
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--border-strong);
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle--active {
+  background: var(--color-link);
+}
+
+.toggle__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggle--active .toggle__knob {
+  transform: translateX(20px);
+}
+
+/* ===================================================================
+   FOOTER
+   =================================================================== */
+.footer {
+  padding: 24px 48px;
+  border-top: 1px solid var(--border-default);
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-page);
+}
+
+.footer a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: var(--color-link-hover);
+}
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     LIGHT MODE
+     ================================================================ -->
+<div class="mockup-label">Light Mode</div>
+<div class="shell-wrapper" id="shell-light">
+
+  <!-- Banner -->
+  <header class="banner">
+    <div class="banner__brand">
+      <span class="banner__brand-icon">H</span>
+      Hockey League Hub
+    </div>
+    <div class="banner__search">
+      <div class="banner__search-wrap">
+        <input type="text" placeholder="Search players, teams, trades...">
+      </div>
+    </div>
+    <button class="banner__hamburger" onclick="toggleFlyout('light')" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <!-- Live Score Ticker -->
+  <div class="ticker">
+    <div class="ticker__track">
+      <!-- First set -->
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">PIT</span>
+          <span class="ticker__score ticker__score--live">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__team">WSH</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">CGY</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <!-- Duplicate set for seamless scroll loop -->
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">PIT</span>
+          <span class="ticker__score ticker__score--live">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__team">WSH</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">CGY</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav__link nav__link--active">Scores</a>
+    <a href="#" class="nav__link">Standings</a>
+    <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link">Teams</a>
+    <a href="#" class="nav__link">Schedule</a>
+    <a href="#" class="nav__link">Players</a>
+    <a href="#" class="nav__link">Salary Cap</a>
+    <a href="#" class="nav__link">Trades</a>
+    <a href="#" class="nav__link">Free Agents</a>
+    <a href="#" class="nav__link">Personnel</a>
+  </nav>
+
+  <!-- Sample Content -->
+  <main class="content">
+    <h1 class="content__heading">Today's Scores</h1>
+    <p class="content__subheading">Tuesday, March 17 2026 &mdash; 5 games on the schedule</p>
+
+    <div class="content__cards">
+      <div class="content__card">
+        <div class="content__card-title">BOS 3 &ndash; TOR 2</div>
+        <div class="content__card-body">
+          Bergeron scored the game-winner with 2:14 left in the third period. Swayman stopped 31 of 33 shots.
+        </div>
+        <a href="#" class="content__card-link">Box Score &rarr;</a>
+      </div>
+      <div class="content__card">
+        <div class="content__card-title" style="color: var(--color-live);">NYR 1 &ndash; MTL 1</div>
+        <div class="content__card-body">
+          Tied heading into the final minutes of the second period. Caufield and Panarin have traded goals in a tight-checking affair.
+        </div>
+        <a href="#" class="content__card-link">Watch Live &rarr;</a>
+      </div>
+      <div class="content__card">
+        <div class="content__card-title" style="color: var(--color-pending);">DET vs CHI &mdash; 7:00 PM</div>
+        <div class="content__card-body">
+          Original Six rivalry renewed at the United Center. Detroit looks to extend a three-game winning streak.
+        </div>
+        <a href="#" class="content__card-link">Preview &rarr;</a>
+      </div>
+    </div>
+
+    <div class="content__table-placeholder">
+      <table>
+        <thead>
+          <tr>
+            <th>Matchup</th>
+            <th>Score</th>
+            <th>Period</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>BOS</strong> @ TOR</td>
+            <td>3 &ndash; 2</td>
+            <td>&mdash;</td>
+            <td style="color: var(--color-final);">Final</td>
+          </tr>
+          <tr>
+            <td><strong>NYR</strong> @ MTL</td>
+            <td style="color: var(--color-live);">1 &ndash; 1</td>
+            <td>2nd 14:32</td>
+            <td style="color: var(--color-live);">Live</td>
+          </tr>
+          <tr>
+            <td>DET @ <strong>CHI</strong></td>
+            <td>&mdash;</td>
+            <td>&mdash;</td>
+            <td style="color: var(--color-pending);">7:00 PM</td>
+          </tr>
+          <tr>
+            <td><strong>PIT</strong> @ WSH</td>
+            <td style="color: var(--color-live);">4 &ndash; 2</td>
+            <td>3rd 08:15</td>
+            <td style="color: var(--color-live);">Live</td>
+          </tr>
+          <tr>
+            <td><strong>EDM</strong> @ CGY</td>
+            <td>5 &ndash; 1</td>
+            <td>&mdash;</td>
+            <td style="color: var(--color-final);">Final</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
+  </footer>
+
+  <!-- Flyout overlay + panel -->
+  <div class="flyout-overlay" id="flyout-overlay-light" onclick="toggleFlyout('light')"></div>
+  <div class="flyout" id="flyout-light">
+    <div class="flyout__header">
+      <span class="flyout__title">Menu</span>
+      <button class="flyout__close" onclick="toggleFlyout('light')">&times;</button>
+    </div>
+    <div class="flyout__body">
+      <div class="flyout__section">
+        <div class="flyout__section-label">Account</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#128100;</span>
+          <span class="flyout__item-label">Profile</span>
+          <span class="flyout__item-value">Guest</span>
+        </div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#9881;</span>
+          <span class="flyout__item-label">Settings</span>
+          <span class="flyout__item-value">&rsaquo;</span>
+        </div>
+      </div>
+      <div class="flyout__section">
+        <div class="flyout__section-label">League</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#127944;</span>
+          <span class="flyout__item-label">League Selector</span>
+          <select class="flyout__select">
+            <option selected>NHL</option>
+            <option>AHL</option>
+            <option>ECHL</option>
+            <option>OHL</option>
+            <option>WHL</option>
+            <option>QMJHL</option>
+          </select>
+        </div>
+      </div>
+      <div class="flyout__section">
+        <div class="flyout__section-label">Appearance</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#9790;</span>
+          <span class="flyout__item-label">Dark Mode</span>
+          <div class="toggle" id="toggle-light" onclick="toggleDarkMode('light')">
+            <div class="toggle__knob"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     DARK MODE (with flyout open)
+     ================================================================ -->
+<div class="mockup-label">Dark Mode (flyout open)</div>
+<div class="shell-wrapper" id="shell-dark" data-theme="dark">
+
+  <!-- Banner -->
+  <header class="banner">
+    <div class="banner__brand">
+      <span class="banner__brand-icon">H</span>
+      Hockey League Hub
+    </div>
+    <div class="banner__search">
+      <div class="banner__search-wrap">
+        <input type="text" placeholder="Search players, teams, trades...">
+      </div>
+    </div>
+    <button class="banner__hamburger" onclick="toggleFlyout('dark')" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <!-- Live Score Ticker -->
+  <div class="ticker">
+    <div class="ticker__track">
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">PIT</span>
+          <span class="ticker__score ticker__score--live">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__team">WSH</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">CGY</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <!-- Duplicate for seamless scroll -->
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">PIT</span>
+          <span class="ticker__score ticker__score--live">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__team">WSH</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">CGY</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav__link nav__link--active">Scores</a>
+    <a href="#" class="nav__link">Standings</a>
+    <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link">Teams</a>
+    <a href="#" class="nav__link">Schedule</a>
+    <a href="#" class="nav__link">Players</a>
+    <a href="#" class="nav__link">Salary Cap</a>
+    <a href="#" class="nav__link">Trades</a>
+    <a href="#" class="nav__link">Free Agents</a>
+    <a href="#" class="nav__link">Personnel</a>
+  </nav>
+
+  <!-- Sample Content -->
+  <main class="content">
+    <h1 class="content__heading">Today's Scores</h1>
+    <p class="content__subheading">Tuesday, March 17 2026 &mdash; 5 games on the schedule</p>
+
+    <div class="content__cards">
+      <div class="content__card">
+        <div class="content__card-title">BOS 3 &ndash; TOR 2</div>
+        <div class="content__card-body">
+          Bergeron scored the game-winner with 2:14 left in the third period. Swayman stopped 31 of 33 shots.
+        </div>
+        <a href="#" class="content__card-link">Box Score &rarr;</a>
+      </div>
+      <div class="content__card">
+        <div class="content__card-title" style="color: var(--color-live);">NYR 1 &ndash; MTL 1</div>
+        <div class="content__card-body">
+          Tied heading into the final minutes of the second period. Caufield and Panarin have traded goals in a tight-checking affair.
+        </div>
+        <a href="#" class="content__card-link">Watch Live &rarr;</a>
+      </div>
+      <div class="content__card">
+        <div class="content__card-title" style="color: var(--color-pending);">DET vs CHI &mdash; 7:00 PM</div>
+        <div class="content__card-body">
+          Original Six rivalry renewed at the United Center. Detroit looks to extend a three-game winning streak.
+        </div>
+        <a href="#" class="content__card-link">Preview &rarr;</a>
+      </div>
+    </div>
+
+    <div class="content__table-placeholder">
+      <table>
+        <thead>
+          <tr>
+            <th>Matchup</th>
+            <th>Score</th>
+            <th>Period</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>BOS</strong> @ TOR</td>
+            <td>3 &ndash; 2</td>
+            <td>&mdash;</td>
+            <td style="color: var(--color-final);">Final</td>
+          </tr>
+          <tr>
+            <td><strong>NYR</strong> @ MTL</td>
+            <td style="color: var(--color-live);">1 &ndash; 1</td>
+            <td>2nd 14:32</td>
+            <td style="color: var(--color-live);">Live</td>
+          </tr>
+          <tr>
+            <td>DET @ <strong>CHI</strong></td>
+            <td>&mdash;</td>
+            <td>&mdash;</td>
+            <td style="color: var(--color-pending);">7:00 PM</td>
+          </tr>
+          <tr>
+            <td><strong>PIT</strong> @ WSH</td>
+            <td style="color: var(--color-live);">4 &ndash; 2</td>
+            <td>3rd 08:15</td>
+            <td style="color: var(--color-live);">Live</td>
+          </tr>
+          <tr>
+            <td><strong>EDM</strong> @ CGY</td>
+            <td>5 &ndash; 1</td>
+            <td>&mdash;</td>
+            <td style="color: var(--color-final);">Final</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
+  </footer>
+
+  <!-- Flyout overlay + panel (shown open by default in dark mode) -->
+  <div class="flyout-overlay flyout-overlay--visible" id="flyout-overlay-dark" onclick="toggleFlyout('dark')"></div>
+  <div class="flyout flyout--open" id="flyout-dark">
+    <div class="flyout__header">
+      <span class="flyout__title">Menu</span>
+      <button class="flyout__close" onclick="toggleFlyout('dark')">&times;</button>
+    </div>
+    <div class="flyout__body">
+      <div class="flyout__section">
+        <div class="flyout__section-label">Account</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#128100;</span>
+          <span class="flyout__item-label">Profile</span>
+          <span class="flyout__item-value">Guest</span>
+        </div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#9881;</span>
+          <span class="flyout__item-label">Settings</span>
+          <span class="flyout__item-value">&rsaquo;</span>
+        </div>
+      </div>
+      <div class="flyout__section">
+        <div class="flyout__section-label">League</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#127944;</span>
+          <span class="flyout__item-label">League Selector</span>
+          <select class="flyout__select">
+            <option selected>NHL</option>
+            <option>AHL</option>
+            <option>ECHL</option>
+            <option>OHL</option>
+            <option>WHL</option>
+            <option>QMJHL</option>
+          </select>
+        </div>
+      </div>
+      <div class="flyout__section">
+        <div class="flyout__section-label">Appearance</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#9790;</span>
+          <span class="flyout__item-label">Dark Mode</span>
+          <div class="toggle toggle--active" id="toggle-dark" onclick="toggleDarkMode('dark')">
+            <div class="toggle__knob"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     JAVASCRIPT - Flyout + Dark-mode toggle
+     ================================================================ -->
+<script>
+function toggleFlyout(mode) {
+  var overlay = document.getElementById('flyout-overlay-' + mode);
+  var flyout = document.getElementById('flyout-' + mode);
+  overlay.classList.toggle('flyout-overlay--visible');
+  flyout.classList.toggle('flyout--open');
+}
+
+function toggleDarkMode(mode) {
+  var shell = document.getElementById('shell-' + mode);
+  var toggle = document.getElementById('toggle-' + mode);
+  var isDark = shell.hasAttribute('data-theme');
+  if (isDark) {
+    shell.removeAttribute('data-theme');
+  } else {
+    shell.setAttribute('data-theme', 'dark');
+  }
+  toggle.classList.toggle('toggle--active');
+}
+</script>
+
+</body>
+</html>

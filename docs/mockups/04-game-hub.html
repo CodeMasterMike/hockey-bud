@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Hub — Boston Bruins vs Toronto Maple Leafs — Hockey League Hub</title>
+
+<style>
+/* ── Font Faces ─────────────────────────────────────────────── */
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: italic; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-italic.woff2') format('woff2'); }
+
+/* ── Design Tokens ──────────────────────────────────────────── */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1; --bg-banner: #000000; --bg-nav: #1A1A1A; --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04); --text-primary: #1A1A1A; --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A; --text-on-banner: #F5F0E1; --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25); --color-link: #2C5F8A; --color-link-hover: #1A3D5C;
+  --color-live: #C0392B; --color-pending: #D4A017; --color-final: #4A4A4A;
+}
+[data-theme="dark"] {
+  --bg-page: #0A1628; --bg-nav: #0D1B2A; --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06); --text-primary: #F5F0E1; --text-secondary: #B8B0A0;
+  --text-muted: #807868; --border-default: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6; --color-link-hover: #8DC0F0; --color-live: #E74C3C;
+  --color-pending: #F1C40F; --color-final: #B8B0A0;
+}
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes pulse-pending {
+  0%, 100% { border-color: var(--color-pending); box-shadow: 0 0 0 0 rgba(212,160,23,0.25); }
+  50%      { border-color: transparent; box-shadow: 0 0 8px 2px rgba(212,160,23,0.35); }
+}
+
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── Reset & Base ───────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-primary);
+  letter-spacing: -0.02em;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+a:hover { color: var(--color-link-hover); text-decoration: underline; }
+
+/* ── Global Shell: Banner ───────────────────────────────────── */
+.banner {
+  background: var(--bg-banner);
+  color: var(--text-on-banner);
+  text-align: center;
+  padding: 14px 24px;
+}
+.banner__title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.banner__subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Global Shell: Ticker ───────────────────────────────────── */
+.ticker {
+  background: var(--bg-nav);
+  color: var(--text-on-banner);
+  overflow: hidden;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-default);
+  font-size: 0.78rem;
+  height: 30px;
+  line-height: 30px;
+}
+.ticker__track {
+  display: inline-block;
+  animation: ticker-scroll 40s linear infinite;
+}
+.ticker__item {
+  display: inline-block;
+  padding: 0 28px;
+}
+.ticker__item--live { color: var(--color-live); font-weight: 700; }
+.ticker__separator {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  vertical-align: middle;
+}
+
+/* ── Global Shell: Nav ──────────────────────────────────────── */
+.nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-default);
+}
+.nav__link {
+  color: var(--text-on-banner);
+  padding: 10px 18px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+  text-decoration: none;
+}
+.nav__link:hover { opacity: 1; text-decoration: none; color: var(--text-on-banner); }
+.nav__link--active { opacity: 1; border-bottom: 2px solid var(--text-on-banner); }
+.nav__spacer { flex: 1; }
+.nav__theme-toggle {
+  background: none;
+  border: 1px solid var(--border-strong);
+  color: var(--text-on-banner);
+  font-family: var(--font-primary);
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Page Layout ────────────────────────────────────────────── */
+.page { max-width: 1080px; margin: 0 auto; padding: 24px 20px 60px; }
+
+/* ── Game Header ────────────────────────────────────────────── */
+.game-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.game-header__status {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-final);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  padding: 3px 12px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+.game-header__scoreline {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.game-header__detail {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ── Tab Bar ────────────────────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  border-bottom: 2px solid var(--border-default);
+  margin-bottom: 24px;
+  gap: 0;
+}
+.tab-bar__tab {
+  padding: 10px 20px;
+  font-family: var(--font-primary);
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.02em;
+}
+.tab-bar__tab:hover { color: var(--text-primary); }
+.tab-bar__tab--active {
+  color: var(--text-primary);
+  font-weight: 700;
+  border-bottom-color: var(--text-primary);
+}
+
+/* ── Card ───────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.card__heading {
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 14px;
+  color: var(--text-primary);
+}
+
+/* ── Tables ─────────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+th {
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-strong);
+}
+td {
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-primary);
+}
+tr:nth-child(even) td { background: var(--bg-row-alt); }
+
+th.num, td.num { text-align: right; }
+th.center, td.center { text-align: center; }
+
+/* ── Box Score ──────────────────────────────────────────────── */
+.box-score { margin-bottom: 0; }
+.box-score th, .box-score td { text-align: center; }
+.box-score th:first-child, .box-score td:first-child { text-align: left; font-weight: 700; }
+.box-score td.total { font-weight: 700; }
+
+/* ── Team Stat Comparison ───────────────────────────────────── */
+.stat-compare { width: 100%; }
+.stat-compare__row {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-default);
+}
+.stat-compare__row:last-child { border-bottom: none; }
+.stat-compare__val {
+  flex: 1;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.stat-compare__val--away { text-align: right; padding-right: 16px; }
+.stat-compare__val--home { text-align: left; padding-left: 16px; }
+.stat-compare__label {
+  flex: 0 0 160px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ── Goal / Penalty Summaries ───────────────────────────────── */
+.summaries {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.summary-col__heading {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-default);
+}
+.summary-item {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-default);
+  position: relative;
+}
+.summary-item:last-child { border-bottom: none; }
+.summary-item__period {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.summary-item__scorer { font-weight: 700; color: var(--text-primary); }
+.summary-item__assists { font-style: italic; }
+.summary-item__video {
+  display: inline-block;
+  margin-left: 6px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  cursor: pointer;
+  font-style: normal;
+  color: var(--color-link);
+}
+.summary-item:hover .summary-item__video { opacity: 1; }
+
+/* ── Pending Event ──────────────────────────────────────────── */
+.summary-item--pending {
+  border: 2px solid var(--color-pending);
+  border-radius: 4px;
+  padding: 8px 10px;
+  animation: pulse-pending 2s ease-in-out infinite;
+}
+.summary-item--pending .pending-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-pending);
+  margin-left: 8px;
+}
+
+/* ── Penalty-specific ───────────────────────────────────────── */
+.summary-item__rule {
+  color: var(--color-link);
+  font-size: 0.75rem;
+}
+.summary-item__rule:hover { color: var(--color-link-hover); text-decoration: underline; }
+.summary-item__pim { color: var(--text-muted); font-size: 0.75rem; }
+
+/* ── Section Separator ──────────────────────────────────────── */
+.section-separator {
+  border: none;
+  border-top: 2px solid var(--border-strong);
+  margin: 40px 0;
+}
+
+/* ── Player Stat Grids ──────────────────────────────────────── */
+.player-grids {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.player-grid__title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.player-table {
+  font-size: 0.72rem;
+}
+.player-table th {
+  font-size: 0.65rem;
+  padding: 5px 4px;
+  white-space: nowrap;
+}
+.player-table td {
+  padding: 5px 4px;
+  white-space: nowrap;
+}
+.player-table td:first-child,
+.player-table th:first-child { text-align: center; width: 28px; }
+.player-table td:nth-child(2),
+.player-table th:nth-child(2) { text-align: left; min-width: 110px; }
+
+/* ── Score Sheet Link ───────────────────────────────────────── */
+.score-sheet-link {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.82rem;
+}
+
+/* ── Utility ────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ════════════════════════════════════════════════════════════
+     GLOBAL SHELL
+     ════════════════════════════════════════════════════════════ -->
+
+<!-- Banner -->
+<header class="banner">
+  <div class="banner__title">Hockey League Hub</div>
+  <div class="banner__subtitle">Scores &middot; Stats &middot; Stories</div>
+</header>
+
+<!-- Ticker -->
+<div class="ticker" aria-label="Live score ticker">
+  <div class="ticker__track">
+    <span class="ticker__item ticker__item--live">&#9679; MTL 2 — OTT 1 (2nd)</span>
+    <span class="ticker__separator"></span>
+    <span class="ticker__item">BOS 4 — TOR 3 (F/OT)</span>
+    <span class="ticker__separator"></span>
+    <span class="ticker__item">NYR 3 — PIT 3 (3rd)</span>
+    <span class="ticker__separator"></span>
+    <span class="ticker__item">DET 1 — CHI 0 (F)</span>
+    <span class="ticker__separator"></span>
+    <span class="ticker__item">EDM 5 — CGY 2 (F)</span>
+    <span class="ticker__separator"></span>
+    <span class="ticker__item">VAN 2 — SEA 1 (F)</span>
+    <span class="ticker__separator"></span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker__item ticker__item--live">&#9679; MTL 2 — OTT 1 (2nd)</span>
+    <span class="ticker__separator"></span>
+    <span class="ticker__item">BOS 4 — TOR 3 (F/OT)</span>
+    <span class="ticker__separator"></span>
+    <span class="ticker__item">NYR 3 — PIT 3 (3rd)</span>
+    <span class="ticker__separator"></span>
+    <span class="ticker__item">DET 1 — CHI 0 (F)</span>
+    <span class="ticker__separator"></span>
+    <span class="ticker__item">EDM 5 — CGY 2 (F)</span>
+    <span class="ticker__separator"></span>
+    <span class="ticker__item">VAN 2 — SEA 1 (F)</span>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav" aria-label="Main navigation">
+  <a href="#" class="nav__link">Scores</a>
+  <a href="#" class="nav__link">Standings</a>
+  <a href="#" class="nav__link">Teams</a>
+  <a href="#" class="nav__link nav__link--active">Game Hub</a>
+  <a href="#" class="nav__link">Players</a>
+  <a href="#" class="nav__link">Trades</a>
+  <span class="nav__spacer"></span>
+  <button class="nav__theme-toggle" onclick="document.documentElement.toggleAttribute('data-theme','dark')" aria-label="Toggle dark mode">Light / Dark</button>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════════
+     PAGE CONTENT
+     ════════════════════════════════════════════════════════════ -->
+<main class="page">
+
+  <!-- Game Header -->
+  <div class="game-header">
+    <div class="game-header__status">Final / OT</div>
+    <h1 class="game-header__scoreline">Boston Bruins 4 &mdash; Toronto Maple Leafs 3</h1>
+    <p class="game-header__detail">March 16, 2026 &middot; Scotiabank Arena, Toronto, ON &middot; Attendance: 18,819</p>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar" role="tablist">
+    <button class="tab-bar__tab tab-bar__tab--active" role="tab" aria-selected="true">Team Stats</button>
+    <button class="tab-bar__tab" role="tab" aria-selected="false">Player Stats</button>
+    <button class="tab-bar__tab" role="tab" aria-selected="false">Lineups</button>
+    <button class="tab-bar__tab" role="tab" aria-selected="false">Rink Instances</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TEAM STATS TAB (primary view)
+       ══════════════════════════════════════════════════════════ -->
+
+  <!-- 1. Box Score by Period -->
+  <div class="card">
+    <h2 class="card__heading">Scoring by Period</h2>
+    <table class="box-score">
+      <thead>
+        <tr>
+          <th>Team</th>
+          <th>1st</th>
+          <th>2nd</th>
+          <th>3rd</th>
+          <th>OT</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>BOS</td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+          <td class="total">4</td>
+        </tr>
+        <tr>
+          <td>TOR</td>
+          <td>2</td>
+          <td>0</td>
+          <td>1</td>
+          <td>0</td>
+          <td class="total">3</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 2. Team Stat Comparison -->
+  <div class="card">
+    <h2 class="card__heading">Team Comparison</h2>
+    <div class="stat-compare">
+      <div class="stat-compare__row">
+        <span class="stat-compare__val stat-compare__val--away">34</span>
+        <span class="stat-compare__label">Shots on Goal</span>
+        <span class="stat-compare__val stat-compare__val--home">31</span>
+      </div>
+      <div class="stat-compare__row">
+        <span class="stat-compare__val stat-compare__val--away">28</span>
+        <span class="stat-compare__label">Hits</span>
+        <span class="stat-compare__val stat-compare__val--home">35</span>
+      </div>
+      <div class="stat-compare__row">
+        <span class="stat-compare__val stat-compare__val--away">2/5</span>
+        <span class="stat-compare__label">Power Play</span>
+        <span class="stat-compare__val stat-compare__val--home">1/4</span>
+      </div>
+      <div class="stat-compare__row">
+        <span class="stat-compare__val stat-compare__val--away">48.3%</span>
+        <span class="stat-compare__label">Faceoffs</span>
+        <span class="stat-compare__val stat-compare__val--home">51.7%</span>
+      </div>
+      <div class="stat-compare__row">
+        <span class="stat-compare__val stat-compare__val--away">8</span>
+        <span class="stat-compare__label">Giveaways</span>
+        <span class="stat-compare__val stat-compare__val--home">11</span>
+      </div>
+      <div class="stat-compare__row">
+        <span class="stat-compare__val stat-compare__val--away">6</span>
+        <span class="stat-compare__label">Takeaways</span>
+        <span class="stat-compare__val stat-compare__val--home">9</span>
+      </div>
+      <div class="stat-compare__row">
+        <span class="stat-compare__val stat-compare__val--away">65:00</span>
+        <span class="stat-compare__label">Time on Ice</span>
+        <span class="stat-compare__val stat-compare__val--home">65:00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Goal Summaries -->
+  <div class="card">
+    <h2 class="card__heading">Goals</h2>
+    <div class="summaries">
+      <!-- BOS Goals (Away) -->
+      <div class="summary-col">
+        <div class="summary-col__heading">Boston Bruins (4)</div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">1st &bull; 8:42</span> &mdash;
+          <span class="summary-item__scorer">D. Pastrnak (35)</span><br>
+          <span class="summary-item__assists">Assists: B. Marchand (42), C. Coyle (18)</span>
+          <span class="summary-item__video" aria-label="Watch goal video">&#9654;</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">2nd &bull; 3:17</span> &mdash;
+          <span class="summary-item__scorer">B. Marchand (28)</span><br>
+          <span class="summary-item__assists">Assists: D. Pastrnak (50), C. McAvoy (34)</span>
+          <span class="summary-item__video" aria-label="Watch goal video">&#9654;</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">3rd &bull; 14:55</span> &mdash;
+          <span class="summary-item__scorer">P. Zacha (16)</span> — PPG<br>
+          <span class="summary-item__assists">Assists: D. Pastrnak (51), H. Lindholm (22)</span>
+          <span class="summary-item__video" aria-label="Watch goal video">&#9654;</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">OT &bull; 2:38</span> &mdash;
+          <span class="summary-item__scorer">D. Pastrnak (36)</span> — GWG<br>
+          <span class="summary-item__assists">Assists: C. McAvoy (35)</span>
+          <span class="summary-item__video" aria-label="Watch goal video">&#9654;</span>
+        </div>
+      </div>
+
+      <!-- TOR Goals (Home) -->
+      <div class="summary-col">
+        <div class="summary-col__heading">Toronto Maple Leafs (3)</div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">1st &bull; 2:11</span> &mdash;
+          <span class="summary-item__scorer">A. Matthews (48)</span><br>
+          <span class="summary-item__assists">Assists: M. Marner (61), W. Nylander (38)</span>
+          <span class="summary-item__video" aria-label="Watch goal video">&#9654;</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">1st &bull; 16:04</span> &mdash;
+          <span class="summary-item__scorer">W. Nylander (33)</span> — PPG<br>
+          <span class="summary-item__assists">Assists: J. Tavares (30), M. Marner (62)</span>
+          <span class="summary-item__video" aria-label="Watch goal video">&#9654;</span>
+        </div>
+
+        <!-- Pending Event -->
+        <div class="summary-item summary-item--pending">
+          <span class="summary-item__period">3rd &bull; 9:22</span> &mdash;
+          <span class="summary-item__scorer">M. Marner (22)</span>
+          <span class="pending-badge">Under Review</span><br>
+          <span class="summary-item__assists">Assists: A. Matthews (37), T. Rielly (32)</span>
+          <span class="summary-item__video" aria-label="Watch goal video">&#9654;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Penalty Summaries -->
+  <div class="card">
+    <h2 class="card__heading">Penalties</h2>
+    <div class="summaries">
+      <!-- BOS Penalties (Away) -->
+      <div class="summary-col">
+        <div class="summary-col__heading">Boston Bruins</div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">1st &bull; 12:33</span> &mdash;
+          C. McAvoy, Tripping (2:00)<br>
+          <span class="summary-item__pim">Season PIM: 24</span> &mdash;
+          <a href="#" class="summary-item__rule">Rule &sect;6.1</a>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">2nd &bull; 7:48</span> &mdash;
+          B. Marchand, Roughing (2:00)<br>
+          <span class="summary-item__pim">Season PIM: 58</span> &mdash;
+          <a href="#" class="summary-item__rule">Rule &sect;6.2</a>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">3rd &bull; 1:15</span> &mdash;
+          H. Lindholm, Holding (2:00)<br>
+          <span class="summary-item__pim">Season PIM: 30</span> &mdash;
+          <a href="#" class="summary-item__rule">Rule &sect;6.4</a>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">3rd &bull; 18:02</span> &mdash;
+          T. Frederic, Cross-Checking (2:00)<br>
+          <span class="summary-item__pim">Season PIM: 72</span> &mdash;
+          <a href="#" class="summary-item__rule">Rule &sect;6.3</a>
+        </div>
+      </div>
+
+      <!-- TOR Penalties (Home) -->
+      <div class="summary-col">
+        <div class="summary-col__heading">Toronto Maple Leafs</div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">1st &bull; 5:20</span> &mdash;
+          T. Rielly, Hooking (2:00)<br>
+          <span class="summary-item__pim">Season PIM: 18</span> &mdash;
+          <a href="#" class="summary-item__rule">Rule &sect;6.6</a>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">2nd &bull; 11:45</span> &mdash;
+          R. O'Reilly, Slashing (2:00)<br>
+          <span class="summary-item__pim">Season PIM: 26</span> &mdash;
+          <a href="#" class="summary-item__rule">Rule &sect;6.5</a>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-item__period">3rd &bull; 12:58</span> &mdash;
+          M. Knies, Interference (2:00)<br>
+          <span class="summary-item__pim">Season PIM: 34</span> &mdash;
+          <a href="#" class="summary-item__rule">Rule &sect;6.7</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Official Score Sheet Link -->
+  <div class="score-sheet-link">
+    <a href="#">Official Score Sheet &rarr;</a>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PLAYER STATS TAB (secondary section)
+       ══════════════════════════════════════════════════════════ -->
+  <hr class="section-separator">
+
+  <h2 class="card__heading" style="margin-bottom: 18px;">Player Stats</h2>
+
+  <!-- 7. Skater Stat Grids -->
+  <div class="card">
+    <h3 class="card__heading">Skaters</h3>
+    <div class="player-grids">
+      <!-- Away: BOS Skaters -->
+      <div>
+        <div class="player-grid__title">Boston Bruins (Away)</div>
+        <table class="player-table">
+          <thead>
+            <tr>
+              <th class="center">#</th>
+              <th>Player</th>
+              <th class="num">G</th>
+              <th class="num">A</th>
+              <th class="num">PTS</th>
+              <th class="num">+/-</th>
+              <th class="num">PIM</th>
+              <th class="num">SOG</th>
+              <th class="num">HIT</th>
+              <th class="num">BLK</th>
+              <th class="num">TOI</th>
+              <th class="num">FO%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="center">88</td>
+              <td>D. Pastrnak</td>
+              <td class="num">2</td>
+              <td class="num">1</td>
+              <td class="num">3</td>
+              <td class="num">+2</td>
+              <td class="num">0</td>
+              <td class="num">8</td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num">22:14</td>
+              <td class="num">&mdash;</td>
+            </tr>
+            <tr>
+              <td class="center">63</td>
+              <td>B. Marchand</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num">2</td>
+              <td class="num">+1</td>
+              <td class="num">2</td>
+              <td class="num">5</td>
+              <td class="num">3</td>
+              <td class="num">0</td>
+              <td class="num">21:38</td>
+              <td class="num">&mdash;</td>
+            </tr>
+            <tr>
+              <td class="center">73</td>
+              <td>C. McAvoy</td>
+              <td class="num">0</td>
+              <td class="num">2</td>
+              <td class="num">2</td>
+              <td class="num">+1</td>
+              <td class="num">2</td>
+              <td class="num">3</td>
+              <td class="num">4</td>
+              <td class="num">5</td>
+              <td class="num">27:42</td>
+              <td class="num">&mdash;</td>
+            </tr>
+            <tr>
+              <td class="center">11</td>
+              <td>P. Zacha</td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num">0</td>
+              <td class="num">4</td>
+              <td class="num">2</td>
+              <td class="num">1</td>
+              <td class="num">18:05</td>
+              <td class="num">52.6%</td>
+            </tr>
+            <tr>
+              <td class="center">13</td>
+              <td>C. Coyle</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num">0</td>
+              <td class="num">2</td>
+              <td class="num">5</td>
+              <td class="num">2</td>
+              <td class="num">17:22</td>
+              <td class="num">46.2%</td>
+            </tr>
+            <tr>
+              <td class="center">27</td>
+              <td>H. Lindholm</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num">+1</td>
+              <td class="num">2</td>
+              <td class="num">1</td>
+              <td class="num">3</td>
+              <td class="num">4</td>
+              <td class="num">25:10</td>
+              <td class="num">&mdash;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Home: TOR Skaters -->
+      <div>
+        <div class="player-grid__title">Toronto Maple Leafs (Home)</div>
+        <table class="player-table">
+          <thead>
+            <tr>
+              <th class="center">#</th>
+              <th>Player</th>
+              <th class="num">G</th>
+              <th class="num">A</th>
+              <th class="num">PTS</th>
+              <th class="num">+/-</th>
+              <th class="num">PIM</th>
+              <th class="num">SOG</th>
+              <th class="num">HIT</th>
+              <th class="num">BLK</th>
+              <th class="num">TOI</th>
+              <th class="num">FO%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="center">34</td>
+              <td>A. Matthews</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num">2</td>
+              <td class="num">-1</td>
+              <td class="num">0</td>
+              <td class="num">7</td>
+              <td class="num">2</td>
+              <td class="num">0</td>
+              <td class="num">23:48</td>
+              <td class="num">54.5%</td>
+            </tr>
+            <tr>
+              <td class="center">16</td>
+              <td>M. Marner</td>
+              <td class="num">1</td>
+              <td class="num">2</td>
+              <td class="num">3</td>
+              <td class="num">0</td>
+              <td class="num">0</td>
+              <td class="num">4</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">22:30</td>
+              <td class="num">&mdash;</td>
+            </tr>
+            <tr>
+              <td class="center">88</td>
+              <td>W. Nylander</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num">2</td>
+              <td class="num">0</td>
+              <td class="num">0</td>
+              <td class="num">6</td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num">21:15</td>
+              <td class="num">&mdash;</td>
+            </tr>
+            <tr>
+              <td class="center">91</td>
+              <td>J. Tavares</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num">-1</td>
+              <td class="num">0</td>
+              <td class="num">3</td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num">19:44</td>
+              <td class="num">50.0%</td>
+            </tr>
+            <tr>
+              <td class="center">44</td>
+              <td>T. Rielly</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num">-1</td>
+              <td class="num">2</td>
+              <td class="num">2</td>
+              <td class="num">3</td>
+              <td class="num">3</td>
+              <td class="num">26:08</td>
+              <td class="num">&mdash;</td>
+            </tr>
+            <tr>
+              <td class="center">55</td>
+              <td>M. Knies</td>
+              <td class="num">0</td>
+              <td class="num">0</td>
+              <td class="num">0</td>
+              <td class="num">-1</td>
+              <td class="num">2</td>
+              <td class="num">2</td>
+              <td class="num">6</td>
+              <td class="num">1</td>
+              <td class="num">15:52</td>
+              <td class="num">&mdash;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Goalie Section -->
+  <div class="card">
+    <h3 class="card__heading">Goalies</h3>
+    <div class="player-grids">
+      <!-- Away: BOS Goalie -->
+      <div>
+        <div class="player-grid__title">Boston Bruins (Away)</div>
+        <table class="player-table">
+          <thead>
+            <tr>
+              <th class="center">#</th>
+              <th>Goalie</th>
+              <th class="num">SA</th>
+              <th class="num">GA</th>
+              <th class="num">SV</th>
+              <th class="num">SV%</th>
+              <th class="num">TOI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="center">1</td>
+              <td>J. Swayman</td>
+              <td class="num">31</td>
+              <td class="num">3</td>
+              <td class="num">28</td>
+              <td class="num">.903</td>
+              <td class="num">64:38</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Home: TOR Goalie -->
+      <div>
+        <div class="player-grid__title">Toronto Maple Leafs (Home)</div>
+        <table class="player-table">
+          <thead>
+            <tr>
+              <th class="center">#</th>
+              <th>Goalie</th>
+              <th class="num">SA</th>
+              <th class="num">GA</th>
+              <th class="num">SV</th>
+              <th class="num">SV%</th>
+              <th class="num">TOI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="center">36</td>
+              <td>J. Woll</td>
+              <td class="num">34</td>
+              <td class="num">4</td>
+              <td class="num">30</td>
+              <td class="num">.882</td>
+              <td class="num">64:38</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>

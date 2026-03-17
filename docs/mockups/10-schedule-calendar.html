@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M010 - Schedule Calendar | Hockey League Hub</title>
+
+<!-- Self-hosted Courier Prime -->
+<style>
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2'); }
+</style>
+
+<style>
+/* ===================================================================
+   DESIGN TOKENS
+   =================================================================== */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1; --bg-banner: #000000; --bg-nav: #1A1A1A; --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04); --text-primary: #1A1A1A; --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A; --text-on-banner: #F5F0E1; --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25); --color-link: #2C5F8A; --color-link-hover: #1A3D5C;
+  --color-live: #C0392B; --color-pending: #D4A017;
+}
+[data-theme="dark"] {
+  --bg-page: #0A1628; --bg-nav: #0D1B2A; --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06); --text-primary: #F5F0E1; --text-secondary: #B8B0A0;
+  --text-muted: #807868; --border-default: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6; --color-link-hover: #8DC0F0;
+  --color-live: #E74C3C; --color-pending: #F1C40F;
+}
+
+/* ===================================================================
+   RESET + BASE
+   =================================================================== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-primary);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--color-link); text-decoration: none; }
+a:hover { color: var(--color-link-hover); text-decoration: underline; }
+
+/* ===================================================================
+   GLOBAL SHELL: Banner
+   =================================================================== */
+.site-banner {
+  background: var(--bg-banner);
+  color: var(--text-on-banner);
+  text-align: center;
+  padding: 18px 24px 14px;
+}
+.site-banner h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.site-banner .subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+/* ===================================================================
+   GLOBAL SHELL: Ticker
+   =================================================================== */
+.ticker-bar {
+  background: var(--bg-nav);
+  color: var(--text-on-banner);
+  font-size: 0.72rem;
+  padding: 6px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-default);
+}
+.ticker-track {
+  display: inline-block;
+  animation: ticker-scroll 40s linear infinite;
+}
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-track span { padding: 0 28px; }
+.ticker-score { opacity: 0.55; }
+
+/* ===================================================================
+   GLOBAL SHELL: Nav
+   =================================================================== */
+.site-nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-default);
+}
+.site-nav a {
+  color: var(--text-on-banner);
+  font-size: 0.78rem;
+  font-weight: 400;
+  padding: 10px 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: background 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.site-nav a:hover {
+  background: rgba(255,255,255,0.06);
+  text-decoration: none;
+}
+.site-nav a.active {
+  border-bottom-color: var(--text-on-banner);
+  font-weight: 700;
+}
+
+/* ===================================================================
+   THEME TOGGLE
+   =================================================================== */
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.theme-toggle:hover { opacity: 0.8; }
+
+/* ===================================================================
+   PAGE CONTAINER
+   =================================================================== */
+.page-container {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+
+/* ===================================================================
+   MONTH NAVIGATION HEADER
+   =================================================================== */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.month-nav__arrows {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.month-nav__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  transition: background 0.15s, border-color 0.15s;
+}
+.month-nav__arrow:hover {
+  background: var(--bg-row-alt);
+  border-color: var(--text-primary);
+}
+.month-nav__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.month-nav__filter {
+  position: relative;
+}
+.month-nav__filter-btn {
+  font-family: var(--font-primary);
+  font-size: 0.82rem;
+  padding: 8px 32px 8px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  letter-spacing: -0.02em;
+  appearance: none;
+  -webkit-appearance: none;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+.month-nav__filter-btn:hover {
+  background: var(--bg-row-alt);
+}
+.month-nav__dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 220px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  z-index: 50;
+  overflow: hidden;
+}
+.month-nav__dropdown-item {
+  display: block;
+  padding: 9px 16px;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.12s;
+  border-bottom: 1px solid var(--border-default);
+}
+.month-nav__dropdown-item:last-child { border-bottom: none; }
+.month-nav__dropdown-item:hover {
+  background: var(--bg-row-alt);
+}
+.month-nav__dropdown-item--active {
+  font-weight: 700;
+  background: var(--bg-row-alt);
+}
+
+/* ===================================================================
+   CALENDAR GRID
+   =================================================================== */
+.calendar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.calendar__header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--bg-nav);
+}
+.calendar__day-label {
+  text-align: center;
+  padding: 10px 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-on-banner);
+}
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+.calendar__cell {
+  min-height: 115px;
+  border-right: 1px solid var(--border-default);
+  border-bottom: 1px solid var(--border-default);
+  padding: 4px 5px 6px;
+  position: relative;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.calendar__cell:nth-child(7n) {
+  border-right: none;
+}
+.calendar__cell--empty {
+  background: var(--bg-row-alt);
+  min-height: 115px;
+}
+.calendar__cell--has-games {
+  cursor: pointer;
+}
+.calendar__cell--has-games:hover {
+  background: var(--bg-row-alt);
+  box-shadow: inset 0 0 0 2px var(--color-link);
+}
+.calendar__cell--past.calendar__cell--has-games {
+  cursor: pointer;
+}
+.calendar__date {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.calendar__date-num {
+  display: inline-block;
+  min-width: 20px;
+}
+.calendar__game-count {
+  font-size: 0.6rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0;
+}
+
+/* Individual game entries */
+.calendar__game {
+  font-size: 0.62rem;
+  line-height: 1.35;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 1px 0;
+}
+.calendar__game--score {
+  color: var(--text-primary);
+}
+.calendar__game--time {
+  color: var(--text-muted);
+}
+.calendar__more {
+  font-size: 0.58rem;
+  color: var(--color-link);
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+/* Team color dots */
+.team-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin-right: 1px;
+  vertical-align: middle;
+}
+.team-dot--bos { background: #FFB81C; }
+.team-dot--tor { background: #003E7E; }
+.team-dot--mtl { background: #AF1E2D; }
+.team-dot--nyr { background: #0038A8; }
+.team-dot--nyi { background: #F47D30; }
+.team-dot--njd { background: #CE1126; }
+.team-dot--phi { background: #F74902; }
+.team-dot--pit { background: #FCB514; }
+.team-dot--wsh { background: #C8102E; }
+.team-dot--car { background: #CC0000; }
+.team-dot--cbj { background: #002654; }
+.team-dot--det { background: #CE1126; }
+.team-dot--buf { background: #003087; }
+.team-dot--ott { background: #C52032; }
+.team-dot--fla { background: #C8102E; }
+.team-dot--tbl { background: #002868; }
+.team-dot--chi { background: #CF0A2C; }
+.team-dot--stl { background: #002F87; }
+.team-dot--nsh { background: #FFB81C; }
+.team-dot--dal { background: #006847; }
+.team-dot--col { background: #6F263D; }
+.team-dot--wpg { background: #041E42; }
+.team-dot--min { background: #154734; }
+.team-dot--edm { background: #FF4C00; }
+.team-dot--cgy { background: #D2001C; }
+.team-dot--van { background: #00205B; }
+.team-dot--sea { background: #99D9D9; }
+.team-dot--lak { background: #111111; }
+.team-dot--ana { background: #F47A38; }
+.team-dot--sjs { background: #006D75; }
+.team-dot--vgk { background: #B4975A; }
+.team-dot--ari { background: #8C2633; }
+.team-dot--uta { background: #69B3E7; }
+
+/* ===================================================================
+   SPECIAL DATE TREATMENTS
+   =================================================================== */
+
+/* All-Star */
+.calendar__cell--allstar {
+  background: linear-gradient(135deg, rgba(212,160,23,0.08) 0%, rgba(212,160,23,0.02) 100%);
+}
+.calendar__badge--allstar {
+  display: inline-block;
+  background: linear-gradient(135deg, #D4A017, #B8860B);
+  color: #fff;
+  font-size: 0.56rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+
+/* Trade Deadline */
+.calendar__cell--deadline {
+  border-left: 4px solid var(--color-live);
+  background: linear-gradient(135deg, rgba(192,57,43,0.06) 0%, rgba(192,57,43,0.01) 100%);
+}
+[data-theme="dark"] .calendar__cell--deadline {
+  background: linear-gradient(135deg, rgba(231,76,60,0.1) 0%, rgba(231,76,60,0.02) 100%);
+}
+.calendar__badge--deadline {
+  display: inline-block;
+  background: var(--color-live);
+  color: #fff;
+  font-size: 0.56rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.6;
+  animation: deadline-pulse 2s ease-in-out infinite;
+}
+@keyframes deadline-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
+}
+
+/* Bye Week */
+.calendar__cell--bye {
+  background: var(--bg-row-alt);
+}
+.calendar__badge--bye {
+  display: inline-block;
+  background: var(--border-strong);
+  color: var(--bg-card);
+  font-size: 0.56rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+[data-theme="dark"] .calendar__badge--bye {
+  color: var(--bg-page);
+}
+.calendar__bye-text {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* Today marker */
+.calendar__cell--today {
+  box-shadow: inset 0 0 0 2px var(--color-link);
+}
+.calendar__date--today .calendar__date-num {
+  background: var(--color-link);
+  color: #fff;
+  border-radius: 3px;
+  padding: 0 5px;
+}
+
+/* ===================================================================
+   LEGEND
+   =================================================================== */
+.legend {
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+}
+.legend__title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+.legend__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.legend__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+.legend__icon {
+  font-size: 0.82rem;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+.legend__icon--game {
+  color: var(--color-link);
+}
+.legend__icon--allstar {
+  color: #D4A017;
+}
+.legend__icon--deadline {
+  color: var(--color-live);
+}
+.legend__icon--bye {
+  color: var(--text-muted);
+}
+
+/* ===================================================================
+   CLICK HINT
+   =================================================================== */
+.click-hint {
+  margin-top: 12px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ===================================================================
+   SEASON CONTEXT
+   =================================================================== */
+.season-context {
+  margin-top: 28px;
+  padding: 20px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+}
+.season-context__title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+.season-context__subtitle {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.season-context__dates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 8px;
+}
+.season-context__date {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.season-context__date-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.season-context__date-value {
+  color: var(--text-muted);
+}
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()">Toggle Dark/Light</button>
+
+<!-- =================================================================
+     GLOBAL SHELL
+     ================================================================= -->
+
+<!-- Banner -->
+<header class="site-banner">
+  <h1>Hockey League Hub</h1>
+  <div class="subtitle">The Encyclopedic Record of Professional Hockey</div>
+</header>
+
+<!-- Ticker -->
+<div class="ticker-bar">
+  <div class="ticker-track">
+    <span>TOR 4 &ndash; MTL 2 <span class="ticker-score">Final</span></span>
+    <span>BOS 3 &ndash; FLA 1 <span class="ticker-score">Final</span></span>
+    <span>NYR 2 &ndash; CAR 5 <span class="ticker-score">Final</span></span>
+    <span>TBL 3 &ndash; OTT 2 <span class="ticker-score">OT</span></span>
+    <span>DET 1 &ndash; BUF 4 <span class="ticker-score">Final</span></span>
+    <span>NJD 2 &ndash; WSH 3 <span class="ticker-score">SO</span></span>
+    <span>DAL 5 &ndash; COL 4 <span class="ticker-score">OT</span></span>
+    <span>WPG 3 &ndash; MIN 1 <span class="ticker-score">Final</span></span>
+    <span>TOR 4 &ndash; MTL 2 <span class="ticker-score">Final</span></span>
+    <span>BOS 3 &ndash; FLA 1 <span class="ticker-score">Final</span></span>
+    <span>NYR 2 &ndash; CAR 5 <span class="ticker-score">Final</span></span>
+    <span>TBL 3 &ndash; OTT 2 <span class="ticker-score">OT</span></span>
+    <span>DET 1 &ndash; BUF 4 <span class="ticker-score">Final</span></span>
+    <span>NJD 2 &ndash; WSH 3 <span class="ticker-score">SO</span></span>
+    <span>DAL 5 &ndash; COL 4 <span class="ticker-score">OT</span></span>
+    <span>WPG 3 &ndash; MIN 1 <span class="ticker-score">Final</span></span>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="site-nav">
+  <a href="#">Home</a>
+  <a href="#">Standings</a>
+  <a href="#">Teams</a>
+  <a href="#">Players</a>
+  <a href="#">Scores</a>
+  <a href="#">Stats</a>
+  <a href="#" class="active">Schedule</a>
+  <a href="#">Trades</a>
+</nav>
+
+<!-- =================================================================
+     PAGE CONTENT
+     ================================================================= -->
+
+<main class="page-container">
+
+  <!-- Month Navigation Header -->
+  <div class="month-nav">
+    <div class="month-nav__arrows">
+      <button class="month-nav__arrow" title="Previous month">&larr;</button>
+      <span class="month-nav__title">March 2026</span>
+      <button class="month-nav__arrow" title="Next month">&rarr;</button>
+    </div>
+    <div class="month-nav__filter">
+      <button class="month-nav__filter-btn">All Teams &#9660;</button>
+      <div class="month-nav__dropdown">
+        <div class="month-nav__dropdown-item month-nav__dropdown-item--active">All Teams</div>
+        <div class="month-nav__dropdown-item"><span class="team-dot team-dot--bos"></span> Boston Bruins</div>
+        <div class="month-nav__dropdown-item"><span class="team-dot team-dot--tor"></span> Toronto Maple Leafs</div>
+        <div class="month-nav__dropdown-item"><span class="team-dot team-dot--mtl"></span> Montreal Canadiens</div>
+        <div class="month-nav__dropdown-item"><span class="team-dot team-dot--nyr"></span> New York Rangers</div>
+        <div class="month-nav__dropdown-item"><span class="team-dot team-dot--det"></span> Detroit Red Wings</div>
+        <div class="month-nav__dropdown-item"><span class="team-dot team-dot--chi"></span> Chicago Blackhawks</div>
+        <div class="month-nav__dropdown-item"><span class="team-dot team-dot--edm"></span> Edmonton Oilers</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar -->
+  <div class="calendar">
+
+    <!-- Day headers -->
+    <div class="calendar__header">
+      <div class="calendar__day-label">Sun</div>
+      <div class="calendar__day-label">Mon</div>
+      <div class="calendar__day-label">Tue</div>
+      <div class="calendar__day-label">Wed</div>
+      <div class="calendar__day-label">Thu</div>
+      <div class="calendar__day-label">Fri</div>
+      <div class="calendar__day-label">Sat</div>
+    </div>
+
+    <!-- Calendar Grid: March 2026 (Mar 1 = Sunday) -->
+    <div class="calendar__grid">
+
+      <!-- ============ WEEK 1 ============ -->
+
+      <!-- Mar 1 (Sun) - ALL-STAR GAME -->
+      <div class="calendar__cell calendar__cell--allstar calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">1</span>
+          <span class="calendar__badge--allstar">&#9733; ALL-STAR</span>
+        </div>
+        <div class="calendar__game calendar__game--score">All-Star Game</div>
+        <div class="calendar__game calendar__game--score">Atlantic 8 &ndash; Metro 6</div>
+      </div>
+
+      <!-- Mar 2 (Mon) - ALL-STAR (skills comp / no games) -->
+      <div class="calendar__cell calendar__cell--allstar calendar__cell--past">
+        <div class="calendar__date">
+          <span class="calendar__date-num">2</span>
+          <span class="calendar__badge--allstar">&#9733; ALL-STAR</span>
+        </div>
+        <div class="calendar__game" style="color: var(--text-muted); font-style: italic;">All-Star Break</div>
+        <div class="calendar__game" style="color: var(--text-muted); font-style: italic;">No games scheduled</div>
+      </div>
+
+      <!-- Mar 3 (Tue) - 8 games -->
+      <div class="calendar__cell calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">3</span>
+          <span class="calendar__game-count">8 games</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--bos"></span>BOS 4 &ndash; <span class="team-dot team-dot--tor"></span>TOR 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span>NYR 2 &ndash; <span class="team-dot team-dot--njd"></span>NJD 5</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span>FLA 3 &ndash; <span class="team-dot team-dot--tbl"></span>TBL 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span>COL 6 &ndash; <span class="team-dot team-dot--dal"></span>DAL 2</div>
+        <div class="calendar__more">+4 more</div>
+      </div>
+
+      <!-- Mar 4 (Wed) - 6 games -->
+      <div class="calendar__cell calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">4</span>
+          <span class="calendar__game-count">6 games</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--mtl"></span>MTL 1 &ndash; <span class="team-dot team-dot--ott"></span>OTT 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--det"></span>DET 4 &ndash; <span class="team-dot team-dot--cbj"></span>CBJ 4 OT</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wsh"></span>WSH 5 &ndash; <span class="team-dot team-dot--phi"></span>PHI 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--chi"></span>CHI 2 &ndash; <span class="team-dot team-dot--stl"></span>STL 3</div>
+        <div class="calendar__more">+2 more</div>
+      </div>
+
+      <!-- Mar 5 (Thu) - 10 games -->
+      <div class="calendar__cell calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">5</span>
+          <span class="calendar__game-count">10 games</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tor"></span>TOR 5 &ndash; <span class="team-dot team-dot--buf"></span>BUF 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--car"></span>CAR 3 &ndash; <span class="team-dot team-dot--fla"></span>FLA 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--edm"></span>EDM 4 &ndash; <span class="team-dot team-dot--van"></span>VAN 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--vgk"></span>VGK 3 &ndash; <span class="team-dot team-dot--lak"></span>LAK 3 SO</div>
+        <div class="calendar__more">+6 more</div>
+      </div>
+
+      <!-- Mar 6 (Fri) - 8 games -->
+      <div class="calendar__cell calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">6</span>
+          <span class="calendar__game-count">8 games</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--pit"></span>PIT 6 &ndash; <span class="team-dot team-dot--wsh"></span>WSH 4</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyi"></span>NYI 2 &ndash; <span class="team-dot team-dot--nyr"></span>NYR 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wpg"></span>WPG 4 &ndash; <span class="team-dot team-dot--min"></span>MIN 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--sea"></span>SEA 2 &ndash; <span class="team-dot team-dot--cgy"></span>CGY 5</div>
+        <div class="calendar__more">+4 more</div>
+      </div>
+
+      <!-- Mar 7 (Sat) - TRADE DEADLINE + 12 games -->
+      <div class="calendar__cell calendar__cell--deadline calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">7</span>
+          <span class="calendar__badge--deadline">TRADE DEADLINE</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--bos"></span>BOS 3 &ndash; <span class="team-dot team-dot--mtl"></span>MTL 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tor"></span>TOR 4 &ndash; <span class="team-dot team-dot--det"></span>DET 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span>COL 5 &ndash; <span class="team-dot team-dot--edm"></span>EDM 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span>FLA 4 &ndash; <span class="team-dot team-dot--car"></span>CAR 4 OT</div>
+        <div class="calendar__more">+8 more</div>
+      </div>
+
+      <!-- ============ WEEK 2 ============ -->
+
+      <!-- Mar 8 (Sun) - 11 games -->
+      <div class="calendar__cell calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">8</span>
+          <span class="calendar__game-count">11 games</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span>NYR 3 &ndash; <span class="team-dot team-dot--phi"></span>PHI 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tbl"></span>TBL 5 &ndash; <span class="team-dot team-dot--ott"></span>OTT 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--dal"></span>DAL 3 &ndash; <span class="team-dot team-dot--nsh"></span>NSH 4</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--van"></span>VAN 2 &ndash; <span class="team-dot team-dot--sea"></span>SEA 1</div>
+        <div class="calendar__more">+7 more</div>
+      </div>
+
+      <!-- Mar 9 (Mon) - 5 games -->
+      <div class="calendar__cell calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">9</span>
+          <span class="calendar__game-count">5 games</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wsh"></span>WSH 2 &ndash; <span class="team-dot team-dot--njd"></span>NJD 4</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--stl"></span>STL 3 &ndash; <span class="team-dot team-dot--chi"></span>CHI 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--lak"></span>LAK 4 &ndash; <span class="team-dot team-dot--ana"></span>ANA 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--edm"></span>EDM 6 &ndash; <span class="team-dot team-dot--cgy"></span>CGY 3</div>
+        <div class="calendar__more">+1 more</div>
+      </div>
+
+      <!-- Mar 10 (Tue) - 9 games -->
+      <div class="calendar__cell calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">10</span>
+          <span class="calendar__game-count">9 games</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--bos"></span>BOS 2 &ndash; <span class="team-dot team-dot--car"></span>CAR 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tor"></span>TOR 3 &ndash; <span class="team-dot team-dot--fla"></span>FLA 5</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--pit"></span>PIT 4 &ndash; <span class="team-dot team-dot--cbj"></span>CBJ 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wpg"></span>WPG 3 &ndash; <span class="team-dot team-dot--col"></span>COL 3 OT</div>
+        <div class="calendar__more">+5 more</div>
+      </div>
+
+      <!-- Mar 11 (Wed) - 7 games -->
+      <div class="calendar__cell calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">11</span>
+          <span class="calendar__game-count">7 games</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--mtl"></span>MTL 2 &ndash; <span class="team-dot team-dot--buf"></span>BUF 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--det"></span>DET 3 &ndash; <span class="team-dot team-dot--phi"></span>PHI 5</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nsh"></span>NSH 4 &ndash; <span class="team-dot team-dot--dal"></span>DAL 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--vgk"></span>VGK 5 &ndash; <span class="team-dot team-dot--sjs"></span>SJS 1</div>
+        <div class="calendar__more">+3 more</div>
+      </div>
+
+      <!-- Mar 12 (Thu) - 10 games -->
+      <div class="calendar__cell calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">12</span>
+          <span class="calendar__game-count">10 games</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span>NYR 4 &ndash; <span class="team-dot team-dot--bos"></span>BOS 3 OT</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--car"></span>CAR 5 &ndash; <span class="team-dot team-dot--tbl"></span>TBL 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--edm"></span>EDM 3 &ndash; <span class="team-dot team-dot--wpg"></span>WPG 4</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--chi"></span>CHI 2 &ndash; <span class="team-dot team-dot--min"></span>MIN 6</div>
+        <div class="calendar__more">+6 more</div>
+      </div>
+
+      <!-- Mar 13 (Fri) - 7 games -->
+      <div class="calendar__cell calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">13</span>
+          <span class="calendar__game-count">7 games</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span>FLA 4 &ndash; <span class="team-dot team-dot--wsh"></span>WSH 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--njd"></span>NJD 2 &ndash; <span class="team-dot team-dot--nyi"></span>NYI 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span>COL 5 &ndash; <span class="team-dot team-dot--uta"></span>UTA 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--van"></span>VAN 3 &ndash; <span class="team-dot team-dot--lak"></span>LAK 4</div>
+        <div class="calendar__more">+3 more</div>
+      </div>
+
+      <!-- Mar 14 (Sat) - BYE WEEK + 10 games -->
+      <div class="calendar__cell calendar__cell--bye calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">14</span>
+          <span class="calendar__badge--bye">&#9638; BYE WEEK</span>
+        </div>
+        <div class="calendar__bye-text">BOS, TOR, EDM, VGK off</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span>NYR 3 &ndash; <span class="team-dot team-dot--pit"></span>PIT 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--car"></span>CAR 6 &ndash; <span class="team-dot team-dot--mtl"></span>MTL 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--dal"></span>DAL 4 &ndash; <span class="team-dot team-dot--stl"></span>STL 3 SO</div>
+        <div class="calendar__more">+7 more</div>
+      </div>
+
+      <!-- ============ WEEK 3 ============ -->
+
+      <!-- Mar 15 (Sun) - BYE WEEK + 12 games -->
+      <div class="calendar__cell calendar__cell--bye calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">15</span>
+          <span class="calendar__badge--bye">&#9638; BYE WEEK</span>
+        </div>
+        <div class="calendar__bye-text">BOS, TOR, EDM, VGK off</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span>FLA 5 &ndash; <span class="team-dot team-dot--njd"></span>NJD 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tbl"></span>TBL 4 &ndash; <span class="team-dot team-dot--det"></span>DET 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span>COL 7 &ndash; <span class="team-dot team-dot--chi"></span>CHI 2</div>
+        <div class="calendar__more">+9 more</div>
+      </div>
+
+      <!-- Mar 16 (Mon) - 6 games -->
+      <div class="calendar__cell calendar__cell--past calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">16</span>
+          <span class="calendar__game-count">6 games</span>
+        </div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--ott"></span>OTT 3 &ndash; <span class="team-dot team-dot--mtl"></span>MTL 2 OT</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wsh"></span>WSH 4 &ndash; <span class="team-dot team-dot--cbj"></span>CBJ 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nsh"></span>NSH 2 &ndash; <span class="team-dot team-dot--wpg"></span>WPG 5</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--sea"></span>SEA 3 &ndash; <span class="team-dot team-dot--van"></span>VAN 1</div>
+        <div class="calendar__more">+2 more</div>
+      </div>
+
+      <!-- Mar 17 (Tue) - TODAY - 8 games -->
+      <div class="calendar__cell calendar__cell--today calendar__cell--has-games">
+        <div class="calendar__date calendar__date--today">
+          <span class="calendar__date-num">17</span>
+          <span class="calendar__game-count">8 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span>BOS @ <span class="team-dot team-dot--tor"></span>TOR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyr"></span>NYR @ <span class="team-dot team-dot--car"></span>CAR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--pit"></span>PIT @ <span class="team-dot team-dot--wsh"></span>WSH 7:30</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span>EDM @ <span class="team-dot team-dot--col"></span>COL 9:00</div>
+        <div class="calendar__more">+4 more</div>
+      </div>
+
+      <!-- Mar 18 (Wed) - 7 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">18</span>
+          <span class="calendar__game-count">7 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--fla"></span>FLA @ <span class="team-dot team-dot--tbl"></span>TBL 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--det"></span>DET @ <span class="team-dot team-dot--chi"></span>CHI 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--stl"></span>STL @ <span class="team-dot team-dot--min"></span>MIN 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--lak"></span>LAK @ <span class="team-dot team-dot--vgk"></span>VGK 10:00</div>
+        <div class="calendar__more">+3 more</div>
+      </div>
+
+      <!-- Mar 19 (Thu) - 9 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">19</span>
+          <span class="calendar__game-count">9 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span>TOR @ <span class="team-dot team-dot--mtl"></span>MTL 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--njd"></span>NJD @ <span class="team-dot team-dot--phi"></span>PHI 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--car"></span>CAR @ <span class="team-dot team-dot--ott"></span>OTT 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--dal"></span>DAL @ <span class="team-dot team-dot--nsh"></span>NSH 8:00</div>
+        <div class="calendar__more">+5 more</div>
+      </div>
+
+      <!-- Mar 20 (Fri) - 8 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">20</span>
+          <span class="calendar__game-count">8 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span>BOS @ <span class="team-dot team-dot--nyr"></span>NYR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wsh"></span>WSH @ <span class="team-dot team-dot--pit"></span>PIT 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--col"></span>COL @ <span class="team-dot team-dot--wpg"></span>WPG 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--van"></span>VAN @ <span class="team-dot team-dot--edm"></span>EDM 9:00</div>
+        <div class="calendar__more">+4 more</div>
+      </div>
+
+      <!-- Mar 21 (Sat) - 14 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">21</span>
+          <span class="calendar__game-count">14 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span>TOR @ <span class="team-dot team-dot--buf"></span>BUF 1:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--fla"></span>FLA @ <span class="team-dot team-dot--car"></span>CAR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--det"></span>DET @ <span class="team-dot team-dot--cbj"></span>CBJ 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span>EDM @ <span class="team-dot team-dot--cgy"></span>CGY 10:00</div>
+        <div class="calendar__more">+10 more</div>
+      </div>
+
+      <!-- ============ WEEK 4 ============ -->
+
+      <!-- Mar 22 (Sun) - 10 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">22</span>
+          <span class="calendar__game-count">10 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--mtl"></span>MTL @ <span class="team-dot team-dot--bos"></span>BOS 1:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyi"></span>NYI @ <span class="team-dot team-dot--njd"></span>NJD 5:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--stl"></span>STL @ <span class="team-dot team-dot--chi"></span>CHI 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--sea"></span>SEA @ <span class="team-dot team-dot--lak"></span>LAK 8:00</div>
+        <div class="calendar__more">+6 more</div>
+      </div>
+
+      <!-- Mar 23 (Mon) - 6 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">23</span>
+          <span class="calendar__game-count">6 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--phi"></span>PHI @ <span class="team-dot team-dot--wsh"></span>WSH 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--ott"></span>OTT @ <span class="team-dot team-dot--tbl"></span>TBL 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--min"></span>MIN @ <span class="team-dot team-dot--nsh"></span>NSH 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--ana"></span>ANA @ <span class="team-dot team-dot--vgk"></span>VGK 10:00</div>
+        <div class="calendar__more">+2 more</div>
+      </div>
+
+      <!-- Mar 24 (Tue) - 10 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">24</span>
+          <span class="calendar__game-count">10 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span>BOS @ <span class="team-dot team-dot--det"></span>DET 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyr"></span>NYR @ <span class="team-dot team-dot--tor"></span>TOR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--car"></span>CAR @ <span class="team-dot team-dot--njd"></span>NJD 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wpg"></span>WPG @ <span class="team-dot team-dot--dal"></span>DAL 8:30</div>
+        <div class="calendar__more">+6 more</div>
+      </div>
+
+      <!-- Mar 25 (Wed) - 5 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">25</span>
+          <span class="calendar__game-count">5 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--fla"></span>FLA @ <span class="team-dot team-dot--pit"></span>PIT 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--cbj"></span>CBJ @ <span class="team-dot team-dot--buf"></span>BUF 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--chi"></span>CHI @ <span class="team-dot team-dot--col"></span>COL 9:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--cgy"></span>CGY @ <span class="team-dot team-dot--van"></span>VAN 10:00</div>
+        <div class="calendar__more">+1 more</div>
+      </div>
+
+      <!-- Mar 26 (Thu) - 9 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">26</span>
+          <span class="calendar__game-count">9 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span>TOR @ <span class="team-dot team-dot--ott"></span>OTT 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--mtl"></span>MTL @ <span class="team-dot team-dot--nyr"></span>NYR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tbl"></span>TBL @ <span class="team-dot team-dot--car"></span>CAR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span>EDM @ <span class="team-dot team-dot--min"></span>MIN 8:00</div>
+        <div class="calendar__more">+5 more</div>
+      </div>
+
+      <!-- Mar 27 (Fri) - 8 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">27</span>
+          <span class="calendar__game-count">8 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wsh"></span>WSH @ <span class="team-dot team-dot--bos"></span>BOS 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--det"></span>DET @ <span class="team-dot team-dot--nyi"></span>NYI 7:30</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--dal"></span>DAL @ <span class="team-dot team-dot--stl"></span>STL 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--lak"></span>LAK @ <span class="team-dot team-dot--sea"></span>SEA 10:00</div>
+        <div class="calendar__more">+4 more</div>
+      </div>
+
+      <!-- Mar 28 (Sat) - 15 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">28</span>
+          <span class="calendar__game-count">15 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span>BOS @ <span class="team-dot team-dot--phi"></span>PHI 1:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span>TOR @ <span class="team-dot team-dot--fla"></span>FLA 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyr"></span>NYR @ <span class="team-dot team-dot--wsh"></span>WSH 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span>EDM @ <span class="team-dot team-dot--wpg"></span>WPG 7:00</div>
+        <div class="calendar__more">+11 more</div>
+      </div>
+
+      <!-- ============ WEEK 5 ============ -->
+
+      <!-- Mar 29 (Sun) - 11 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">29</span>
+          <span class="calendar__game-count">11 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--mtl"></span>MTL @ <span class="team-dot team-dot--tor"></span>TOR 1:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--njd"></span>NJD @ <span class="team-dot team-dot--pit"></span>PIT 5:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--col"></span>COL @ <span class="team-dot team-dot--nsh"></span>NSH 6:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--van"></span>VAN @ <span class="team-dot team-dot--cgy"></span>CGY 8:00</div>
+        <div class="calendar__more">+7 more</div>
+      </div>
+
+      <!-- Mar 30 (Mon) - 7 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">30</span>
+          <span class="calendar__game-count">7 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--car"></span>CAR @ <span class="team-dot team-dot--fla"></span>FLA 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--ott"></span>OTT @ <span class="team-dot team-dot--buf"></span>BUF 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--chi"></span>CHI @ <span class="team-dot team-dot--det"></span>DET 7:30</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--lak"></span>LAK @ <span class="team-dot team-dot--ana"></span>ANA 10:00</div>
+        <div class="calendar__more">+3 more</div>
+      </div>
+
+      <!-- Mar 31 (Tue) - 9 games -->
+      <div class="calendar__cell calendar__cell--has-games">
+        <div class="calendar__date">
+          <span class="calendar__date-num">31</span>
+          <span class="calendar__game-count">9 games</span>
+        </div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span>BOS @ <span class="team-dot team-dot--njd"></span>NJD 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span>TOR @ <span class="team-dot team-dot--nyr"></span>NYR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wsh"></span>WSH @ <span class="team-dot team-dot--tbl"></span>TBL 7:30</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span>EDM @ <span class="team-dot team-dot--dal"></span>DAL 8:30</div>
+        <div class="calendar__more">+5 more</div>
+      </div>
+
+      <!-- Empty cells for Apr 1-4 -->
+      <div class="calendar__cell calendar__cell--empty"></div>
+      <div class="calendar__cell calendar__cell--empty"></div>
+      <div class="calendar__cell calendar__cell--empty"></div>
+      <div class="calendar__cell calendar__cell--empty"></div>
+
+    </div><!-- /.calendar__grid -->
+  </div><!-- /.calendar -->
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend__title">Legend</div>
+    <div class="legend__items">
+      <div class="legend__item">
+        <span class="legend__icon legend__icon--game">&#9679;</span>
+        <span><strong>Game Day</strong> &mdash; Regular season games scheduled</span>
+      </div>
+      <div class="legend__item">
+        <span class="legend__icon legend__icon--allstar">&#9733;</span>
+        <span><strong>All-Star</strong> &mdash; All-Star Game and festivities</span>
+      </div>
+      <div class="legend__item">
+        <span class="legend__icon legend__icon--deadline">&#128308;</span>
+        <span><strong>Trade Deadline</strong> &mdash; Last day for regular-season trades</span>
+      </div>
+      <div class="legend__item">
+        <span class="legend__icon legend__icon--bye">&#9638;</span>
+        <span><strong>Bye Week</strong> &mdash; Scheduled team rest days</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Click hint -->
+  <div class="click-hint">Click any date to view full scores and game details.</div>
+
+  <!-- Season Context -->
+  <div class="season-context">
+    <div class="season-context__title">2025&ndash;26 Regular Season</div>
+    <div class="season-context__subtitle">October 7, 2025 &mdash; April 17, 2026</div>
+    <div class="season-context__dates">
+      <div class="season-context__date">
+        <span class="season-context__date-label">Trade Deadline</span>
+        <span class="season-context__date-value">March 7, 2026</span>
+      </div>
+      <div class="season-context__date">
+        <span class="season-context__date-label">All-Star Game</span>
+        <span class="season-context__date-value">March 1, 2026</span>
+      </div>
+      <div class="season-context__date">
+        <span class="season-context__date-label">Free Agent Signing</span>
+        <span class="season-context__date-value">July 1, 2026</span>
+      </div>
+      <div class="season-context__date">
+        <span class="season-context__date-label">Offer Sheet Deadline</span>
+        <span class="season-context__date-value">December 1, 2025</span>
+      </div>
+      <div class="season-context__date">
+        <span class="season-context__date-label">Arbitration Deadline</span>
+        <span class="season-context__date-value">Varies by player</span>
+      </div>
+      <div class="season-context__date">
+        <span class="season-context__date-label">Playoffs Begin</span>
+        <span class="season-context__date-value">April 20, 2026</span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- =================================================================
+     SCRIPTS
+     ================================================================= -->
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme',
+    html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+  );
+}
+</script>
+
+</body>
+</html>
