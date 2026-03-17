@@ -1,0 +1,130 @@
+﻿- Q: How frequently should live game scores update during active games? → A: Every 60 seconds, automatically without page refresh. - Ideally as fast as possible, allowing for people to watch games and if they want information regarding something they just saw the site would be updated within seconds of the event occurring.  If an action happens within the game (e.g. a goal that could still go under review) mark the play as pending until it is 100% confirmed.
+
+
+- Q: What should the hamburger menu contain in this phase beyond the dark mode toggle? → A: Dark mode toggle and a league selector (preparing for future multi-league expansion). - The hamburger menu will show Account, Settings and League Selector.  It is possible some sections, like games, will be moved from the banner to the hamburger bar.  There may also be added sections like Donations, Feedback, Site Mission, etc.
+
+
+- Q: How frequently should non-live data (standings, stats, rosters, trades, free agents) refresh from the data source? → A: Standings and rosters refresh hourly; stats, trades, and free agents refresh every 3 hours. - Standings, stats and rosters should update just before and after each game.  Trades and free agents should update as soon as possible, allowing for people to view it like a broker would watch a stock ticker.  When a signing or trade is confirmed but all of the information is not known, put any available information with a note to the user that more information is still processing. Use this directive for all future statements regarding frequency of data.
+
+
+- Q: How far back should historical data extend for player career stats, trade history, and team records? → A: Since the 2000-01 season (25 years of data, covering most active player careers and the modern analytics era).  - As far back as reliable data can go. Differentiate eras in some way (background shading or bold separation lines etc.) The eras are between the original 6 to 1972 (when 15 or fewer teams were in the league), 1973 to 2005, and 2006 to present (salary cap era).
+
+
+- Q: How should video content be delivered when a visitor clicks to watch a play? → A: Embed video from the data provider (e.g., NHL.com or Sportradar embed URLs) in a modal player on-site. - Include videos with multiple replays from multiple angles.
+
+
+__________________________________________________________________________
+
+
+### User Story 1 - View Daily Scores and Navigate Leagues (Priority: P1)
+
+
+4. **Given** multiple games on the same day, **When** the scores page loads, **Then** games appear in order of start time, with ties broken by alphabetical order of the home team's city name. - Not just city name. The location name (e.g. Florida Panthers would be F for Florida).
+
+
+6. **Given** a game has not started, **When** the score box is displayed, **Then** the start time appears where scores would normally be shown, adjusted to the visitor's time zone. - Clarifying this is the user’s time zone, not the visiting team’s time zone.  Also include a function for users to expand the box of a game that has not started yet to view a pregame matchup summary.  This should include the stats of the top goal scorers on each team, the top points getters of each team, the GAA and S% of the starting goalies of each team (if known, if not, indicate awaiting starting goalie confirmation), each teams PP% and PK% and the head to head matchup of the teams for this season and all time.
+
+
+### User Story 2 - Explore Game Details via Game Hub (Priority: P2)
+
+
+6. **Given** the Player Stats tab, **When** the grids load, **Then** two side-by-side grids appear (away on left, home on right) with skater rows showing #, G, A, PTS, +/-, HIT, PIM, TOI, SOG, FO%, GV, TK, WAR, xGF/60. Goalie rows have a separate header showing SA, SV, SV%, TOI, HDC/HDS, LDC/LDS, WAR. Rows alternate in shading and the grid scrolls horizontally if needed. - Make FO% last.
+
+
+10. **Given** a visitor clicks a dot that has corresponding video, **When** they click, **Then** a video player pops up with footage of the play. - Make a small, unintrusive, indicator that shows the user there is video footage available to the dot.
+
+
+### User Story 3 - View League Standings (Priority: P3)
+
+
+2. **Given** the Standings page, **When** displayed, **Then** the following stats are shown for each team: GP, W, L, OTL, PTS, PTS%, RW, ROW, GF, GA, DIFF, PP%, PK%. - Add team FO% at the end.
+
+
+### User Story 5 - Explore Team Profiles, Rosters, and Depth Charts (Priority: P5)
+
+
+A visitor navigates to the Teams page, sees all current NHL team icons listed alphabetically by city, clicks one, and views the team's profile. The profile shows the team logo, current and all-time records, franchise history, Stanley Cup wins (total, since 1973, since 2006), and the full roster. A depth chart tab organizes the roster by lines and pairings with a toggle between stats view and salary cap view. - Like the instance above, it may not just be city, but the location the team goes by (e.g. Florida Panthers would be F for Florida).
+
+
+3. **Given** the team profile roster view, **When** displayed, **Then** each player lists their number, position, stick handedness, date of birth, draft year, and years in the league. - Include place of birth after handedness.
+
+
+### User Story 6 - View Player Profiles (Priority: P6)
+
+
+Include the stats of emergency goaltenders (EBUGS) and give them a player profile clearly indicating they are an EBUG.
+
+
+### User Story 8 - View Trade History and Trade Trees (Priority: P8)
+
+
+A visitor navigates to the Trades page and sees all trades from the current season listed with the most recent first. They filter by season or team and search for a specific player. Clicking a trade opens a detailed page with all known trade information and a visual trade tree showing all subsequent transactions involving the traded pieces, traced as deep as the chain extends. - The trade tree is to show all prior or subsequent transactions involving the traded pieces…
+
+
+__________________________________________________________________________
+### Edge Cases
+
+
+- **All-Star break and bye weeks**: The calendar reflects days with no games, and the scores page shows a contextual message. - Also include significant dates like trade deadline, free agent deadline, offer sheet deadline, arbitration deadline, etc.
+
+
+- **Goalie playing as a skater**: If a goalie records goals/assists, those appear in the goalie stat line under the G and A columns. - A goalie will never play as a skater, but can rarely notch a goal or assist as a goalie.  The directive of this is correct outside of the potential of a “Goalie playing as a skater.”
+
+
+__________________________________________________________________________
+#### Global Design & Navigation
+
+
+- **FR-005a**: The global search bar MUST search across all entity types (players, teams, trades, staff, etc.) and display results grouped by entity type with clickable links to the relevant pages. - As results appear, favor the most searched categories first followed by alphabetical order.  The search bar is only meant to function for the selected league so as not to clutter the results across all leagues when a user is navigating a specific league.  There is to be no search bar on the home screen with the lists of leagues.
+
+
+- **FR-011d**: Standings and roster data MUST refresh from the data source at least once per hour. Stats, trades, and free agent data MUST refresh at least once every 3 hours. Live game scores continue to refresh every 60 seconds per FR-016/SC-016. - All listed entities are to be refreshed as fast as possible for competitive information seekers.
+
+
+- **FR-016**: Game score boxes MUST display in a 4-column grid, ordered by start time with ties broken by alphabetical order of the home team's city. - Include an extremely abbreviated score box between the top black bar and the tabs (scores, standings, stats etc.) that only shows the icons of the team and the score with the period and game clock. This is to appear on any page the user navigates to within that league with the game clock counting down with the actual game event.
+
+
+#### Game Hub
+
+
+- **FR-025**: Goal summaries MUST appear to the left (away team) and right (home team) of the central stats, showing period/time, scorer (first initial and last name) with season goal number, and assists with season assist numbers. - Include the name of the player(s) with assists (first initial and last name) in the same manner.
+
+
+- **FR-026**: Penalty summaries MUST appear beneath each team's goal summaries, showing period/time, offending player, penalty type, and the player's season penalty minute total. - The offending player is to appear as first initial and last name.
+
+
+- **FR-031**: The Player Stats tab MUST display two side-by-side grids (away left, home right) with skater stats: #, G, A, PTS, +/-, HIT, PIM, TOI, SOG, FO%, GV, TK, WAR, xGF/60. - Make FO% last.
+
+
+- **FR-034**: The Rink Instances tab MUST display an accurately dimensioned diagram of the game's rink, including measurements and labels for the home bench and away bench sides. - Include penalty boxes and an accurate view of the layout of the stands and the actual colors of the seats if information is available. If the information is unavailable, make an outline of the stands according to the best information available and make the seats appear as a washed out gray if the coloring is unavailable.
+
+
+- **FR-037**: Hovering over a rink dot MUST display the action type, player, and game clock time; clicking a dot with available video MUST open a modal containing an embedded video player (sourced from the data provider) with footage of the play. - Include an unintrusive, clean indicator within the dots that have related video footage.  Do not make it the traditional triangle play button, make it even less intrusive and rely on the user to learn that the simple indicator displayed means there is a video associated with it.  Use a small black dot within the colored dot with the capability to change this if needed.
+
+
+#### Teams
+
+
+- **FR-046**: The Teams index page MUST display all current NHL team icons sorted alphabetically by city name. - Not by city name, but by team location. E.g. Florida Panthers would be F for Florida.  Use this directive for all subsequent instances using “city name.”
+
+
+- **FR-049**: The team roster MUST display each player's number, position, stick handedness, date of birth, draft year, and years in the league. - Include location of birth after handedness.
+
+
+#### Trades
+
+
+- **FR-067**: The Trades page MUST list all trades from the current season, most recent first.
+- **FR-068**: Filters MUST be available for previous seasons and specific teams; a search box MUST allow searching by player name.
+- **FR-069**: Clicking a trade MUST display all known details and a clean, navigable visual trade tree showing all subsequent transactions involving the original pieces, traced as deep as necessary. - All subsequent and prior transactions... This instruction is to be followed any time this directive appears.
+
+
+### In Scope
+- All primary sections: Main Page, Scores, Game Hub, Standings, Stats, Teams, Players, Salary Cap, Trades, Free Agents, Personnel  - Game Hub is not a primary section, but rather only accessed through the scores section.
+
+
+### Out of Scope (Future Phases)
+Add integration of all the same data that is applicable for additional leagues.
+
+
+Additional note: Add a primary section titled Schedule between Teams and Schedules with important dates signified like it was mentioned earlier.

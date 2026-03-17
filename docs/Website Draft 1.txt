@@ -1,0 +1,100 @@
+﻿Make a website designed to have all inclusive information about hockey leagues, starting with the NHL, in an easy to use format that is simple but offers a massive range of information.  Show me what this website will look like as I describe how it should function.
+Make the pages a soft yellow, beige color, like that of antique books, with black text.  Allow a dark mode with a very dark blue page color and the same soft yellow beige, used above, for text.  All text, language and shorthand is to be written in American English. Font style is to be similar to the print of a type writer, while remaining compact and easy to read.  Any time a player, coach, team, GM, trade, season, or any other thing with additional information is mentioned, make them clickable to go to the page giving in depth information.  Any time a stat is mentioned, use the standard abbreviated version with the ability to hover over the abbreviations to see the full title.  Eventually language preferences are to be added, including, but not limited to, French, Swedish, Finish and Russian.  Any grids or charts are to have alternately shaded backgrounds for ease of reading.  Assume all stats and lists are to be laid out in such a grid/chart.  Make a black banner at the top of the page.  On the left side write the name of the website, which for now will be called To Be Determined.  On the right side create a hamburger button that will allow for settings and account customization in the future.  At any spot within the website, the user is to be able to click the website name and be directed to the main page.  All times within the website are to be adjusted for the user’s time zone.  This will eventually be able to manually be adjusted within account management.  Any time an action within the game is to be labeled, write the time on the clock currently shown on the scoreboard.  E.g. if a goal happens with 12:57 left in the 2nd period, it is to appear 2nd 12:57.
+
+
+Main page:
+This page will just have the icons of each of the hockey leagues that will be added to the website.  For now the only league to be offered is the NHL.
+
+
+Scores:
+When the league is clicked, default to the scores page.  The scores page default will be of the current day using UTC-8 time zone. If a game ends late in the night or runs into the next calendar day, display the scores from that day for 2 hours after the final game has ended.  For instance, if a game ends on 3/6 at 10:47pm, the scores of that day are to remain on the front pages of the scores section until 3/7 at 12:47am. Above the scores, on the left hand side, indicate the date using mm/dd.  Allow people to click the date to open up a calendar where the user can navigate to any previous day’s scores that season and view upcoming games that are scheduled for the remainder of the season using an abbreviated version of the schedule that will be laid out in the schedule page.
+
+
+The scores of all games are to be displayed in separate, clean, boxes, giving the logo and 3 letter abbreviation of each team.  The boxes are to appear 4 in a row before dropping down to the next row. Games are to appear in order of start time, with the earliest game being placed first with a tie breaker being the alphabetical order of the home team’s location. For future games, place the start time where the scores will be located when the game is live or already played.  In each box, the away team is to appear above the home team and the scores are to be placed to the right of their respective teams.  Beneath each team, in smaller, thinner text, place “SHG” and the number of shots on goal each team has at that point.  Above the abbreviation, in smaller faint text, write the team’s season record.  In parentheses, next to the team’s record, indicate their placement in the league standings using point percentage.  Make all of these so that when the user hovers their mouse over the season record or league standings, an info box pops up stating what the value signifies.  At the bottom of the box make a clickable link called “Game Hub” that takes the user to a new page that will be explained later.  Allow for the rest of each box to be clickable to expand into a bigger box giving additional information. This bigger box should be the size of 3 columns and 2 rows, pushing the other scores out or down. In the bigger box, put two box scores of the teams divided into periods. Make one for goals and one for shots on goal. Additional information to be included in the bigger boxes:  powerplay success displayed using fractions, hits, faceoff percentage, take away and give aways. Use standard shorthand for all of these stats.  Only one big box is to appear at any time, meaning if the user has a big box open and clicks another score to enlarge it, the previous game’s big box will return to it’s smaller box and the game clicked on will enlarge to the bigger box.  On each team’s side, include applicable goal summaries and penalty summaries.
+
+
+The Game Hub is a page meant to give great detail on the game. Make tabs for this page, defaulting to the team stats. The other tabs will be player stats, lineups and rink instances.
+In the team stats tab, the score and the box score, broken down by period, will be at the top. In the middle have the abbreviated team names, with the left team being away and the right being home, split by a column of stats including, shots, hits, powerplay, faceoffs, give aways, take aways and time of possession. To the left of those stats place a summary of the away team’s goals.  Beneath that, place a summary of the away team’s penalties.  To the right of the stats do the same thing for the home team. These summaries are to be compact and clean, while giving vital information, such as, time of the goal or penalty, first initial and last name of the goal scorer, assist getter or penalty taker as well as the goal number, assist number or penalty minute number the player has in the season including that goal/assist/penalty. Make each goal able to be hovered over and given the option to click on a video of the goal.  Make each penalty able to be hovered over and given the option to click on a video of the penalty or direct the user to the rule book where the penalty is written.  When a player is hovered over, a small box should pop up with their head shot and season stats, including, games played, goals, assists, plus/minus and penalty minutes. As mentioned before, the players can also be clicked on to navigate to their player profile. Beneath all of this, include an up to date score sheet with all the information that would be provided on an official score sheet.
+
+
+In the player stats tab, create two grids with the away team being on the left and the home team being on the right.  The Y axis will be the names of the players in the format of first initial. Last name. E.g. V. Nichushkin. The X axis will consist of stats including jersey number, goals, assists, points, plus/minus, hits, penalty minutes, time on ice, shots, faceoff percentage, give aways, take aways, wins above replacement, xGF/60. For goalies, create a separate header that includes shots, saves, save percentage, time on ice, high danger chances/saves, low danger chances/saves and wins above replacement.  Additional stats will be able to be added in account customization. Stats can also be taken away in account customization. If necessary, allow for the box to scroll horizontally to ensure all of the stats are included without being crammed.  Alternate each row with slightly different shaded backgrounds for easier reading.
+In the rink instances tab, make a diagram of the rink that the game is at, including dimensions to the outside of the rink and indicate which side the home bench is as well as the away bench.  Make these rinks as accurate as possible while still fitting the definition of a diagram.  Within this tab, users are to be able to navigate multiple views of the rink.  Create one for goals, one for shots that includes goals, one for hits, one for give aways, and one for take aways with the possibility to add more in the future.  Each view is to simply put a dot of the team’s main color on the ice where the action happened.  For goals make the dot half bright green and half the team’s color.  When the user hovers over the dots, indicate what action took place, who did the action and at what time of the game the action happened.  Any action that has a video corresponding to the play, allow for the user to click the dot and have a video player pop up with the footage.
+
+
+
+
+
+
+Standings:
+Standings are to default to wild card implications dividing the divisions and conferences appropriately.  Team statistics are to appear to the right of their correlating teams, alternating background shades for ease of reading.  Default rank of the teams is to be prioritized by point percentage.  Displayed stats are to be games played, wins, losses, overtime losses, points, point percentage, regulation wins, regulation plus overtime wins, goals for, goals against, goal differential, power play percentage and penalty kill percentage.  Customization of stats are to be added through account settings.  There are to be alternate views of the standings with the same stats including the default wild card, divisional breakdown, conference breakdown and total league. All of the same stats are to be included in each of these.  Allow for the user to click on any stat to reprioritize the list in the order of that stat.
+
+
+Stats:
+This page is for the stats of all the players in the league for the current year.  Stats are to be broken up into multiple sections.  All player stats, all goalie stats, all forward stats, all defenceman stats, all rookie player stats and all rookie goalie stats.  In a grid, keep the same design of previous stats with the player names in the first column and their correlating stats in the first row. For player stats, default priority is goals with the highest goal scorer being at the top.  Stats are to appear in order of current team, games played, goals, assists, points, plus/minus, hits, penalty minutes, time on ice per game, shots, shooting percentage, blocked shots, even strength points, power play points, penalty kill points, give aways, take aways, WAR, xGF/60, xGA/60, shootout percentage and faceoff percentage.  Goalie stats are to appear in order of current team, games played, wins, losses, overtime losses, save percentage, goals against per game, shots against, saves, goals against, games started, high danger chances/saves, low danger chances/saves, WAR, goals and assists, defaulting to wins as the original filter with the most winningest goalie at the top.  Allow for stats to be clicked on and to reorder the list by the stat chosen.
+
+
+Teams:
+The default page will have an icon of every team listed alphabetically using city names.  Capability to add past teams will eventually be added.  When clicked it will take the user to their specific team’s page.  The default of the team page will display the logo in the top left corner with their current season record next to it and their all time record just below that. Just below the team logo indicate the season’s years the team first joined the league.  Beneath that include franchise history, if necessary, indicating if a team was previously located in another city, and the years those teams were active.  On the right hand top side of the page, list the number of stanley cups won.  Just beneath that, list the number of stanley cups since the 1973 final.  Beneath that, list the number of stanley cups won since the 2006 final.  The main portion of this page is to list out the entire roster, including players numbers, position, stick handedness, date of birth, draft year and years in the league.
+
+
+A team depth chart tab is to be available to switch the view to a depth chart of the team.  On the depth chart page, list the roster in order of lines, placing the players in neat, clean boxes.  In each box list the players main position, secondary positions and games played/points. Goalies are to have their glove handedness, games played/wins.  An example of a lineup excluding the boxes:
+Gabriel Landeskog (LW) (47/29) Nathan MacKinnon (C) (64/109) Martin Necas (C/RW) (62/80)
+Valeri Nichushkin (LW/RW) (56/38) Brock Nelson (C) (65/55) Arturri Lehkonen (RW/LW) (59/52)
+Parker Kelly (LW) (65/26) Nazim Kadri (C/RW/LW) (65/43) Joel Kiviranta (RW) (35/9)
+Gavin Brindly (LW) (52/12) Nicolas Roy (C/LW) (64/22) Logan O’Connor (C/RW) (0/0)
+
+
+Devon Toews (LD) (52/17) Cale Makar (RD) (65/67)
+Josh Manson (LD) (65/27) Brent Burns (RD) (65/28)
+Brett Kulak (LD) (66/11) Sam Malinski (RD) (65/29)
+
+
+Scott Wedgewood (L) (36/25)
+Mackenzie Blackwood (L) (29/18)
+
+
+Note that any information included in the example may not be 100% accurate and shouldn’t be used for the page.
+
+
+Beneath the initial depth chart, include a list of players that are on the current roster that are either regularly scratched or injured, indicating which one.  Separate this list by position.  In the future, the same thing beneath that depth chart will be placed for the affiliated AHL roster, and beneath that, the affiliated ECHL roster.
+
+
+At the top of the page allow for the position and stats to be toggled for a view of the cap hit/years left. E.g. Nathan MacKinnon (C) (64/109) would become:
+Nathan MacKinnon (12.6m/6).  Ensure all statistics and cap information can be hovered over for the user to be given what the values indicate.
+  
+Players:
+A picture of the player’s most recent head shot is to be displayed in the top left of the page.  When the user hovers the cursor over the picture, it displays all headshots from the player’s career.  Next to the picture, display the player’s age, birth place, team, position, stick handedness, height, weight, draft year, draft selection number and team drafted.  When displaying a player’s position, display any position they have played at least 5% of their total ice time 5on5 in the past 5 years.  Put them in order of what position they have played the most in the last 2 years 5on5.  If a tie breaker is needed, put them in order of most time played the last 5 years 5on5.  To the right of this information, indicate every team the player has played for, the jersey numbers he wore on those teams, as well as any awards he won with those teams.
+
+
+Beneath that introductory information, place the players stats using the same stats from the stats section above.  Initially only NHL stats are to appear, with two additional tabs.  One tab is for other leagues, giving all of the player’s stats in all the leagues they have played in with information available.  The final tab is combined, showing the player’s stats from the first 2 tabs at the same time.  Account personalization will play heavily into the information and default settings of this page.
+
+
+Beneath the stats, give a very brief player profile on the players style.  Give a few associated stats with the player profile. E.g. if he’s a speedy playmaker, include his skating top speed, 20mph bursts per 60 and passing percentage.  If he’s an enforcer with a big shot, include his hardest shot speed and fights won, lost and tied.  These stats should be creative but have absolute certainty they are legitimate numbers.  Beneath the player profile section, add a brief summary of the player’s current contract, contract history, trade history and free agency history.  As a reminder, all information given on one page that has related information on another page, the user should be able to click it for an easy transfer to the other page.  As a primary example on this page, when a player has trades listed in their player profile, allow for each trade to be clicked on, taking the user to the trades page giving extensive information on the trade. In the same way, allow for the user to click the player’s salary cap and navigate them to a salary cap page dedicated to that player. This page lists all of the player’s complete contract history, including a detailed overview of his current contract.
+
+
+Salary Cap:
+
+
+The default Salary Cap page is to list all NHL teams using their logo, with the corresponding details including, number of players on their salary cap, total cap space used, cap space available, cap space on  LTIR.
+There is also a button called Salary Cap Explained.  Clicking this button takes the user to a guide book that has all of the details of the salary cap listed with a glossary that is easy to navigate to the areas users want to find.  There is also to be a search function within this page to try and help users find the information they’re seeking.  When a section is clicked on, I=include an adjacent guide book that describes all of the wordy legal terms into Layman’s terms, easy for anyone to understand.
+
+
+On the default page, when a user clicks on a team, a page is to open going into detail of how their cap space is allocated.  With each player, include how many years are left in their term and if they are a UFA or RFA at the end of it.  Indicate if the contract includes any special clauses like a no movement clause.  Favor viewing things centered around looking to the future.  Include relevant information about the team as it pertains to the team’s future implications of building.  This would include things like salary cap usage in the coming years, draft picks available to them and a buy out calculator that calculates the implications of what a buy out would mean for a specific player.  Again, every player or any information that has another page, is to be able to be clicked on to transport the user to that page.
+
+
+Trades:
+
+
+This page is to list all trades from this season, with the most recent appearing on top.  Filters are to be available for previous seasons as well as specific teams.  A search box is to be implemented for users to search a specific player to see their trade history.  If a trade is clicked on, it takes the user to a page giving all known details of the trade. It also supplies a trade tree if applicable, including all pieces that have been traded in the past, going as deep as necessary. E.g. the NHL Trade Trees series by Steve Dangle on YouTube.  Make these trade trees very clean and easy to navigate without directly taking fonts/special features from the YouTube series.
+
+
+Free Agents:
+A list of pending free agents in the upcoming off season with all of the same stats from the players/stats section.  Also include the following information before those stats.  Are they RFA or UFA, their current cap hit and their current team.  Default filter by current cap hit.  Also include a tab for recent free agent signings, with the most recent signing being listed at the top.  Allow for each signing to be clicked and take the user to the player’s player profile salary cap section.  The contract explanation is to be automatically opened when the page is accessed this way.
+
+
+Personnel:
+Similar to the player section, a database of all known staff members to each team.  Focus on coaches, GMs, scouts, trainers, equipment managers and owners in that order.  Give all known information about them that pertains to hockey, including listing out any awards or stats available as well as an easy link to their playing career if they had one.  Include a history of predecessors at their position.
+
+
+Games:
+A fun section to be implemented in the future.  It will eventually include fun easy games like trivia, as well as more involved games like fantasy hockey.  These games will have extra functions with user made accounts and have multiplayer capability.
