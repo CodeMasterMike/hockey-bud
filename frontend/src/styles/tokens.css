@@ -1,0 +1,109 @@
+/*
+ * Antique-Book Design Tokens
+ *
+ * Light mode: soft yellow-beige (old book pages)
+ * Dark mode: very dark blue with beige text
+ * Era tints: subtle background variations for Original Six / Expansion / Salary Cap eras
+ */
+
+:root {
+  /* Primary font */
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+
+  /* Light mode (default) */
+  --bg-page: #F5F0E1;
+  --bg-banner: #000000;
+  --bg-nav: #1A1A1A;
+  --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0, 0, 0, 0.04);
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A;
+  --text-on-banner: #F5F0E1;
+  --border-default: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.25);
+
+  /* Era tints — light mode */
+  --bg-era-original-six: rgba(139, 90, 43, 0.05);
+  --bg-era-expansion: rgba(34, 85, 102, 0.05);
+  --bg-era-salary-cap: rgba(60, 60, 60, 0.05);
+
+  /* Interactive */
+  --color-link: #2C5F8A;
+  --color-link-hover: #1A3D5C;
+  --color-focus: #2C5F8A;
+
+  /* Status */
+  --color-live: #C0392B;
+  --color-pending: #D4A017;
+  --color-final: #4A4A4A;
+
+  /* Score ticker */
+  --bg-ticker: #111111;
+  --text-ticker: #F5F0E1;
+}
+
+[data-theme="dark"] {
+  --bg-page: #0A1628;
+  --bg-banner: #000000;
+  --bg-nav: #0D1B2A;
+  --bg-card: #112240;
+  --bg-row-alt: rgba(255, 255, 255, 0.06);
+  --text-primary: #F5F0E1;
+  --text-secondary: #B8B0A0;
+  --text-muted: #807868;
+  --text-on-banner: #F5F0E1;
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
+
+  /* Era tints — dark mode */
+  --bg-era-original-six: rgba(218, 165, 32, 0.08);
+  --bg-era-expansion: rgba(70, 160, 190, 0.08);
+  --bg-era-salary-cap: rgba(180, 180, 180, 0.06);
+
+  /* Interactive */
+  --color-link: #6BA3D6;
+  --color-link-hover: #8DC0F0;
+  --color-focus: #6BA3D6;
+
+  /* Status */
+  --color-live: #E74C3C;
+  --color-pending: #F1C40F;
+  --color-final: #B8B0A0;
+
+  /* Score ticker */
+  --bg-ticker: #050D1A;
+  --text-ticker: #F5F0E1;
+}
+
+/* Prefers dark mode auto-detection */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-page: #0A1628;
+    --bg-banner: #000000;
+    --bg-nav: #0D1B2A;
+    --bg-card: #112240;
+    --bg-row-alt: rgba(255, 255, 255, 0.06);
+    --text-primary: #F5F0E1;
+    --text-secondary: #B8B0A0;
+    --text-muted: #807868;
+    --text-on-banner: #F5F0E1;
+    --border-default: rgba(255, 255, 255, 0.1);
+    --border-strong: rgba(255, 255, 255, 0.2);
+
+    --bg-era-original-six: rgba(218, 165, 32, 0.08);
+    --bg-era-expansion: rgba(70, 160, 190, 0.08);
+    --bg-era-salary-cap: rgba(180, 180, 180, 0.06);
+
+    --color-link: #6BA3D6;
+    --color-link-hover: #8DC0F0;
+    --color-focus: #6BA3D6;
+
+    --color-live: #E74C3C;
+    --color-pending: #F1C40F;
+    --color-final: #B8B0A0;
+
+    --bg-ticker: #050D1A;
+    --text-ticker: #F5F0E1;
+  }
+}

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/HockeyHub.Api/HockeyHub.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/HockeyHub.Api.Tests/HockeyHub.Api.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,39 @@
+@import "tailwindcss";
+@import "./styles/fonts.css";
+@import "./styles/tokens.css";
+
+/* Global base styles */
+body {
+  font-family: var(--font-primary);
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+/* Era background tint utility classes */
+.bg-era-original-six {
+  background-color: var(--bg-era-original-six);
+}
+
+.bg-era-expansion {
+  background-color: var(--bg-era-expansion);
+}
+
+.bg-era-salary-cap {
+  background-color: var(--bg-era-salary-cap);
+}
+
+/* Alternating row shading */
+.row-alt {
+  background-color: var(--bg-row-alt);
+}
