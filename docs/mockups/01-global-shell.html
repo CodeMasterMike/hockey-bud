@@ -197,44 +197,72 @@ body {
 }
 
 /* ===================================================================
-   LIVE SCORE TICKER
+   SCORE BAR (static, scrollable via arrows)
    =================================================================== */
 .ticker {
   background: var(--bg-ticker);
   color: var(--text-ticker);
-  height: 40px;
-  overflow: hidden;
+  height: 56px;
+  display: flex;
+  align-items: center;
   position: relative;
   border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.ticker__arrow {
+  background: none;
+  border: none;
+  color: var(--text-ticker);
+  font-size: 18px;
+  cursor: pointer;
+  width: 36px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.ticker__arrow:hover {
+  opacity: 1;
+  background: rgba(255,255,255,0.08);
 }
 
 .ticker__track {
   display: flex;
   align-items: center;
   height: 100%;
-  gap: 0;
-  animation: ticker-scroll 30s linear infinite;
-  width: max-content;
-}
-
-@keyframes ticker-scroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  gap: 8px;
+  overflow: hidden;
+  flex: 1;
+  padding: 0 4px;
+  scroll-behavior: smooth;
 }
 
 .ticker__game {
   display: flex;
   align-items: center;
-  padding: 0 28px;
+  padding: 0 16px;
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
   letter-spacing: 0.02em;
-  border-right: 1px solid rgba(255,255,255,0.08);
-  height: 100%;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  text-decoration: none;
+  color: var(--text-ticker);
+  transition: background 0.15s, border-color 0.15s;
 }
 
-.ticker__game:last-child { border-right: none; }
+.ticker__game:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
+}
 
 .ticker__teams {
   display: flex;
@@ -262,23 +290,40 @@ body {
 
 .ticker__status {
   margin-left: 10px;
-  font-size: 10px;
-  font-weight: 400;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  color: #FFFFFF;
 }
 
 .ticker__status--live {
-  color: var(--color-live);
+  color: #FFFFFF;
 }
 
 .ticker__status--final {
-  color: var(--color-final);
-  opacity: 0.7;
+  color: #FFFFFF;
 }
 
 .ticker__status--pending {
-  color: var(--color-pending);
+  color: #FFFFFF;
+}
+
+/*
+ * Close-game treatment: apply to game clocks showing <=5 minutes remaining
+ * with <=2 goal difference. Displays the status in red to draw attention.
+ *
+ * Example usage (a game with 1 goal difference and 4:30 left):
+ *   <span class="ticker__status ticker__status--live ticker__status--close-game">
+ *     <span class="ticker__live-dot"></span>3rd 04:30
+ *   </span>
+ *
+ * None of the current demo games qualify:
+ *   - NYR 1-1 MTL 2nd 14:32 => <=2 goal diff but NOT <=5 min remaining
+ *   - PIT 4-2 WSH 3rd 08:15 => NOT <=2 goal diff (difference is 2, but >5 min remaining)
+ */
+.ticker__status--close-game {
+  color: var(--color-live) !important;
 }
 
 .ticker__live-dot {
@@ -407,42 +452,17 @@ body {
   color: var(--color-link-hover);
 }
 
-.content__table-placeholder {
-  margin-top: 32px;
-  border: 1px solid var(--border-default);
+.content__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  border: 2px dashed var(--border-default);
   border-radius: 4px;
-  overflow: hidden;
-}
-
-.content__table-placeholder table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.content__table-placeholder th {
-  background: var(--bg-nav);
-  color: #F5F0E1;
-  text-align: left;
-  padding: 10px 16px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.content__table-placeholder td {
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--border-default);
-  color: var(--text-primary);
-}
-
-.content__table-placeholder tr:nth-child(even) td {
-  background: var(--bg-row-alt);
-}
-
-.content__table-placeholder tr:last-child td {
-  border-bottom: none;
+  margin-top: 32px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
 }
 
 /* ===================================================================
@@ -663,11 +683,11 @@ body {
     <button class="banner__hamburger" onclick="toggleFlyout('light')" aria-label="Menu">&#9776;</button>
   </header>
 
-  <!-- Live Score Ticker -->
+  <!-- Score Bar -->
   <div class="ticker">
-    <div class="ticker__track">
-      <!-- First set -->
-      <div class="ticker__game">
+    <button class="ticker__arrow" onclick="scrollTicker('light', -1)" aria-label="Scroll left">&#9664;</button>
+    <div class="ticker__track" id="ticker-track-light">
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">BOS</span>
           <span class="ticker__score">3</span>
@@ -676,8 +696,8 @@ body {
           <span class="ticker__team">TOR</span>
         </div>
         <span class="ticker__status ticker__status--final">Final</span>
-      </div>
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">NYR</span>
           <span class="ticker__score ticker__score--live">1</span>
@@ -686,16 +706,16 @@ body {
           <span class="ticker__team">MTL</span>
         </div>
         <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
-      </div>
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">DET</span>
           <span class="ticker__dash">vs</span>
           <span class="ticker__team">CHI</span>
         </div>
         <span class="ticker__status ticker__status--pending">7:00 PM</span>
-      </div>
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">PIT</span>
           <span class="ticker__score ticker__score--live">4</span>
@@ -704,8 +724,8 @@ body {
           <span class="ticker__team">WSH</span>
         </div>
         <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
-      </div>
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">EDM</span>
           <span class="ticker__score">5</span>
@@ -714,57 +734,55 @@ body {
           <span class="ticker__team">CGY</span>
         </div>
         <span class="ticker__status ticker__status--final">Final</span>
-      </div>
-      <!-- Duplicate set for seamless scroll loop -->
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">BOS</span>
-          <span class="ticker__score">3</span>
-          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__team">VGK</span>
           <span class="ticker__score">2</span>
-          <span class="ticker__team">TOR</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">0</span>
+          <span class="ticker__team">SEA</span>
         </div>
         <span class="ticker__status ticker__status--final">Final</span>
-      </div>
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">NYR</span>
-          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">CAR</span>
+          <span class="ticker__score ticker__score--live">3</span>
           <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__team">MTL</span>
+          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__team">FLA</span>
         </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
-      </div>
-      <div class="ticker__game">
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>OT 02:41</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">DET</span>
+          <span class="ticker__team">COL</span>
           <span class="ticker__dash">vs</span>
-          <span class="ticker__team">CHI</span>
+          <span class="ticker__team">DAL</span>
         </div>
-        <span class="ticker__status ticker__status--pending">7:00 PM</span>
-      </div>
-      <div class="ticker__game">
+        <span class="ticker__status ticker__status--pending">9:30 PM</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">PIT</span>
-          <span class="ticker__score ticker__score--live">4</span>
-          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__team">MIN</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">WPG</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">8:00 PM</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">TBL</span>
           <span class="ticker__score ticker__score--live">2</span>
-          <span class="ticker__team">WSH</span>
-        </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
-      </div>
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">EDM</span>
-          <span class="ticker__score">5</span>
           <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score">1</span>
-          <span class="ticker__team">CGY</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">OTT</span>
         </div>
-        <span class="ticker__status ticker__status--final">Final</span>
-      </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>1st 11:05</span>
+      </a>
     </div>
+    <button class="ticker__arrow" onclick="scrollTicker('light', 1)" aria-label="Scroll right">&#9654;</button>
   </div>
 
   <!-- Secondary Navigation -->
@@ -772,88 +790,54 @@ body {
     <a href="#" class="nav__link nav__link--active">Scores</a>
     <a href="#" class="nav__link">Standings</a>
     <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link">Players</a>
     <a href="#" class="nav__link">Teams</a>
     <a href="#" class="nav__link">Schedule</a>
-    <a href="#" class="nav__link">Players</a>
     <a href="#" class="nav__link">Salary Cap</a>
     <a href="#" class="nav__link">Trades</a>
     <a href="#" class="nav__link">Free Agents</a>
     <a href="#" class="nav__link">Personnel</a>
   </nav>
 
-  <!-- Sample Content -->
+  <!-- Content Placeholder -->
   <main class="content">
-    <h1 class="content__heading">Today's Scores</h1>
-    <p class="content__subheading">Tuesday, March 17 2026 &mdash; 5 games on the schedule</p>
+    <h1 class="content__heading">Hockey League Hub</h1>
+    <p class="content__subheading">Global shell demonstration &mdash; page content renders below the nav bar</p>
 
     <div class="content__cards">
       <div class="content__card">
-        <div class="content__card-title">BOS 3 &ndash; TOR 2</div>
-        <div class="content__card-body">
-          Bergeron scored the game-winner with 2:14 left in the third period. Swayman stopped 31 of 33 shots.
-        </div>
-        <a href="#" class="content__card-link">Box Score &rarr;</a>
+        <div class="content__card-title">Scores &amp; Schedule</div>
+        <div class="content__card-body">Live games, final results, and upcoming matchups across the league.</div>
+        <a href="#" class="content__card-link">View Scores &rarr;</a>
       </div>
       <div class="content__card">
-        <div class="content__card-title" style="color: var(--color-live);">NYR 1 &ndash; MTL 1</div>
-        <div class="content__card-body">
-          Tied heading into the final minutes of the second period. Caufield and Panarin have traded goals in a tight-checking affair.
-        </div>
-        <a href="#" class="content__card-link">Watch Live &rarr;</a>
+        <div class="content__card-title">Standings</div>
+        <div class="content__card-body">Divisional, conference, and league-wide standings with playoff picture.</div>
+        <a href="#" class="content__card-link">View Standings &rarr;</a>
       </div>
       <div class="content__card">
-        <div class="content__card-title" style="color: var(--color-pending);">DET vs CHI &mdash; 7:00 PM</div>
-        <div class="content__card-body">
-          Original Six rivalry renewed at the United Center. Detroit looks to extend a three-game winning streak.
-        </div>
-        <a href="#" class="content__card-link">Preview &rarr;</a>
+        <div class="content__card-title">Stats &amp; Players</div>
+        <div class="content__card-body">Player and team statistics, leader boards, and historical comparisons.</div>
+        <a href="#" class="content__card-link">View Stats &rarr;</a>
+      </div>
+      <div class="content__card">
+        <div class="content__card-title">Salary Cap</div>
+        <div class="content__card-body">Cap space tracker, contract details, and buyout projections for every team.</div>
+        <a href="#" class="content__card-link">View Cap &rarr;</a>
+      </div>
+      <div class="content__card">
+        <div class="content__card-title">Trades</div>
+        <div class="content__card-body">Trade history, rumors, and interactive trade trees across eras.</div>
+        <a href="#" class="content__card-link">View Trades &rarr;</a>
+      </div>
+      <div class="content__card">
+        <div class="content__card-title">Personnel</div>
+        <div class="content__card-body">Coaching staffs, front office rosters, and management histories.</div>
+        <a href="#" class="content__card-link">View Personnel &rarr;</a>
       </div>
     </div>
 
-    <div class="content__table-placeholder">
-      <table>
-        <thead>
-          <tr>
-            <th>Matchup</th>
-            <th>Score</th>
-            <th>Period</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>BOS</strong> @ TOR</td>
-            <td>3 &ndash; 2</td>
-            <td>&mdash;</td>
-            <td style="color: var(--color-final);">Final</td>
-          </tr>
-          <tr>
-            <td><strong>NYR</strong> @ MTL</td>
-            <td style="color: var(--color-live);">1 &ndash; 1</td>
-            <td>2nd 14:32</td>
-            <td style="color: var(--color-live);">Live</td>
-          </tr>
-          <tr>
-            <td>DET @ <strong>CHI</strong></td>
-            <td>&mdash;</td>
-            <td>&mdash;</td>
-            <td style="color: var(--color-pending);">7:00 PM</td>
-          </tr>
-          <tr>
-            <td><strong>PIT</strong> @ WSH</td>
-            <td style="color: var(--color-live);">4 &ndash; 2</td>
-            <td>3rd 08:15</td>
-            <td style="color: var(--color-live);">Live</td>
-          </tr>
-          <tr>
-            <td><strong>EDM</strong> @ CGY</td>
-            <td>5 &ndash; 1</td>
-            <td>&mdash;</td>
-            <td style="color: var(--color-final);">Final</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="content__placeholder">Page content loads here</div>
   </main>
 
   <!-- Footer -->
@@ -932,10 +916,11 @@ body {
     <button class="banner__hamburger" onclick="toggleFlyout('dark')" aria-label="Menu">&#9776;</button>
   </header>
 
-  <!-- Live Score Ticker -->
+  <!-- Score Bar -->
   <div class="ticker">
-    <div class="ticker__track">
-      <div class="ticker__game">
+    <button class="ticker__arrow" onclick="scrollTicker('dark', -1)" aria-label="Scroll left">&#9664;</button>
+    <div class="ticker__track" id="ticker-track-dark">
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">BOS</span>
           <span class="ticker__score">3</span>
@@ -944,8 +929,8 @@ body {
           <span class="ticker__team">TOR</span>
         </div>
         <span class="ticker__status ticker__status--final">Final</span>
-      </div>
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">NYR</span>
           <span class="ticker__score ticker__score--live">1</span>
@@ -954,16 +939,16 @@ body {
           <span class="ticker__team">MTL</span>
         </div>
         <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
-      </div>
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">DET</span>
           <span class="ticker__dash">vs</span>
           <span class="ticker__team">CHI</span>
         </div>
         <span class="ticker__status ticker__status--pending">7:00 PM</span>
-      </div>
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">PIT</span>
           <span class="ticker__score ticker__score--live">4</span>
@@ -972,8 +957,8 @@ body {
           <span class="ticker__team">WSH</span>
         </div>
         <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
-      </div>
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">EDM</span>
           <span class="ticker__score">5</span>
@@ -982,57 +967,55 @@ body {
           <span class="ticker__team">CGY</span>
         </div>
         <span class="ticker__status ticker__status--final">Final</span>
-      </div>
-      <!-- Duplicate for seamless scroll -->
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">BOS</span>
-          <span class="ticker__score">3</span>
-          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__team">VGK</span>
           <span class="ticker__score">2</span>
-          <span class="ticker__team">TOR</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">0</span>
+          <span class="ticker__team">SEA</span>
         </div>
         <span class="ticker__status ticker__status--final">Final</span>
-      </div>
-      <div class="ticker__game">
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">NYR</span>
-          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">CAR</span>
+          <span class="ticker__score ticker__score--live">3</span>
           <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__team">MTL</span>
+          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__team">FLA</span>
         </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
-      </div>
-      <div class="ticker__game">
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>OT 02:41</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">DET</span>
+          <span class="ticker__team">COL</span>
           <span class="ticker__dash">vs</span>
-          <span class="ticker__team">CHI</span>
+          <span class="ticker__team">DAL</span>
         </div>
-        <span class="ticker__status ticker__status--pending">7:00 PM</span>
-      </div>
-      <div class="ticker__game">
+        <span class="ticker__status ticker__status--pending">9:30 PM</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">PIT</span>
-          <span class="ticker__score ticker__score--live">4</span>
-          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__team">MIN</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">WPG</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">8:00 PM</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">TBL</span>
           <span class="ticker__score ticker__score--live">2</span>
-          <span class="ticker__team">WSH</span>
-        </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
-      </div>
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">EDM</span>
-          <span class="ticker__score">5</span>
           <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score">1</span>
-          <span class="ticker__team">CGY</span>
+          <span class="ticker__score ticker__score--live">1</span>
+          <span class="ticker__team">OTT</span>
         </div>
-        <span class="ticker__status ticker__status--final">Final</span>
-      </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>1st 11:05</span>
+      </a>
     </div>
+    <button class="ticker__arrow" onclick="scrollTicker('dark', 1)" aria-label="Scroll right">&#9654;</button>
   </div>
 
   <!-- Secondary Navigation -->
@@ -1040,88 +1023,54 @@ body {
     <a href="#" class="nav__link nav__link--active">Scores</a>
     <a href="#" class="nav__link">Standings</a>
     <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link">Players</a>
     <a href="#" class="nav__link">Teams</a>
     <a href="#" class="nav__link">Schedule</a>
-    <a href="#" class="nav__link">Players</a>
     <a href="#" class="nav__link">Salary Cap</a>
     <a href="#" class="nav__link">Trades</a>
     <a href="#" class="nav__link">Free Agents</a>
     <a href="#" class="nav__link">Personnel</a>
   </nav>
 
-  <!-- Sample Content -->
+  <!-- Content Placeholder -->
   <main class="content">
-    <h1 class="content__heading">Today's Scores</h1>
-    <p class="content__subheading">Tuesday, March 17 2026 &mdash; 5 games on the schedule</p>
+    <h1 class="content__heading">Hockey League Hub</h1>
+    <p class="content__subheading">Global shell demonstration &mdash; page content renders below the nav bar</p>
 
     <div class="content__cards">
       <div class="content__card">
-        <div class="content__card-title">BOS 3 &ndash; TOR 2</div>
-        <div class="content__card-body">
-          Bergeron scored the game-winner with 2:14 left in the third period. Swayman stopped 31 of 33 shots.
-        </div>
-        <a href="#" class="content__card-link">Box Score &rarr;</a>
+        <div class="content__card-title">Scores &amp; Schedule</div>
+        <div class="content__card-body">Live games, final results, and upcoming matchups across the league.</div>
+        <a href="#" class="content__card-link">View Scores &rarr;</a>
       </div>
       <div class="content__card">
-        <div class="content__card-title" style="color: var(--color-live);">NYR 1 &ndash; MTL 1</div>
-        <div class="content__card-body">
-          Tied heading into the final minutes of the second period. Caufield and Panarin have traded goals in a tight-checking affair.
-        </div>
-        <a href="#" class="content__card-link">Watch Live &rarr;</a>
+        <div class="content__card-title">Standings</div>
+        <div class="content__card-body">Divisional, conference, and league-wide standings with playoff picture.</div>
+        <a href="#" class="content__card-link">View Standings &rarr;</a>
       </div>
       <div class="content__card">
-        <div class="content__card-title" style="color: var(--color-pending);">DET vs CHI &mdash; 7:00 PM</div>
-        <div class="content__card-body">
-          Original Six rivalry renewed at the United Center. Detroit looks to extend a three-game winning streak.
-        </div>
-        <a href="#" class="content__card-link">Preview &rarr;</a>
+        <div class="content__card-title">Stats &amp; Players</div>
+        <div class="content__card-body">Player and team statistics, leader boards, and historical comparisons.</div>
+        <a href="#" class="content__card-link">View Stats &rarr;</a>
+      </div>
+      <div class="content__card">
+        <div class="content__card-title">Salary Cap</div>
+        <div class="content__card-body">Cap space tracker, contract details, and buyout projections for every team.</div>
+        <a href="#" class="content__card-link">View Cap &rarr;</a>
+      </div>
+      <div class="content__card">
+        <div class="content__card-title">Trades</div>
+        <div class="content__card-body">Trade history, rumors, and interactive trade trees across eras.</div>
+        <a href="#" class="content__card-link">View Trades &rarr;</a>
+      </div>
+      <div class="content__card">
+        <div class="content__card-title">Personnel</div>
+        <div class="content__card-body">Coaching staffs, front office rosters, and management histories.</div>
+        <a href="#" class="content__card-link">View Personnel &rarr;</a>
       </div>
     </div>
 
-    <div class="content__table-placeholder">
-      <table>
-        <thead>
-          <tr>
-            <th>Matchup</th>
-            <th>Score</th>
-            <th>Period</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>BOS</strong> @ TOR</td>
-            <td>3 &ndash; 2</td>
-            <td>&mdash;</td>
-            <td style="color: var(--color-final);">Final</td>
-          </tr>
-          <tr>
-            <td><strong>NYR</strong> @ MTL</td>
-            <td style="color: var(--color-live);">1 &ndash; 1</td>
-            <td>2nd 14:32</td>
-            <td style="color: var(--color-live);">Live</td>
-          </tr>
-          <tr>
-            <td>DET @ <strong>CHI</strong></td>
-            <td>&mdash;</td>
-            <td>&mdash;</td>
-            <td style="color: var(--color-pending);">7:00 PM</td>
-          </tr>
-          <tr>
-            <td><strong>PIT</strong> @ WSH</td>
-            <td style="color: var(--color-live);">4 &ndash; 2</td>
-            <td>3rd 08:15</td>
-            <td style="color: var(--color-live);">Live</td>
-          </tr>
-          <tr>
-            <td><strong>EDM</strong> @ CGY</td>
-            <td>5 &ndash; 1</td>
-            <td>&mdash;</td>
-            <td style="color: var(--color-final);">Final</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="content__placeholder">Page content loads here</div>
   </main>
 
   <!-- Footer -->
@@ -1180,7 +1129,7 @@ body {
 </div>
 
 <!-- ================================================================
-     JAVASCRIPT - Flyout + Dark-mode toggle
+     JAVASCRIPT - Flyout + Dark-mode toggle + Score bar scrolling
      ================================================================ -->
 <script>
 function toggleFlyout(mode) {
@@ -1200,6 +1149,15 @@ function toggleDarkMode(mode) {
     shell.setAttribute('data-theme', 'dark');
   }
   toggle.classList.toggle('toggle--active');
+}
+
+function scrollTicker(mode, direction) {
+  var track = document.getElementById('ticker-track-' + mode);
+  // Find the first game box to measure its width for scroll-by-box behavior
+  var gameBox = track.querySelector('.ticker__game');
+  if (!gameBox) return;
+  var boxWidth = gameBox.offsetWidth + 8; // width + gap
+  track.scrollBy({ left: direction * boxWidth * 2, behavior: 'smooth' });
 }
 </script>
 

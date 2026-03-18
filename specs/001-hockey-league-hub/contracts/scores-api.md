@@ -77,7 +77,9 @@ Returns expanded score box data for a single game.
     "homeTakeaways": 5,
     "awayTakeaways": 8,
     "homeGiveaways": 7,
-    "awayGiveaways": 4
+    "awayGiveaways": 4,
+    "homeTimeOfPossession": "10:42",
+    "awayTimeOfPossession": "9:18"
   },
   "goalSummaries": {
     "home": [
@@ -218,8 +220,14 @@ Returns pregame matchup summary for games that have not started (FR-021a).
     "penaltyKillPct": 79.5
   },
   "headToHead": {
-    "currentSeason": { "homeWins": 2, "awayWins": 1, "ties": 0 },
-    "allTime": { "homeWins": 85, "awayWins": 72, "ties": 12 }
+    "currentSeason": {
+      "home": { "wins": 2, "overtimeWins": 0, "shootoutWins": 0 },
+      "away": { "wins": 1, "overtimeWins": 0, "shootoutWins": 0 }
+    },
+    "allTime": {
+      "home": { "wins": 62, "overtimeWins": 14, "shootoutWins": 9, "ties": 8 },
+      "away": { "wins": 51, "overtimeWins": 12, "shootoutWins": 9, "ties": 8 }
+    }
   }
 }
 ```
