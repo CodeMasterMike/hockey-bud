@@ -53,6 +53,12 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 
+# IDEs
+.idea/
+*.suo
+*.user
+.vs/
+
 # Claude Code / Speckit
 .claude/
 .specify/

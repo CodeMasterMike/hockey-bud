@@ -19,6 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\HockeyHub.Core\HockeyHub.Core.csproj" />
+    <ProjectReference Include="..\..\src\HockeyHub.Data\HockeyHub.Data.csproj" />
     <ProjectReference Include="..\..\src\HockeyHub.Api\HockeyHub.Api.csproj" />
   </ItemGroup>
 

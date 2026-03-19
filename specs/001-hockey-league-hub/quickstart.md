@@ -40,8 +40,8 @@ dotnet user-secrets set "ConnectionStrings:Database" "Host=localhost;Port=5432;D
 dotnet user-secrets set "ConnectionStrings:Redis" "localhost:6379"
 dotnet user-secrets set "NhlApi:BaseUrl" "https://api-web.nhle.com"
 
-# Run database migrations
-dotnet ef database update
+# Run database migrations (from Api project, targeting Data project)
+dotnet ef database update --project ../HockeyHub.Data
 
 # Start the API (runs on https://localhost:5001)
 dotnet run

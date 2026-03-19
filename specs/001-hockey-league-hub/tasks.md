@@ -15,7 +15,9 @@
 
 ## Path Conventions
 
-- **Backend**: `backend/src/HockeyHub.Api/`
+- **Core (entities, interfaces)**: `backend/src/HockeyHub.Core/`
+- **Data (DbContext, providers, services)**: `backend/src/HockeyHub.Data/`
+- **Api (controllers, hubs, middleware)**: `backend/src/HockeyHub.Api/`
 - **Backend tests**: `backend/tests/HockeyHub.Api.Tests/`
 - **Frontend**: `frontend/src/app/`
 - **Frontend tests**: `frontend/tests/`
@@ -66,22 +68,22 @@
 
 ### Database & Backend Core
 
-- [ ] T007 Create `HockeyHubDbContext` with connection string configuration in `backend/src/HockeyHub.Api/Data/HockeyHubDbContext.cs`
-- [ ] T008 Create League entity in `backend/src/HockeyHub.Api/Models/Entities/League.cs`
-- [ ] T009 [P] Create Team entity (with LocationName, PrimaryColor, Stanley Cup counts) in `backend/src/HockeyHub.Api/Models/Entities/Team.cs`
-- [ ] T010 [P] Create Season entity (with Era, IsCurrent) in `backend/src/HockeyHub.Api/Models/Entities/Season.cs`
-- [ ] T011 [P] Create Arena entity (with dimensions, bench sides, PenaltyBoxSide, LayoutJson) in `backend/src/HockeyHub.Api/Models/Entities/Arena.cs`
-- [ ] T012 [P] Create FranchiseHistory entity in `backend/src/HockeyHub.Api/Models/Entities/FranchiseHistory.cs`
-- [ ] T013 [P] Create Player entity (with IsEbug, BirthStateProvince) in `backend/src/HockeyHub.Api/Models/Entities/Player.cs`
-- [ ] T014 Register all foundational entities in DbContext and create initial EF Core migration in `backend/src/HockeyHub.Api/Data/Migrations/`
-- [ ] T015 Create `INhlDataProvider` interface in `backend/src/HockeyHub.Api/Providers/INhlDataProvider.cs` with methods for scores, standings, rosters, players, games, trades, schedule
-- [ ] T016 Implement `NhlWebApiProvider` (api-web.nhle.com) in `backend/src/HockeyHub.Api/Providers/NhlWebApiProvider.cs` with HttpClient, rate limiting (3-5 req/s), and exponential backoff
-- [ ] T017 Create Redis caching service with configurable TTLs per data type in `backend/src/HockeyHub.Api/Services/Cache/RedisCacheService.cs`
+- [ ] T007 Create `HockeyHubDbContext` with connection string configuration in `backend/src/HockeyHub.Data/Data/HockeyHubDbContext.cs`
+- [ ] T008 Create League entity in `backend/src/HockeyHub.Core/Models/Entities/League.cs`
+- [ ] T009 [P] Create Team entity (with LocationName, PrimaryColor, Stanley Cup counts) in `backend/src/HockeyHub.Core/Models/Entities/Team.cs`
+- [ ] T010 [P] Create Season entity (with Era, IsCurrent) in `backend/src/HockeyHub.Core/Models/Entities/Season.cs`
+- [ ] T011 [P] Create Arena entity (with dimensions, bench sides, PenaltyBoxSide, LayoutJson) in `backend/src/HockeyHub.Core/Models/Entities/Arena.cs`
+- [ ] T012 [P] Create FranchiseHistory entity in `backend/src/HockeyHub.Core/Models/Entities/FranchiseHistory.cs`
+- [ ] T013 [P] Create Player entity (with IsEbug, BirthStateProvince) in `backend/src/HockeyHub.Core/Models/Entities/Player.cs`
+- [ ] T014 Register all foundational entities in DbContext and create initial EF Core migration in `backend/src/HockeyHub.Data/Data/Migrations/`
+- [ ] T015 Create `INhlDataProvider` interface in `backend/src/HockeyHub.Core/Providers/INhlDataProvider.cs` with methods for scores, standings, rosters, players, games, trades, schedule
+- [ ] T016 Implement `NhlWebApiProvider` (api-web.nhle.com) in `backend/src/HockeyHub.Data/Providers/NhlWebApiProvider.cs` with HttpClient, rate limiting (3-5 req/s), and exponential backoff
+- [ ] T017 Create Redis caching service with configurable TTLs per data type in `backend/src/HockeyHub.Data/Services/Cache/RedisCacheService.cs`
 - [ ] T018 [P] Configure Hangfire with PostgreSQL storage and dashboard in `backend/src/HockeyHub.Api/Program.cs`
 - [ ] T019 [P] Configure SignalR with Redis backplane in `backend/src/HockeyHub.Api/Program.cs`
 - [ ] T020 Create `GameHub` SignalR hub with JoinGameGroup, LeaveGameGroup, JoinAllLiveGames methods in `backend/src/HockeyHub.Api/Hubs/GameHub.cs`
 - [ ] T021 Create base API error handling middleware and `DataAsOf` response wrapper in `backend/src/HockeyHub.Api/Middleware/`
-- [ ] T022 Create data seed command (`--seed`, `--seed --current-only`) in `backend/src/HockeyHub.Api/Services/Sync/DataSeedService.cs`
+- [ ] T022 Create data seed command (`--seed`, `--seed --current-only`) in `backend/src/HockeyHub.Data/Services/Sync/DataSeedService.cs`
 
 ### Frontend Shell
 
@@ -111,14 +113,14 @@
 
 ### Backend — US1
 
-- [ ] T036 [P] [US1] Create Game entity (with CurrentPeriod, ClockRunning, ClockLastSyncedAt, all game stats) in `backend/src/HockeyHub.Api/Models/Entities/Game.cs`
-- [ ] T037 [P] [US1] Create GamePeriodScore entity in `backend/src/HockeyHub.Api/Models/Entities/GamePeriodScore.cs`
-- [ ] T038 [P] [US1] Create StandingsSnapshot entity (with FaceoffPct, all ranking fields) in `backend/src/HockeyHub.Api/Models/Entities/StandingsSnapshot.cs`
-- [ ] T039 [US1] Add Game, GamePeriodScore, StandingsSnapshot to DbContext and create migration in `backend/src/HockeyHub.Api/Data/`
-- [ ] T040 [US1] Create ScoresQueryService (get scores by date, expanded details, live scores, ticker data, pregame matchup) in `backend/src/HockeyHub.Api/Services/Queries/ScoresQueryService.cs`
+- [ ] T036 [P] [US1] Create Game entity (with CurrentPeriod, ClockRunning, ClockLastSyncedAt, all game stats) in `backend/src/HockeyHub.Core/Models/Entities/Game.cs`
+- [ ] T037 [P] [US1] Create GamePeriodScore entity in `backend/src/HockeyHub.Core/Models/Entities/GamePeriodScore.cs`
+- [ ] T038 [P] [US1] Create StandingsSnapshot entity (with FaceoffPct, all ranking fields) in `backend/src/HockeyHub.Core/Models/Entities/StandingsSnapshot.cs`
+- [ ] T039 [US1] Add Game, GamePeriodScore, StandingsSnapshot to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
+- [ ] T040 [US1] Create ScoresQueryService (get scores by date, expanded details, live scores, ticker data, pregame matchup) in `backend/src/HockeyHub.Data/Services/Queries/ScoresQueryService.cs`
 - [ ] T041 [US1] Create ScoresController with GET scores, GET expanded, GET live, GET ticker, GET pregame endpoints per scores-api contract in `backend/src/HockeyHub.Api/Controllers/ScoresController.cs`
-- [ ] T042 [US1] Create ScoresSyncJob (Hangfire recurring: 10-15s during live games, 5min idle) that polls NHL API, updates Redis + PostgreSQL, broadcasts via SignalR in `backend/src/HockeyHub.Api/Services/Sync/ScoresSyncJob.cs`
-- [ ] T043 [US1] Create StandingsSyncJob (triggered by game status transitions Scheduled→Live, Live→Final) in `backend/src/HockeyHub.Api/Services/Sync/StandingsSyncJob.cs`
+- [ ] T042 [US1] Create ScoresSyncJob (Hangfire recurring: 10-15s during live games, 5min idle) that polls NHL API, updates Redis + PostgreSQL, broadcasts via SignalR in `backend/src/HockeyHub.Data/Services/Sync/ScoresSyncJob.cs`
+- [ ] T043 [US1] Create StandingsSyncJob (triggered by game status transitions Scheduled→Live, Live→Final) in `backend/src/HockeyHub.Data/Services/Sync/StandingsSyncJob.cs`
 
 ### Frontend — US1
 
@@ -144,13 +146,13 @@
 
 ### Backend — US2
 
-- [ ] T053 [P] [US2] Create GameEvent entity (with ReviewStatus, HasVideo, goal/penalty-specific fields) in `backend/src/HockeyHub.Api/Models/Entities/GameEvent.cs`
-- [ ] T054 [P] [US2] Create GamePlayerStat entity (with FaceoffPct last, goalie stats) in `backend/src/HockeyHub.Api/Models/Entities/GamePlayerStat.cs`
-- [ ] T055 [P] [US2] Create RuleBookEntry entity in `backend/src/HockeyHub.Api/Models/Entities/RuleBookEntry.cs`
-- [ ] T056 [US2] Add GameEvent, GamePlayerStat, RuleBookEntry to DbContext and create migration in `backend/src/HockeyHub.Api/Data/`
-- [ ] T057 [US2] Create GameHubQueryService (team stats, player stats, rink events with arena layout) in `backend/src/HockeyHub.Api/Services/Queries/GameHubQueryService.cs`
+- [ ] T053 [P] [US2] Create GameEvent entity (with ReviewStatus, HasVideo, goal/penalty-specific fields) in `backend/src/HockeyHub.Core/Models/Entities/GameEvent.cs`
+- [ ] T054 [P] [US2] Create GamePlayerStat entity (with FaceoffPct last, goalie stats) in `backend/src/HockeyHub.Core/Models/Entities/GamePlayerStat.cs`
+- [ ] T055 [P] [US2] Create RuleBookEntry entity in `backend/src/HockeyHub.Core/Models/Entities/RuleBookEntry.cs`
+- [ ] T056 [US2] Add GameEvent, GamePlayerStat, RuleBookEntry to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
+- [ ] T057 [US2] Create GameHubQueryService (team stats, player stats, rink events with arena layout) in `backend/src/HockeyHub.Data/Services/Queries/GameHubQueryService.cs`
 - [ ] T058 [US2] Create GamesController with GET game, GET player-stats, GET rink-events endpoints per games-api contract in `backend/src/HockeyHub.Api/Controllers/GamesController.cs`
-- [ ] T059 [US2] Create GameEventsSyncJob (syncs play-by-play during live games, handles pending/review states) in `backend/src/HockeyHub.Api/Services/Sync/GameEventsSyncJob.cs`
+- [ ] T059 [US2] Create GameEventsSyncJob (syncs play-by-play during live games, handles pending/review states) in `backend/src/HockeyHub.Data/Services/Sync/GameEventsSyncJob.cs`
 
 ### Frontend — US2
 
@@ -177,7 +179,7 @@
 
 ### Backend — US3
 
-- [ ] T070 [US3] Create StandingsQueryService (wild card, division, conference, league views; column sorting) in `backend/src/HockeyHub.Api/Services/Queries/StandingsQueryService.cs`
+- [ ] T070 [US3] Create StandingsQueryService (wild card, division, conference, league views; column sorting) in `backend/src/HockeyHub.Data/Services/Queries/StandingsQueryService.cs`
 - [ ] T071 [US3] Create StandingsController with GET standings endpoint (view, sort, sortDir, season params) per standings-stats-api contract in `backend/src/HockeyHub.Api/Controllers/StandingsController.cs`
 
 ### Frontend — US3
@@ -197,11 +199,11 @@
 
 ### Backend — US4
 
-- [ ] T074 [P] [US4] Create PlayerSeason entity (with Era, all nullable historical stats, goalie fields) in `backend/src/HockeyHub.Api/Models/Entities/PlayerSeason.cs`
-- [ ] T075 [US4] Add PlayerSeason to DbContext and create migration in `backend/src/HockeyHub.Api/Data/`
-- [ ] T076 [US4] Create StatsQueryService (section filtering, sorting across full dataset, pagination) in `backend/src/HockeyHub.Api/Services/Queries/StatsQueryService.cs`
+- [ ] T074 [P] [US4] Create PlayerSeason entity (with Era, all nullable historical stats, goalie fields) in `backend/src/HockeyHub.Core/Models/Entities/PlayerSeason.cs`
+- [ ] T075 [US4] Add PlayerSeason to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
+- [ ] T076 [US4] Create StatsQueryService (section filtering, sorting across full dataset, pagination) in `backend/src/HockeyHub.Data/Services/Queries/StatsQueryService.cs`
 - [ ] T077 [US4] Create StatsController with GET stats endpoint (section, sort, sortDir, page, pageSize, season params) per standings-stats-api contract in `backend/src/HockeyHub.Api/Controllers/StatsController.cs`
-- [ ] T078 [US4] Create StatsSyncJob (syncs player season stats, triggered by game events) in `backend/src/HockeyHub.Api/Services/Sync/StatsSyncJob.cs`
+- [ ] T078 [US4] Create StatsSyncJob (syncs player season stats, triggered by game events) in `backend/src/HockeyHub.Data/Services/Sync/StatsSyncJob.cs`
 
 ### Frontend — US4
 
@@ -220,9 +222,9 @@
 
 ### Backend — US5
 
-- [ ] T081 [US5] Create TeamsQueryService (index sorted by LocationName, profile with franchise history, roster with birth place, depth chart with stats/cap views, inactive section) in `backend/src/HockeyHub.Api/Services/Queries/TeamsQueryService.cs`
+- [ ] T081 [US5] Create TeamsQueryService (index sorted by LocationName, profile with franchise history, roster with birth place, depth chart with stats/cap views, inactive section) in `backend/src/HockeyHub.Data/Services/Queries/TeamsQueryService.cs`
 - [ ] T082 [US5] Create TeamsController with GET teams, GET team profile, GET roster, GET depth-chart endpoints per teams-players-api contract in `backend/src/HockeyHub.Api/Controllers/TeamsController.cs`
-- [ ] T083 [US5] Create RosterSyncJob (syncs rosters, triggered by game status transitions) in `backend/src/HockeyHub.Api/Services/Sync/RosterSyncJob.cs`
+- [ ] T083 [US5] Create RosterSyncJob (syncs rosters, triggered by game status transitions) in `backend/src/HockeyHub.Data/Services/Sync/RosterSyncJob.cs`
 
 ### Frontend — US5
 
@@ -244,13 +246,13 @@
 
 ### Backend — US6
 
-- [ ] T089 [P] [US6] Create PlayerPosition entity in `backend/src/HockeyHub.Api/Models/Entities/PlayerPosition.cs`
-- [ ] T090 [P] [US6] Create PlayerHeadshot entity in `backend/src/HockeyHub.Api/Models/Entities/PlayerHeadshot.cs`
-- [ ] T091 [P] [US6] Create PlayerStyle entity (with jsonb SupportingStats) in `backend/src/HockeyHub.Api/Models/Entities/PlayerStyle.cs`
-- [ ] T092 [P] [US6] Create PlayerTeamHistory entity in `backend/src/HockeyHub.Api/Models/Entities/PlayerTeamHistory.cs`
-- [ ] T093 [P] [US6] Create PlayerAward entity in `backend/src/HockeyHub.Api/Models/Entities/PlayerAward.cs`
-- [ ] T094 [US6] Add all Player-related entities to DbContext and create migration in `backend/src/HockeyHub.Api/Data/`
-- [ ] T095 [US6] Create PlayersQueryService (profile with positions/headshots/style/awards/contracts, stats by tab with era tags) in `backend/src/HockeyHub.Api/Services/Queries/PlayersQueryService.cs`
+- [ ] T089 [P] [US6] Create PlayerPosition entity in `backend/src/HockeyHub.Core/Models/Entities/PlayerPosition.cs`
+- [ ] T090 [P] [US6] Create PlayerHeadshot entity in `backend/src/HockeyHub.Core/Models/Entities/PlayerHeadshot.cs`
+- [ ] T091 [P] [US6] Create PlayerStyle entity (with jsonb SupportingStats) in `backend/src/HockeyHub.Core/Models/Entities/PlayerStyle.cs`
+- [ ] T092 [P] [US6] Create PlayerTeamHistory entity in `backend/src/HockeyHub.Core/Models/Entities/PlayerTeamHistory.cs`
+- [ ] T093 [P] [US6] Create PlayerAward entity in `backend/src/HockeyHub.Core/Models/Entities/PlayerAward.cs`
+- [ ] T094 [US6] Add all Player-related entities to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
+- [ ] T095 [US6] Create PlayersQueryService (profile with positions/headshots/style/awards/contracts, stats by tab with era tags) in `backend/src/HockeyHub.Data/Services/Queries/PlayersQueryService.cs`
 - [ ] T096 [US6] Create PlayersController with GET player, GET player/stats endpoints per teams-players-api contract in `backend/src/HockeyHub.Api/Controllers/PlayersController.cs`
 
 ### Frontend — US6
@@ -273,12 +275,12 @@
 
 ### Backend — US7
 
-- [ ] T102 [P] [US7] Create Contract entity in `backend/src/HockeyHub.Api/Models/Entities/Contract.cs`
-- [ ] T103 [P] [US7] Create ContractYear entity in `backend/src/HockeyHub.Api/Models/Entities/ContractYear.cs`
-- [ ] T104 [P] [US7] Create SalaryCapInfo entity (derived/cached per team) in `backend/src/HockeyHub.Api/Models/Entities/SalaryCapInfo.cs`
-- [ ] T105 [US7] Add Contract, ContractYear, SalaryCapInfo to DbContext and create migration in `backend/src/HockeyHub.Api/Data/`
-- [ ] T106 [US7] Create SalaryCapQueryService (league overview, team detail with projections/picks, player detail with year-by-year) in `backend/src/HockeyHub.Api/Services/Queries/SalaryCapQueryService.cs`
-- [ ] T107 [US7] Create BuyoutCalculatorService (CBA formulas: age-based 2/3 or 1/3, bonus handling, year-by-year cap impact) in `backend/src/HockeyHub.Api/Services/Calculator/BuyoutCalculatorService.cs`
+- [ ] T102 [P] [US7] Create Contract entity in `backend/src/HockeyHub.Core/Models/Entities/Contract.cs`
+- [ ] T103 [P] [US7] Create ContractYear entity in `backend/src/HockeyHub.Core/Models/Entities/ContractYear.cs`
+- [ ] T104 [P] [US7] Create SalaryCapInfo entity (derived/cached per team) in `backend/src/HockeyHub.Core/Models/Entities/SalaryCapInfo.cs`
+- [ ] T105 [US7] Add Contract, ContractYear, SalaryCapInfo to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
+- [ ] T106 [US7] Create SalaryCapQueryService (league overview, team detail with projections/picks, player detail with year-by-year) in `backend/src/HockeyHub.Data/Services/Queries/SalaryCapQueryService.cs`
+- [ ] T107 [US7] Create BuyoutCalculatorService (CBA formulas: age-based 2/3 or 1/3, bonus handling, year-by-year cap impact) in `backend/src/HockeyHub.Data/Services/Calculator/BuyoutCalculatorService.cs`
 - [ ] T108 [US7] Create SalaryCapController with GET league cap, GET team cap, GET player cap, POST buyout-calculator, GET cap-explained endpoints per salary-cap-api contract in `backend/src/HockeyHub.Api/Controllers/SalaryCapController.cs`
 
 ### Frontend — US7
@@ -302,15 +304,15 @@
 
 ### Backend — US8
 
-- [ ] T115 [P] [US8] Create Trade entity (with IsPartial, OriginTradeId) in `backend/src/HockeyHub.Api/Models/Entities/Trade.cs`
-- [ ] T116 [P] [US8] Create TradeSide entity in `backend/src/HockeyHub.Api/Models/Entities/TradeSide.cs`
-- [ ] T117 [P] [US8] Create TradeAsset entity (with SubsequentTradeId, PriorTradeAssetId) in `backend/src/HockeyHub.Api/Models/Entities/TradeAsset.cs`
-- [ ] T118 [P] [US8] Create TradeEdge junction table entity in `backend/src/HockeyHub.Api/Models/Entities/TradeEdge.cs`
-- [ ] T119 [US8] Add all Trade-related entities to DbContext and create migration in `backend/src/HockeyHub.Api/Data/`
-- [ ] T120 [US8] Create TradeTreeService (bidirectional recursive CTE traversal: ancestors via ChildTradeId→ParentTradeId, descendants via ParentTradeId→ChildTradeId, depth limit 20, graph assembly) in `backend/src/HockeyHub.Api/Services/Calculator/TradeTreeService.cs`
-- [ ] T121 [US8] Create TradesQueryService (list with filters/search, trade detail with bidirectional tree) in `backend/src/HockeyHub.Api/Services/Queries/TradesQueryService.cs`
+- [ ] T115 [P] [US8] Create Trade entity (with IsPartial, OriginTradeId) in `backend/src/HockeyHub.Core/Models/Entities/Trade.cs`
+- [ ] T116 [P] [US8] Create TradeSide entity in `backend/src/HockeyHub.Core/Models/Entities/TradeSide.cs`
+- [ ] T117 [P] [US8] Create TradeAsset entity (with SubsequentTradeId, PriorTradeAssetId) in `backend/src/HockeyHub.Core/Models/Entities/TradeAsset.cs`
+- [ ] T118 [P] [US8] Create TradeEdge junction table entity in `backend/src/HockeyHub.Core/Models/Entities/TradeEdge.cs`
+- [ ] T119 [US8] Add all Trade-related entities to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
+- [ ] T120 [US8] Create TradeTreeService (bidirectional recursive CTE traversal: ancestors via ChildTradeId→ParentTradeId, descendants via ParentTradeId→ChildTradeId, depth limit 20, graph assembly) in `backend/src/HockeyHub.Data/Services/Calculator/TradeTreeService.cs`
+- [ ] T121 [US8] Create TradesQueryService (list with filters/search, trade detail with bidirectional tree) in `backend/src/HockeyHub.Data/Services/Queries/TradesQueryService.cs`
 - [ ] T122 [US8] Create TradesController with GET trades, GET trade detail (with tree) endpoints per trades-free-agents-api contract in `backend/src/HockeyHub.Api/Controllers/TradesController.cs`
-- [ ] T123 [US8] Create TradesSyncJob (60s during trade deadline, 15min otherwise; handles partial info) in `backend/src/HockeyHub.Api/Services/Sync/TradesSyncJob.cs`
+- [ ] T123 [US8] Create TradesSyncJob (60s during trade deadline, 15min otherwise; handles partial info) in `backend/src/HockeyHub.Data/Services/Sync/TradesSyncJob.cs`
 
 ### Frontend — US8
 
@@ -332,9 +334,9 @@
 
 ### Backend — US9
 
-- [ ] T129 [US9] Create FreeAgentsQueryService (pending with full player stats, recent signings) in `backend/src/HockeyHub.Api/Services/Queries/FreeAgentsQueryService.cs`
+- [ ] T129 [US9] Create FreeAgentsQueryService (pending with full player stats, recent signings) in `backend/src/HockeyHub.Data/Services/Queries/FreeAgentsQueryService.cs`
 - [ ] T130 [US9] Create FreeAgentsController with GET free-agents endpoint (tab, sort, pagination) per trades-free-agents-api contract in `backend/src/HockeyHub.Api/Controllers/FreeAgentsController.cs`
-- [ ] T131 [US9] Create FreeAgentsSyncJob (syncs with trades, handles partial signing info) in `backend/src/HockeyHub.Api/Services/Sync/FreeAgentsSyncJob.cs`
+- [ ] T131 [US9] Create FreeAgentsSyncJob (syncs with trades, handles partial signing info) in `backend/src/HockeyHub.Data/Services/Sync/FreeAgentsSyncJob.cs`
 
 ### Frontend — US9
 
@@ -353,11 +355,11 @@
 
 ### Backend — US10
 
-- [ ] T134 [P] [US10] Create Personnel entity in `backend/src/HockeyHub.Api/Models/Entities/Personnel.cs`
-- [ ] T135 [P] [US10] Create PersonnelHistory entity in `backend/src/HockeyHub.Api/Models/Entities/PersonnelHistory.cs`
-- [ ] T136 [P] [US10] Create PersonnelAward entity in `backend/src/HockeyHub.Api/Models/Entities/PersonnelAward.cs`
-- [ ] T137 [US10] Add Personnel entities to DbContext and create migration in `backend/src/HockeyHub.Api/Data/`
-- [ ] T138 [US10] Create PersonnelQueryService (team staff by role in specified order, profile with stats/awards/predecessors) in `backend/src/HockeyHub.Api/Services/Queries/PersonnelQueryService.cs`
+- [ ] T134 [P] [US10] Create Personnel entity in `backend/src/HockeyHub.Core/Models/Entities/Personnel.cs`
+- [ ] T135 [P] [US10] Create PersonnelHistory entity in `backend/src/HockeyHub.Core/Models/Entities/PersonnelHistory.cs`
+- [ ] T136 [P] [US10] Create PersonnelAward entity in `backend/src/HockeyHub.Core/Models/Entities/PersonnelAward.cs`
+- [ ] T137 [US10] Add Personnel entities to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
+- [ ] T138 [US10] Create PersonnelQueryService (team staff by role in specified order, profile with stats/awards/predecessors) in `backend/src/HockeyHub.Data/Services/Queries/PersonnelQueryService.cs`
 - [ ] T139 [US10] Create PersonnelController with GET team personnel, GET personnel profile endpoints per personnel-api contract in `backend/src/HockeyHub.Api/Controllers/PersonnelController.cs`
 
 ### Frontend — US10
@@ -378,11 +380,11 @@
 
 ### Backend — US11
 
-- [ ] T143 [P] [US11] Create ImportantDate entity in `backend/src/HockeyHub.Api/Models/Entities/ImportantDate.cs`
-- [ ] T144 [US11] Add ImportantDate to DbContext and create migration in `backend/src/HockeyHub.Api/Data/`
-- [ ] T145 [US11] Create ScheduleQueryService (season schedule by month, important dates, team filter) in `backend/src/HockeyHub.Api/Services/Queries/ScheduleQueryService.cs`
+- [ ] T143 [P] [US11] Create ImportantDate entity in `backend/src/HockeyHub.Core/Models/Entities/ImportantDate.cs`
+- [ ] T144 [US11] Add ImportantDate to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
+- [ ] T145 [US11] Create ScheduleQueryService (season schedule by month, important dates, team filter) in `backend/src/HockeyHub.Data/Services/Queries/ScheduleQueryService.cs`
 - [ ] T146 [US11] Create ScheduleController with GET schedule endpoint (season, month, team params) per schedule-api contract in `backend/src/HockeyHub.Api/Controllers/ScheduleController.cs`
-- [ ] T147 [US11] Create ScheduleSyncJob (syncs season schedule and seeds important dates) in `backend/src/HockeyHub.Api/Services/Sync/ScheduleSyncJob.cs`
+- [ ] T147 [US11] Create ScheduleSyncJob (syncs season schedule and seeds important dates) in `backend/src/HockeyHub.Data/Services/Sync/ScheduleSyncJob.cs`
 
 ### Frontend — US11
 
@@ -399,7 +401,7 @@
 
 ### Global Search
 
-- [ ] T150 Create SearchQueryService (PostgreSQL full-text search with trigram indexing, scoped to league, grouped by entity type, favor most-searched categories) in `backend/src/HockeyHub.Api/Services/Queries/SearchQueryService.cs`
+- [ ] T150 Create SearchQueryService (PostgreSQL full-text search with trigram indexing, scoped to league, grouped by entity type, favor most-searched categories) in `backend/src/HockeyHub.Data/Services/Queries/SearchQueryService.cs`
 - [ ] T151 Create SearchController with GET leagues/{leagueId}/search endpoint per search-api contract in `backend/src/HockeyHub.Api/Controllers/SearchController.cs`
 - [ ] T152 Create global search dropdown component (as-you-type, grouped results by entity type, clickable links, <200ms response, no search on main page) in `frontend/src/app/components/search/search-dropdown/`
 
@@ -418,8 +420,8 @@
 
 ### Historical Data & Eras
 
-- [ ] T160 Create StatAvailability reference table and seed with stat-by-era availability matrix in `backend/src/HockeyHub.Api/Data/`
-- [ ] T161 [P] Create HistoricalDataSeedJob (phased: salary cap era first, then expansion, then Original Six) in `backend/src/HockeyHub.Api/Services/Sync/HistoricalDataSeedJob.cs`
+- [ ] T160 Create StatAvailability reference table and seed with stat-by-era availability matrix in `backend/src/HockeyHub.Data/Data/`
+- [ ] T161 [P] Create HistoricalDataSeedJob (phased: salary cap era first, then expansion, then Original Six) in `backend/src/HockeyHub.Data/Services/Sync/HistoricalDataSeedJob.cs`
 - [ ] T162 [P] Implement era separator rows and background tints in player stats tables using data-era attributes and CSS custom properties in `frontend/src/app/components/players/player-stats-tabs/`
 
 ### Responsive Design
@@ -428,7 +430,7 @@
 
 ### Performance
 
-- [ ] T164 [P] Add Redis caching to all query services with appropriate TTLs (10s live, 1h standings, 3h stats) in `backend/src/HockeyHub.Api/Services/Queries/`
+- [ ] T164 [P] Add Redis caching to all query services with appropriate TTLs (10s live, 1h standings, 3h stats) in `backend/src/HockeyHub.Data/Services/Queries/`
 - [ ] T165 [P] Add `Cache-Control` headers to all API responses matching tiered refresh cadences in `backend/src/HockeyHub.Api/Middleware/`
 - [ ] T166 Verify Angular SSR renders all pages correctly (client-only defer for rink diagram and trade tree) in `frontend/`
 

@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/HockeyHub.Core/HockeyHub.Core.csproj" />
+    <Project Path="src/HockeyHub.Data/HockeyHub.Data.csproj" />
     <Project Path="src/HockeyHub.Api/HockeyHub.Api.csproj" />
   </Folder>
   <Folder Name="/tests/">

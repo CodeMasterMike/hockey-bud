@@ -54,23 +54,25 @@ specs/001-hockey-league-hub/
 ```text
 backend/
 ├── src/
-│   └── HockeyHub.Api/
-│       ├── Controllers/         # API endpoints
-│       ├── Hubs/                # SignalR hubs (live scores, ticker)
-│       ├── Models/
-│       │   ├── Entities/        # EF Core entity classes
-│       │   └── Dtos/            # API response DTOs
-│       ├── Services/
-│       │   ├── Queries/         # Read-side query services
-│       │   ├── Sync/            # Data sync from NHL API
-│       │   ├── Cache/           # Redis caching layer
-│       │   └── Calculator/      # Buyout calculator, trade tree builder
-│       ├── Data/
-│       │   ├── HockeyHubDbContext.cs
-│       │   └── Migrations/
-│       ├── Providers/
-│       │   ├── INhlDataProvider.cs   # Abstraction for data source
-│       │   └── NhlWebApiProvider.cs  # api-web.nhle.com implementation
+│   ├── HockeyHub.Core/             # Entities, interfaces, DTOs (no dependencies)
+│   │   ├── Models/Entities/         # EF Core entity classes
+│   │   └── Providers/
+│   │       └── INhlDataProvider.cs  # Data provider interface + DTOs
+│   ├── HockeyHub.Data/             # Data access layer (depends on Core)
+│   │   ├── Data/
+│   │   │   ├── HockeyHubDbContext.cs
+│   │   │   └── Migrations/
+│   │   ├── Providers/
+│   │   │   └── NhlWebApiProvider.cs # api-web.nhle.com implementation
+│   │   └── Services/
+│   │       ├── Cache/               # Redis caching layer
+│   │       ├── Sync/                # Data sync jobs + seed service
+│   │       └── Calculator/          # Buyout calculator, trade tree builder
+│   └── HockeyHub.Api/              # HTTP host (depends on Data + Core)
+│       ├── Controllers/             # API endpoints
+│       ├── Hubs/                    # SignalR hubs (live scores, ticker)
+│       ├── Middleware/              # Error handling, response wrappers
+│       ├── Models/Dtos/             # API response DTOs
 │       └── Program.cs
 ├── tests/
 │   └── HockeyHub.Api.Tests/
@@ -113,7 +115,7 @@ frontend/
 └── angular.json
 ```
 
-**Structure Decision**: Web application (Option 2) with `backend/` and `frontend/` top-level directories. The backend is a .NET Web API with SignalR hubs for real-time updates. The frontend is an Angular 19 SPA with SSR. Infrastructure (PostgreSQL, Redis) is containerized via docker-compose.
+**Structure Decision**: Web application with `backend/` and `frontend/` top-level directories. The backend uses a 3-project split: **Core** (entities, interfaces — no dependencies), **Data** (DbContext, providers, services — depends on Core), and **Api** (HTTP host, hubs, middleware — depends on Data + Core). This enables isolated testing and potential future worker process extraction. The frontend is an Angular 19 SPA with SSR. Infrastructure (PostgreSQL, Redis) is containerized via docker-compose.
 
 ## Complexity Tracking
 

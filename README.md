@@ -12,22 +12,165 @@ Comprehensive hockey league information website starting with NHL — scores, st
 
 ```
 backend/
-├── src/HockeyHub.Api/          # ASP.NET Core Web API
-└── tests/HockeyHub.Api.Tests/  # Backend tests
+├── src/
+│   ├── HockeyHub.Core/             # Entities + interfaces (no dependencies)
+│   │   ├── Models/Entities/         # EF Core entity classes
+│   │   └── Providers/               # INhlDataProvider interface + DTOs
+│   ├── HockeyHub.Data/             # Data access layer (depends on Core)
+│   │   ├── Data/                    # DbContext, EF Core migrations
+│   │   ├── Providers/               # NhlWebApiProvider (api-web.nhle.com)
+│   │   └── Services/                # Cache, sync, seed services
+│   └── HockeyHub.Api/              # HTTP host (depends on Data + Core)
+│       ├── Hubs/                    # SignalR hubs (live scores)
+│       ├── Middleware/              # Error handling, response wrappers
+│       └── Program.cs              # App startup + DI wiring
+└── tests/HockeyHub.Api.Tests/      # Backend tests
 
 frontend/
-├── src/app/                    # Angular application
-├── src/assets/fonts/           # Self-hosted Courier Prime (WOFF2)
-├── src/styles/tokens.css       # Antique-book design tokens (light/dark)
-├── src/styles/fonts.css        # @font-face declarations
-└── tests/                      # Frontend tests
+├── src/app/                       # Angular application
+├── src/assets/fonts/              # Self-hosted Courier Prime (WOFF2)
+├── src/styles/                    # Design tokens (light/dark mode)
+└── tests/                         # Frontend tests
 
 docs/
-└── mockups/                    # Static HTML/CSS design mockups
+└── mockups/                       # Static HTML/CSS design mockups
 
 specs/
-└── 001-hockey-league-hub/      # Feature spec, plan, tasks, data model, API contracts
+└── 001-hockey-league-hub/         # Feature spec, plan, tasks, data model, API contracts
 ```
+
+## Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [Node.js 20+](https://nodejs.org/) and npm
+- [Docker](https://www.docker.com/) (for PostgreSQL 16 and Redis 7)
+- [EF Core CLI](https://learn.microsoft.com/en-us/ef/core/cli/dotnet): `dotnet tool install --global dotnet-ef`
+
+## Getting Started
+
+### 1. Start infrastructure
+
+```bash
+docker compose up -d
+```
+
+This starts PostgreSQL 16 (port 5432, db: `hockeyhub`, user: `hockeyhub`, password: `hockeyhub_dev`) and Redis 7 (port 6379).
+
+### 2. Backend setup
+
+```bash
+cd backend/src/HockeyHub.Api
+
+# Restore and build
+dotnet restore
+dotnet build
+
+# Apply database migrations (from Api project, targeting Data project)
+dotnet ef database update --project ../HockeyHub.Data
+
+# Run the API
+dotnet run
+```
+
+The API starts at **http://localhost:5072** (HTTP) or **https://localhost:7103** (HTTPS).
+
+### 3. Seed data from NHL API
+
+```bash
+cd backend/src/HockeyHub.Api
+
+# Full seed (league, all seasons, teams, rosters)
+dotnet run -- --seed
+
+# Current season only (faster for dev)
+dotnet run -- --seed --current-only
+```
+
+### 4. Frontend setup
+
+```bash
+cd frontend
+
+npm install
+ng serve
+```
+
+The frontend starts at **http://localhost:4200**.
+
+## Debugging
+
+### Backend (VS Code)
+
+Add this configuration to `.vscode/launch.json`:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "HockeyHub API",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/src/HockeyHub.Api/bin/Debug/net10.0/HockeyHub.Api.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend/src/HockeyHub.Api",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  ]
+}
+```
+
+### Backend (Visual Studio)
+
+Open `backend/HockeyHub.slnx` — the launch profiles are pre-configured in `Properties/launchSettings.json`.
+
+### Backend (CLI with hot reload)
+
+```bash
+cd backend/src/HockeyHub.Api
+dotnet watch run
+```
+
+Changes to `.cs` files trigger automatic rebuild and restart.
+
+### Frontend
+
+```bash
+cd frontend
+ng serve    # Dev server with hot reload at http://localhost:4200
+```
+
+### Verifying services are running
+
+```bash
+# PostgreSQL
+docker exec hockeyhub-postgres pg_isready -U hockeyhub
+
+# Redis
+docker exec hockeyhub-redis redis-cli ping
+
+# Backend API (should return JSON or 404)
+curl http://localhost:5072/hangfire
+
+# SignalR hub endpoint
+# Connect via ws://localhost:5072/hubs/scores
+```
+
+### Hangfire Dashboard
+
+Background job monitoring is available at **http://localhost:5072/hangfire** when the API is running.
+
+### Common issues
+
+| Problem | Solution |
+|---------|----------|
+| `Connection refused` on backend start | Ensure Docker containers are running: `docker compose up -d` |
+| EF Core migration errors | Run `dotnet ef database update --project ../HockeyHub.Data` from `backend/src/HockeyHub.Api/` |
+| NHL API rate limiting | The provider auto-retries with exponential backoff; wait and retry |
+| Redis connection failed | Check Redis container: `docker exec hockeyhub-redis redis-cli ping` |
+| Port 5072 in use | Kill existing process or change port in `Properties/launchSettings.json` |
 
 ## Design
 
@@ -50,9 +193,19 @@ Standalone HTML/CSS mockups for design review, viewable in any browser from `doc
 | 09 | [Salary Cap](docs/mockups/09-salary-cap.html) | Team overview, per-player detail, buyout calculator, CBA guide |
 | 10 | [Schedule Calendar](docs/mockups/10-schedule-calendar.html) | Month grid with games, trade deadline, All-Star, bye week badges |
 
+## Key URLs (Development)
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Frontend | http://localhost:4200 | Angular dev server |
+| Backend API | http://localhost:5072 | .NET Web API |
+| Hangfire Dashboard | http://localhost:5072/hangfire | Background job monitoring |
+| SignalR Hub | ws://localhost:5072/hubs/scores | Live score updates |
+
 ## Development Status
 
-- **Phase 1 (Setup)**: Complete — project scaffolding, design tokens, fonts
+- **Phase 1 (Setup)**: Complete — project scaffolding, Docker services, design tokens, fonts
 - **Phase 1B (UI Prototyping)**: Complete — all 10 mockups ready for design review
-- **Phase 2 (Foundation)**: Not started — database, API infrastructure, frontend shell
+- **Phase 2 (Foundation) — Backend**: Complete — entities, DbContext, EF migration, NHL API provider, Redis cache, SignalR hub, Hangfire, error middleware, data seed CLI
+- **Phase 2 (Foundation) — Frontend**: Not started — routing, shell components, shared components
 - **Phases 3–14**: Not started — user stories and polish
