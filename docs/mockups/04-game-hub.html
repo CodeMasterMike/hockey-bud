@@ -250,6 +250,33 @@ th.center, td.center { text-align: center; }
 .box-score th:first-child, .box-score td:first-child { text-align: left; font-weight: 700; }
 .box-score td.total { font-weight: 700; }
 
+/* ── Top Stats Layout (box scores + team comparison side by side) ── */
+.top-stats-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.top-stats-row .box-scores-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.top-stats-row .box-scores-col .card { margin-bottom: 0; }
+.top-stats-row .box-scores-pair {
+  display: flex;
+  gap: 20px;
+}
+.top-stats-row .box-scores-pair .card {
+  flex: 1;
+  min-width: 0;
+}
+.top-stats-row .compare-col {
+  flex: 0 0 340px;
+}
+.top-stats-row .compare-col .card { margin-bottom: 0; height: 100%; }
+
 /* ── Team Stat Comparison ───────────────────────────────────── */
 .stat-compare { width: 100%; }
 .stat-compare__row {
@@ -477,81 +504,130 @@ th.center, td.center { text-align: center; }
        TEAM STATS TAB (primary view)
        ══════════════════════════════════════════════════════════ -->
 
-  <!-- 1. Box Score by Period -->
-  <div class="card">
-    <h2 class="card__heading">Scoring by Period</h2>
-    <table class="box-score">
-      <thead>
-        <tr>
-          <th>Team</th>
-          <th>1st</th>
-          <th>2nd</th>
-          <th>3rd</th>
-          <th>OT</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>BOS</td>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
-          <td class="total">4</td>
-        </tr>
-        <tr>
-          <td>TOR</td>
-          <td>2</td>
-          <td>0</td>
-          <td>1</td>
-          <td>0</td>
-          <td class="total">3</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <!-- 1 & 2. Box Scores + Team Comparison (side by side) -->
+  <div class="top-stats-row">
 
-  <!-- 2. Team Stat Comparison -->
-  <div class="card">
-    <h2 class="card__heading">Team Comparison</h2>
-    <div class="stat-compare">
-      <div class="stat-compare__row">
-        <span class="stat-compare__val stat-compare__val--away">34</span>
-        <span class="stat-compare__label">Shots on Goal</span>
-        <span class="stat-compare__val stat-compare__val--home">31</span>
-      </div>
-      <div class="stat-compare__row">
-        <span class="stat-compare__val stat-compare__val--away">28</span>
-        <span class="stat-compare__label">Hits</span>
-        <span class="stat-compare__val stat-compare__val--home">35</span>
-      </div>
-      <div class="stat-compare__row">
-        <span class="stat-compare__val stat-compare__val--away">2/5</span>
-        <span class="stat-compare__label">Power Play</span>
-        <span class="stat-compare__val stat-compare__val--home">1/4</span>
-      </div>
-      <div class="stat-compare__row">
-        <span class="stat-compare__val stat-compare__val--away">48.3%</span>
-        <span class="stat-compare__label">Faceoffs</span>
-        <span class="stat-compare__val stat-compare__val--home">51.7%</span>
-      </div>
-      <div class="stat-compare__row">
-        <span class="stat-compare__val stat-compare__val--away">8</span>
-        <span class="stat-compare__label">Giveaways</span>
-        <span class="stat-compare__val stat-compare__val--home">11</span>
-      </div>
-      <div class="stat-compare__row">
-        <span class="stat-compare__val stat-compare__val--away">6</span>
-        <span class="stat-compare__label">Takeaways</span>
-        <span class="stat-compare__val stat-compare__val--home">9</span>
-      </div>
-      <div class="stat-compare__row">
-        <span class="stat-compare__val stat-compare__val--away">65:00</span>
-        <span class="stat-compare__label">Time on Ice</span>
-        <span class="stat-compare__val stat-compare__val--home">65:00</span>
+    <!-- Left column: Goals & Shots box scores side by side -->
+    <div class="box-scores-col">
+      <div class="box-scores-pair">
+
+        <!-- Goals by Period -->
+        <div class="card">
+          <h2 class="card__heading">Goals by Period</h2>
+          <table class="box-score">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>1st</th>
+                <th>2nd</th>
+                <th>3rd</th>
+                <th>OT</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>BOS</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td class="total">4</td>
+              </tr>
+              <tr>
+                <td>TOR</td>
+                <td>2</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td class="total">3</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Shots by Period -->
+        <div class="card">
+          <h2 class="card__heading">Shots by Period</h2>
+          <table class="box-score">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>1st</th>
+                <th>2nd</th>
+                <th>3rd</th>
+                <th>OT</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>BOS</td>
+                <td>12</td>
+                <td>8</td>
+                <td>11</td>
+                <td>4</td>
+                <td class="total">35</td>
+              </tr>
+              <tr>
+                <td>TOR</td>
+                <td>9</td>
+                <td>14</td>
+                <td>10</td>
+                <td>2</td>
+                <td class="total">35</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
     </div>
+
+    <!-- Right column: Team Comparison -->
+    <div class="compare-col">
+      <div class="card">
+        <h2 class="card__heading">Team Comparison</h2>
+        <div class="stat-compare">
+          <div class="stat-compare__row">
+            <span class="stat-compare__val stat-compare__val--away">34</span>
+            <span class="stat-compare__label">Shots on Goal</span>
+            <span class="stat-compare__val stat-compare__val--home">31</span>
+          </div>
+          <div class="stat-compare__row">
+            <span class="stat-compare__val stat-compare__val--away">28</span>
+            <span class="stat-compare__label">Hits</span>
+            <span class="stat-compare__val stat-compare__val--home">35</span>
+          </div>
+          <div class="stat-compare__row">
+            <span class="stat-compare__val stat-compare__val--away">2/5</span>
+            <span class="stat-compare__label">Power Play</span>
+            <span class="stat-compare__val stat-compare__val--home">1/4</span>
+          </div>
+          <div class="stat-compare__row">
+            <span class="stat-compare__val stat-compare__val--away">48.3%</span>
+            <span class="stat-compare__label">Faceoffs</span>
+            <span class="stat-compare__val stat-compare__val--home">51.7%</span>
+          </div>
+          <div class="stat-compare__row">
+            <span class="stat-compare__val stat-compare__val--away">8</span>
+            <span class="stat-compare__label">Giveaways</span>
+            <span class="stat-compare__val stat-compare__val--home">11</span>
+          </div>
+          <div class="stat-compare__row">
+            <span class="stat-compare__val stat-compare__val--away">6</span>
+            <span class="stat-compare__label">Takeaways</span>
+            <span class="stat-compare__val stat-compare__val--home">9</span>
+          </div>
+          <div class="stat-compare__row">
+            <span class="stat-compare__val stat-compare__val--away">65:00</span>
+            <span class="stat-compare__label">Time on Ice</span>
+            <span class="stat-compare__val stat-compare__val--home">65:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- 3. Goal Summaries -->

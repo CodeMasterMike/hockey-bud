@@ -280,7 +280,7 @@ body {
 }
 
 .ticker__score--live {
-  color: var(--color-live);
+  color: var(--text-ticker);
 }
 
 .ticker__dash {
@@ -310,17 +310,16 @@ body {
 }
 
 /*
- * Close-game treatment: apply to game clocks showing <=5 minutes remaining
- * with <=2 goal difference. Displays the status in red to draw attention.
+ * Close-game treatment: apply to game clocks in 3rd period or OT with
+ * <=5 minutes remaining. Displays the clock text in red to draw attention.
  *
- * Example usage (a game with 1 goal difference and 4:30 left):
+ * Example usage:
  *   <span class="ticker__status ticker__status--live ticker__status--close-game">
- *     <span class="ticker__live-dot"></span>3rd 04:30
+ *     <span class="ticker__live-dot"></span>OT 02:41
  *   </span>
  *
- * None of the current demo games qualify:
- *   - NYR 1-1 MTL 2nd 14:32 => <=2 goal diff but NOT <=5 min remaining
- *   - PIT 4-2 WSH 3rd 08:15 => NOT <=2 goal diff (difference is 2, but >5 min remaining)
+ * Current demo game that qualifies:
+ *   - CAR 3-3 FLA OT 02:41 => OT with <=5 min remaining
  */
 .ticker__status--close-game {
   color: var(--color-live) !important;
@@ -699,34 +698,6 @@ body {
       </a>
       <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">NYR</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__team">MTL</span>
-        </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
-      </a>
-      <a href="#game-hub" class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">DET</span>
-          <span class="ticker__dash">vs</span>
-          <span class="ticker__team">CHI</span>
-        </div>
-        <span class="ticker__status ticker__status--pending">7:00 PM</span>
-      </a>
-      <a href="#game-hub" class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">PIT</span>
-          <span class="ticker__score ticker__score--live">4</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">2</span>
-          <span class="ticker__team">WSH</span>
-        </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
-      </a>
-      <a href="#game-hub" class="ticker__game">
-        <div class="ticker__teams">
           <span class="ticker__team">EDM</span>
           <span class="ticker__score">5</span>
           <span class="ticker__dash">&ndash;</span>
@@ -748,20 +719,50 @@ body {
       <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">CAR</span>
-          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__score">3</span>
           <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__score">3</span>
           <span class="ticker__team">FLA</span>
         </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>OT 02:41</span>
+        <span class="ticker__status ticker__status--live ticker__status--close-game"><span class="ticker__live-dot"></span>OT 02:41</span>
       </a>
       <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">COL</span>
-          <span class="ticker__dash">vs</span>
-          <span class="ticker__team">DAL</span>
+          <span class="ticker__team">PIT</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">WSH</span>
         </div>
-        <span class="ticker__status ticker__status--pending">9:30 PM</span>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">TBL</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">OTT</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>1st 11:05</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
       </a>
       <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
@@ -773,13 +774,11 @@ body {
       </a>
       <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">TBL</span>
-          <span class="ticker__score ticker__score--live">2</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__team">OTT</span>
+          <span class="ticker__team">COL</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">DAL</span>
         </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>1st 11:05</span>
+        <span class="ticker__status ticker__status--pending">9:30 PM</span>
       </a>
     </div>
     <button class="ticker__arrow" onclick="scrollTicker('light', 1)" aria-label="Scroll right">&#9654;</button>
@@ -932,34 +931,6 @@ body {
       </a>
       <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">NYR</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__team">MTL</span>
-        </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
-      </a>
-      <a href="#game-hub" class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">DET</span>
-          <span class="ticker__dash">vs</span>
-          <span class="ticker__team">CHI</span>
-        </div>
-        <span class="ticker__status ticker__status--pending">7:00 PM</span>
-      </a>
-      <a href="#game-hub" class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">PIT</span>
-          <span class="ticker__score ticker__score--live">4</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">2</span>
-          <span class="ticker__team">WSH</span>
-        </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
-      </a>
-      <a href="#game-hub" class="ticker__game">
-        <div class="ticker__teams">
           <span class="ticker__team">EDM</span>
           <span class="ticker__score">5</span>
           <span class="ticker__dash">&ndash;</span>
@@ -981,20 +952,50 @@ body {
       <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
           <span class="ticker__team">CAR</span>
-          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__score">3</span>
           <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__score">3</span>
           <span class="ticker__team">FLA</span>
         </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>OT 02:41</span>
+        <span class="ticker__status ticker__status--live ticker__status--close-game"><span class="ticker__live-dot"></span>OT 02:41</span>
       </a>
       <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">COL</span>
-          <span class="ticker__dash">vs</span>
-          <span class="ticker__team">DAL</span>
+          <span class="ticker__team">PIT</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">WSH</span>
         </div>
-        <span class="ticker__status ticker__status--pending">9:30 PM</span>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">TBL</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">OTT</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>1st 11:05</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
       </a>
       <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
@@ -1006,13 +1007,11 @@ body {
       </a>
       <a href="#game-hub" class="ticker__game">
         <div class="ticker__teams">
-          <span class="ticker__team">TBL</span>
-          <span class="ticker__score ticker__score--live">2</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__team">OTT</span>
+          <span class="ticker__team">COL</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">DAL</span>
         </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>1st 11:05</span>
+        <span class="ticker__status ticker__status--pending">9:30 PM</span>
       </a>
     </div>
     <button class="ticker__arrow" onclick="scrollTicker('dark', 1)" aria-label="Scroll right">&#9654;</button>

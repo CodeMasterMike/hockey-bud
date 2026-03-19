@@ -358,11 +358,12 @@ body {
 }
 
 /* ===================================================================
-   SCORE GRID — Flex Wrap Layout
+   SCORE GRID — CSS Grid Layout
    =================================================================== */
 .score-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-flow: dense;
   gap: 16px;
 }
 
@@ -370,7 +371,6 @@ body {
    SCORE BOX (COLLAPSED)
    =================================================================== */
 .score-box {
-  width: calc(25% - 12px);
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: 4px;
@@ -516,10 +516,19 @@ body {
 }
 
 /* ===================================================================
-   SCORE BOX (EXPANDED) — spans 3 of 4 columns
+   SCORE BOX (EXPANDED) — spans 3 of 4 columns, 3 rows tall
    =================================================================== */
 .score-box--expanded {
-  width: calc(75% - 12px);
+  grid-column: span 3;
+  grid-row: span 3;
+}
+
+/* ===================================================================
+   SCORE BOX (EXPANDED PREGAME) — spans 2 of 4 columns, 2 rows tall
+   =================================================================== */
+.score-box--expanded-pregame {
+  grid-column: span 2;
+  grid-row: span 2;
 }
 
 .score-box__expanded-body {
@@ -561,6 +570,18 @@ body {
   font-weight: 400;
   color: var(--text-muted);
   margin-left: 4px;
+}
+
+/* Side-by-side period tables (goals + shots) */
+.period-tables-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+.period-tables-row .period-table {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
 }
 
 /* Three-column layout for expanded content */
@@ -764,6 +785,39 @@ body {
   border-left: 1px solid var(--border-strong);
 }
 
+/* Pregame stat comparison table (Away | Stat | Home) */
+.pregame-stat-compare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  margin-bottom: 6px;
+}
+.pregame-stat-compare th {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  padding: 3px 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-row-alt);
+}
+.pregame-stat-compare td {
+  padding: 3px 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+.pregame-stat-compare td:nth-child(2) {
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 /* ===================================================================
    FOOTER
    =================================================================== */
@@ -912,81 +966,228 @@ body {
       <button class="date-header__arrow" aria-label="Next day">&#8594;</button>
     </div>
 
-    <!-- Score Grid: flex-wrap layout -->
+    <!-- Score Grid: CSS grid layout
+         Order: Finals first, then live (most advanced period), then scheduled by time -->
     <div class="score-grid">
 
       <!-- ============================================================
-           BOX 1: LIVE - NYR @ MTL (EXPANDED — spans 3 columns)
+           ROW 1: FINAL games (4 across)
+           ============================================================ -->
+
+      <!-- FINAL - BOS @ TOR -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">BOS</span>
+              <span class="score-box__team-record">42-18-6</span>
+              <span class="score-box__team-rank">(2nd)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">4</span>
+              <span class="score-box__sog">SOG: 33</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">TOR</span>
+              <span class="score-box__team-record">38-22-6</span>
+              <span class="score-box__team-rank">(5th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">2</span>
+              <span class="score-box__sog">SOG: 28</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- FINAL - COL @ DAL -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">COL</span>
+              <span class="score-box__team-record">41-19-5</span>
+              <span class="score-box__team-rank">(3rd)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">5</span>
+              <span class="score-box__sog">SOG: 36</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">DAL</span>
+              <span class="score-box__team-record">39-21-6</span>
+              <span class="score-box__team-rank">(6th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 29</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- FINAL - WPG @ NSH -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">WPG</span>
+              <span class="score-box__team-record">43-17-5</span>
+              <span class="score-box__team-rank">(1st)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 30</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">NSH</span>
+              <span class="score-box__team-record">28-32-6</span>
+              <span class="score-box__team-rank">(14th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">1</span>
+              <span class="score-box__sog">SOG: 22</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- FINAL/OT - CAR @ FLA -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL/OT</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">CAR</span>
+              <span class="score-box__team-record">39-22-5</span>
+              <span class="score-box__team-rank">(7th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 31</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">FLA</span>
+              <span class="score-box__team-record">37-24-5</span>
+              <span class="score-box__team-rank">(8th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">2</span>
+              <span class="score-box__sog">SOG: 27</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           ROW 2: FINAL/SO + LIVE expanded (3 col, 3 rows) + small boxes beside it
+           ============================================================ -->
+
+      <!-- FINAL/SO - EDM @ VAN -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL/SO</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">EDM</span>
+              <span class="score-box__team-record">40-21-5</span>
+              <span class="score-box__team-rank">(4th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">2</span>
+              <span class="score-box__sog">SOG: 34</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">VAN</span>
+              <span class="score-box__team-record">33-27-6</span>
+              <span class="score-box__team-rank">(10th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">1</span>
+              <span class="score-box__sog">SOG: 26</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           LIVE - NYR @ MTL (EXPANDED — spans 3 columns, 3 rows)
+           Scoreboard removed; box scores side-by-side
            ============================================================ -->
       <div class="score-box score-box--expanded">
         <div class="score-box__status-bar score-box__status-bar--live">
           <span class="ticker__live-dot"></span> 2nd &mdash; 8:44
         </div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">NYR</span>
-              <span class="score-box__team-record">40-20-6</span>
-              <span class="score-box__team-rank">(4th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score score-box__score--live">2</span>
-              <span class="score-box__sog">SOG: 18</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">MTL</span>
-              <span class="score-box__team-record">30-28-8</span>
-              <span class="score-box__team-rank">(11th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score score-box__score--live">1</span>
-              <span class="score-box__sog">SOG: 14</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Expanded Detail -->
+        <!-- Expanded Detail (no scoreboard — period tables serve as primary score display) -->
         <div class="score-box__expanded-body">
 
-          <!-- Goals by period -->
-          <table class="period-table">
-            <thead>
-              <tr><th>Team</th><th>1st</th><th>2nd</th><th>3rd</th><th>T</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>NYR <span class="period-table__record">(40-20-6, 4th)</span></td>
-                <td>1</td><td>1</td><td>&ndash;</td>
-                <td class="period-table__total">2</td>
-              </tr>
-              <tr>
-                <td>MTL <span class="period-table__record">(30-28-8, 11th)</span></td>
-                <td>0</td><td>1</td><td>&ndash;</td>
-                <td class="period-table__total">1</td>
-              </tr>
-            </tbody>
-          </table>
+          <!-- Goals and Shots by period — side by side -->
+          <div class="period-tables-row">
+            <table class="period-table">
+              <thead>
+                <tr><th>Team</th><th>1st</th><th>2nd</th><th>3rd</th><th>T</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>NYR <span class="period-table__record">(40-20-6, 4th)</span></td>
+                  <td>1</td><td>1</td><td>&ndash;</td>
+                  <td class="period-table__total">2</td>
+                </tr>
+                <tr>
+                  <td>MTL <span class="period-table__record">(30-28-8, 11th)</span></td>
+                  <td>0</td><td>1</td><td>&ndash;</td>
+                  <td class="period-table__total">1</td>
+                </tr>
+              </tbody>
+            </table>
 
-          <!-- Shots on goal by period -->
-          <table class="period-table">
-            <thead>
-              <tr><th>SOG</th><th>1st</th><th>2nd</th><th>3rd</th><th>T</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>NYR</td>
-                <td>9</td><td>9</td><td>&ndash;</td>
-                <td class="period-table__total">18</td>
-              </tr>
-              <tr>
-                <td>MTL</td>
-                <td>8</td><td>6</td><td>&ndash;</td>
-                <td class="period-table__total">14</td>
-              </tr>
-            </tbody>
-          </table>
+            <table class="period-table">
+              <thead>
+                <tr><th>SOG</th><th>1st</th><th>2nd</th><th>3rd</th><th>T</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>NYR</td>
+                  <td>9</td><td>9</td><td>&ndash;</td>
+                  <td class="period-table__total">18</td>
+                </tr>
+                <tr>
+                  <td>MTL</td>
+                  <td>8</td><td>6</td><td>&ndash;</td>
+                  <td class="period-table__total">14</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <!-- Three-column layout: Away goals/penalties | Stats | Home goals/penalties -->
           <div class="expanded-three-col">
@@ -1103,178 +1304,10 @@ body {
       </div>
 
       <!-- ============================================================
-           BOX 2: FINAL - BOS @ TOR (collapsed)
+           SCHEDULED GAMES — by start time (7:00 PM first, then 10:00 PM)
            ============================================================ -->
-      <div class="score-box">
-        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">BOS</span>
-              <span class="score-box__team-record">42-18-6</span>
-              <span class="score-box__team-rank">(2nd)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">4</span>
-              <span class="score-box__sog">SOG: 33</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">TOR</span>
-              <span class="score-box__team-record">38-22-6</span>
-              <span class="score-box__team-rank">(5th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">2</span>
-              <span class="score-box__sog">SOG: 28</span>
-            </div>
-          </div>
-        </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
 
-      <!-- ============================================================
-           BOX 3: FINAL - COL @ DAL (collapsed)
-           ============================================================ -->
-      <div class="score-box">
-        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">COL</span>
-              <span class="score-box__team-record">41-19-5</span>
-              <span class="score-box__team-rank">(3rd)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">5</span>
-              <span class="score-box__sog">SOG: 36</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">DAL</span>
-              <span class="score-box__team-record">39-21-6</span>
-              <span class="score-box__team-rank">(6th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">3</span>
-              <span class="score-box__sog">SOG: 29</span>
-            </div>
-          </div>
-        </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
-
-      <!-- ============================================================
-           BOX 4: FINAL - WPG @ NSH (collapsed)
-           ============================================================ -->
-      <div class="score-box">
-        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">WPG</span>
-              <span class="score-box__team-record">43-17-5</span>
-              <span class="score-box__team-rank">(1st)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">3</span>
-              <span class="score-box__sog">SOG: 30</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">NSH</span>
-              <span class="score-box__team-record">28-32-6</span>
-              <span class="score-box__team-rank">(14th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">1</span>
-              <span class="score-box__sog">SOG: 22</span>
-            </div>
-          </div>
-        </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
-
-      <!-- ============================================================
-           BOX 5: FINAL/OT - CAR @ FLA (collapsed)
-           ============================================================ -->
-      <div class="score-box">
-        <div class="score-box__status-bar score-box__status-bar--final">FINAL/OT</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">CAR</span>
-              <span class="score-box__team-record">39-22-5</span>
-              <span class="score-box__team-rank">(7th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">3</span>
-              <span class="score-box__sog">SOG: 31</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">FLA</span>
-              <span class="score-box__team-record">37-24-5</span>
-              <span class="score-box__team-rank">(8th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">2</span>
-              <span class="score-box__sog">SOG: 27</span>
-            </div>
-          </div>
-        </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
-
-      <!-- ============================================================
-           BOX 6: FINAL/SO - EDM @ VAN (collapsed)
-           ============================================================ -->
-      <div class="score-box">
-        <div class="score-box__status-bar score-box__status-bar--final">FINAL/SO</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">EDM</span>
-              <span class="score-box__team-record">40-21-5</span>
-              <span class="score-box__team-rank">(4th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">2</span>
-              <span class="score-box__sog">SOG: 34</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">VAN</span>
-              <span class="score-box__team-record">33-27-6</span>
-              <span class="score-box__team-rank">(10th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">1</span>
-              <span class="score-box__sog">SOG: 26</span>
-            </div>
-          </div>
-        </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
-
-      <!-- ============================================================
-           BOX 7: PREGAME - DET @ CHI (collapsed)
-           ============================================================ -->
+      <!-- PREGAME - DET @ CHI (collapsed) -->
       <div class="score-box">
         <div class="score-box__status-bar score-box__status-bar--pending">PREGAME</div>
         <div class="score-box__teams">
@@ -1305,8 +1338,111 @@ body {
       </div>
 
       <!-- ============================================================
-           BOX 8: PREGAME - VGK @ LAK (collapsed)
+           PREGAME - DET @ CHI (EXPANDED — 2x2, showing pregame details)
            ============================================================ -->
+      <div class="score-box score-box--expanded-pregame">
+        <div class="score-box__status-bar score-box__status-bar--pending">PREGAME &mdash; EXPANDED VIEW</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">DET</span>
+              <span class="score-box__team-record">34-26-6</span>
+              <span class="score-box__team-rank">(9th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__pregame-time-inline">7:00 PM ET</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">CHI</span>
+              <span class="score-box__team-record">24-36-6</span>
+              <span class="score-box__team-rank">(16th)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pregame-body">
+          <!-- Stat comparison table: Away | Stat | Home -->
+          <table class="pregame-stat-compare">
+            <thead>
+              <tr><th>DET</th><th>Stat</th><th>CHI</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>3.12</td><td>GF/GP</td><td>2.68</td></tr>
+              <tr><td>2.74</td><td>GA/GP</td><td>3.28</td></tr>
+              <tr><td>31.2</td><td>SF/GP</td><td>28.9</td></tr>
+              <tr><td>29.4</td><td>SA/GP</td><td>33.1</td></tr>
+              <tr><td>22.4%</td><td>PP%</td><td>18.8%</td></tr>
+              <tr><td>79.1%</td><td>PK%</td><td>76.5%</td></tr>
+            </tbody>
+          </table>
+
+          <!-- Head-to-Head table -->
+          <table class="pregame-h2h-table">
+            <caption>Head to Head</caption>
+            <thead>
+              <tr>
+                <th></th>
+                <th colspan="3" style="border-bottom: 1px solid var(--border-strong);">Season</th>
+                <th class="pregame-h2h-table__divider" colspan="4" style="border-bottom: 1px solid var(--border-strong);">All-Time</th>
+              </tr>
+              <tr>
+                <th></th>
+                <th>W</th>
+                <th>OTW</th>
+                <th>SOW</th>
+                <th class="pregame-h2h-table__divider">W</th>
+                <th>OTW</th>
+                <th>SOW</th>
+                <th>T</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>DET</td>
+                <td>2</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="pregame-h2h-table__divider">220</td>
+                <td>32</td>
+                <td>18</td>
+                <td>12</td>
+              </tr>
+              <tr>
+                <td>CHI</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="pregame-h2h-table__divider">198</td>
+                <td>28</td>
+                <td>15</td>
+                <td>12</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Goalie matchup -->
+          <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px;">
+            <div>
+              <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 2px;">DET Goalie</div>
+              <div style="font-weight: 700; color: var(--text-primary);">A. Lyon</div>
+              <div style="color: var(--text-muted);">2.68 GAA / .912 SV%</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 2px;">CHI Goalie</div>
+              <div style="font-weight: 700; color: var(--text-primary);">P. Mrazek</div>
+              <div style="color: var(--text-muted);">3.22 GAA / .901 SV%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- PREGAME - VGK @ LAK (collapsed) -->
       <div class="score-box">
         <div class="score-box__status-bar score-box__status-bar--pending">PREGAME</div>
         <div class="score-box__teams">
@@ -1331,133 +1467,6 @@ body {
             </div>
           </div>
         </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
-
-      <!-- ============================================================
-           BOX 9: PREGAME - DET @ CHI (EXPANDED — showing pregame details)
-           This demonstrates the expanded pregame view
-           ============================================================ -->
-      <div class="score-box score-box--expanded">
-        <div class="score-box__status-bar score-box__status-bar--pending">PREGAME &mdash; EXPANDED VIEW</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">DET</span>
-              <span class="score-box__team-record">34-26-6</span>
-              <span class="score-box__team-rank">(9th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__pregame-time-inline">7:00 PM ET</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">CHI</span>
-              <span class="score-box__team-record">24-36-6</span>
-              <span class="score-box__team-rank">(16th)</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="pregame-body">
-          <div class="expanded-three-col">
-
-            <!-- LEFT: Away team (DET) info -->
-            <div class="expanded-three-col__left">
-              <div class="pregame-section">
-                <div class="pregame-section__title">DET Top Scorer</div>
-                <div style="font-size: 11px;">
-                  <div style="font-weight: 700; color: var(--text-primary);">L. Raymond</div>
-                  <div style="color: var(--text-muted); font-size: 10px;">28G - 34A - 62P</div>
-                </div>
-              </div>
-              <div class="pregame-section">
-                <div class="pregame-section__title">DET Starting Goalie</div>
-                <div style="font-size: 11px;">
-                  <div style="font-weight: 700; color: var(--text-primary);">A. Lyon</div>
-                  <div style="color: var(--text-muted); font-size: 10px;">2.68 GAA / .912 SV%</div>
-                </div>
-              </div>
-              <div class="pregame-section">
-                <div class="pregame-section__title">DET Special Teams</div>
-                <div style="font-size: 10px; color: var(--text-muted);">PP: 22.4% | PK: 79.1%</div>
-              </div>
-            </div>
-
-            <!-- CENTER: Head-to-Head table -->
-            <div class="expanded-three-col__center" style="min-width: 260px;">
-              <table class="pregame-h2h-table">
-                <caption>Head to Head</caption>
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th colspan="3" style="border-bottom: 1px solid var(--border-strong);">Season</th>
-                    <th class="pregame-h2h-table__divider" colspan="4" style="border-bottom: 1px solid var(--border-strong);">All-Time</th>
-                  </tr>
-                  <tr>
-                    <th></th>
-                    <th>W</th>
-                    <th>OTW</th>
-                    <th>SOW</th>
-                    <th class="pregame-h2h-table__divider">W</th>
-                    <th>OTW</th>
-                    <th>SOW</th>
-                    <th>T</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>DET</td>
-                    <td>2</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td class="pregame-h2h-table__divider">220</td>
-                    <td>32</td>
-                    <td>18</td>
-                    <td>12</td>
-                  </tr>
-                  <tr>
-                    <td>CHI</td>
-                    <td>1</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td class="pregame-h2h-table__divider">198</td>
-                    <td>28</td>
-                    <td>15</td>
-                    <td>12</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- RIGHT: Home team (CHI) info -->
-            <div class="expanded-three-col__right">
-              <div class="pregame-section">
-                <div class="pregame-section__title">CHI Top Scorer</div>
-                <div style="font-size: 11px;">
-                  <div style="font-weight: 700; color: var(--text-primary);">C. Bedard</div>
-                  <div style="color: var(--text-muted); font-size: 10px;">25G - 38A - 63P</div>
-                </div>
-              </div>
-              <div class="pregame-section">
-                <div class="pregame-section__title">CHI Starting Goalie</div>
-                <div style="font-size: 11px;">
-                  <div style="font-weight: 700; color: var(--text-primary);">P. Mrazek</div>
-                  <div style="color: var(--text-muted); font-size: 10px;">3.22 GAA / .901 SV%</div>
-                </div>
-              </div>
-              <div class="pregame-section">
-                <div class="pregame-section__title">CHI Special Teams</div>
-                <div style="font-size: 10px; color: var(--text-muted);">PP: 18.8% | PK: 76.5%</div>
-              </div>
-            </div>
-
-          </div><!-- /expanded-three-col -->
-        </div>
-
         <div class="score-box__footer">
           <a href="#" class="score-box__link">Game Hub &rarr;</a>
         </div>
@@ -1604,81 +1613,228 @@ body {
       <button class="date-header__arrow" aria-label="Next day">&#8594;</button>
     </div>
 
-    <!-- Score Grid: flex-wrap layout -->
+    <!-- Score Grid: CSS grid layout
+         Order: Finals first, then live (most advanced period), then scheduled by time -->
     <div class="score-grid">
 
       <!-- ============================================================
-           BOX 1: LIVE - NYR @ MTL (EXPANDED — spans 3 columns)
+           ROW 1: FINAL games (4 across)
+           ============================================================ -->
+
+      <!-- FINAL - BOS @ TOR -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">BOS</span>
+              <span class="score-box__team-record">42-18-6</span>
+              <span class="score-box__team-rank">(2nd)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">4</span>
+              <span class="score-box__sog">SOG: 33</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">TOR</span>
+              <span class="score-box__team-record">38-22-6</span>
+              <span class="score-box__team-rank">(5th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">2</span>
+              <span class="score-box__sog">SOG: 28</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- FINAL - COL @ DAL -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">COL</span>
+              <span class="score-box__team-record">41-19-5</span>
+              <span class="score-box__team-rank">(3rd)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">5</span>
+              <span class="score-box__sog">SOG: 36</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">DAL</span>
+              <span class="score-box__team-record">39-21-6</span>
+              <span class="score-box__team-rank">(6th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 29</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- FINAL - WPG @ NSH -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">WPG</span>
+              <span class="score-box__team-record">43-17-5</span>
+              <span class="score-box__team-rank">(1st)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 30</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">NSH</span>
+              <span class="score-box__team-record">28-32-6</span>
+              <span class="score-box__team-rank">(14th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">1</span>
+              <span class="score-box__sog">SOG: 22</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- FINAL/OT - CAR @ FLA -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL/OT</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">CAR</span>
+              <span class="score-box__team-record">39-22-5</span>
+              <span class="score-box__team-rank">(7th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">3</span>
+              <span class="score-box__sog">SOG: 31</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">FLA</span>
+              <span class="score-box__team-record">37-24-5</span>
+              <span class="score-box__team-rank">(8th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">2</span>
+              <span class="score-box__sog">SOG: 27</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           ROW 2: FINAL/SO + LIVE expanded (3 col, 3 rows) + small boxes beside it
+           ============================================================ -->
+
+      <!-- FINAL/SO - EDM @ VAN -->
+      <div class="score-box">
+        <div class="score-box__status-bar score-box__status-bar--final">FINAL/SO</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">EDM</span>
+              <span class="score-box__team-record">40-21-5</span>
+              <span class="score-box__team-rank">(4th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">2</span>
+              <span class="score-box__sog">SOG: 34</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">VAN</span>
+              <span class="score-box__team-record">33-27-6</span>
+              <span class="score-box__team-rank">(10th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__score">1</span>
+              <span class="score-box__sog">SOG: 26</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           LIVE - NYR @ MTL (EXPANDED — spans 3 columns, 3 rows)
+           Scoreboard removed; box scores side-by-side
            ============================================================ -->
       <div class="score-box score-box--expanded">
         <div class="score-box__status-bar score-box__status-bar--live">
           <span class="ticker__live-dot"></span> 2nd &mdash; 8:44
         </div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">NYR</span>
-              <span class="score-box__team-record">40-20-6</span>
-              <span class="score-box__team-rank">(4th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score score-box__score--live">2</span>
-              <span class="score-box__sog">SOG: 18</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">MTL</span>
-              <span class="score-box__team-record">30-28-8</span>
-              <span class="score-box__team-rank">(11th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score score-box__score--live">1</span>
-              <span class="score-box__sog">SOG: 14</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Expanded Detail -->
+        <!-- Expanded Detail (no scoreboard — period tables serve as primary score display) -->
         <div class="score-box__expanded-body">
 
-          <!-- Goals by period -->
-          <table class="period-table">
-            <thead>
-              <tr><th>Team</th><th>1st</th><th>2nd</th><th>3rd</th><th>T</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>NYR <span class="period-table__record">(40-20-6, 4th)</span></td>
-                <td>1</td><td>1</td><td>&ndash;</td>
-                <td class="period-table__total">2</td>
-              </tr>
-              <tr>
-                <td>MTL <span class="period-table__record">(30-28-8, 11th)</span></td>
-                <td>0</td><td>1</td><td>&ndash;</td>
-                <td class="period-table__total">1</td>
-              </tr>
-            </tbody>
-          </table>
+          <!-- Goals and Shots by period — side by side -->
+          <div class="period-tables-row">
+            <table class="period-table">
+              <thead>
+                <tr><th>Team</th><th>1st</th><th>2nd</th><th>3rd</th><th>T</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>NYR <span class="period-table__record">(40-20-6, 4th)</span></td>
+                  <td>1</td><td>1</td><td>&ndash;</td>
+                  <td class="period-table__total">2</td>
+                </tr>
+                <tr>
+                  <td>MTL <span class="period-table__record">(30-28-8, 11th)</span></td>
+                  <td>0</td><td>1</td><td>&ndash;</td>
+                  <td class="period-table__total">1</td>
+                </tr>
+              </tbody>
+            </table>
 
-          <!-- Shots on goal by period -->
-          <table class="period-table">
-            <thead>
-              <tr><th>SOG</th><th>1st</th><th>2nd</th><th>3rd</th><th>T</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>NYR</td>
-                <td>9</td><td>9</td><td>&ndash;</td>
-                <td class="period-table__total">18</td>
-              </tr>
-              <tr>
-                <td>MTL</td>
-                <td>8</td><td>6</td><td>&ndash;</td>
-                <td class="period-table__total">14</td>
-              </tr>
-            </tbody>
-          </table>
+            <table class="period-table">
+              <thead>
+                <tr><th>SOG</th><th>1st</th><th>2nd</th><th>3rd</th><th>T</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>NYR</td>
+                  <td>9</td><td>9</td><td>&ndash;</td>
+                  <td class="period-table__total">18</td>
+                </tr>
+                <tr>
+                  <td>MTL</td>
+                  <td>8</td><td>6</td><td>&ndash;</td>
+                  <td class="period-table__total">14</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <!-- Three-column layout: Away goals/penalties | Stats | Home goals/penalties -->
           <div class="expanded-three-col">
@@ -1795,178 +1951,10 @@ body {
       </div>
 
       <!-- ============================================================
-           BOX 2: FINAL - BOS @ TOR (collapsed)
+           SCHEDULED GAMES — by start time (7:00 PM first, then 10:00 PM)
            ============================================================ -->
-      <div class="score-box">
-        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">BOS</span>
-              <span class="score-box__team-record">42-18-6</span>
-              <span class="score-box__team-rank">(2nd)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">4</span>
-              <span class="score-box__sog">SOG: 33</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">TOR</span>
-              <span class="score-box__team-record">38-22-6</span>
-              <span class="score-box__team-rank">(5th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">2</span>
-              <span class="score-box__sog">SOG: 28</span>
-            </div>
-          </div>
-        </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
 
-      <!-- ============================================================
-           BOX 3: FINAL - COL @ DAL (collapsed)
-           ============================================================ -->
-      <div class="score-box">
-        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">COL</span>
-              <span class="score-box__team-record">41-19-5</span>
-              <span class="score-box__team-rank">(3rd)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">5</span>
-              <span class="score-box__sog">SOG: 36</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">DAL</span>
-              <span class="score-box__team-record">39-21-6</span>
-              <span class="score-box__team-rank">(6th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">3</span>
-              <span class="score-box__sog">SOG: 29</span>
-            </div>
-          </div>
-        </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
-
-      <!-- ============================================================
-           BOX 4: FINAL - WPG @ NSH (collapsed)
-           ============================================================ -->
-      <div class="score-box">
-        <div class="score-box__status-bar score-box__status-bar--final">FINAL</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">WPG</span>
-              <span class="score-box__team-record">43-17-5</span>
-              <span class="score-box__team-rank">(1st)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">3</span>
-              <span class="score-box__sog">SOG: 30</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">NSH</span>
-              <span class="score-box__team-record">28-32-6</span>
-              <span class="score-box__team-rank">(14th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">1</span>
-              <span class="score-box__sog">SOG: 22</span>
-            </div>
-          </div>
-        </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
-
-      <!-- ============================================================
-           BOX 5: FINAL/OT - CAR @ FLA (collapsed)
-           ============================================================ -->
-      <div class="score-box">
-        <div class="score-box__status-bar score-box__status-bar--final">FINAL/OT</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">CAR</span>
-              <span class="score-box__team-record">39-22-5</span>
-              <span class="score-box__team-rank">(7th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">3</span>
-              <span class="score-box__sog">SOG: 31</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">FLA</span>
-              <span class="score-box__team-record">37-24-5</span>
-              <span class="score-box__team-rank">(8th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">2</span>
-              <span class="score-box__sog">SOG: 27</span>
-            </div>
-          </div>
-        </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
-
-      <!-- ============================================================
-           BOX 6: FINAL/SO - EDM @ VAN (collapsed)
-           ============================================================ -->
-      <div class="score-box">
-        <div class="score-box__status-bar score-box__status-bar--final">FINAL/SO</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">EDM</span>
-              <span class="score-box__team-record">40-21-5</span>
-              <span class="score-box__team-rank">(4th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">2</span>
-              <span class="score-box__sog">SOG: 34</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">VAN</span>
-              <span class="score-box__team-record">33-27-6</span>
-              <span class="score-box__team-rank">(10th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__score">1</span>
-              <span class="score-box__sog">SOG: 26</span>
-            </div>
-          </div>
-        </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
-
-      <!-- ============================================================
-           BOX 7: PREGAME - DET @ CHI (collapsed)
-           ============================================================ -->
+      <!-- PREGAME - DET @ CHI (collapsed) -->
       <div class="score-box">
         <div class="score-box__status-bar score-box__status-bar--pending">PREGAME</div>
         <div class="score-box__teams">
@@ -1997,8 +1985,111 @@ body {
       </div>
 
       <!-- ============================================================
-           BOX 8: PREGAME - VGK @ LAK (collapsed)
+           PREGAME - DET @ CHI (EXPANDED — 2x2, showing pregame details)
            ============================================================ -->
+      <div class="score-box score-box--expanded-pregame">
+        <div class="score-box__status-bar score-box__status-bar--pending">PREGAME &mdash; EXPANDED VIEW</div>
+        <div class="score-box__teams">
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">DET</span>
+              <span class="score-box__team-record">34-26-6</span>
+              <span class="score-box__team-rank">(9th)</span>
+            </div>
+            <div class="score-box__score-col">
+              <span class="score-box__pregame-time-inline">7:00 PM ET</span>
+            </div>
+          </div>
+          <div class="score-box__team-row">
+            <div class="score-box__team-info">
+              <span class="score-box__team-abbr">CHI</span>
+              <span class="score-box__team-record">24-36-6</span>
+              <span class="score-box__team-rank">(16th)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pregame-body">
+          <!-- Stat comparison table: Away | Stat | Home -->
+          <table class="pregame-stat-compare">
+            <thead>
+              <tr><th>DET</th><th>Stat</th><th>CHI</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>3.12</td><td>GF/GP</td><td>2.68</td></tr>
+              <tr><td>2.74</td><td>GA/GP</td><td>3.28</td></tr>
+              <tr><td>31.2</td><td>SF/GP</td><td>28.9</td></tr>
+              <tr><td>29.4</td><td>SA/GP</td><td>33.1</td></tr>
+              <tr><td>22.4%</td><td>PP%</td><td>18.8%</td></tr>
+              <tr><td>79.1%</td><td>PK%</td><td>76.5%</td></tr>
+            </tbody>
+          </table>
+
+          <!-- Head-to-Head table -->
+          <table class="pregame-h2h-table">
+            <caption>Head to Head</caption>
+            <thead>
+              <tr>
+                <th></th>
+                <th colspan="3" style="border-bottom: 1px solid var(--border-strong);">Season</th>
+                <th class="pregame-h2h-table__divider" colspan="4" style="border-bottom: 1px solid var(--border-strong);">All-Time</th>
+              </tr>
+              <tr>
+                <th></th>
+                <th>W</th>
+                <th>OTW</th>
+                <th>SOW</th>
+                <th class="pregame-h2h-table__divider">W</th>
+                <th>OTW</th>
+                <th>SOW</th>
+                <th>T</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>DET</td>
+                <td>2</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="pregame-h2h-table__divider">220</td>
+                <td>32</td>
+                <td>18</td>
+                <td>12</td>
+              </tr>
+              <tr>
+                <td>CHI</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="pregame-h2h-table__divider">198</td>
+                <td>28</td>
+                <td>15</td>
+                <td>12</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Goalie matchup -->
+          <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px;">
+            <div>
+              <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 2px;">DET Goalie</div>
+              <div style="font-weight: 700; color: var(--text-primary);">A. Lyon</div>
+              <div style="color: var(--text-muted);">2.68 GAA / .912 SV%</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 2px;">CHI Goalie</div>
+              <div style="font-weight: 700; color: var(--text-primary);">P. Mrazek</div>
+              <div style="color: var(--text-muted);">3.22 GAA / .901 SV%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-box__footer">
+          <a href="#" class="score-box__link">Game Hub &rarr;</a>
+        </div>
+      </div>
+
+      <!-- PREGAME - VGK @ LAK (collapsed) -->
       <div class="score-box">
         <div class="score-box__status-bar score-box__status-bar--pending">PREGAME</div>
         <div class="score-box__teams">
@@ -2023,133 +2114,6 @@ body {
             </div>
           </div>
         </div>
-        <div class="score-box__footer">
-          <a href="#" class="score-box__link">Game Hub &rarr;</a>
-        </div>
-      </div>
-
-      <!-- ============================================================
-           BOX 9: PREGAME - DET @ CHI (EXPANDED — showing pregame details)
-           This demonstrates the expanded pregame view
-           ============================================================ -->
-      <div class="score-box score-box--expanded">
-        <div class="score-box__status-bar score-box__status-bar--pending">PREGAME &mdash; EXPANDED VIEW</div>
-        <div class="score-box__teams">
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">DET</span>
-              <span class="score-box__team-record">34-26-6</span>
-              <span class="score-box__team-rank">(9th)</span>
-            </div>
-            <div class="score-box__score-col">
-              <span class="score-box__pregame-time-inline">7:00 PM ET</span>
-            </div>
-          </div>
-          <div class="score-box__team-row">
-            <div class="score-box__team-info">
-              <span class="score-box__team-abbr">CHI</span>
-              <span class="score-box__team-record">24-36-6</span>
-              <span class="score-box__team-rank">(16th)</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="pregame-body">
-          <div class="expanded-three-col">
-
-            <!-- LEFT: Away team (DET) info -->
-            <div class="expanded-three-col__left">
-              <div class="pregame-section">
-                <div class="pregame-section__title">DET Top Scorer</div>
-                <div style="font-size: 11px;">
-                  <div style="font-weight: 700; color: var(--text-primary);">L. Raymond</div>
-                  <div style="color: var(--text-muted); font-size: 10px;">28G - 34A - 62P</div>
-                </div>
-              </div>
-              <div class="pregame-section">
-                <div class="pregame-section__title">DET Starting Goalie</div>
-                <div style="font-size: 11px;">
-                  <div style="font-weight: 700; color: var(--text-primary);">A. Lyon</div>
-                  <div style="color: var(--text-muted); font-size: 10px;">2.68 GAA / .912 SV%</div>
-                </div>
-              </div>
-              <div class="pregame-section">
-                <div class="pregame-section__title">DET Special Teams</div>
-                <div style="font-size: 10px; color: var(--text-muted);">PP: 22.4% | PK: 79.1%</div>
-              </div>
-            </div>
-
-            <!-- CENTER: Head-to-Head table -->
-            <div class="expanded-three-col__center" style="min-width: 260px;">
-              <table class="pregame-h2h-table">
-                <caption>Head to Head</caption>
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th colspan="3" style="border-bottom: 1px solid var(--border-strong);">Season</th>
-                    <th class="pregame-h2h-table__divider" colspan="4" style="border-bottom: 1px solid var(--border-strong);">All-Time</th>
-                  </tr>
-                  <tr>
-                    <th></th>
-                    <th>W</th>
-                    <th>OTW</th>
-                    <th>SOW</th>
-                    <th class="pregame-h2h-table__divider">W</th>
-                    <th>OTW</th>
-                    <th>SOW</th>
-                    <th>T</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>DET</td>
-                    <td>2</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td class="pregame-h2h-table__divider">220</td>
-                    <td>32</td>
-                    <td>18</td>
-                    <td>12</td>
-                  </tr>
-                  <tr>
-                    <td>CHI</td>
-                    <td>1</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td class="pregame-h2h-table__divider">198</td>
-                    <td>28</td>
-                    <td>15</td>
-                    <td>12</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- RIGHT: Home team (CHI) info -->
-            <div class="expanded-three-col__right">
-              <div class="pregame-section">
-                <div class="pregame-section__title">CHI Top Scorer</div>
-                <div style="font-size: 11px;">
-                  <div style="font-weight: 700; color: var(--text-primary);">C. Bedard</div>
-                  <div style="color: var(--text-muted); font-size: 10px;">25G - 38A - 63P</div>
-                </div>
-              </div>
-              <div class="pregame-section">
-                <div class="pregame-section__title">CHI Starting Goalie</div>
-                <div style="font-size: 11px;">
-                  <div style="font-weight: 700; color: var(--text-primary);">P. Mrazek</div>
-                  <div style="color: var(--text-muted); font-size: 10px;">3.22 GAA / .901 SV%</div>
-                </div>
-              </div>
-              <div class="pregame-section">
-                <div class="pregame-section__title">CHI Special Teams</div>
-                <div style="font-size: 10px; color: var(--text-muted);">PP: 18.8% | PK: 76.5%</div>
-              </div>
-            </div>
-
-          </div><!-- /expanded-three-col -->
-        </div>
-
         <div class="score-box__footer">
           <a href="#" class="score-box__link">Game Hub &rarr;</a>
         </div>

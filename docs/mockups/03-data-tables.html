@@ -37,9 +37,6 @@
   --border-strong: rgba(0,0,0,0.25);
   --color-link: #2C5F8A;
   --color-link-hover: #1A3D5C;
-  --bg-era-original-six: rgba(139,90,43,0.05);
-  --bg-era-expansion: rgba(34,85,102,0.05);
-  --bg-era-salary-cap: rgba(60,60,60,0.05);
 }
 [data-theme="dark"] {
   --bg-page: #0A1628;
@@ -53,9 +50,6 @@
   --border-strong: rgba(255,255,255,0.2);
   --color-link: #6BA3D6;
   --color-link-hover: #8DC0F0;
-  --bg-era-original-six: rgba(218,165,32,0.08);
-  --bg-era-expansion: rgba(70,160,190,0.08);
-  --bg-era-salary-cap: rgba(180,180,180,0.06);
 }
 
 /* ── Reset & Base ───────────────────────────────────────────────── */
@@ -340,19 +334,6 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
   border-top: 2px dashed var(--border-strong);
 }
 
-/* Era tinting */
-.standings-table tbody tr.era-original-six td { background: var(--bg-era-original-six); }
-.standings-table tbody tr.era-original-six.row-alt td { background: var(--bg-era-original-six); }
-.standings-table tbody tr.era-expansion td { background: var(--bg-era-expansion); }
-.standings-table tbody tr.era-expansion.row-alt td { background: var(--bg-era-expansion); }
-.standings-table tbody tr.era-salary-cap td { background: var(--bg-era-salary-cap); }
-.standings-table tbody tr.era-salary-cap.row-alt td { background: var(--bg-era-salary-cap); }
-
-/* Era separator */
-.standings-table tbody tr.era-separator td {
-  border-top: 3px solid var(--border-strong);
-}
-
 /* ── Section Header ─────────────────────────────────────────────── */
 .section-header {
   font-size: 0.92rem;
@@ -369,51 +350,77 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
   margin-bottom: 16px;
 }
 
-/* ── Pagination ─────────────────────────────────────────────────── */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  font-size: 0.74rem;
+/* ── Version Label ─────────────────────────────────────────────── */
+.version-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 48px 0 6px;
+  padding: 10px 16px;
+  background: var(--text-primary);
+  color: var(--bg-page);
+  border-radius: 4px;
+  display: inline-block;
+}
+.version-desc {
+  font-size: 0.76rem;
   color: var(--text-muted);
-  border-top: 1px solid var(--border-default);
-  background: var(--bg-card);
+  margin-bottom: 20px;
+  margin-top: 4px;
 }
-.pagination-info {
-  letter-spacing: 0.02em;
+
+/* ── Side-by-side layout (Version 2) ──────────────────────────── */
+.side-by-side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
-.pagination-controls {
+.side-by-side .table-card {
+  margin-bottom: 0;
+}
+
+/* ── Conference Tabs (Version 3) ──────────────────────────────── */
+.conference-tabs {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  gap: 0;
+  margin-bottom: 0;
 }
-.pagination-controls button,
-.pagination-controls span {
+.conference-tabs button {
   font-family: var(--font-primary);
-  font-size: 0.72rem;
-  padding: 5px 10px;
-  border: 1px solid var(--border-default);
-  border-radius: 3px;
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background 0.12s;
-}
-.pagination-controls button:hover {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 12px 24px;
   background: var(--bg-row-alt);
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  margin-right: -1px;
+}
+.conference-tabs button:hover {
   color: var(--text-primary);
 }
-.pagination-controls button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.conference-tabs button.tab-active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--bg-card);
+  position: relative;
+  z-index: 1;
 }
-.pagination-controls span.page-current {
-  background: var(--text-primary);
-  color: var(--bg-card);
-  font-weight: 700;
-  border-color: var(--text-primary);
+.tabbed-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 0 4px 4px 4px;
+  overflow: hidden;
+  margin-bottom: 32px;
 }
+.tab-content { display: none; }
+.tab-content.tab-visible { display: block; }
 </style>
 </head>
 <body>
@@ -473,6 +480,12 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
 
   <h2 class="page-title">2025&ndash;26 NHL Standings</h2>
   <p class="page-subtitle">Updated March 17, 2026 &mdash; Regular season</p>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       VERSION 1 — STACKED (SCROLL)
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="version-label">Version 1 &mdash; Stacked (Scroll)</div>
+  <p class="version-desc">Eastern Conference appears first; scroll down to see the Western Conference beneath it.</p>
 
   <!-- View Toggle -->
   <div class="view-toggle">
@@ -710,33 +723,13 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
       </tbody>
     </table>
     </div>
-
-    <!-- Pagination -->
-    <div class="pagination">
-      <span class="pagination-info">Showing 1&ndash;16 of 32</span>
-      <div class="pagination-controls">
-        <button disabled>&larr; Prev</button>
-        <span class="page-current">1</span>
-        <span>2</span>
-        <button>Next &rarr;</button>
-      </div>
-    </div>
   </div><!-- /.table-card -->
 
-
-  <!-- ═══════════════════════════════════════════════════════════
-       HISTORICAL EXAMPLE — ERA TINTS
-       ═══════════════════════════════════════════════════════════ -->
-  <h3 class="section-header">Historical Example &mdash; Era Background Tints</h3>
-  <p class="section-desc">
-    Rows are tinted by era to give visual context when browsing historical data.
-    Bold separator lines divide era groups.
-  </p>
-
+  <!-- ─── WESTERN CONFERENCE ─────────────────────────────────── -->
   <div class="table-card">
     <div class="table-card-header">
-      All-Time Standings Sample
-      <span class="conference-label">Era-tinted rows</span>
+      Western Conference
+      <span class="conference-label">Wild Card Format</span>
     </div>
 
     <div style="overflow-x: auto;">
@@ -767,7 +760,7 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <th title="Wins">W</th>
           <th title="Losses">L</th>
           <th title="Overtime Losses">OTL</th>
-          <th title="Points">PTS</th>
+          <th class="sorted" title="Points">PTS<span class="sort-indicator">&#9660;</span></th>
           <th title="Points Percentage">PTS%</th>
           <th title="Regulation Wins">RW</th>
           <th title="Regulation + Overtime Wins">ROW</th>
@@ -781,115 +774,1140 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
       </thead>
       <tbody>
 
-        <!-- Original Six Era (1942–1967) -->
+        <!-- CENTRAL DIVISION — Top 3 -->
         <tr class="group-header">
-          <td colspan="16">Original Six Era (1942&ndash;1967)</td>
+          <td colspan="16">Central Division</td>
         </tr>
-        <tr class="era-original-six">
+        <tr>
           <td class="col-rank">1</td>
-          <td class="col-left col-team"><a href="#">Montreal Canadiens</a></td>
-          <td>70</td><td>45</td><td>17</td><td>8</td>
-          <td class="col-pts">98</td><td>.700</td>
-          <td>42</td><td>44</td>
-          <td>258</td><td>168</td>
-          <td class="col-diff-pos">+90</td>
-          <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+          <td class="col-left col-team"><a href="#">Winnipeg Jets</a></td>
+          <td>68</td><td>44</td><td>17</td><td>7</td>
+          <td class="col-pts">95</td><td>.699</td>
+          <td>37</td><td>41</td>
+          <td>234</td><td>172</td>
+          <td class="col-diff-pos">+62</td>
+          <td>25.6</td><td>83.8</td><td>52.4</td>
         </tr>
-        <tr class="era-original-six row-alt">
+        <tr class="row-alt">
           <td class="col-rank">2</td>
-          <td class="col-left col-team"><a href="#">Detroit Red Wings</a></td>
-          <td>70</td><td>42</td><td>19</td><td>9</td>
-          <td class="col-pts">93</td><td>.664</td>
-          <td>39</td><td>41</td>
-          <td>244</td><td>176</td>
-          <td class="col-diff-pos">+68</td>
-          <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+          <td class="col-left col-team"><a href="#">Dallas Stars</a></td>
+          <td>68</td><td>41</td><td>19</td><td>8</td>
+          <td class="col-pts">90</td><td>.662</td>
+          <td>34</td><td>38</td>
+          <td>220</td><td>182</td>
+          <td class="col-diff-pos">+38</td>
+          <td>23.4</td><td>82.0</td><td>51.6</td>
         </tr>
-        <tr class="era-original-six">
+        <tr>
           <td class="col-rank">3</td>
-          <td class="col-left col-team"><a href="#">Toronto Maple Leafs</a></td>
-          <td>70</td><td>38</td><td>22</td><td>10</td>
-          <td class="col-pts">86</td><td>.614</td>
-          <td>34</td><td>37</td>
-          <td>230</td><td>188</td>
-          <td class="col-diff-pos">+42</td>
-          <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
-        </tr>
-
-        <!-- Expansion Era (1967–2005) -->
-        <tr class="group-header">
-          <td colspan="16">Expansion Era (1967&ndash;2005)</td>
-        </tr>
-        <tr class="era-expansion era-separator">
-          <td class="col-rank">1</td>
-          <td class="col-left col-team"><a href="#">Edmonton Oilers</a></td>
-          <td>80</td><td>52</td><td>18</td><td>10</td>
-          <td class="col-pts">114</td><td>.713</td>
-          <td>48</td><td>50</td>
-          <td>312</td><td>204</td>
-          <td class="col-diff-pos">+108</td>
-          <td>28.4</td><td>85.2</td><td>&mdash;</td>
-        </tr>
-        <tr class="era-expansion row-alt">
-          <td class="col-rank">2</td>
-          <td class="col-left col-team"><a href="#">New York Islanders</a></td>
-          <td>80</td><td>50</td><td>20</td><td>10</td>
-          <td class="col-pts">110</td><td>.688</td>
-          <td>46</td><td>48</td>
-          <td>298</td><td>210</td>
-          <td class="col-diff-pos">+88</td>
-          <td>26.1</td><td>83.8</td><td>&mdash;</td>
-        </tr>
-        <tr class="era-expansion">
-          <td class="col-rank">3</td>
-          <td class="col-left col-team"><a href="#">Philadelphia Flyers</a></td>
-          <td>80</td><td>48</td><td>22</td><td>10</td>
-          <td class="col-pts">106</td><td>.663</td>
-          <td>44</td><td>46</td>
-          <td>286</td><td>218</td>
-          <td class="col-diff-pos">+68</td>
-          <td>25.0</td><td>82.6</td><td>&mdash;</td>
-        </tr>
-
-        <!-- Salary Cap Era (2005–present) -->
-        <tr class="group-header">
-          <td colspan="16">Salary Cap Era (2005&ndash;present)</td>
-        </tr>
-        <tr class="era-salary-cap era-separator">
-          <td class="col-rank">1</td>
-          <td class="col-left col-team"><a href="#">Tampa Bay Lightning</a></td>
-          <td>82</td><td>54</td><td>18</td><td>10</td>
-          <td class="col-pts">118</td><td>.720</td>
-          <td>46</td><td>51</td>
-          <td>282</td><td>198</td>
-          <td class="col-diff-pos">+84</td>
-          <td>26.3</td><td>84.1</td><td>52.6</td>
-        </tr>
-        <tr class="era-salary-cap row-alt">
-          <td class="col-rank">2</td>
           <td class="col-left col-team"><a href="#">Colorado Avalanche</a></td>
-          <td>82</td><td>52</td><td>20</td><td>10</td>
-          <td class="col-pts">114</td><td>.695</td>
-          <td>44</td><td>49</td>
-          <td>276</td><td>204</td>
-          <td class="col-diff-pos">+72</td>
-          <td>25.8</td><td>83.4</td><td>51.8</td>
+          <td>68</td><td>40</td><td>21</td><td>7</td>
+          <td class="col-pts">87</td><td>.640</td>
+          <td>33</td><td>37</td>
+          <td>228</td><td>196</td>
+          <td class="col-diff-pos">+32</td>
+          <td>24.2</td><td>79.4</td><td>50.1</td>
         </tr>
-        <tr class="era-salary-cap">
+
+        <!-- PACIFIC DIVISION — Top 3 -->
+        <tr class="group-header">
+          <td colspan="16">Pacific Division</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">1</td>
+          <td class="col-left col-team"><a href="#">Vegas Golden Knights</a></td>
+          <td>68</td><td>42</td><td>19</td><td>7</td>
+          <td class="col-pts">91</td><td>.669</td>
+          <td>35</td><td>39</td>
+          <td>224</td><td>180</td>
+          <td class="col-diff-pos">+44</td>
+          <td>24.1</td><td>82.6</td><td>51.0</td>
+        </tr>
+        <tr>
+          <td class="col-rank">2</td>
+          <td class="col-left col-team"><a href="#">Edmonton Oilers</a></td>
+          <td>68</td><td>39</td><td>22</td><td>7</td>
+          <td class="col-pts">85</td><td>.625</td>
+          <td>32</td><td>36</td>
+          <td>230</td><td>200</td>
+          <td class="col-diff-pos">+30</td>
+          <td>26.0</td><td>78.8</td><td>49.4</td>
+        </tr>
+        <tr class="row-alt">
           <td class="col-rank">3</td>
-          <td class="col-left col-team"><a href="#">Florida Panthers</a></td>
-          <td>82</td><td>50</td><td>22</td><td>10</td>
-          <td class="col-pts">110</td><td>.671</td>
-          <td>42</td><td>47</td>
-          <td>268</td><td>210</td>
-          <td class="col-diff-pos">+58</td>
-          <td>24.9</td><td>82.7</td><td>51.2</td>
+          <td class="col-left col-team"><a href="#">Vancouver Canucks</a></td>
+          <td>68</td><td>38</td><td>22</td><td>8</td>
+          <td class="col-pts">84</td><td>.618</td>
+          <td>31</td><td>35</td>
+          <td>216</td><td>192</td>
+          <td class="col-diff-pos">+24</td>
+          <td>22.8</td><td>80.4</td><td>50.6</td>
+        </tr>
+
+        <!-- WESTERN WILD CARD -->
+        <tr class="group-header">
+          <td colspan="16">Western Wild Card</td>
+        </tr>
+        <tr>
+          <td class="col-rank">WC1</td>
+          <td class="col-left col-team"><a href="#">Minnesota Wild</a></td>
+          <td>68</td><td>37</td><td>23</td><td>8</td>
+          <td class="col-pts">82</td><td>.603</td>
+          <td>30</td><td>34</td>
+          <td>210</td><td>194</td>
+          <td class="col-diff-pos">+16</td>
+          <td>22.0</td><td>81.2</td><td>51.8</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">WC2</td>
+          <td class="col-left col-team"><a href="#">Los Angeles Kings</a></td>
+          <td>68</td><td>36</td><td>24</td><td>8</td>
+          <td class="col-pts">80</td><td>.588</td>
+          <td>29</td><td>33</td>
+          <td>206</td><td>198</td>
+          <td class="col-diff-pos">+8</td>
+          <td>21.6</td><td>80.0</td><td>50.2</td>
+        </tr>
+        <!-- Below the cut line -->
+        <tr class="wc-divider">
+          <td class="col-rank" style="color:var(--text-muted);">9</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Nashville Predators</a></td>
+          <td>68</td><td>34</td><td>26</td><td>8</td>
+          <td class="col-pts">76</td><td>.559</td>
+          <td>27</td><td>31</td>
+          <td>198</td><td>206</td>
+          <td class="col-diff-neg">&minus;8</td>
+          <td>20.4</td><td>78.6</td><td>49.8</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank" style="color:var(--text-muted);">10</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">St. Louis Blues</a></td>
+          <td>68</td><td>33</td><td>27</td><td>8</td>
+          <td class="col-pts">74</td><td>.544</td>
+          <td>26</td><td>30</td>
+          <td>194</td><td>210</td>
+          <td class="col-diff-neg">&minus;16</td>
+          <td>19.8</td><td>77.8</td><td>50.0</td>
+        </tr>
+        <tr>
+          <td class="col-rank" style="color:var(--text-muted);">11</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Calgary Flames</a></td>
+          <td>68</td><td>31</td><td>29</td><td>8</td>
+          <td class="col-pts">70</td><td>.515</td>
+          <td>24</td><td>28</td>
+          <td>188</td><td>214</td>
+          <td class="col-diff-neg">&minus;26</td>
+          <td>18.6</td><td>76.4</td><td>49.2</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank" style="color:var(--text-muted);">12</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Seattle Kraken</a></td>
+          <td>68</td><td>30</td><td>30</td><td>8</td>
+          <td class="col-pts">68</td><td>.500</td>
+          <td>23</td><td>27</td>
+          <td>182</td><td>218</td>
+          <td class="col-diff-neg">&minus;36</td>
+          <td>18.0</td><td>75.8</td><td>48.6</td>
+        </tr>
+        <tr>
+          <td class="col-rank" style="color:var(--text-muted);">13</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Arizona Coyotes</a></td>
+          <td>68</td><td>28</td><td>32</td><td>8</td>
+          <td class="col-pts">64</td><td>.471</td>
+          <td>21</td><td>25</td>
+          <td>176</td><td>222</td>
+          <td class="col-diff-neg">&minus;46</td>
+          <td>17.2</td><td>75.0</td><td>47.8</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank" style="color:var(--text-muted);">14</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Anaheim Ducks</a></td>
+          <td>68</td><td>26</td><td>34</td><td>8</td>
+          <td class="col-pts">60</td><td>.441</td>
+          <td>19</td><td>23</td>
+          <td>170</td><td>228</td>
+          <td class="col-diff-neg">&minus;58</td>
+          <td>16.4</td><td>74.2</td><td>47.0</td>
+        </tr>
+        <tr>
+          <td class="col-rank" style="color:var(--text-muted);">15</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">Chicago Blackhawks</a></td>
+          <td>68</td><td>24</td><td>36</td><td>8</td>
+          <td class="col-pts">56</td><td>.412</td>
+          <td>17</td><td>21</td>
+          <td>164</td><td>236</td>
+          <td class="col-diff-neg">&minus;72</td>
+          <td>15.6</td><td>73.4</td><td>46.4</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank" style="color:var(--text-muted);">16</td>
+          <td class="col-left col-team" style="opacity:0.7;"><a href="#">San Jose Sharks</a></td>
+          <td>68</td><td>22</td><td>38</td><td>8</td>
+          <td class="col-pts">52</td><td>.382</td>
+          <td>15</td><td>19</td>
+          <td>158</td><td>242</td>
+          <td class="col-diff-neg">&minus;84</td>
+          <td>14.8</td><td>72.8</td><td>45.6</td>
         </tr>
 
       </tbody>
     </table>
     </div>
   </div><!-- /.table-card -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       VERSION 2 — SIDE BY SIDE
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="version-label">Version 2 &mdash; Side by Side</div>
+  <p class="version-desc">Eastern and Western Conference appear in two columns. Each conference scrolls horizontally for stats that don&rsquo;t fit.</p>
+
+  <!-- View Toggle -->
+  <div class="view-toggle">
+    <button class="active">Wild Card</button>
+    <button>Division</button>
+    <button>Conference</button>
+    <button>League</button>
+  </div>
+
+  <div class="side-by-side">
+
+    <!-- ─── EASTERN CONFERENCE (left column) ───────────────────── -->
+    <div class="table-card">
+      <div class="table-card-header">
+        Eastern Conference
+        <span class="conference-label">Wild Card Format</span>
+      </div>
+
+      <div style="overflow-x: auto;">
+      <table class="standings-table">
+        <colgroup>
+          <col class="col-rank">
+          <col class="col-team">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat-wide">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-diff">
+          <col class="col-stat-wide">
+          <col class="col-stat-wide">
+          <col class="col-stat-wide">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="col-left" title="Rank">#</th>
+            <th class="col-left" title="Team">Team</th>
+            <th title="Games Played">GP</th>
+            <th title="Wins">W</th>
+            <th title="Losses">L</th>
+            <th title="Overtime Losses">OTL</th>
+            <th class="sorted" title="Points">PTS<span class="sort-indicator">&#9660;</span></th>
+            <th title="Points Percentage">PTS%</th>
+            <th title="Regulation Wins">RW</th>
+            <th title="Regulation + Overtime Wins">ROW</th>
+            <th title="Goals For">GF</th>
+            <th title="Goals Against">GA</th>
+            <th title="Goal Differential">DIFF</th>
+            <th title="Power Play %">PP%</th>
+            <th title="Penalty Kill %">PK%</th>
+            <th title="Faceoff Win %">FO%</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- ATLANTIC DIVISION — Top 3 -->
+          <tr class="group-header">
+            <td colspan="16">Atlantic Division</td>
+          </tr>
+          <tr>
+            <td class="col-rank">1</td>
+            <td class="col-left col-team"><a href="#">Florida Panthers</a></td>
+            <td>68</td><td>42</td><td>18</td><td>8</td>
+            <td class="col-pts">92</td><td>.676</td>
+            <td>35</td><td>39</td>
+            <td>226</td><td>178</td>
+            <td class="col-diff-pos">+48</td>
+            <td>24.8</td><td>82.1</td><td>51.4</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">2</td>
+            <td class="col-left col-team"><a href="#">Toronto Maple Leafs</a></td>
+            <td>68</td><td>40</td><td>20</td><td>8</td>
+            <td class="col-pts">88</td><td>.647</td>
+            <td>33</td><td>37</td>
+            <td>218</td><td>189</td>
+            <td class="col-diff-pos">+29</td>
+            <td>23.1</td><td>80.6</td><td>52.1</td>
+          </tr>
+          <tr>
+            <td class="col-rank">3</td>
+            <td class="col-left col-team"><a href="#">Boston Bruins</a></td>
+            <td>68</td><td>38</td><td>22</td><td>8</td>
+            <td class="col-pts">84</td><td>.618</td>
+            <td>30</td><td>35</td>
+            <td>204</td><td>185</td>
+            <td class="col-diff-pos">+19</td>
+            <td>21.4</td><td>81.3</td><td>50.8</td>
+          </tr>
+
+          <!-- METROPOLITAN DIVISION — Top 3 -->
+          <tr class="group-header">
+            <td colspan="16">Metropolitan Division</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">1</td>
+            <td class="col-left col-team"><a href="#">Carolina Hurricanes</a></td>
+            <td>68</td><td>43</td><td>17</td><td>8</td>
+            <td class="col-pts">94</td><td>.691</td>
+            <td>36</td><td>40</td>
+            <td>232</td><td>170</td>
+            <td class="col-diff-pos">+62</td>
+            <td>25.2</td><td>84.5</td><td>53.0</td>
+          </tr>
+          <tr>
+            <td class="col-rank">2</td>
+            <td class="col-left col-team"><a href="#">New Jersey Devils</a></td>
+            <td>68</td><td>41</td><td>20</td><td>7</td>
+            <td class="col-pts">89</td><td>.654</td>
+            <td>34</td><td>38</td>
+            <td>224</td><td>186</td>
+            <td class="col-diff-pos">+38</td>
+            <td>23.7</td><td>79.8</td><td>49.6</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">3</td>
+            <td class="col-left col-team"><a href="#">Washington Capitals</a></td>
+            <td>68</td><td>39</td><td>21</td><td>8</td>
+            <td class="col-pts">86</td><td>.632</td>
+            <td>32</td><td>36</td>
+            <td>211</td><td>191</td>
+            <td class="col-diff-pos">+20</td>
+            <td>22.6</td><td>80.2</td><td>50.3</td>
+          </tr>
+
+          <!-- EASTERN WILD CARD -->
+          <tr class="group-header">
+            <td colspan="16">Eastern Wild Card</td>
+          </tr>
+          <tr>
+            <td class="col-rank">WC1</td>
+            <td class="col-left col-team"><a href="#">Tampa Bay Lightning</a></td>
+            <td>68</td><td>37</td><td>23</td><td>8</td>
+            <td class="col-pts">82</td><td>.603</td>
+            <td>29</td><td>34</td>
+            <td>215</td><td>198</td>
+            <td class="col-diff-pos">+17</td>
+            <td>24.0</td><td>78.9</td><td>49.1</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">WC2</td>
+            <td class="col-left col-team"><a href="#">New York Rangers</a></td>
+            <td>68</td><td>36</td><td>24</td><td>8</td>
+            <td class="col-pts">80</td><td>.588</td>
+            <td>28</td><td>33</td>
+            <td>202</td><td>194</td>
+            <td class="col-diff-pos">+8</td>
+            <td>21.9</td><td>79.4</td><td>48.7</td>
+          </tr>
+          <!-- Below the cut line -->
+          <tr class="wc-divider">
+            <td class="col-rank" style="color:var(--text-muted);">9</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Ottawa Senators</a></td>
+            <td>68</td><td>34</td><td>26</td><td>8</td>
+            <td class="col-pts">76</td><td>.559</td>
+            <td>27</td><td>31</td>
+            <td>199</td><td>202</td>
+            <td class="col-diff-neg">&minus;3</td>
+            <td>20.8</td><td>78.1</td><td>50.5</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">10</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Pittsburgh Penguins</a></td>
+            <td>68</td><td>33</td><td>27</td><td>8</td>
+            <td class="col-pts">74</td><td>.544</td>
+            <td>26</td><td>30</td>
+            <td>196</td><td>208</td>
+            <td class="col-diff-neg">&minus;12</td>
+            <td>19.6</td><td>77.4</td><td>49.8</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">11</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Detroit Red Wings</a></td>
+            <td>68</td><td>32</td><td>28</td><td>8</td>
+            <td class="col-pts">72</td><td>.529</td>
+            <td>25</td><td>29</td>
+            <td>190</td><td>210</td>
+            <td class="col-diff-neg">&minus;20</td>
+            <td>18.9</td><td>76.8</td><td>48.3</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">12</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Buffalo Sabres</a></td>
+            <td>68</td><td>30</td><td>30</td><td>8</td>
+            <td class="col-pts">68</td><td>.500</td>
+            <td>23</td><td>27</td>
+            <td>184</td><td>216</td>
+            <td class="col-diff-neg">&minus;32</td>
+            <td>18.2</td><td>76.0</td><td>47.9</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">13</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Montreal Canadiens</a></td>
+            <td>68</td><td>29</td><td>31</td><td>8</td>
+            <td class="col-pts">66</td><td>.485</td>
+            <td>22</td><td>26</td>
+            <td>180</td><td>218</td>
+            <td class="col-diff-neg">&minus;38</td>
+            <td>17.5</td><td>75.6</td><td>48.0</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">14</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Philadelphia Flyers</a></td>
+            <td>68</td><td>27</td><td>33</td><td>8</td>
+            <td class="col-pts">62</td><td>.456</td>
+            <td>20</td><td>24</td>
+            <td>174</td><td>224</td>
+            <td class="col-diff-neg">&minus;50</td>
+            <td>16.8</td><td>74.9</td><td>47.2</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">15</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">New York Islanders</a></td>
+            <td>68</td><td>26</td><td>34</td><td>8</td>
+            <td class="col-pts">60</td><td>.441</td>
+            <td>19</td><td>23</td>
+            <td>168</td><td>226</td>
+            <td class="col-diff-neg">&minus;58</td>
+            <td>16.1</td><td>74.3</td><td>46.8</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">16</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Columbus Blue Jackets</a></td>
+            <td>68</td><td>24</td><td>36</td><td>8</td>
+            <td class="col-pts">56</td><td>.412</td>
+            <td>17</td><td>21</td>
+            <td>162</td><td>234</td>
+            <td class="col-diff-neg">&minus;72</td>
+            <td>15.4</td><td>73.6</td><td>46.2</td>
+          </tr>
+
+        </tbody>
+      </table>
+      </div>
+    </div><!-- /.table-card -->
+
+    <!-- ─── WESTERN CONFERENCE (right column) ──────────────────── -->
+    <div class="table-card">
+      <div class="table-card-header">
+        Western Conference
+        <span class="conference-label">Wild Card Format</span>
+      </div>
+
+      <div style="overflow-x: auto;">
+      <table class="standings-table">
+        <colgroup>
+          <col class="col-rank">
+          <col class="col-team">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat-wide">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-diff">
+          <col class="col-stat-wide">
+          <col class="col-stat-wide">
+          <col class="col-stat-wide">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="col-left" title="Rank">#</th>
+            <th class="col-left" title="Team">Team</th>
+            <th title="Games Played">GP</th>
+            <th title="Wins">W</th>
+            <th title="Losses">L</th>
+            <th title="Overtime Losses">OTL</th>
+            <th class="sorted" title="Points">PTS<span class="sort-indicator">&#9660;</span></th>
+            <th title="Points Percentage">PTS%</th>
+            <th title="Regulation Wins">RW</th>
+            <th title="Regulation + Overtime Wins">ROW</th>
+            <th title="Goals For">GF</th>
+            <th title="Goals Against">GA</th>
+            <th title="Goal Differential">DIFF</th>
+            <th title="Power Play %">PP%</th>
+            <th title="Penalty Kill %">PK%</th>
+            <th title="Faceoff Win %">FO%</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- CENTRAL DIVISION — Top 3 -->
+          <tr class="group-header">
+            <td colspan="16">Central Division</td>
+          </tr>
+          <tr>
+            <td class="col-rank">1</td>
+            <td class="col-left col-team"><a href="#">Winnipeg Jets</a></td>
+            <td>68</td><td>44</td><td>17</td><td>7</td>
+            <td class="col-pts">95</td><td>.699</td>
+            <td>37</td><td>41</td>
+            <td>234</td><td>172</td>
+            <td class="col-diff-pos">+62</td>
+            <td>25.6</td><td>83.8</td><td>52.4</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">2</td>
+            <td class="col-left col-team"><a href="#">Dallas Stars</a></td>
+            <td>68</td><td>41</td><td>19</td><td>8</td>
+            <td class="col-pts">90</td><td>.662</td>
+            <td>34</td><td>38</td>
+            <td>220</td><td>182</td>
+            <td class="col-diff-pos">+38</td>
+            <td>23.4</td><td>82.0</td><td>51.6</td>
+          </tr>
+          <tr>
+            <td class="col-rank">3</td>
+            <td class="col-left col-team"><a href="#">Colorado Avalanche</a></td>
+            <td>68</td><td>40</td><td>21</td><td>7</td>
+            <td class="col-pts">87</td><td>.640</td>
+            <td>33</td><td>37</td>
+            <td>228</td><td>196</td>
+            <td class="col-diff-pos">+32</td>
+            <td>24.2</td><td>79.4</td><td>50.1</td>
+          </tr>
+
+          <!-- PACIFIC DIVISION — Top 3 -->
+          <tr class="group-header">
+            <td colspan="16">Pacific Division</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">1</td>
+            <td class="col-left col-team"><a href="#">Vegas Golden Knights</a></td>
+            <td>68</td><td>42</td><td>19</td><td>7</td>
+            <td class="col-pts">91</td><td>.669</td>
+            <td>35</td><td>39</td>
+            <td>224</td><td>180</td>
+            <td class="col-diff-pos">+44</td>
+            <td>24.1</td><td>82.6</td><td>51.0</td>
+          </tr>
+          <tr>
+            <td class="col-rank">2</td>
+            <td class="col-left col-team"><a href="#">Edmonton Oilers</a></td>
+            <td>68</td><td>39</td><td>22</td><td>7</td>
+            <td class="col-pts">85</td><td>.625</td>
+            <td>32</td><td>36</td>
+            <td>230</td><td>200</td>
+            <td class="col-diff-pos">+30</td>
+            <td>26.0</td><td>78.8</td><td>49.4</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">3</td>
+            <td class="col-left col-team"><a href="#">Vancouver Canucks</a></td>
+            <td>68</td><td>38</td><td>22</td><td>8</td>
+            <td class="col-pts">84</td><td>.618</td>
+            <td>31</td><td>35</td>
+            <td>216</td><td>192</td>
+            <td class="col-diff-pos">+24</td>
+            <td>22.8</td><td>80.4</td><td>50.6</td>
+          </tr>
+
+          <!-- WESTERN WILD CARD -->
+          <tr class="group-header">
+            <td colspan="16">Western Wild Card</td>
+          </tr>
+          <tr>
+            <td class="col-rank">WC1</td>
+            <td class="col-left col-team"><a href="#">Minnesota Wild</a></td>
+            <td>68</td><td>37</td><td>23</td><td>8</td>
+            <td class="col-pts">82</td><td>.603</td>
+            <td>30</td><td>34</td>
+            <td>210</td><td>194</td>
+            <td class="col-diff-pos">+16</td>
+            <td>22.0</td><td>81.2</td><td>51.8</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">WC2</td>
+            <td class="col-left col-team"><a href="#">Los Angeles Kings</a></td>
+            <td>68</td><td>36</td><td>24</td><td>8</td>
+            <td class="col-pts">80</td><td>.588</td>
+            <td>29</td><td>33</td>
+            <td>206</td><td>198</td>
+            <td class="col-diff-pos">+8</td>
+            <td>21.6</td><td>80.0</td><td>50.2</td>
+          </tr>
+          <!-- Below the cut line -->
+          <tr class="wc-divider">
+            <td class="col-rank" style="color:var(--text-muted);">9</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Nashville Predators</a></td>
+            <td>68</td><td>34</td><td>26</td><td>8</td>
+            <td class="col-pts">76</td><td>.559</td>
+            <td>27</td><td>31</td>
+            <td>198</td><td>206</td>
+            <td class="col-diff-neg">&minus;8</td>
+            <td>20.4</td><td>78.6</td><td>49.8</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">10</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">St. Louis Blues</a></td>
+            <td>68</td><td>33</td><td>27</td><td>8</td>
+            <td class="col-pts">74</td><td>.544</td>
+            <td>26</td><td>30</td>
+            <td>194</td><td>210</td>
+            <td class="col-diff-neg">&minus;16</td>
+            <td>19.8</td><td>77.8</td><td>50.0</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">11</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Calgary Flames</a></td>
+            <td>68</td><td>31</td><td>29</td><td>8</td>
+            <td class="col-pts">70</td><td>.515</td>
+            <td>24</td><td>28</td>
+            <td>188</td><td>214</td>
+            <td class="col-diff-neg">&minus;26</td>
+            <td>18.6</td><td>76.4</td><td>49.2</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">12</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Seattle Kraken</a></td>
+            <td>68</td><td>30</td><td>30</td><td>8</td>
+            <td class="col-pts">68</td><td>.500</td>
+            <td>23</td><td>27</td>
+            <td>182</td><td>218</td>
+            <td class="col-diff-neg">&minus;36</td>
+            <td>18.0</td><td>75.8</td><td>48.6</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">13</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Arizona Coyotes</a></td>
+            <td>68</td><td>28</td><td>32</td><td>8</td>
+            <td class="col-pts">64</td><td>.471</td>
+            <td>21</td><td>25</td>
+            <td>176</td><td>222</td>
+            <td class="col-diff-neg">&minus;46</td>
+            <td>17.2</td><td>75.0</td><td>47.8</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">14</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Anaheim Ducks</a></td>
+            <td>68</td><td>26</td><td>34</td><td>8</td>
+            <td class="col-pts">60</td><td>.441</td>
+            <td>19</td><td>23</td>
+            <td>170</td><td>228</td>
+            <td class="col-diff-neg">&minus;58</td>
+            <td>16.4</td><td>74.2</td><td>47.0</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">15</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Chicago Blackhawks</a></td>
+            <td>68</td><td>24</td><td>36</td><td>8</td>
+            <td class="col-pts">56</td><td>.412</td>
+            <td>17</td><td>21</td>
+            <td>164</td><td>236</td>
+            <td class="col-diff-neg">&minus;72</td>
+            <td>15.6</td><td>73.4</td><td>46.4</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">16</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">San Jose Sharks</a></td>
+            <td>68</td><td>22</td><td>38</td><td>8</td>
+            <td class="col-pts">52</td><td>.382</td>
+            <td>15</td><td>19</td>
+            <td>158</td><td>242</td>
+            <td class="col-diff-neg">&minus;84</td>
+            <td>14.8</td><td>72.8</td><td>45.6</td>
+          </tr>
+
+        </tbody>
+      </table>
+      </div>
+    </div><!-- /.table-card -->
+
+  </div><!-- /.side-by-side -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       VERSION 3 — TABBED
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="version-label">Version 3 &mdash; Tabbed</div>
+  <p class="version-desc">Click tabs to toggle between Eastern and Western Conference. Defaults to Eastern Conference.</p>
+
+  <!-- View Toggle -->
+  <div class="view-toggle">
+    <button class="active">Wild Card</button>
+    <button>Division</button>
+    <button>Conference</button>
+    <button>League</button>
+  </div>
+
+  <!-- Conference Tabs -->
+  <div class="conference-tabs">
+    <button class="tab-active" onclick="switchTab('east')">Eastern Conference</button>
+    <button onclick="switchTab('west')">Western Conference</button>
+  </div>
+
+  <div class="tabbed-card">
+
+    <!-- ─── EASTERN CONFERENCE TAB ───────────────────────────── -->
+    <div id="tab-east" class="tab-content tab-visible">
+      <div style="overflow-x: auto;">
+      <table class="standings-table">
+        <colgroup>
+          <col class="col-rank">
+          <col class="col-team">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat-wide">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-diff">
+          <col class="col-stat-wide">
+          <col class="col-stat-wide">
+          <col class="col-stat-wide">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="col-left" title="Rank">#</th>
+            <th class="col-left" title="Team">Team</th>
+            <th title="Games Played">GP</th>
+            <th title="Wins">W</th>
+            <th title="Losses">L</th>
+            <th title="Overtime Losses">OTL</th>
+            <th class="sorted" title="Points">PTS<span class="sort-indicator">&#9660;</span></th>
+            <th title="Points Percentage">PTS%</th>
+            <th title="Regulation Wins">RW</th>
+            <th title="Regulation + Overtime Wins">ROW</th>
+            <th title="Goals For">GF</th>
+            <th title="Goals Against">GA</th>
+            <th title="Goal Differential">DIFF</th>
+            <th title="Power Play %">PP%</th>
+            <th title="Penalty Kill %">PK%</th>
+            <th title="Faceoff Win %">FO%</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- ATLANTIC DIVISION — Top 3 -->
+          <tr class="group-header">
+            <td colspan="16">Atlantic Division</td>
+          </tr>
+          <tr>
+            <td class="col-rank">1</td>
+            <td class="col-left col-team"><a href="#">Florida Panthers</a></td>
+            <td>68</td><td>42</td><td>18</td><td>8</td>
+            <td class="col-pts">92</td><td>.676</td>
+            <td>35</td><td>39</td>
+            <td>226</td><td>178</td>
+            <td class="col-diff-pos">+48</td>
+            <td>24.8</td><td>82.1</td><td>51.4</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">2</td>
+            <td class="col-left col-team"><a href="#">Toronto Maple Leafs</a></td>
+            <td>68</td><td>40</td><td>20</td><td>8</td>
+            <td class="col-pts">88</td><td>.647</td>
+            <td>33</td><td>37</td>
+            <td>218</td><td>189</td>
+            <td class="col-diff-pos">+29</td>
+            <td>23.1</td><td>80.6</td><td>52.1</td>
+          </tr>
+          <tr>
+            <td class="col-rank">3</td>
+            <td class="col-left col-team"><a href="#">Boston Bruins</a></td>
+            <td>68</td><td>38</td><td>22</td><td>8</td>
+            <td class="col-pts">84</td><td>.618</td>
+            <td>30</td><td>35</td>
+            <td>204</td><td>185</td>
+            <td class="col-diff-pos">+19</td>
+            <td>21.4</td><td>81.3</td><td>50.8</td>
+          </tr>
+
+          <!-- METROPOLITAN DIVISION — Top 3 -->
+          <tr class="group-header">
+            <td colspan="16">Metropolitan Division</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">1</td>
+            <td class="col-left col-team"><a href="#">Carolina Hurricanes</a></td>
+            <td>68</td><td>43</td><td>17</td><td>8</td>
+            <td class="col-pts">94</td><td>.691</td>
+            <td>36</td><td>40</td>
+            <td>232</td><td>170</td>
+            <td class="col-diff-pos">+62</td>
+            <td>25.2</td><td>84.5</td><td>53.0</td>
+          </tr>
+          <tr>
+            <td class="col-rank">2</td>
+            <td class="col-left col-team"><a href="#">New Jersey Devils</a></td>
+            <td>68</td><td>41</td><td>20</td><td>7</td>
+            <td class="col-pts">89</td><td>.654</td>
+            <td>34</td><td>38</td>
+            <td>224</td><td>186</td>
+            <td class="col-diff-pos">+38</td>
+            <td>23.7</td><td>79.8</td><td>49.6</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">3</td>
+            <td class="col-left col-team"><a href="#">Washington Capitals</a></td>
+            <td>68</td><td>39</td><td>21</td><td>8</td>
+            <td class="col-pts">86</td><td>.632</td>
+            <td>32</td><td>36</td>
+            <td>211</td><td>191</td>
+            <td class="col-diff-pos">+20</td>
+            <td>22.6</td><td>80.2</td><td>50.3</td>
+          </tr>
+
+          <!-- EASTERN WILD CARD -->
+          <tr class="group-header">
+            <td colspan="16">Eastern Wild Card</td>
+          </tr>
+          <tr>
+            <td class="col-rank">WC1</td>
+            <td class="col-left col-team"><a href="#">Tampa Bay Lightning</a></td>
+            <td>68</td><td>37</td><td>23</td><td>8</td>
+            <td class="col-pts">82</td><td>.603</td>
+            <td>29</td><td>34</td>
+            <td>215</td><td>198</td>
+            <td class="col-diff-pos">+17</td>
+            <td>24.0</td><td>78.9</td><td>49.1</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">WC2</td>
+            <td class="col-left col-team"><a href="#">New York Rangers</a></td>
+            <td>68</td><td>36</td><td>24</td><td>8</td>
+            <td class="col-pts">80</td><td>.588</td>
+            <td>28</td><td>33</td>
+            <td>202</td><td>194</td>
+            <td class="col-diff-pos">+8</td>
+            <td>21.9</td><td>79.4</td><td>48.7</td>
+          </tr>
+          <!-- Below the cut line -->
+          <tr class="wc-divider">
+            <td class="col-rank" style="color:var(--text-muted);">9</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Ottawa Senators</a></td>
+            <td>68</td><td>34</td><td>26</td><td>8</td>
+            <td class="col-pts">76</td><td>.559</td>
+            <td>27</td><td>31</td>
+            <td>199</td><td>202</td>
+            <td class="col-diff-neg">&minus;3</td>
+            <td>20.8</td><td>78.1</td><td>50.5</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">10</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Pittsburgh Penguins</a></td>
+            <td>68</td><td>33</td><td>27</td><td>8</td>
+            <td class="col-pts">74</td><td>.544</td>
+            <td>26</td><td>30</td>
+            <td>196</td><td>208</td>
+            <td class="col-diff-neg">&minus;12</td>
+            <td>19.6</td><td>77.4</td><td>49.8</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">11</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Detroit Red Wings</a></td>
+            <td>68</td><td>32</td><td>28</td><td>8</td>
+            <td class="col-pts">72</td><td>.529</td>
+            <td>25</td><td>29</td>
+            <td>190</td><td>210</td>
+            <td class="col-diff-neg">&minus;20</td>
+            <td>18.9</td><td>76.8</td><td>48.3</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">12</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Buffalo Sabres</a></td>
+            <td>68</td><td>30</td><td>30</td><td>8</td>
+            <td class="col-pts">68</td><td>.500</td>
+            <td>23</td><td>27</td>
+            <td>184</td><td>216</td>
+            <td class="col-diff-neg">&minus;32</td>
+            <td>18.2</td><td>76.0</td><td>47.9</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">13</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Montreal Canadiens</a></td>
+            <td>68</td><td>29</td><td>31</td><td>8</td>
+            <td class="col-pts">66</td><td>.485</td>
+            <td>22</td><td>26</td>
+            <td>180</td><td>218</td>
+            <td class="col-diff-neg">&minus;38</td>
+            <td>17.5</td><td>75.6</td><td>48.0</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">14</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Philadelphia Flyers</a></td>
+            <td>68</td><td>27</td><td>33</td><td>8</td>
+            <td class="col-pts">62</td><td>.456</td>
+            <td>20</td><td>24</td>
+            <td>174</td><td>224</td>
+            <td class="col-diff-neg">&minus;50</td>
+            <td>16.8</td><td>74.9</td><td>47.2</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">15</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">New York Islanders</a></td>
+            <td>68</td><td>26</td><td>34</td><td>8</td>
+            <td class="col-pts">60</td><td>.441</td>
+            <td>19</td><td>23</td>
+            <td>168</td><td>226</td>
+            <td class="col-diff-neg">&minus;58</td>
+            <td>16.1</td><td>74.3</td><td>46.8</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">16</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Columbus Blue Jackets</a></td>
+            <td>68</td><td>24</td><td>36</td><td>8</td>
+            <td class="col-pts">56</td><td>.412</td>
+            <td>17</td><td>21</td>
+            <td>162</td><td>234</td>
+            <td class="col-diff-neg">&minus;72</td>
+            <td>15.4</td><td>73.6</td><td>46.2</td>
+          </tr>
+
+        </tbody>
+      </table>
+      </div>
+    </div><!-- /#tab-east -->
+
+    <!-- ─── WESTERN CONFERENCE TAB ───────────────────────────── -->
+    <div id="tab-west" class="tab-content">
+      <div style="overflow-x: auto;">
+      <table class="standings-table">
+        <colgroup>
+          <col class="col-rank">
+          <col class="col-team">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat-wide">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-stat">
+          <col class="col-diff">
+          <col class="col-stat-wide">
+          <col class="col-stat-wide">
+          <col class="col-stat-wide">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="col-left" title="Rank">#</th>
+            <th class="col-left" title="Team">Team</th>
+            <th title="Games Played">GP</th>
+            <th title="Wins">W</th>
+            <th title="Losses">L</th>
+            <th title="Overtime Losses">OTL</th>
+            <th class="sorted" title="Points">PTS<span class="sort-indicator">&#9660;</span></th>
+            <th title="Points Percentage">PTS%</th>
+            <th title="Regulation Wins">RW</th>
+            <th title="Regulation + Overtime Wins">ROW</th>
+            <th title="Goals For">GF</th>
+            <th title="Goals Against">GA</th>
+            <th title="Goal Differential">DIFF</th>
+            <th title="Power Play %">PP%</th>
+            <th title="Penalty Kill %">PK%</th>
+            <th title="Faceoff Win %">FO%</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- CENTRAL DIVISION — Top 3 -->
+          <tr class="group-header">
+            <td colspan="16">Central Division</td>
+          </tr>
+          <tr>
+            <td class="col-rank">1</td>
+            <td class="col-left col-team"><a href="#">Winnipeg Jets</a></td>
+            <td>68</td><td>44</td><td>17</td><td>7</td>
+            <td class="col-pts">95</td><td>.699</td>
+            <td>37</td><td>41</td>
+            <td>234</td><td>172</td>
+            <td class="col-diff-pos">+62</td>
+            <td>25.6</td><td>83.8</td><td>52.4</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">2</td>
+            <td class="col-left col-team"><a href="#">Dallas Stars</a></td>
+            <td>68</td><td>41</td><td>19</td><td>8</td>
+            <td class="col-pts">90</td><td>.662</td>
+            <td>34</td><td>38</td>
+            <td>220</td><td>182</td>
+            <td class="col-diff-pos">+38</td>
+            <td>23.4</td><td>82.0</td><td>51.6</td>
+          </tr>
+          <tr>
+            <td class="col-rank">3</td>
+            <td class="col-left col-team"><a href="#">Colorado Avalanche</a></td>
+            <td>68</td><td>40</td><td>21</td><td>7</td>
+            <td class="col-pts">87</td><td>.640</td>
+            <td>33</td><td>37</td>
+            <td>228</td><td>196</td>
+            <td class="col-diff-pos">+32</td>
+            <td>24.2</td><td>79.4</td><td>50.1</td>
+          </tr>
+
+          <!-- PACIFIC DIVISION — Top 3 -->
+          <tr class="group-header">
+            <td colspan="16">Pacific Division</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">1</td>
+            <td class="col-left col-team"><a href="#">Vegas Golden Knights</a></td>
+            <td>68</td><td>42</td><td>19</td><td>7</td>
+            <td class="col-pts">91</td><td>.669</td>
+            <td>35</td><td>39</td>
+            <td>224</td><td>180</td>
+            <td class="col-diff-pos">+44</td>
+            <td>24.1</td><td>82.6</td><td>51.0</td>
+          </tr>
+          <tr>
+            <td class="col-rank">2</td>
+            <td class="col-left col-team"><a href="#">Edmonton Oilers</a></td>
+            <td>68</td><td>39</td><td>22</td><td>7</td>
+            <td class="col-pts">85</td><td>.625</td>
+            <td>32</td><td>36</td>
+            <td>230</td><td>200</td>
+            <td class="col-diff-pos">+30</td>
+            <td>26.0</td><td>78.8</td><td>49.4</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">3</td>
+            <td class="col-left col-team"><a href="#">Vancouver Canucks</a></td>
+            <td>68</td><td>38</td><td>22</td><td>8</td>
+            <td class="col-pts">84</td><td>.618</td>
+            <td>31</td><td>35</td>
+            <td>216</td><td>192</td>
+            <td class="col-diff-pos">+24</td>
+            <td>22.8</td><td>80.4</td><td>50.6</td>
+          </tr>
+
+          <!-- WESTERN WILD CARD -->
+          <tr class="group-header">
+            <td colspan="16">Western Wild Card</td>
+          </tr>
+          <tr>
+            <td class="col-rank">WC1</td>
+            <td class="col-left col-team"><a href="#">Minnesota Wild</a></td>
+            <td>68</td><td>37</td><td>23</td><td>8</td>
+            <td class="col-pts">82</td><td>.603</td>
+            <td>30</td><td>34</td>
+            <td>210</td><td>194</td>
+            <td class="col-diff-pos">+16</td>
+            <td>22.0</td><td>81.2</td><td>51.8</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank">WC2</td>
+            <td class="col-left col-team"><a href="#">Los Angeles Kings</a></td>
+            <td>68</td><td>36</td><td>24</td><td>8</td>
+            <td class="col-pts">80</td><td>.588</td>
+            <td>29</td><td>33</td>
+            <td>206</td><td>198</td>
+            <td class="col-diff-pos">+8</td>
+            <td>21.6</td><td>80.0</td><td>50.2</td>
+          </tr>
+          <!-- Below the cut line -->
+          <tr class="wc-divider">
+            <td class="col-rank" style="color:var(--text-muted);">9</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Nashville Predators</a></td>
+            <td>68</td><td>34</td><td>26</td><td>8</td>
+            <td class="col-pts">76</td><td>.559</td>
+            <td>27</td><td>31</td>
+            <td>198</td><td>206</td>
+            <td class="col-diff-neg">&minus;8</td>
+            <td>20.4</td><td>78.6</td><td>49.8</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">10</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">St. Louis Blues</a></td>
+            <td>68</td><td>33</td><td>27</td><td>8</td>
+            <td class="col-pts">74</td><td>.544</td>
+            <td>26</td><td>30</td>
+            <td>194</td><td>210</td>
+            <td class="col-diff-neg">&minus;16</td>
+            <td>19.8</td><td>77.8</td><td>50.0</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">11</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Calgary Flames</a></td>
+            <td>68</td><td>31</td><td>29</td><td>8</td>
+            <td class="col-pts">70</td><td>.515</td>
+            <td>24</td><td>28</td>
+            <td>188</td><td>214</td>
+            <td class="col-diff-neg">&minus;26</td>
+            <td>18.6</td><td>76.4</td><td>49.2</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">12</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Seattle Kraken</a></td>
+            <td>68</td><td>30</td><td>30</td><td>8</td>
+            <td class="col-pts">68</td><td>.500</td>
+            <td>23</td><td>27</td>
+            <td>182</td><td>218</td>
+            <td class="col-diff-neg">&minus;36</td>
+            <td>18.0</td><td>75.8</td><td>48.6</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">13</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Arizona Coyotes</a></td>
+            <td>68</td><td>28</td><td>32</td><td>8</td>
+            <td class="col-pts">64</td><td>.471</td>
+            <td>21</td><td>25</td>
+            <td>176</td><td>222</td>
+            <td class="col-diff-neg">&minus;46</td>
+            <td>17.2</td><td>75.0</td><td>47.8</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">14</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Anaheim Ducks</a></td>
+            <td>68</td><td>26</td><td>34</td><td>8</td>
+            <td class="col-pts">60</td><td>.441</td>
+            <td>19</td><td>23</td>
+            <td>170</td><td>228</td>
+            <td class="col-diff-neg">&minus;58</td>
+            <td>16.4</td><td>74.2</td><td>47.0</td>
+          </tr>
+          <tr>
+            <td class="col-rank" style="color:var(--text-muted);">15</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">Chicago Blackhawks</a></td>
+            <td>68</td><td>24</td><td>36</td><td>8</td>
+            <td class="col-pts">56</td><td>.412</td>
+            <td>17</td><td>21</td>
+            <td>164</td><td>236</td>
+            <td class="col-diff-neg">&minus;72</td>
+            <td>15.6</td><td>73.4</td><td>46.4</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="col-rank" style="color:var(--text-muted);">16</td>
+            <td class="col-left col-team" style="opacity:0.7;"><a href="#">San Jose Sharks</a></td>
+            <td>68</td><td>22</td><td>38</td><td>8</td>
+            <td class="col-pts">52</td><td>.382</td>
+            <td>15</td><td>19</td>
+            <td>158</td><td>242</td>
+            <td class="col-diff-neg">&minus;84</td>
+            <td>14.8</td><td>72.8</td><td>45.6</td>
+          </tr>
+
+        </tbody>
+      </table>
+      </div>
+    </div><!-- /#tab-west -->
+
+  </div><!-- /.tabbed-card -->
 
 </main>
 
@@ -902,6 +1920,17 @@ function toggleTheme() {
   html.setAttribute('data-theme',
     html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
   );
+}
+
+function switchTab(conf) {
+  // Toggle tab content visibility
+  document.getElementById('tab-east').classList.toggle('tab-visible', conf === 'east');
+  document.getElementById('tab-west').classList.toggle('tab-visible', conf === 'west');
+
+  // Toggle active tab button
+  var tabs = document.querySelectorAll('.conference-tabs button');
+  tabs[0].classList.toggle('tab-active', conf === 'east');
+  tabs[1].classList.toggle('tab-active', conf === 'west');
 }
 </script>
 
