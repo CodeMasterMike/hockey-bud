@@ -1,6 +1,6 @@
 # hockey-site Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-03-18
+Auto-generated from all feature plans. Last updated: 2026-03-19
 
 ## Active Technologies
 - C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend) + ASP.NET Core 10, Entity Framework Core 10, Hangfire, SignalR, Angular SSR, RxJS, Tailwind CSS v3, Angular CDK (001-hockey-league-hub)
@@ -27,6 +27,15 @@ backend/
 
 frontend/
 ├── src/app/
+│   ├── components/
+│   │   ├── layout/                # Banner, NavBar, ScoreBar, HamburgerMenu
+│   │   ├── shared/                # StatTable, VideoModal, Pagination
+│   │   ├── main-page/             # League selection grid
+│   │   └── [scores,standings,...]/  # Placeholder route components (12 total)
+│   ├── services/                  # ThemeService, SignalRService
+│   ├── pipes/                     # EraPipe, TimezonePipe
+│   ├── app.routes.ts              # 13 lazy-loaded routes
+│   └── app.ts                     # Shell: banner + score bar + nav + router-outlet
 ├── src/assets/fonts/              # Courier Prime (WOFF2)
 ├── src/styles/                    # Design tokens (light/dark)
 └── tests/
@@ -64,7 +73,9 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - EF migrations live in HockeyHub.Data; run `dotnet ef` from Api project with `--project ../HockeyHub.Data`
 
 ## Recent Changes
+- Phase 2 frontend shell complete: 13 lazy-loaded routes, banner/nav/score bar/hamburger menu layout, dark mode service, SignalR service, stat table/video modal/pagination shared components, era + timezone pipes, main page, 12 placeholder route components
 - Phase 2 backend complete: 7 entities, DbContext + migration, NHL API provider with rate limiting, Redis cache service, SignalR GameHub, Hangfire, error middleware, data seed CLI
+- Phase 1B mockups revised: global shell (ticker colors/ordering), scores page (layout), standings (3 versions, no era tints), game hub (shots box score + adjacent comparison)
 - Phase 1 complete: Project scaffolding, Docker services, design tokens, Courier Prime font
 
 <!-- MANUAL ADDITIONS START -->

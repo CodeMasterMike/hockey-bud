@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-hockey-league-hub`
 **Created**: 2026-03-16
-**Status**: Draft
+**Status**: In Progress — Phase 2 (Foundation) complete, ready for user story implementation
 **Input**: User description: "Comprehensive hockey league information website starting with NHL — scores, standings, stats, teams, players, salary cap, trades, free agents, and personnel with an antique-book visual theme and deep cross-linking"
 
 ## Clarifications

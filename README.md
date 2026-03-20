@@ -27,10 +27,18 @@ backend/
 └── tests/HockeyHub.Api.Tests/      # Backend tests
 
 frontend/
-├── src/app/                       # Angular application
-├── src/assets/fonts/              # Self-hosted Courier Prime (WOFF2)
-├── src/styles/                    # Design tokens (light/dark mode)
-└── tests/                         # Frontend tests
+├── src/app/
+│   ├── components/
+│   │   ├── layout/                  # Banner, NavBar, ScoreBar, HamburgerMenu
+│   │   ├── shared/                  # StatTable, VideoModal, Pagination
+│   │   ├── main-page/               # League selection grid
+│   │   └── [12 route placeholders]/ # Scores, Standings, Stats, etc.
+│   ├── services/                    # ThemeService, SignalRService
+│   ├── pipes/                       # EraPipe, TimezonePipe
+│   └── app.routes.ts                # 13 lazy-loaded routes
+├── src/assets/fonts/                # Self-hosted Courier Prime (WOFF2)
+├── src/styles/                      # Design tokens (light/dark mode)
+└── tests/                           # Frontend tests
 
 docs/
 └── mockups/                       # Static HTML/CSS design mockups
@@ -184,8 +192,8 @@ Standalone HTML/CSS mockups for design review, viewable in any browser from `doc
 |---|--------|-------------|
 | 01 | [Global Shell](docs/mockups/01-global-shell.html) | Banner, search, hamburger menu, live score ticker, secondary nav, dark mode |
 | 02 | [Scores Page](docs/mockups/02-scores-page.html) | 4-column score box grid — collapsed, expanded, and pregame states |
-| 03 | [Data Tables](docs/mockups/03-data-tables.html) | Wild card standings with sortable columns, era tints, pagination |
-| 04 | [Game Hub](docs/mockups/04-game-hub.html) | Team Stats and Player Stats tabs with box scores and stat comparisons |
+| 03 | [Data Tables](docs/mockups/03-data-tables.html) | Standings with 3 layout variants (stacked, side-by-side, tabbed) |
+| 04 | [Game Hub](docs/mockups/04-game-hub.html) | Team Stats with side-by-side goals/shots box scores and adjacent team comparison |
 | 05 | [Rink Diagram](docs/mockups/05-rink-diagram.html) | SVG rink with event dots, tooltips, and view switcher |
 | 06 | [Team Profile](docs/mockups/06-team-profile.html) | Roster table, depth chart with stats/cap toggle, franchise history |
 | 07 | [Player Profile](docs/mockups/07-player-profile.html) | Bio, career stats with era separators, playing style, contracts |
@@ -205,7 +213,7 @@ Standalone HTML/CSS mockups for design review, viewable in any browser from `doc
 ## Development Status
 
 - **Phase 1 (Setup)**: Complete — project scaffolding, Docker services, design tokens, fonts
-- **Phase 1B (UI Prototyping)**: Complete — all 10 mockups ready for design review
+- **Phase 1B (UI Prototyping)**: 4 of 10 mockups revised (global shell, scores, standings, game hub); 6 remaining (rink diagram, team profile, player profile, trade tree, salary cap, schedule)
 - **Phase 2 (Foundation) — Backend**: Complete — entities, DbContext, EF migration, NHL API provider, Redis cache, SignalR hub, Hangfire, error middleware, data seed CLI
-- **Phase 2 (Foundation) — Frontend**: Not started — routing, shell components, shared components
+- **Phase 2 (Foundation) — Frontend**: Complete — 13 lazy-loaded routes, layout shell (banner, nav, score bar, hamburger menu), dark mode service, SignalR service, shared components (stat table, video modal, pagination), pipes (era, timezone), main page, 12 placeholder route components
 - **Phases 3–14**: Not started — user stories and polish
