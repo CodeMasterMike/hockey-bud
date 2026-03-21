@@ -85,38 +85,85 @@ import { ScoreGame, ScoresApiService, ExpandedScore } from '../../../services/sc
           </div>
         </div>
 
-        <!-- Stats comparison -->
-        <div class="expanded__stats">
-          <div class="expanded__stat-row">
-            <span class="expanded__stat-away">{{ data()!.stats.awayPowerPlay }}</span>
-            <span class="expanded__stat-label">PP</span>
-            <span class="expanded__stat-home">{{ data()!.stats.homePowerPlay }}</span>
+        <!-- Stats + H2H side by side -->
+        <div class="expanded__stats-h2h">
+          <!-- Condensed stats table (half width) -->
+          <div class="expanded__stats-compact">
+            <div class="expanded__stat-row">
+              <span class="expanded__stat-away">{{ data()!.stats.awayPowerPlay }}</span>
+              <span class="expanded__stat-label">PP</span>
+              <span class="expanded__stat-home">{{ data()!.stats.homePowerPlay }}</span>
+            </div>
+            <div class="expanded__stat-row">
+              <span class="expanded__stat-away">{{ data()!.stats.awayHits }}</span>
+              <span class="expanded__stat-label">HIT</span>
+              <span class="expanded__stat-home">{{ data()!.stats.homeHits }}</span>
+            </div>
+            <div class="expanded__stat-row">
+              <span class="expanded__stat-away">{{ data()!.stats.awayFaceoffPct }}%</span>
+              <span class="expanded__stat-label">FO%</span>
+              <span class="expanded__stat-home">{{ data()!.stats.homeFaceoffPct }}%</span>
+            </div>
+            <div class="expanded__stat-row">
+              <span class="expanded__stat-away">{{ data()!.stats.awayTakeaways }}</span>
+              <span class="expanded__stat-label">TK</span>
+              <span class="expanded__stat-home">{{ data()!.stats.homeTakeaways }}</span>
+            </div>
+            <div class="expanded__stat-row">
+              <span class="expanded__stat-away">{{ data()!.stats.awayGiveaways }}</span>
+              <span class="expanded__stat-label">GV</span>
+              <span class="expanded__stat-home">{{ data()!.stats.homeGiveaways }}</span>
+            </div>
+            <div class="expanded__stat-row">
+              <span class="expanded__stat-away">{{ data()!.stats.awayTimeOfPossession }}</span>
+              <span class="expanded__stat-label">TOP</span>
+              <span class="expanded__stat-home">{{ data()!.stats.homeTimeOfPossession }}</span>
+            </div>
           </div>
-          <div class="expanded__stat-row">
-            <span class="expanded__stat-away">{{ data()!.stats.awayHits }}</span>
-            <span class="expanded__stat-label">HIT</span>
-            <span class="expanded__stat-home">{{ data()!.stats.homeHits }}</span>
-          </div>
-          <div class="expanded__stat-row">
-            <span class="expanded__stat-away">{{ data()!.stats.awayFaceoffPct }}%</span>
-            <span class="expanded__stat-label">FO%</span>
-            <span class="expanded__stat-home">{{ data()!.stats.homeFaceoffPct }}%</span>
-          </div>
-          <div class="expanded__stat-row">
-            <span class="expanded__stat-away">{{ data()!.stats.awayTakeaways }}</span>
-            <span class="expanded__stat-label">TK</span>
-            <span class="expanded__stat-home">{{ data()!.stats.homeTakeaways }}</span>
-          </div>
-          <div class="expanded__stat-row">
-            <span class="expanded__stat-away">{{ data()!.stats.awayGiveaways }}</span>
-            <span class="expanded__stat-label">GV</span>
-            <span class="expanded__stat-home">{{ data()!.stats.homeGiveaways }}</span>
-          </div>
-          <div class="expanded__stat-row">
-            <span class="expanded__stat-away">{{ data()!.stats.awayTimeOfPossession }}</span>
-            <span class="expanded__stat-label">TOP</span>
-            <span class="expanded__stat-home">{{ data()!.stats.homeTimeOfPossession }}</span>
-          </div>
+
+          <!-- H2H tables (adjacent) -->
+          @if (data()!.headToHead) {
+            <div class="expanded__h2h">
+              <table class="expanded__h2h-table">
+                <caption>Season H2H</caption>
+                <thead><tr><th></th><th>W</th><th>OTW</th><th>SOW</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="expanded__h2h-team">{{ game().awayTeam.abbreviation }}</td>
+                    <td>{{ data()!.headToHead!.currentSeason.away.wins }}</td>
+                    <td>{{ data()!.headToHead!.currentSeason.away.overtimeWins }}</td>
+                    <td>{{ data()!.headToHead!.currentSeason.away.shootoutWins }}</td>
+                  </tr>
+                  <tr>
+                    <td class="expanded__h2h-team">{{ game().homeTeam.abbreviation }}</td>
+                    <td>{{ data()!.headToHead!.currentSeason.home.wins }}</td>
+                    <td>{{ data()!.headToHead!.currentSeason.home.overtimeWins }}</td>
+                    <td>{{ data()!.headToHead!.currentSeason.home.shootoutWins }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <table class="expanded__h2h-table">
+                <caption>All-Time H2H</caption>
+                <thead><tr><th></th><th>W</th><th>OTW</th><th>SOW</th><th>T</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="expanded__h2h-team">{{ game().awayTeam.abbreviation }}</td>
+                    <td>{{ data()!.headToHead!.allTime.away.wins }}</td>
+                    <td>{{ data()!.headToHead!.allTime.away.overtimeWins }}</td>
+                    <td>{{ data()!.headToHead!.allTime.away.shootoutWins }}</td>
+                    <td>{{ data()!.headToHead!.allTime.away.ties }}</td>
+                  </tr>
+                  <tr>
+                    <td class="expanded__h2h-team">{{ game().homeTeam.abbreviation }}</td>
+                    <td>{{ data()!.headToHead!.allTime.home.wins }}</td>
+                    <td>{{ data()!.headToHead!.allTime.home.overtimeWins }}</td>
+                    <td>{{ data()!.headToHead!.allTime.home.shootoutWins }}</td>
+                    <td>{{ data()!.headToHead!.allTime.home.ties }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          }
         </div>
 
         <!-- Goal summaries -->
@@ -236,27 +283,54 @@ import { ScoreGame, ScoresApiService, ExpandedScore } from '../../../services/sc
     }
     .expanded__team-cell { text-align: left; font-weight: 700; font-size: 11px; }
     .expanded__total { font-weight: 700; }
-    .expanded__stats {
+    .expanded__stats-h2h {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
       border-top: 1px solid var(--border-default);
       padding-top: 10px;
       margin-bottom: 12px;
     }
+    .expanded__stats-compact {}
     .expanded__stat-row {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
-      gap: 8px;
+      gap: 6px;
       text-align: center;
       padding: 2px 0;
-      font-size: 12px;
+      font-size: 11px;
     }
     .expanded__stat-away { text-align: right; color: var(--text-primary); }
     .expanded__stat-label {
       font-weight: 700;
       color: var(--text-muted);
-      font-size: 10px;
-      min-width: 32px;
+      font-size: 9px;
+      min-width: 28px;
     }
     .expanded__stat-home { text-align: left; color: var(--text-primary); }
+    .expanded__h2h { display: flex; flex-direction: column; gap: 6px; }
+    .expanded__h2h-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10px;
+    }
+    .expanded__h2h-table caption {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--text-muted); text-align: left;
+      padding-bottom: 2px;
+    }
+    .expanded__h2h-table th {
+      font-size: 9px; font-weight: 700; color: var(--text-muted);
+      text-align: center; padding: 2px 4px;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .expanded__h2h-table th:first-child { text-align: left; }
+    .expanded__h2h-table td {
+      text-align: center; padding: 2px 4px;
+      border-bottom: 1px solid var(--border-default);
+      color: var(--text-secondary);
+    }
+    .expanded__h2h-team { text-align: left !important; font-weight: 700; color: var(--text-primary) !important; }
     .expanded__summaries {
       display: grid;
       grid-template-columns: 1fr 1fr;

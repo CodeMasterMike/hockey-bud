@@ -4,13 +4,12 @@ import { isPlatformBrowser } from '@angular/common';
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private platformId = inject(PLATFORM_ID);
-  isDark = signal(false);
+  isDark = signal(true);
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
       const saved = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const dark = saved ? saved === 'dark' : prefersDark;
+      const dark = saved ? saved === 'dark' : true;
       this.isDark.set(dark);
       this.apply(dark);
     }

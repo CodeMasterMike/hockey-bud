@@ -41,20 +41,36 @@
   /* Score ticker */
   --bg-ticker: #111111;
   --text-ticker: #F5F0E1;
+
+  /* Banner interactive elements (white-based for dark banner) */
+  --banner-input-bg: rgba(255, 255, 255, 0.08);
+  --banner-input-border: rgba(255, 255, 255, 0.2);
+  --banner-input-focus-bg: rgba(255, 255, 255, 0.14);
+  --banner-input-focus-border: rgba(255, 255, 255, 0.4);
+  --banner-placeholder: rgba(245, 240, 225, 0.5);
+  --banner-hover-bg: rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="dark"] {
   --bg-page: #0A1628;
-  --bg-banner: #000000;
+  --bg-banner: #F5F0E1;
   --bg-nav: #0D1B2A;
   --bg-card: #112240;
   --bg-row-alt: rgba(255, 255, 255, 0.06);
   --text-primary: #F5F0E1;
   --text-secondary: #B8B0A0;
   --text-muted: #807868;
-  --text-on-banner: #F5F0E1;
+  --text-on-banner: #0A1628;
   --border-default: rgba(255, 255, 255, 0.1);
   --border-strong: rgba(255, 255, 255, 0.2);
+
+  /* Banner interactive elements (inverted for light banner) */
+  --banner-input-bg: rgba(0, 0, 0, 0.06);
+  --banner-input-border: rgba(0, 0, 0, 0.15);
+  --banner-input-focus-bg: rgba(0, 0, 0, 0.1);
+  --banner-input-focus-border: rgba(0, 0, 0, 0.25);
+  --banner-placeholder: rgba(10, 22, 40, 0.4);
+  --banner-hover-bg: rgba(0, 0, 0, 0.06);
 
   /* Era tints — dark mode */
   --bg-era-original-six: rgba(218, 165, 32, 0.08);
@@ -80,14 +96,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg-page: #0A1628;
-    --bg-banner: #000000;
+    --bg-banner: #F5F0E1;
     --bg-nav: #0D1B2A;
     --bg-card: #112240;
     --bg-row-alt: rgba(255, 255, 255, 0.06);
     --text-primary: #F5F0E1;
     --text-secondary: #B8B0A0;
     --text-muted: #807868;
-    --text-on-banner: #F5F0E1;
+    --text-on-banner: #0A1628;
     --border-default: rgba(255, 255, 255, 0.1);
     --border-strong: rgba(255, 255, 255, 0.2);
 
@@ -105,5 +121,13 @@
 
     --bg-ticker: #050D1A;
     --text-ticker: #F5F0E1;
+
+    /* Banner interactive elements (inverted for light banner) */
+    --banner-input-bg: rgba(0, 0, 0, 0.06);
+    --banner-input-border: rgba(0, 0, 0, 0.15);
+    --banner-input-focus-bg: rgba(0, 0, 0, 0.1);
+    --banner-input-focus-border: rgba(0, 0, 0, 0.25);
+    --banner-placeholder: rgba(10, 22, 40, 0.4);
+    --banner-hover-bg: rgba(0, 0, 0, 0.06);
   }
 }

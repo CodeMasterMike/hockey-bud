@@ -24,6 +24,8 @@
   --border-strong: rgba(0,0,0,0.25); --color-link: #2C5F8A; --color-link-hover: #1A3D5C;
   --color-live: #C0392B; --color-pending: #D4A017; --color-final: #4A4A4A;
   --bg-ticker: #111111; --text-ticker: #F5F0E1;
+  --banner-input-bg: rgba(255,255,255,0.08); --banner-input-border: rgba(255,255,255,0.2);
+  --banner-placeholder: rgba(245,240,225,0.5); --banner-hover-bg: rgba(255,255,255,0.1);
 }
 [data-theme="dark"] {
   --bg-page: #0A1628; --bg-nav: #0D1B2A; --bg-card: #112240;
@@ -31,6 +33,9 @@
   --text-muted: #807868; --border-default: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
   --color-link: #6BA3D6; --color-link-hover: #8DC0F0; --color-live: #E74C3C;
   --color-pending: #F1C40F; --color-final: #B8B0A0; --bg-ticker: #050D1A;
+  --bg-banner: #F5F0E1; --text-on-banner: #0A1628;
+  --banner-input-bg: rgba(0,0,0,0.06); --banner-input-border: rgba(0,0,0,0.15);
+  --banner-placeholder: rgba(10,22,40,0.4); --banner-hover-bg: rgba(0,0,0,0.06);
 }
 
 /* ===================================================================
@@ -114,9 +119,9 @@ body {
 .banner__search input {
   width: 100%;
   padding: 8px 14px 8px 36px;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid var(--banner-input-border);
   border-radius: 4px;
-  background: rgba(255,255,255,0.08);
+  background: var(--banner-input-bg);
   color: var(--text-on-banner);
   font-family: var(--font-primary);
   font-size: 13px;
@@ -125,8 +130,8 @@ body {
   transition: background 0.2s, border-color 0.2s;
 }
 
-.banner__search input::placeholder { color: rgba(245,240,225,0.5); }
-.banner__search input:focus { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.4); }
+.banner__search input::placeholder { color: var(--banner-placeholder); }
+.banner__search input:focus { background: var(--banner-input-bg); border-color: var(--banner-input-border); }
 
 .banner__search-wrap { position: relative; }
 .banner__search-wrap::before {
@@ -142,7 +147,7 @@ body {
 
 .banner__hamburger {
   background: none;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid var(--banner-input-border);
   border-radius: 4px;
   color: var(--text-on-banner);
   font-size: 22px;
@@ -155,7 +160,7 @@ body {
   transition: background 0.2s, border-color 0.2s;
   line-height: 1;
 }
-.banner__hamburger:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.35); }
+.banner__hamburger:hover { background: var(--banner-hover-bg); border-color: var(--banner-input-border); }
 
 /* ===================================================================
    STATIC SCORE BAR (replaces auto-scrolling ticker)
@@ -598,7 +603,7 @@ body {
 }
 
 .expanded-three-col__center {
-  min-width: 120px;
+  min-width: 80px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -607,12 +612,12 @@ body {
 /* Vertical stat column (center of expanded box) */
 .stat-column-item {
   text-align: center;
-  padding: 6px 12px;
+  padding: 4px 8px;
   background: var(--bg-row-alt);
   border-radius: 3px;
 }
 .stat-column-item__label {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -620,7 +625,7 @@ body {
   margin-bottom: 1px;
 }
 .stat-column-item__values {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--text-primary);
   display: flex;
@@ -630,6 +635,49 @@ body {
 .stat-column-item__sep {
   color: var(--text-muted);
   font-weight: 400;
+}
+
+.expanded-h2h-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-default);
+}
+.expanded-h2h-table {
+  flex: 1;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+.expanded-h2h-table caption {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-align: left;
+  padding-bottom: 3px;
+}
+.expanded-h2h-table th {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2px 5px;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-row-alt);
+}
+.expanded-h2h-table th:first-child { text-align: left; }
+.expanded-h2h-table td {
+  text-align: center;
+  padding: 2px 5px;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+.expanded-h2h-table td:first-child {
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 /* Goal + penalty summary sections */
@@ -1296,6 +1344,26 @@ body {
 
           </div><!-- /expanded-three-col -->
 
+          <!-- Head to Head -->
+          <div class="expanded-h2h-row">
+            <table class="expanded-h2h-table">
+              <caption>Season H2H</caption>
+              <thead><tr><th></th><th>W</th><th>OTW</th><th>SOW</th></tr></thead>
+              <tbody>
+                <tr><td>NYR</td><td>1</td><td>1</td><td>0</td></tr>
+                <tr><td>MTL</td><td>1</td><td>0</td><td>0</td></tr>
+              </tbody>
+            </table>
+            <table class="expanded-h2h-table">
+              <caption>All-Time H2H</caption>
+              <thead><tr><th></th><th>W</th><th>OTW</th><th>SOW</th><th>T</th></tr></thead>
+              <tbody>
+                <tr><td>NYR</td><td>248</td><td>22</td><td>15</td><td>18</td></tr>
+                <tr><td>MTL</td><td>302</td><td>18</td><td>12</td><td>18</td></tr>
+              </tbody>
+            </table>
+          </div>
+
         </div><!-- /expanded-body -->
 
         <div class="score-box__footer">
@@ -1422,17 +1490,25 @@ body {
             </tbody>
           </table>
 
-          <!-- Goalie matchup -->
+          <!-- Goalies + Team Leaders -->
           <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px;">
             <div>
               <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 2px;">DET Goalie</div>
               <div style="font-weight: 700; color: var(--text-primary);">A. Lyon</div>
               <div style="color: var(--text-muted);">2.68 GAA / .912 SV%</div>
+              <div style="margin-top: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);">Leaders</div>
+              <div style="color: var(--text-secondary);"><strong style="color: var(--text-muted); font-size: 9px;">G:</strong> L. Raymond (28)</div>
+              <div style="color: var(--text-secondary);"><strong style="color: var(--text-muted); font-size: 9px;">A:</strong> D. Larkin (42)</div>
+              <div style="color: var(--text-secondary);"><strong style="color: var(--text-muted); font-size: 9px;">PTS:</strong> L. Raymond (62)</div>
             </div>
             <div style="text-align: right;">
               <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 2px;">CHI Goalie</div>
               <div style="font-weight: 700; color: var(--text-primary);">P. Mrazek</div>
               <div style="color: var(--text-muted);">3.22 GAA / .901 SV%</div>
+              <div style="margin-top: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);">Leaders</div>
+              <div style="color: var(--text-secondary);"><strong style="color: var(--text-muted); font-size: 9px;">G:</strong> C. Bedard (24)</div>
+              <div style="color: var(--text-secondary);"><strong style="color: var(--text-muted); font-size: 9px;">A:</strong> C. Bedard (38)</div>
+              <div style="color: var(--text-secondary);"><strong style="color: var(--text-muted); font-size: 9px;">PTS:</strong> C. Bedard (62)</div>
             </div>
           </div>
         </div>

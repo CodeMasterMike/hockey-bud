@@ -19,13 +19,21 @@
   --text-muted: #7A7A7A; --text-on-banner: #F5F0E1; --border-default: rgba(0,0,0,0.12);
   --border-strong: rgba(0,0,0,0.25); --color-link: #2C5F8A; --color-link-hover: #1A3D5C;
   --color-live: #C0392B; --color-pending: #D4A017; --color-final: #4A4A4A;
+  --banner-input-bg: rgba(255,255,255,0.08);
+  --banner-input-border: rgba(255,255,255,0.2);
+  --banner-placeholder: rgba(245,240,225,0.5);
+  --banner-hover-bg: rgba(255,255,255,0.1);
 }
 [data-theme="dark"] {
-  --bg-page: #0A1628; --bg-nav: #0D1B2A; --bg-card: #112240;
+  --bg-page: #0A1628; --bg-banner: #F5F0E1; --bg-nav: #0D1B2A; --bg-card: #112240;
   --bg-row-alt: rgba(255,255,255,0.06); --text-primary: #F5F0E1; --text-secondary: #B8B0A0;
-  --text-muted: #807868; --border-default: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+  --text-muted: #807868; --text-on-banner: #0A1628; --border-default: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
   --color-link: #6BA3D6; --color-link-hover: #8DC0F0; --color-live: #E74C3C;
   --color-pending: #F1C40F; --color-final: #B8B0A0;
+  --banner-input-bg: rgba(0,0,0,0.06);
+  --banner-input-border: rgba(0,0,0,0.15);
+  --banner-placeholder: rgba(10,22,40,0.4);
+  --banner-hover-bg: rgba(0,0,0,0.06);
 }
 
 /* ── Animations ─────────────────────────────────────────────── */
@@ -206,8 +214,8 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: 4px;
-  padding: 20px 24px;
-  margin-bottom: 20px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
 }
 .card__heading {
   font-size: 0.92rem;
@@ -254,7 +262,7 @@ th.center, td.center { text-align: center; }
 .top-stats-row {
   display: flex;
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 .top-stats-row .box-scores-col {
   flex: 1;
@@ -695,10 +703,9 @@ th.center, td.center { text-align: center; }
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 4. Penalty Summaries -->
-  <div class="card">
+    <hr style="border: none; border-top: 2px solid var(--border-strong); margin: 20px 0;">
+
     <h2 class="card__heading">Penalties</h2>
     <div class="summaries">
       <!-- BOS Penalties (Away) -->

@@ -44,6 +44,10 @@ export interface ExpandedScore {
   stats: GameStats;
   goalSummaries: { home: GoalSummary[]; away: GoalSummary[] };
   penaltySummaries: { home: PenaltySummary[]; away: PenaltySummary[] };
+  headToHead?: {
+    currentSeason: { home: H2HRecord; away: H2HRecord };
+    allTime: { home: H2HRecord; away: H2HRecord };
+  };
 }
 
 export interface PeriodScore {
@@ -124,6 +128,7 @@ export interface PregameTeam {
   id: number;
   abbreviation: string;
   topGoalScorers: { playerId: number; name: string; value: number }[];
+  topAssistGetters: { playerId: number; name: string; value: number }[];
   topPointGetters: { playerId: number; name: string; value: number }[];
   startingGoalie: {
     playerId: number | null;

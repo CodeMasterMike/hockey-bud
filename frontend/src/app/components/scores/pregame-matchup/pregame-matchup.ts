@@ -17,26 +17,49 @@ import { ScoreGame, ScoresApiService, PregameMatchup as PregameData } from '../.
 
       @if (data()) {
         <div class="pregame__content">
-          <!-- Starting goalies -->
+          <!-- Starting goalies + team leaders side by side -->
           <div class="pregame__section">
-            <div class="pregame__section-title">Starting Goalies</div>
-            <div class="pregame__goalie-row">
-              <div class="pregame__goalie">
+            <div class="pregame__players-grid">
+              <!-- Away team column -->
+              <div class="pregame__team-col">
+                <div class="pregame__mini-title">{{ data()!.awayTeam.abbreviation }} Goalie</div>
                 @if (data()!.awayTeam.startingGoalie.confirmed) {
-                  <span class="pregame__goalie-name">{{ data()!.awayTeam.startingGoalie.name }}</span>
-                  <span class="pregame__goalie-stat">{{ data()!.awayTeam.startingGoalie.gaa?.toFixed(2) }} GAA</span>
-                  <span class="pregame__goalie-stat">{{ (data()!.awayTeam.startingGoalie.savePct! * 100).toFixed(1) }}% SV</span>
+                  <div class="pregame__goalie">
+                    <span class="pregame__goalie-name">{{ data()!.awayTeam.startingGoalie.name }}</span>
+                    <span class="pregame__goalie-stat">{{ data()!.awayTeam.startingGoalie.gaa?.toFixed(2) }} GAA / {{ (data()!.awayTeam.startingGoalie.savePct! * 100).toFixed(1) }}% SV</span>
+                  </div>
                 } @else {
                   <span class="pregame__goalie-tba">TBA</span>
                 }
+                @for (s of data()!.awayTeam.topGoalScorers; track s.playerId) {
+                  <div class="pregame__leader"><span class="pregame__leader-cat">G:</span> {{ s.name }} ({{ s.value }})</div>
+                }
+                @for (s of data()!.awayTeam.topAssistGetters; track s.playerId) {
+                  <div class="pregame__leader"><span class="pregame__leader-cat">A:</span> {{ s.name }} ({{ s.value }})</div>
+                }
+                @for (s of data()!.awayTeam.topPointGetters; track s.playerId) {
+                  <div class="pregame__leader"><span class="pregame__leader-cat">PTS:</span> {{ s.name }} ({{ s.value }})</div>
+                }
               </div>
-              <div class="pregame__goalie">
+              <!-- Home team column -->
+              <div class="pregame__team-col">
+                <div class="pregame__mini-title">{{ data()!.homeTeam.abbreviation }} Goalie</div>
                 @if (data()!.homeTeam.startingGoalie.confirmed) {
-                  <span class="pregame__goalie-name">{{ data()!.homeTeam.startingGoalie.name }}</span>
-                  <span class="pregame__goalie-stat">{{ data()!.homeTeam.startingGoalie.gaa?.toFixed(2) }} GAA</span>
-                  <span class="pregame__goalie-stat">{{ (data()!.homeTeam.startingGoalie.savePct! * 100).toFixed(1) }}% SV</span>
+                  <div class="pregame__goalie">
+                    <span class="pregame__goalie-name">{{ data()!.homeTeam.startingGoalie.name }}</span>
+                    <span class="pregame__goalie-stat">{{ data()!.homeTeam.startingGoalie.gaa?.toFixed(2) }} GAA / {{ (data()!.homeTeam.startingGoalie.savePct! * 100).toFixed(1) }}% SV</span>
+                  </div>
                 } @else {
                   <span class="pregame__goalie-tba">TBA</span>
+                }
+                @for (s of data()!.homeTeam.topGoalScorers; track s.playerId) {
+                  <div class="pregame__leader"><span class="pregame__leader-cat">G:</span> {{ s.name }} ({{ s.value }})</div>
+                }
+                @for (s of data()!.homeTeam.topAssistGetters; track s.playerId) {
+                  <div class="pregame__leader"><span class="pregame__leader-cat">A:</span> {{ s.name }} ({{ s.value }})</div>
+                }
+                @for (s of data()!.homeTeam.topPointGetters; track s.playerId) {
+                  <div class="pregame__leader"><span class="pregame__leader-cat">PTS:</span> {{ s.name }} ({{ s.value }})</div>
                 }
               </div>
             </div>
@@ -55,25 +78,6 @@ import { ScoreGame, ScoresApiService, PregameMatchup as PregameData } from '../.
               <span>{{ data()!.homeTeam.penaltyKillPct }}%</span>
             </div>
           </div>
-
-          <!-- Top scorers -->
-          @if (data()!.awayTeam.topGoalScorers.length > 0 || data()!.homeTeam.topGoalScorers.length > 0) {
-            <div class="pregame__section">
-              <div class="pregame__section-title">Top Goal Scorers</div>
-              <div class="pregame__scorers-row">
-                <div class="pregame__scorers-col">
-                  @for (s of data()!.awayTeam.topGoalScorers; track s.playerId) {
-                    <div class="pregame__scorer">{{ s.name }} ({{ s.value }})</div>
-                  }
-                </div>
-                <div class="pregame__scorers-col">
-                  @for (s of data()!.homeTeam.topGoalScorers; track s.playerId) {
-                    <div class="pregame__scorer">{{ s.name }} ({{ s.value }})</div>
-                  }
-                </div>
-              </div>
-            </div>
-          }
 
           <!-- Head to head -->
           <div class="pregame__section">
@@ -131,20 +135,25 @@ import { ScoreGame, ScoresApiService, PregameMatchup as PregameData } from '../.
       font-size: 10px; font-weight: 700; color: var(--text-muted);
       text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
     }
-    .pregame__goalie-row {
+    .pregame__players-grid {
       display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
     }
-    .pregame__goalie { display: flex; flex-direction: column; gap: 2px; }
+    .pregame__team-col { display: flex; flex-direction: column; gap: 2px; }
+    .pregame__mini-title {
+      font-size: 9px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;
+    }
+    .pregame__goalie { display: flex; flex-direction: column; gap: 1px; margin-bottom: 4px; }
     .pregame__goalie-name { font-weight: 700; color: var(--text-primary); }
     .pregame__goalie-stat { color: var(--text-muted); font-size: 11px; }
     .pregame__goalie-tba { color: var(--text-muted); font-style: italic; }
+    .pregame__leader { color: var(--text-secondary); padding: 1px 0; font-size: 11px; }
+    .pregame__leader-cat { font-weight: 700; color: var(--text-muted); font-size: 10px; }
     .pregame__stat-row {
       display: grid; grid-template-columns: 1fr auto 1fr;
       gap: 8px; text-align: center; padding: 2px 0; color: var(--text-primary);
     }
     .pregame__stat-label { font-weight: 700; color: var(--text-muted); font-size: 10px; min-width: 32px; }
-    .pregame__scorers-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .pregame__scorer { color: var(--text-secondary); padding: 1px 0; }
     .pregame__h2h { font-size: 12px; }
     .pregame__h2h-row {
       display: flex; gap: 8px; align-items: center;

@@ -55,19 +55,19 @@ import { RouterLink } from '@angular/router';
     .banner__search input {
       width: 100%;
       padding: 8px 14px;
-      border: 1px solid rgba(255,255,255,0.2);
+      border: 1px solid var(--banner-input-border);
       border-radius: 4px;
-      background: rgba(255,255,255,0.08);
+      background: var(--banner-input-bg);
       color: var(--text-on-banner);
       font-family: var(--font-primary);
       font-size: 13px;
       outline: none;
     }
-    .banner__search input::placeholder { color: rgba(245,240,225,0.5); }
-    .banner__search input:focus { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.4); }
+    .banner__search input::placeholder { color: var(--banner-placeholder); }
+    .banner__search input:focus { background: var(--banner-input-focus-bg); border-color: var(--banner-input-focus-border); }
     .banner__hamburger {
       background: none;
-      border: 1px solid rgba(255,255,255,0.2);
+      border: 1px solid var(--banner-input-border);
       border-radius: 4px;
       color: var(--text-on-banner);
       font-size: 22px;
@@ -78,7 +78,7 @@ import { RouterLink } from '@angular/router';
       align-items: center;
       justify-content: center;
     }
-    .banner__hamburger:hover { background: rgba(255,255,255,0.1); }
+    .banner__hamburger:hover { background: var(--banner-hover-bg); }
   `]
 })
 export class Banner {

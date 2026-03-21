@@ -194,6 +194,7 @@ public class ScoresQueryService(
                 Id: game.HomeTeam.Id,
                 Abbreviation: game.HomeTeam.Abbreviation,
                 TopGoalScorers: [],
+                TopAssistGetters: [],
                 TopPointGetters: [],
                 StartingGoalie: new PregameGoalieDto(null, null, null, null, false),
                 PowerPlayPct: homeStandings?.PowerPlayPct ?? 0,
@@ -203,6 +204,7 @@ public class ScoresQueryService(
                 Id: game.AwayTeam.Id,
                 Abbreviation: game.AwayTeam.Abbreviation,
                 TopGoalScorers: [],
+                TopAssistGetters: [],
                 TopPointGetters: [],
                 StartingGoalie: new PregameGoalieDto(null, null, null, null, false),
                 PowerPlayPct: awayStandings?.PowerPlayPct ?? 0,
@@ -401,6 +403,7 @@ public record PregameDto(
 public record PregameTeamDto(
     int Id, string Abbreviation,
     IReadOnlyList<TopScorerDto> TopGoalScorers,
+    IReadOnlyList<TopScorerDto> TopAssistGetters,
     IReadOnlyList<TopScorerDto> TopPointGetters,
     PregameGoalieDto StartingGoalie,
     decimal PowerPlayPct, decimal PenaltyKillPct
