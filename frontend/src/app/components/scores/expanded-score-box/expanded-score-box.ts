@@ -1,0 +1,316 @@
+import { Component, input, output, inject, signal, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { ScoreGame, ScoresApiService, ExpandedScore } from '../../../services/scores-api.service';
+
+@Component({
+  selector: 'app-expanded-score-box',
+  imports: [RouterLink],
+  template: `
+    <div class="expanded">
+      <div class="expanded__header">
+        <div class="expanded__teams">
+          <span class="expanded__abbrev">{{ game().awayTeam.abbreviation }}</span>
+          <span class="expanded__score">{{ game().awayTeam.score }}</span>
+          <span class="expanded__dash">&ndash;</span>
+          <span class="expanded__score">{{ game().homeTeam.score }}</span>
+          <span class="expanded__abbrev">{{ game().homeTeam.abbreviation }}</span>
+        </div>
+        <button class="expanded__close" (click)="collapse.emit()" aria-label="Collapse">&times;</button>
+      </div>
+
+      @if (data()) {
+        <!-- Period box scores side by side -->
+        <div class="expanded__box-scores">
+          <!-- Goals box score -->
+          <div class="expanded__box">
+            <div class="expanded__box-title">Goals</div>
+            <table class="expanded__table">
+              <thead>
+                <tr>
+                  <th></th>
+                  @for (ps of data()!.periodScores; track ps.period) {
+                    <th>{{ ps.period }}</th>
+                  }
+                  <th>T</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="expanded__team-cell">{{ game().awayTeam.abbreviation }}</td>
+                  @for (ps of data()!.periodScores; track ps.period) {
+                    <td>{{ ps.awayGoals }}</td>
+                  }
+                  <td class="expanded__total">{{ game().awayTeam.score }}</td>
+                </tr>
+                <tr>
+                  <td class="expanded__team-cell">{{ game().homeTeam.abbreviation }}</td>
+                  @for (ps of data()!.periodScores; track ps.period) {
+                    <td>{{ ps.homeGoals }}</td>
+                  }
+                  <td class="expanded__total">{{ game().homeTeam.score }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Shots box score -->
+          <div class="expanded__box">
+            <div class="expanded__box-title">Shots on Goal</div>
+            <table class="expanded__table">
+              <thead>
+                <tr>
+                  <th></th>
+                  @for (ps of data()!.periodScores; track ps.period) {
+                    <th>{{ ps.period }}</th>
+                  }
+                  <th>T</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="expanded__team-cell">{{ game().awayTeam.abbreviation }}</td>
+                  @for (ps of data()!.periodScores; track ps.period) {
+                    <td>{{ ps.awayShots }}</td>
+                  }
+                  <td class="expanded__total">{{ game().awayTeam.shotsOnGoal ?? '-' }}</td>
+                </tr>
+                <tr>
+                  <td class="expanded__team-cell">{{ game().homeTeam.abbreviation }}</td>
+                  @for (ps of data()!.periodScores; track ps.period) {
+                    <td>{{ ps.homeShots }}</td>
+                  }
+                  <td class="expanded__total">{{ game().homeTeam.shotsOnGoal ?? '-' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Stats comparison -->
+        <div class="expanded__stats">
+          <div class="expanded__stat-row">
+            <span class="expanded__stat-away">{{ data()!.stats.awayPowerPlay }}</span>
+            <span class="expanded__stat-label">PP</span>
+            <span class="expanded__stat-home">{{ data()!.stats.homePowerPlay }}</span>
+          </div>
+          <div class="expanded__stat-row">
+            <span class="expanded__stat-away">{{ data()!.stats.awayHits }}</span>
+            <span class="expanded__stat-label">HIT</span>
+            <span class="expanded__stat-home">{{ data()!.stats.homeHits }}</span>
+          </div>
+          <div class="expanded__stat-row">
+            <span class="expanded__stat-away">{{ data()!.stats.awayFaceoffPct }}%</span>
+            <span class="expanded__stat-label">FO%</span>
+            <span class="expanded__stat-home">{{ data()!.stats.homeFaceoffPct }}%</span>
+          </div>
+          <div class="expanded__stat-row">
+            <span class="expanded__stat-away">{{ data()!.stats.awayTakeaways }}</span>
+            <span class="expanded__stat-label">TK</span>
+            <span class="expanded__stat-home">{{ data()!.stats.homeTakeaways }}</span>
+          </div>
+          <div class="expanded__stat-row">
+            <span class="expanded__stat-away">{{ data()!.stats.awayGiveaways }}</span>
+            <span class="expanded__stat-label">GV</span>
+            <span class="expanded__stat-home">{{ data()!.stats.homeGiveaways }}</span>
+          </div>
+          <div class="expanded__stat-row">
+            <span class="expanded__stat-away">{{ data()!.stats.awayTimeOfPossession }}</span>
+            <span class="expanded__stat-label">TOP</span>
+            <span class="expanded__stat-home">{{ data()!.stats.homeTimeOfPossession }}</span>
+          </div>
+        </div>
+
+        <!-- Goal summaries -->
+        @if (data()!.goalSummaries.away.length > 0 || data()!.goalSummaries.home.length > 0) {
+          <div class="expanded__summaries">
+            <div class="expanded__summary-col">
+              @for (goal of data()!.goalSummaries.away; track goal.displayTime) {
+                <div class="expanded__goal">
+                  <span class="expanded__goal-time">{{ goal.displayTime }}</span>
+                  <span class="expanded__goal-scorer">{{ goal.scorer.name }} ({{ goal.scorer.goalNumber }})</span>
+                  @if (goal.isPowerPlay) { <span class="expanded__pp-badge">PP</span> }
+                </div>
+              }
+            </div>
+            <div class="expanded__summary-col">
+              @for (goal of data()!.goalSummaries.home; track goal.displayTime) {
+                <div class="expanded__goal">
+                  <span class="expanded__goal-time">{{ goal.displayTime }}</span>
+                  <span class="expanded__goal-scorer">{{ goal.scorer.name }} ({{ goal.scorer.goalNumber }})</span>
+                  @if (goal.isPowerPlay) { <span class="expanded__pp-badge">PP</span> }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Penalty summaries -->
+        @if (data()!.penaltySummaries.away.length > 0 || data()!.penaltySummaries.home.length > 0) {
+          <div class="expanded__summaries">
+            <div class="expanded__summary-col">
+              @for (pen of data()!.penaltySummaries.away; track pen.displayTime) {
+                <div class="expanded__penalty">
+                  <span class="expanded__pen-time">{{ pen.displayTime }}</span>
+                  <span>{{ pen.player.name }} - {{ pen.penaltyType }} ({{ pen.penaltyMinutes }}min)</span>
+                </div>
+              }
+            </div>
+            <div class="expanded__summary-col">
+              @for (pen of data()!.penaltySummaries.home; track pen.displayTime) {
+                <div class="expanded__penalty">
+                  <span class="expanded__pen-time">{{ pen.displayTime }}</span>
+                  <span>{{ pen.player.name }} - {{ pen.penaltyType }} ({{ pen.penaltyMinutes }}min)</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      } @else {
+        <div class="expanded__loading">Loading details...</div>
+      }
+
+      <a class="expanded__hub" [routerLink]="['/', leagueId(), 'game-hub', game().id]">
+        View Full Game Hub &rarr;
+      </a>
+    </div>
+  `,
+  styles: [`
+    .expanded {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 16px;
+      font-family: var(--font-primary);
+    }
+    .expanded__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .expanded__teams {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .expanded__abbrev { font-weight: 700; font-size: 16px; color: var(--text-primary); }
+    .expanded__score { font-weight: 700; font-size: 22px; color: var(--text-primary); }
+    .expanded__dash { color: var(--text-muted); font-size: 18px; }
+    .expanded__close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .expanded__close:hover { color: var(--text-primary); }
+    .expanded__box-scores {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .expanded__box-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .expanded__table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .expanded__table th, .expanded__table td {
+      padding: 3px 6px;
+      text-align: center;
+      color: var(--text-primary);
+    }
+    .expanded__table th {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .expanded__team-cell { text-align: left; font-weight: 700; font-size: 11px; }
+    .expanded__total { font-weight: 700; }
+    .expanded__stats {
+      border-top: 1px solid var(--border-default);
+      padding-top: 10px;
+      margin-bottom: 12px;
+    }
+    .expanded__stat-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      text-align: center;
+      padding: 2px 0;
+      font-size: 12px;
+    }
+    .expanded__stat-away { text-align: right; color: var(--text-primary); }
+    .expanded__stat-label {
+      font-weight: 700;
+      color: var(--text-muted);
+      font-size: 10px;
+      min-width: 32px;
+    }
+    .expanded__stat-home { text-align: left; color: var(--text-primary); }
+    .expanded__summaries {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      border-top: 1px solid var(--border-default);
+      padding-top: 10px;
+      margin-bottom: 10px;
+    }
+    .expanded__goal, .expanded__penalty {
+      font-size: 11px;
+      color: var(--text-secondary);
+      padding: 2px 0;
+    }
+    .expanded__goal-time, .expanded__pen-time {
+      color: var(--text-muted);
+      font-size: 10px;
+      margin-right: 4px;
+    }
+    .expanded__goal-scorer { font-weight: 700; color: var(--text-primary); }
+    .expanded__pp-badge {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--color-pending);
+      margin-left: 4px;
+    }
+    .expanded__loading {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 20px;
+      font-size: 12px;
+    }
+    .expanded__hub {
+      display: block;
+      text-align: center;
+      color: var(--color-link);
+      text-decoration: none;
+      font-size: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-default);
+    }
+    .expanded__hub:hover { text-decoration: underline; }
+  `]
+})
+export class ExpandedScoreBox implements OnInit {
+  game = input.required<ScoreGame>();
+  leagueId = input<string>('nhl');
+  collapse = output<void>();
+
+  private scoresApi = inject(ScoresApiService);
+  data = signal<ExpandedScore | null>(null);
+
+  ngOnInit(): void {
+    this.scoresApi.getExpandedScore(this.leagueId(), this.game().id).subscribe({
+      next: data => this.data.set(data)
+    });
+  }
+}

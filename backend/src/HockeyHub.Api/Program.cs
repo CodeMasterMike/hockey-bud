@@ -6,6 +6,7 @@ using HockeyHub.Core.Providers;
 using HockeyHub.Data.Data;
 using HockeyHub.Data.Providers;
 using HockeyHub.Data.Services.Cache;
+using HockeyHub.Data.Services.Queries;
 using HockeyHub.Data.Services.Sync;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,6 +45,10 @@ builder.Services.AddHttpClient<INhlDataProvider, NhlWebApiProvider>();
 // Application services
 builder.Services.AddSingleton<RedisCacheService>();
 builder.Services.AddScoped<DataSeedService>();
+builder.Services.AddScoped<ScoresQueryService>();
+builder.Services.AddScoped<ScoresSyncJob>();
+builder.Services.AddScoped<StandingsSyncJob>();
+builder.Services.AddSingleton<IScoreBroadcaster, SignalRScoreBroadcaster>();
 
 // Controllers & CORS
 builder.Services.AddControllers();
@@ -67,6 +72,17 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<GameHub>("/hubs/scores");
 app.MapHangfireDashboard("/hangfire");
+
+// Hangfire recurring jobs
+app.Services.GetRequiredService<IRecurringJobManager>().AddOrUpdate<ScoresSyncJob>(
+    "scores-sync",
+    job => job.SyncAsync(CancellationToken.None),
+    "*/15 * * * * *"); // Every 15 seconds
+
+app.Services.GetRequiredService<IRecurringJobManager>().AddOrUpdate<StandingsSyncJob>(
+    "standings-sync",
+    job => job.SyncAsync(CancellationToken.None),
+    "*/5 * * * *"); // Every 5 minutes
 
 // Data seed command: dotnet run -- --seed [--current-only]
 if (args.Contains("--seed"))

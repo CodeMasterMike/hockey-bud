@@ -28,12 +28,12 @@
 
 **Purpose**: Project initialization, tooling, and containerized services
 
-- [ ] T001 Create repository structure with `backend/` and `frontend/` top-level directories per plan.md
-- [ ] T002 Initialize .NET 10 Web API project at `backend/src/HockeyHub.Api/` with ASP.NET Core, EF Core 10 (Npgsql), Hangfire, SignalR, and Redis packages
-- [ ] T003 Initialize Angular 19 project at `frontend/` with SSR, Angular CDK, RxJS, and Tailwind CSS v3
-- [ ] T004 [P] Create `docker-compose.yml` at repository root with PostgreSQL 16 and Redis 7 services
-- [ ] T005 [P] Configure Tailwind CSS with antique-book design tokens (light/dark mode CSS custom properties, era tints) in `frontend/src/styles/`
-- [ ] T006 [P] Self-host Courier Prime font files (Latin subset, WOFF2) in `frontend/src/assets/fonts/` and configure as `--font-primary` CSS custom property
+- [x] T001 Create repository structure with `backend/` and `frontend/` top-level directories per plan.md
+- [x] T002 Initialize .NET 10 Web API project at `backend/src/HockeyHub.Api/` with ASP.NET Core, EF Core 10 (Npgsql), Hangfire, SignalR, and Redis packages
+- [x] T003 Initialize Angular 19 project at `frontend/` with SSR, Angular CDK, RxJS, and Tailwind CSS v3
+- [x] T004 [P] Create `docker-compose.yml` at repository root with PostgreSQL 16 and Redis 7 services
+- [x] T005 [P] Configure Tailwind CSS with antique-book design tokens (light/dark mode CSS custom properties, era tints) in `frontend/src/styles/`
+- [x] T006 [P] Self-host Courier Prime font files (Latin subset, WOFF2) in `frontend/src/assets/fonts/` and configure as `--font-primary` CSS custom property
 
 ---
 
@@ -45,16 +45,16 @@
 
 **Output**: `docs/mockups/` — standalone HTML files viewable in any browser
 
-- [ ] M001 [P] Create global shell mockup (black banner with site name + search bar + hamburger icon, secondary nav bar with sections in order: Scores/Standings/Stats/Players/Teams/Schedule/Salary Cap/Trades/Free Agents/Personnel, static score bar between banner and nav with separate game boxes and left/right arrow scroll buttons when overflow occurs, each score box clickable to Game Hub, hamburger menu flyout with Account/Settings/League Selector/dark mode toggle, all game times/final labels white and bold matching team abbreviation weight, close-game clocks in red when ≤5 min and ≤2 goal difference) showing both light and dark modes in `docs/mockups/01-global-shell.html`
-- [ ] M002 [P] Create scores page mockup (4-column score box grid with: collapsed boxes showing away-above-home/scores-right/SOG/record/rank, one expanded box showing period-by-period goals box score + shots on goal box score + vertical stat column PP/HIT/FO%/TK/GV/TOP + away goal/penalty summaries LEFT of stats + home goal/penalty summaries RIGHT of stats, single box per game that expands in-place with other small boxes flowing beside it, pregame collapsed boxes matching active game compact format with expanded view showing top scorers/goalies/PP%/PK%/H2H with W/OTW/SOW per team for season and W/OTW/SOW/T per team all-time, calendar date picker, Game Hub link) in `docs/mockups/02-scores-page.html`
-- [ ] M003 [P] Create data table mockup (standings-style table with: all stat columns GP/W/L/OTL/PTS/PTS%/RW/ROW/GF/GA/DIFF/PP%/PK%/FO%, alternating row shading, stat abbreviation hover tooltips, sortable column headers with sort indicator, wild card grouping with division/conference headers, era background tints for Original Six/Expansion/Salary Cap rows, pagination controls) in `docs/mockups/03-data-tables.html`
-- [ ] M004 Create Game Hub mockup (Team Stats tab: box score by period at top, away-left/home-right with central stat column SOG/HIT/PP/FO/GV/TK/TOI, goal summaries left/right with period/time/scorer/assists/video hover, penalty summaries below with rule book link, official score sheet; Player Stats tab: side-by-side skater grids with FO% last, goalie section with separate header; pending event with amber pulsing treatment) in `docs/mockups/04-game-hub.html`
-- [ ] M005 Create rink diagram mockup (SVG rink with accurate dimensions/measurements, penalty boxes, home/away bench labels, arena stands with seat-color sections and gray fallback, event dots in team colors, goal dots half-green/half-team, small black video indicator dot inside colored dot, hover tooltip showing action/player/time, switchable view buttons for goals/shots/hits/giveaways/takeaways) in `docs/mockups/05-rink-diagram.html`
-- [ ] M006 [P] Create team profile mockup (team logo top-left, current record beside, all-time record below, joined year, franchise history timeline, Stanley Cups right side total/since-1973/since-2006; roster table with number/position/handedness/birth place/DOB/draft year/years; depth chart with forward lines LW-C-RW, defense pairings LD-RD, goalies in clean boxes, injured/scratched section, stats view vs cap view toggle) in `docs/mockups/06-team-profile.html`
-- [ ] M007 [P] Create player profile mockup (headshot top-left with career gallery on hover, bio info age/birthplace/team/positions/handedness/height/weight/draft, career history with team logos + jersey numbers + awards right side, season-by-season stats table with NHL/Other/Combined tabs and era separator rows with background tints, playing style section with narrative + 2-4 supporting stats, contract section with current contract/history/trades/free agency, EBUG indicator variant) in `docs/mockups/07-player-profile.html`
-- [ ] M008 Create trade tree mockup (horizontal DAG visualization: ancestor trades flowing left, focus trade centered with highlight, descendant trades flowing right, trade nodes as cards with date/team logos/asset summary, asset edges labeled with player/pick names, minimap in corner for orientation, mobile fallback as vertical timeline list) in `docs/mockups/08-trade-tree.html`
-- [ ] M009 [P] Create salary cap mockup (overview: all 32 teams as cards with logo/players-on-cap/cap-used/cap-available/LTIR; team detail: per-player table with cap hit/years remaining/UFA-RFA/clauses, future projections chart, draft pick inventory; buyout calculator: player selector + year-by-year cap impact table with notes; Cap Explained: searchable guide with legal text + plain-language side by side, glossary) in `docs/mockups/09-salary-cap.html`
-- [ ] M010 [P] Create schedule calendar mockup (month grid view with game days showing compact team logos, important dates with distinct badge/highlight treatment for trade deadline/free agent deadline/offer sheet deadline/arbitration deadline/All-Star/bye week, team filter dropdown, month navigation arrows, click-to-scores indication) in `docs/mockups/10-schedule-calendar.html`
+- [x] M001 [P] Create global shell mockup (black banner with site name + search bar + hamburger icon, secondary nav bar with sections in order: Scores/Standings/Stats/Players/Teams/Schedule/Salary Cap/Trades/Free Agents/Personnel, static score bar between banner and nav with separate game boxes and left/right arrow scroll buttons when overflow occurs, each score box clickable to Game Hub, hamburger menu flyout with Account/Settings/League Selector/dark mode toggle, all game times/final labels white and bold matching team abbreviation weight, close-game clocks in red when ≤5 min and ≤2 goal difference) showing both light and dark modes in `docs/mockups/01-global-shell.html`
+- [x] M002 [P] Create scores page mockup (4-column score box grid with: collapsed boxes showing away-above-home/scores-right/SOG/record/rank, one expanded box showing period-by-period goals box score + shots on goal box score + vertical stat column PP/HIT/FO%/TK/GV/TOP + away goal/penalty summaries LEFT of stats + home goal/penalty summaries RIGHT of stats, single box per game that expands in-place with other small boxes flowing beside it, pregame collapsed boxes matching active game compact format with expanded view showing top scorers/goalies/PP%/PK%/H2H with W/OTW/SOW per team for season and W/OTW/SOW/T per team all-time, calendar date picker, Game Hub link) in `docs/mockups/02-scores-page.html`
+- [x] M003 [P] Create data table mockup (standings-style table with: all stat columns GP/W/L/OTL/PTS/PTS%/RW/ROW/GF/GA/DIFF/PP%/PK%/FO%, alternating row shading, stat abbreviation hover tooltips, sortable column headers with sort indicator, wild card grouping with division/conference headers, era background tints for Original Six/Expansion/Salary Cap rows, pagination controls) in `docs/mockups/03-data-tables.html`
+- [x] M004 Create Game Hub mockup (Team Stats tab: box score by period at top, away-left/home-right with central stat column SOG/HIT/PP/FO/GV/TK/TOI, goal summaries left/right with period/time/scorer/assists/video hover, penalty summaries below with rule book link, official score sheet; Player Stats tab: side-by-side skater grids with FO% last, goalie section with separate header; pending event with amber pulsing treatment) in `docs/mockups/04-game-hub.html`
+- [x] M005 Create rink diagram mockup (SVG rink with accurate dimensions/measurements, penalty boxes, home/away bench labels, arena stands with seat-color sections and gray fallback, event dots in team colors, goal dots half-green/half-team, small black video indicator dot inside colored dot, hover tooltip showing action/player/time, switchable view buttons for goals/shots/hits/giveaways/takeaways) in `docs/mockups/05-rink-diagram.html`
+- [x] M006 [P] Create team profile mockup (team logo top-left, current record beside, all-time record below, joined year, franchise history timeline, Stanley Cups right side total/since-1973/since-2006; roster table with number/position/handedness/birth place/DOB/draft year/years; depth chart with forward lines LW-C-RW, defense pairings LD-RD, goalies in clean boxes, injured/scratched section, stats view vs cap view toggle) in `docs/mockups/06-team-profile.html`
+- [x] M007 [P] Create player profile mockup (headshot top-left with career gallery on hover, bio info age/birthplace/team/positions/handedness/height/weight/draft, career history with team logos + jersey numbers + awards right side, season-by-season stats table with NHL/Other/Combined tabs and era separator rows with background tints, playing style section with narrative + 2-4 supporting stats, contract section with current contract/history/trades/free agency, EBUG indicator variant) in `docs/mockups/07-player-profile.html`
+- [x] M008 Create trade tree mockup (horizontal DAG visualization: ancestor trades flowing left, focus trade centered with highlight, descendant trades flowing right, trade nodes as cards with date/team logos/asset summary, asset edges labeled with player/pick names, minimap in corner for orientation, mobile fallback as vertical timeline list) in `docs/mockups/08-trade-tree.html`
+- [x] M009 [P] Create salary cap mockup (overview: all 32 teams as cards with logo/players-on-cap/cap-used/cap-available/LTIR; team detail: per-player table with cap hit/years remaining/UFA-RFA/clauses, future projections chart, draft pick inventory; buyout calculator: player selector + year-by-year cap impact table with notes; Cap Explained: searchable guide with legal text + plain-language side by side, glossary) in `docs/mockups/09-salary-cap.html`
+- [x] M010 [P] Create schedule calendar mockup (month grid view with game days showing compact team logos, important dates with distinct badge/highlight treatment for trade deadline/free agent deadline/offer sheet deadline/arbitration deadline/All-Star/bye week, team filter dropdown, month navigation arrows, click-to-scores indication) in `docs/mockups/10-schedule-calendar.html`
 
 **Checkpoint**: All mockups reviewed and design direction approved before proceeding to implementation
 
@@ -68,38 +68,38 @@
 
 ### Database & Backend Core
 
-- [ ] T007 Create `HockeyHubDbContext` with connection string configuration in `backend/src/HockeyHub.Data/Data/HockeyHubDbContext.cs`
-- [ ] T008 Create League entity in `backend/src/HockeyHub.Core/Models/Entities/League.cs`
-- [ ] T009 [P] Create Team entity (with LocationName, PrimaryColor, Stanley Cup counts) in `backend/src/HockeyHub.Core/Models/Entities/Team.cs`
-- [ ] T010 [P] Create Season entity (with Era, IsCurrent) in `backend/src/HockeyHub.Core/Models/Entities/Season.cs`
-- [ ] T011 [P] Create Arena entity (with dimensions, bench sides, PenaltyBoxSide, LayoutJson) in `backend/src/HockeyHub.Core/Models/Entities/Arena.cs`
-- [ ] T012 [P] Create FranchiseHistory entity in `backend/src/HockeyHub.Core/Models/Entities/FranchiseHistory.cs`
-- [ ] T013 [P] Create Player entity (with IsEbug, BirthStateProvince) in `backend/src/HockeyHub.Core/Models/Entities/Player.cs`
-- [ ] T014 Register all foundational entities in DbContext and create initial EF Core migration in `backend/src/HockeyHub.Data/Data/Migrations/`
-- [ ] T015 Create `INhlDataProvider` interface in `backend/src/HockeyHub.Core/Providers/INhlDataProvider.cs` with methods for scores, standings, rosters, players, games, trades, schedule
-- [ ] T016 Implement `NhlWebApiProvider` (api-web.nhle.com) in `backend/src/HockeyHub.Data/Providers/NhlWebApiProvider.cs` with HttpClient, rate limiting (3-5 req/s), and exponential backoff
-- [ ] T017 Create Redis caching service with configurable TTLs per data type in `backend/src/HockeyHub.Data/Services/Cache/RedisCacheService.cs`
-- [ ] T018 [P] Configure Hangfire with PostgreSQL storage and dashboard in `backend/src/HockeyHub.Api/Program.cs`
-- [ ] T019 [P] Configure SignalR with Redis backplane in `backend/src/HockeyHub.Api/Program.cs`
-- [ ] T020 Create `GameHub` SignalR hub with JoinGameGroup, LeaveGameGroup, JoinAllLiveGames methods in `backend/src/HockeyHub.Api/Hubs/GameHub.cs`
-- [ ] T021 Create base API error handling middleware and `DataAsOf` response wrapper in `backend/src/HockeyHub.Api/Middleware/`
-- [ ] T022 Create data seed command (`--seed`, `--seed --current-only`) in `backend/src/HockeyHub.Data/Services/Sync/DataSeedService.cs`
+- [x] T007 Create `HockeyHubDbContext` with connection string configuration in `backend/src/HockeyHub.Data/Data/HockeyHubDbContext.cs`
+- [x] T008 Create League entity in `backend/src/HockeyHub.Core/Models/Entities/League.cs`
+- [x] T009 [P] Create Team entity (with LocationName, PrimaryColor, Stanley Cup counts) in `backend/src/HockeyHub.Core/Models/Entities/Team.cs`
+- [x] T010 [P] Create Season entity (with Era, IsCurrent) in `backend/src/HockeyHub.Core/Models/Entities/Season.cs`
+- [x] T011 [P] Create Arena entity (with dimensions, bench sides, PenaltyBoxSide, LayoutJson) in `backend/src/HockeyHub.Core/Models/Entities/Arena.cs`
+- [x] T012 [P] Create FranchiseHistory entity in `backend/src/HockeyHub.Core/Models/Entities/FranchiseHistory.cs`
+- [x] T013 [P] Create Player entity (with IsEbug, BirthStateProvince) in `backend/src/HockeyHub.Core/Models/Entities/Player.cs`
+- [x] T014 Register all foundational entities in DbContext and create initial EF Core migration in `backend/src/HockeyHub.Data/Data/Migrations/`
+- [x] T015 Create `INhlDataProvider` interface in `backend/src/HockeyHub.Core/Providers/INhlDataProvider.cs` with methods for scores, standings, rosters, players, games, trades, schedule
+- [x] T016 Implement `NhlWebApiProvider` (api-web.nhle.com) in `backend/src/HockeyHub.Data/Providers/NhlWebApiProvider.cs` with HttpClient, rate limiting (3-5 req/s), and exponential backoff
+- [x] T017 Create Redis caching service with configurable TTLs per data type in `backend/src/HockeyHub.Data/Services/Cache/RedisCacheService.cs`
+- [x] T018 [P] Configure Hangfire with PostgreSQL storage and dashboard in `backend/src/HockeyHub.Api/Program.cs`
+- [x] T019 [P] Configure SignalR with Redis backplane in `backend/src/HockeyHub.Api/Program.cs`
+- [x] T020 Create `GameHub` SignalR hub with JoinGameGroup, LeaveGameGroup, JoinAllLiveGames methods in `backend/src/HockeyHub.Api/Hubs/GameHub.cs`
+- [x] T021 Create base API error handling middleware and `DataAsOf` response wrapper in `backend/src/HockeyHub.Api/Middleware/`
+- [x] T022 Create data seed command (`--seed`, `--seed --current-only`) in `backend/src/HockeyHub.Data/Services/Sync/DataSeedService.cs`
 
 ### Frontend Shell
 
-- [ ] T023 Create Angular app routing structure with lazy-loaded routes for all 11 sections in `frontend/src/app/app.routes.ts`
-- [ ] T024 Create black banner component (site name, search bar placeholder, hamburger menu) in `frontend/src/app/components/layout/banner/`
-- [ ] T025 Create secondary navigation bar component (Scores, Standings, Stats, Players, Teams, Schedule, Salary Cap, Trades, Free Agents, Personnel) in `frontend/src/app/components/layout/nav-bar/`
-- [ ] T026 [P] Create hamburger menu component (Account, Settings, League Selector, dark mode toggle) in `frontend/src/app/components/layout/hamburger-menu/`
-- [ ] T027 [P] Create dark mode toggle service with localStorage persistence and `prefers-color-scheme` default in `frontend/src/app/services/theme.service.ts`
-- [ ] T028 Create static score bar component (between banner and nav bar, separate game boxes with left/right arrow scroll overflow, each box clickable to Game Hub, game times/final labels in white matching team abbreviation weight, close-game clocks in red when ≤5 min remaining and ≤2 goal difference, subscribes to SignalR) in `frontend/src/app/components/layout/score-bar/`
-- [ ] T029 Create SignalR service (single connection, RxJS Subjects for ScoreUpdate/ClockSync/EventUpdate/TransactionUpdate, reconnection with fallback polling) in `frontend/src/app/services/signalr.service.ts`
-- [ ] T030 [P] Create shared stat-table component with alternating row shading, sortable columns, and stat abbreviation tooltips in `frontend/src/app/components/shared/stat-table/`
-- [ ] T031 [P] Create shared video modal component (Angular CDK Dialog, focus trap, ESC close, angle switcher) in `frontend/src/app/components/shared/video-modal/`
-- [ ] T032 [P] Create shared pagination component (50 rows/page, page controls) in `frontend/src/app/components/shared/pagination/`
-- [ ] T033 [P] Create era pipe (season year → 'original-six' | 'expansion' | 'salary-cap') in `frontend/src/app/pipes/era.pipe.ts`
-- [ ] T034 [P] Create time-zone pipe (UTC → visitor's detected zone) in `frontend/src/app/pipes/timezone.pipe.ts`
-- [ ] T035 [P] Create main page component (league icon grid, currently NHL only) in `frontend/src/app/components/main-page/`
+- [x] T023 Create Angular app routing structure with lazy-loaded routes for all 11 sections in `frontend/src/app/app.routes.ts`
+- [x] T024 Create black banner component (site name, search bar placeholder, hamburger menu) in `frontend/src/app/components/layout/banner/`
+- [x] T025 Create secondary navigation bar component (Scores, Standings, Stats, Players, Teams, Schedule, Salary Cap, Trades, Free Agents, Personnel) in `frontend/src/app/components/layout/nav-bar/`
+- [x] T026 [P] Create hamburger menu component (Account, Settings, League Selector, dark mode toggle) in `frontend/src/app/components/layout/hamburger-menu/`
+- [x] T027 [P] Create dark mode toggle service with localStorage persistence and `prefers-color-scheme` default in `frontend/src/app/services/theme.service.ts`
+- [x] T028 Create static score bar component (between banner and nav bar, separate game boxes with left/right arrow scroll overflow, each box clickable to Game Hub, game times/final labels in white matching team abbreviation weight, close-game clocks in red when ≤5 min remaining and ≤2 goal difference, subscribes to SignalR) in `frontend/src/app/components/layout/score-bar/`
+- [x] T029 Create SignalR service (single connection, RxJS Subjects for ScoreUpdate/ClockSync/EventUpdate/TransactionUpdate, reconnection with fallback polling) in `frontend/src/app/services/signalr.service.ts`
+- [x] T030 [P] Create shared stat-table component with alternating row shading, sortable columns, and stat abbreviation tooltips in `frontend/src/app/components/shared/stat-table/`
+- [x] T031 [P] Create shared video modal component (Angular CDK Dialog, focus trap, ESC close, angle switcher) in `frontend/src/app/components/shared/video-modal/`
+- [x] T032 [P] Create shared pagination component (50 rows/page, page controls) in `frontend/src/app/components/shared/pagination/`
+- [x] T033 [P] Create era pipe (season year → 'original-six' | 'expansion' | 'salary-cap') in `frontend/src/app/pipes/era.pipe.ts`
+- [x] T034 [P] Create time-zone pipe (UTC → visitor's detected zone) in `frontend/src/app/pipes/timezone.pipe.ts`
+- [x] T035 [P] Create main page component (league icon grid, currently NHL only) in `frontend/src/app/components/main-page/`
 
 **Checkpoint**: Foundation ready — user story implementation can now begin
 
@@ -113,26 +113,26 @@
 
 ### Backend — US1
 
-- [ ] T036 [P] [US1] Create Game entity (with CurrentPeriod, ClockRunning, ClockLastSyncedAt, all game stats) in `backend/src/HockeyHub.Core/Models/Entities/Game.cs`
-- [ ] T037 [P] [US1] Create GamePeriodScore entity in `backend/src/HockeyHub.Core/Models/Entities/GamePeriodScore.cs`
-- [ ] T038 [P] [US1] Create StandingsSnapshot entity (with FaceoffPct, all ranking fields) in `backend/src/HockeyHub.Core/Models/Entities/StandingsSnapshot.cs`
-- [ ] T039 [US1] Add Game, GamePeriodScore, StandingsSnapshot to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
-- [ ] T040 [US1] Create ScoresQueryService (get scores by date, expanded details, live scores, ticker data, pregame matchup) in `backend/src/HockeyHub.Data/Services/Queries/ScoresQueryService.cs`
-- [ ] T041 [US1] Create ScoresController with GET scores, GET expanded, GET live, GET ticker, GET pregame endpoints per scores-api contract in `backend/src/HockeyHub.Api/Controllers/ScoresController.cs`
-- [ ] T042 [US1] Create ScoresSyncJob (Hangfire recurring: 10-15s during live games, 5min idle) that polls NHL API, updates Redis + PostgreSQL, broadcasts via SignalR in `backend/src/HockeyHub.Data/Services/Sync/ScoresSyncJob.cs`
-- [ ] T043 [US1] Create StandingsSyncJob (triggered by game status transitions Scheduled→Live, Live→Final) in `backend/src/HockeyHub.Data/Services/Sync/StandingsSyncJob.cs`
+- [x] T036 [P] [US1] Create Game entity (with CurrentPeriod, ClockRunning, ClockLastSyncedAt, all game stats) in `backend/src/HockeyHub.Core/Models/Entities/Game.cs`
+- [x] T037 [P] [US1] Create GamePeriodScore entity in `backend/src/HockeyHub.Core/Models/Entities/GamePeriodScore.cs`
+- [x] T038 [P] [US1] Create StandingsSnapshot entity (with FaceoffPct, all ranking fields) in `backend/src/HockeyHub.Core/Models/Entities/StandingsSnapshot.cs`
+- [x] T039 [US1] Add Game, GamePeriodScore, StandingsSnapshot to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
+- [x] T040 [US1] Create ScoresQueryService (get scores by date, expanded details, live scores, ticker data, pregame matchup) in `backend/src/HockeyHub.Data/Services/Queries/ScoresQueryService.cs`
+- [x] T041 [US1] Create ScoresController with GET scores, GET expanded, GET live, GET ticker, GET pregame endpoints per scores-api contract in `backend/src/HockeyHub.Api/Controllers/ScoresController.cs`
+- [x] T042 [US1] Create ScoresSyncJob (Hangfire recurring: 10-15s during live games, 5min idle) that polls NHL API, updates Redis + PostgreSQL, broadcasts via SignalR in `backend/src/HockeyHub.Data/Services/Sync/ScoresSyncJob.cs`
+- [x] T043 [US1] Create StandingsSyncJob (triggered by game status transitions Scheduled→Live, Live→Final) in `backend/src/HockeyHub.Data/Services/Sync/StandingsSyncJob.cs`
 
 ### Frontend — US1
 
-- [ ] T044 [US1] Create scores API service (HTTP + SignalR subscription for live updates) in `frontend/src/app/services/scores-api.service.ts`
-- [ ] T045 [US1] Create GameClockService (requestAnimationFrame countdown synced to server pushes) in `frontend/src/app/services/game-clock.service.ts`
-- [ ] T046 [US1] Create scores page component (4-column grid, date display, calendar picker, game ordering by start time + location name) in `frontend/src/app/components/scores/scores-page/`
-- [ ] T047 [US1] Create score box component (away above home, scores right, SHG, record, rank, Game Hub link, expand/collapse with exclusive open) in `frontend/src/app/components/scores/score-box/`
-- [ ] T048 [US1] Create expanded score box component (period-by-period goals + shots on goal box scores, vertical stat column PP/HIT/FO%/TK/GV/TOP, away goal/penalty summaries left of stats, home goal/penalty summaries right of stats, single box per game expanding in-place, small boxes flow beside expanded box) in `frontend/src/app/components/scores/expanded-score-box/`
-- [ ] T049 [US1] Create pregame matchup component (collapsed state matches active game compact format, expanded shows top scorers, starting goalies with GAA/SV%, PP%/PK%, head-to-head with W/OTW/SOW per team season and W/OTW/SOW/T per team all-time) in `frontend/src/app/components/scores/pregame-matchup/`
-- [ ] T050 [US1] Implement static score bar with separate game boxes, left/right arrow scroll overflow, each box clickable to Game Hub, game times/final labels white and bold, close-game clocks red (≤5 min, ≤2 goals) in `frontend/src/app/components/layout/score-bar/`
-- [ ] T051 [US1] Create calendar date picker component (navigate season dates, show results/upcoming) in `frontend/src/app/components/scores/calendar-picker/`
-- [ ] T052 [US1] Create tooltip directive for season record and standings rank hover explanations in `frontend/src/app/directives/tooltip.directive.ts`
+- [x] T044 [US1] Create scores API service (HTTP + SignalR subscription for live updates) in `frontend/src/app/services/scores-api.service.ts`
+- [x] T045 [US1] Create GameClockService (requestAnimationFrame countdown synced to server pushes) in `frontend/src/app/services/game-clock.service.ts`
+- [x] T046 [US1] Create scores page component (4-column grid, date display, calendar picker, game ordering by start time + location name) in `frontend/src/app/components/scores/scores-page/`
+- [x] T047 [US1] Create score box component (away above home, scores right, SHG, record, rank, Game Hub link, expand/collapse with exclusive open) in `frontend/src/app/components/scores/score-box/`
+- [x] T048 [US1] Create expanded score box component (period-by-period goals + shots on goal box scores, vertical stat column PP/HIT/FO%/TK/GV/TOP, away goal/penalty summaries left of stats, home goal/penalty summaries right of stats, single box per game expanding in-place, small boxes flow beside expanded box) in `frontend/src/app/components/scores/expanded-score-box/`
+- [x] T049 [US1] Create pregame matchup component (collapsed state matches active game compact format, expanded shows top scorers, starting goalies with GAA/SV%, PP%/PK%, head-to-head with W/OTW/SOW per team season and W/OTW/SOW/T per team all-time) in `frontend/src/app/components/scores/pregame-matchup/`
+- [x] T050 [US1] Implement static score bar with separate game boxes, left/right arrow scroll overflow, each box clickable to Game Hub, game times/final labels white and bold, close-game clocks red (≤5 min, ≤2 goals) in `frontend/src/app/components/layout/score-bar/`
+- [x] T051 [US1] Create calendar date picker component (navigate season dates, show results/upcoming) in `frontend/src/app/components/scores/calendar-picker/`
+- [x] T052 [US1] Create tooltip directive for season record and standings rank hover explanations in `frontend/src/app/directives/tooltip.directive.ts`
 
 **Checkpoint**: MVP complete — scores page with live updates, expandable details, pregame matchups, and live ticker
 

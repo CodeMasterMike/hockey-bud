@@ -12,6 +12,7 @@ export const routes: Routes = [
   { path: ':leagueId/trades', loadComponent: () => import('./components/trades/trades-list/trades-list').then(m => m.TradesList) },
   { path: ':leagueId/free-agents', loadComponent: () => import('./components/free-agents/free-agents-page/free-agents-page').then(m => m.FreeAgentsPage) },
   { path: ':leagueId/personnel', loadComponent: () => import('./components/personnel/personnel-page/personnel-page').then(m => m.PersonnelPage) },
-  { path: ':leagueId/game/:gameId', loadComponent: () => import('./components/game-hub/game-hub-page/game-hub-page').then(m => m.GameHubPage) },
+  { path: ':leagueId/game-hub/:gameId', loadComponent: () => import('./components/game-hub/game-hub-page/game-hub-page').then(m => m.GameHubPage) },
+  { path: ':leagueId/game/:gameId', redirectTo: ':leagueId/game-hub/:gameId' },
   { path: '**', redirectTo: '' }
 ];

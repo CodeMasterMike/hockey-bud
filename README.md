@@ -14,28 +14,34 @@ Comprehensive hockey league information website starting with NHL — scores, st
 backend/
 ├── src/
 │   ├── HockeyHub.Core/             # Entities + interfaces (no dependencies)
-│   │   ├── Models/Entities/         # EF Core entity classes
-│   │   └── Providers/               # INhlDataProvider interface + DTOs
+│   │   ├── Models/Entities/         # EF Core entities (10: League through StandingsSnapshot)
+│   │   └── Providers/               # INhlDataProvider, IScoreBroadcaster + DTOs
 │   ├── HockeyHub.Data/             # Data access layer (depends on Core)
 │   │   ├── Data/                    # DbContext, EF Core migrations
 │   │   ├── Providers/               # NhlWebApiProvider (api-web.nhle.com)
-│   │   └── Services/                # Cache, sync, seed services
+│   │   └── Services/
+│   │       ├── Cache/               # Redis caching service
+│   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync jobs
+│   │       └── Queries/             # ScoresQueryService (scores, expanded, live, ticker, pregame)
 │   └── HockeyHub.Api/              # HTTP host (depends on Data + Core)
-│       ├── Hubs/                    # SignalR hubs (live scores)
+│       ├── Controllers/             # ScoresController (5 REST endpoints)
+│       ├── Hubs/                    # GameHub, SignalRScoreBroadcaster
 │       ├── Middleware/              # Error handling, response wrappers
-│       └── Program.cs              # App startup + DI wiring
+│       └── Program.cs              # App startup, DI, Hangfire jobs
 └── tests/HockeyHub.Api.Tests/      # Backend tests
 
 frontend/
 ├── src/app/
 │   ├── components/
-│   │   ├── layout/                  # Banner, NavBar, ScoreBar, HamburgerMenu
+│   │   ├── layout/                  # Banner, NavBar, ScoreBar (live data), HamburgerMenu
 │   │   ├── shared/                  # StatTable, VideoModal, Pagination
 │   │   ├── main-page/               # League selection grid
-│   │   └── [12 route placeholders]/ # Scores, Standings, Stats, etc.
-│   ├── services/                    # ThemeService, SignalRService
+│   │   ├── scores/                  # ScoresPage, ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker
+│   │   └── [11 placeholders]/       # Standings, Stats, Teams, etc.
+│   ├── services/                    # Theme, SignalR, ScoresApi, GameClock services
+│   ├── directives/                  # TooltipDirective
 │   ├── pipes/                       # EraPipe, TimezonePipe
-│   └── app.routes.ts                # 13 lazy-loaded routes
+│   └── app.routes.ts                # 14 lazy-loaded routes (incl. game-hub/:gameId)
 ├── src/assets/fonts/                # Self-hosted Courier Prime (WOFF2)
 ├── src/styles/                      # Design tokens (light/dark mode)
 └── tests/                           # Frontend tests
@@ -210,10 +216,21 @@ Standalone HTML/CSS mockups for design review, viewable in any browser from `doc
 | Hangfire Dashboard | http://localhost:5072/hangfire | Background job monitoring |
 | SignalR Hub | ws://localhost:5072/hubs/scores | Live score updates |
 
+## API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/leagues/{id}/scores?date=yyyy-MM-dd` | Games for a date (default: today UTC-8) |
+| GET | `/api/leagues/{id}/scores/{gameId}/expanded` | Expanded score box (periods, stats, summaries) |
+| GET | `/api/scores/live` | Currently live games (lightweight) |
+| GET | `/api/leagues/{id}/scores/ticker` | Minimal ticker data for score bar |
+| GET | `/api/leagues/{id}/scores/{gameId}/pregame` | Pregame matchup (goalies, PP/PK, H2H) |
+
 ## Development Status
 
 - **Phase 1 (Setup)**: Complete — project scaffolding, Docker services, design tokens, fonts
-- **Phase 1B (UI Prototyping)**: 4 of 10 mockups revised (global shell, scores, standings, game hub); 6 remaining (rink diagram, team profile, player profile, trade tree, salary cap, schedule)
-- **Phase 2 (Foundation) — Backend**: Complete — entities, DbContext, EF migration, NHL API provider, Redis cache, SignalR hub, Hangfire, error middleware, data seed CLI
-- **Phase 2 (Foundation) — Frontend**: Complete — 13 lazy-loaded routes, layout shell (banner, nav, score bar, hamburger menu), dark mode service, SignalR service, shared components (stat table, video modal, pagination), pipes (era, timezone), main page, 12 placeholder route components
-- **Phases 3–14**: Not started — user stories and polish
+- **Phase 1B (UI Prototyping)**: Complete — 10 mockups (global shell, scores, standings, game hub, rink, team/player profiles, trade tree, salary cap, schedule)
+- **Phase 2 (Foundation) — Backend**: Complete — 7 entities, DbContext, EF migration, NHL API provider, Redis cache, SignalR hub, Hangfire, error middleware, data seed CLI
+- **Phase 2 (Foundation) — Frontend**: Complete — 13 lazy-loaded routes, layout shell, dark mode, SignalR, shared components, pipes, main page, placeholder routes
+- **Phase 3 (US1: Scores MVP)**: Complete — Game/GamePeriodScore/StandingsSnapshot entities, ScoresController (5 endpoints), ScoresSyncJob + StandingsSyncJob, live score bar, scores page with 4-column grid, score box, expanded score box, pregame matchup, calendar picker, GameClockService (rAF countdown), tooltip directive
+- **Phases 4–14**: Not started — Game Hub, Standings, Stats, Teams, Players, Salary Cap, Trades, Free Agents, Personnel, Schedule, Polish
