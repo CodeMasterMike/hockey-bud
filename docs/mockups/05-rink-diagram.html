@@ -154,7 +154,7 @@ body {
   border: 1px solid var(--border-default); flex-shrink: 0;
 }
 .legend-swatch.goal-swatch {
-  background: linear-gradient(to right, #22C55E 50%, #FCB514 50%);
+  background: linear-gradient(to right, #FFFFFF 50%, #FCB514 50%);
 }
 .legend-swatch.shot-swatch { background: #FCB514; width: 12px; height: 12px; }
 .legend-swatch.hit-swatch {
@@ -242,14 +242,14 @@ document.querySelector('.theme-toggle').addEventListener('click', function() {
             <rect x="0" y="0" width="2000" height="850" rx="280" ry="280"/>
           </clipPath>
 
-          <!-- Goal split pattern: left green / right team color (Boston) -->
+          <!-- Goal split pattern: left white / right team color (Boston) -->
           <linearGradient id="goal-bos" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="50%" stop-color="#22C55E"/>
+            <stop offset="50%" stop-color="#FFFFFF"/>
             <stop offset="50%" stop-color="#FCB514"/>
           </linearGradient>
-          <!-- Goal split pattern: left green / right team color (Toronto) -->
+          <!-- Goal split pattern: left white / right team color (Toronto) -->
           <linearGradient id="goal-tor" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="50%" stop-color="#22C55E"/>
+            <stop offset="50%" stop-color="#FFFFFF"/>
             <stop offset="50%" stop-color="#00205B"/>
           </linearGradient>
         </defs>
@@ -428,7 +428,7 @@ document.querySelector('.theme-toggle').addEventListener('click', function() {
         <!-- EVENT DOTS                                                   -->
         <!-- ============================================================ -->
 
-        <!-- === GOAL DOTS (split circle: green left / team color right) === -->
+        <!-- === GOAL DOTS (split circle: white left / team color right) === -->
         <!-- BOS Goal #1 — Pastrnak (the one with tooltip) -->
         <g class="event-dot">
           <circle cx="1720" cy="300" r="18" fill="url(#goal-bos)" stroke="#1A1A1A" stroke-width="2"/>
@@ -526,7 +526,7 @@ document.querySelector('.theme-toggle').addEventListener('click', function() {
 
     <div class="legend-item">
       <span class="legend-swatch goal-swatch"></span>
-      <span>Goal (split: green + team color)</span>
+      <span>Goal (split: white + team color)</span>
     </div>
 
     <div class="legend-item">

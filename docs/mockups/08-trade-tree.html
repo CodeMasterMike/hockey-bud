@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>M008 - Trade Tree Mockup | Hockey League Hub</title>
+<title>M008 - Trades Mockup | Hockey League Hub</title>
 
 <!-- Self-hosted Courier Prime -->
 <style>
@@ -287,391 +287,6 @@ body {
 }
 
 /* ===================================================================
-   TRADE DETAIL HEADER
-   =================================================================== */
-.trade-header {
-  margin-bottom: 28px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border-default);
-}
-
-.trade-header__title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.trade-header__date {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 16px;
-}
-
-.trade-header__summary {
-  display: flex;
-  gap: 32px;
-  flex-wrap: wrap;
-}
-
-.trade-header__side {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: 4px;
-  padding: 14px 20px;
-  flex: 1;
-  min-width: 260px;
-}
-
-.trade-header__side-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-}
-
-.trade-header__side-assets {
-  font-size: 14px;
-  color: var(--text-primary);
-  font-weight: 700;
-}
-
-.trade-header__side-team {
-  font-size: 12px;
-  color: var(--color-link);
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-
-/* ===================================================================
-   TREE VIEWPORT + PAN/ZOOM CONTAINER
-   =================================================================== */
-.tree-section {
-  position: relative;
-  margin-bottom: 32px;
-}
-
-.tree-section__label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.tree-section__hint {
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: -0.02em;
-  font-size: 11px;
-  font-style: italic;
-}
-
-.tree-viewport {
-  position: relative;
-  border: 1px solid var(--border-default);
-  border-radius: 4px;
-  background: var(--bg-card);
-  overflow: auto;
-  height: 440px;
-  cursor: grab;
-}
-
-.tree-viewport:active { cursor: grabbing; }
-
-.tree-canvas {
-  width: 1400px;
-  height: 400px;
-  position: relative;
-}
-
-/* ===================================================================
-   SVG TRADE TREE STYLES
-   =================================================================== */
-.tree-svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* Edge paths */
-.tree-edge {
-  fill: none;
-  stroke: var(--edge-color);
-  stroke-width: 1.5;
-  opacity: 0.6;
-}
-
-/* Edge labels */
-.tree-edge-label {
-  font-family: 'Courier Prime', 'Courier New', monospace;
-  font-size: 10px;
-  fill: var(--text-muted);
-  letter-spacing: -0.02em;
-}
-
-.tree-edge-label-bg {
-  fill: var(--bg-card);
-}
-
-/* ===================================================================
-   TRADE NODE CARDS (foreignObject)
-   =================================================================== */
-.trade-node {
-  background: var(--bg-card);
-  border: 1.5px solid var(--border-default);
-  border-radius: 4px;
-  padding: 10px 14px;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  font-family: 'Courier Prime', 'Courier New', monospace;
-  letter-spacing: -0.02em;
-  cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  overflow: hidden;
-}
-
-.trade-node:hover {
-  border-color: var(--border-strong);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
-
-.trade-node--focus {
-  border: 2.5px solid var(--color-focus-border);
-  box-shadow: 0 0 16px var(--color-focus-glow), 0 2px 8px rgba(0,0,0,0.06);
-  background: var(--color-focus-bg);
-}
-
-.trade-node--focus:hover {
-  box-shadow: 0 0 20px var(--color-focus-glow), 0 3px 14px rgba(0,0,0,0.1);
-}
-
-.trade-node__date {
-  font-size: 10px;
-  color: var(--text-muted);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 3px;
-}
-
-.trade-node__teams {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-  white-space: nowrap;
-}
-
-.trade-node__arrow {
-  color: var(--text-muted);
-  margin: 0 3px;
-}
-
-.trade-node__assets {
-  font-size: 10px;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-/* ===================================================================
-   MINIMAP
-   =================================================================== */
-.minimap {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  width: 150px;
-  height: 80px;
-  background: var(--minimap-bg);
-  border: 1px solid var(--border-default);
-  border-radius: 3px;
-  overflow: hidden;
-  z-index: 10;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.minimap__svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.minimap__node {
-  fill: var(--border-strong);
-  rx: 1;
-  ry: 1;
-}
-
-.minimap__node--focus {
-  fill: var(--color-focus-border);
-}
-
-.minimap__edge {
-  stroke: var(--text-muted);
-  stroke-width: 0.5;
-  fill: none;
-  opacity: 0.5;
-}
-
-.minimap__viewport {
-  fill: var(--minimap-viewport);
-  stroke: var(--color-link);
-  stroke-width: 1;
-  rx: 1;
-  ry: 1;
-}
-
-/* ===================================================================
-   TIME AXIS LABELS
-   =================================================================== */
-.time-axis-label {
-  font-family: 'Courier Prime', 'Courier New', monospace;
-  font-size: 9px;
-  fill: var(--text-muted);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-weight: 700;
-}
-
-/* ===================================================================
-   MOBILE FALLBACK TIMELINE
-   =================================================================== */
-.mobile-fallback {
-  margin-top: 40px;
-  padding-top: 32px;
-  border-top: 2px solid var(--border-default);
-}
-
-.mobile-fallback__label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  margin-bottom: 20px;
-}
-
-.mobile-fallback__subtitle {
-  font-weight: 400;
-  font-style: italic;
-  text-transform: none;
-  letter-spacing: -0.02em;
-  margin-left: 8px;
-}
-
-.timeline {
-  position: relative;
-  padding-left: 100px;
-}
-
-/* Vertical connecting line */
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 80px;
-  top: 18px;
-  bottom: 18px;
-  width: 2px;
-  background: var(--border-strong);
-}
-
-.timeline__item {
-  position: relative;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: flex-start;
-}
-
-.timeline__item:last-child { margin-bottom: 0; }
-
-.timeline__date {
-  position: absolute;
-  left: -100px;
-  width: 76px;
-  text-align: right;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  padding-top: 12px;
-  letter-spacing: 0.02em;
-}
-
-/* Dot on the line */
-.timeline__dot {
-  position: absolute;
-  left: -24px;
-  top: 14px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--text-muted);
-  border: 2px solid var(--bg-page);
-  z-index: 2;
-}
-
-.timeline__dot--focus {
-  width: 12px;
-  height: 12px;
-  left: -26px;
-  top: 12px;
-  background: var(--color-focus-border);
-  box-shadow: 0 0 8px var(--color-focus-glow);
-}
-
-.timeline__card {
-  background: var(--bg-card);
-  border: 1.5px solid var(--border-default);
-  border-radius: 4px;
-  padding: 12px 16px;
-  flex: 1;
-  max-width: 520px;
-}
-
-.timeline__card--focus {
-  border-color: var(--color-focus-border);
-  border-width: 2px;
-  box-shadow: 0 0 12px var(--color-focus-glow);
-  background: var(--color-focus-bg);
-}
-
-.timeline__card-teams {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.timeline__card-assets {
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.timeline__card-link {
-  font-size: 10px;
-  color: var(--color-link);
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 700;
-  margin-top: 6px;
-  display: inline-block;
-}
-
-.timeline__card-link:hover { color: var(--color-link-hover); }
-
-/* ===================================================================
    FOOTER
    =================================================================== */
 .footer {
@@ -685,14 +300,117 @@ body {
 
 .footer a { color: var(--color-link); text-decoration: none; }
 .footer a:hover { color: var(--color-link-hover); }
+
+/* ===================================================================
+   TRADE LIST PAGE
+   =================================================================== */
+.trades-header {
+  margin-bottom: 24px;
+}
+.trades-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.trades-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.trades-filters {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.trades-filters select {
+  font-family: var(--font-primary);
+  font-size: 13px;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234A4A4A'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  letter-spacing: -0.02em;
+  min-width: 180px;
+}
+.trade-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.trade-card:hover {
+  border-color: var(--border-strong);
+}
+.trade-card__date {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 10px 18px 6px;
+}
+.trade-card__body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  padding: 0 18px 14px;
+}
+.trade-card__side {
+  padding: 8px 0;
+}
+.trade-card__side:first-child {
+  border-right: 1px solid var(--border-default);
+  padding-right: 18px;
+}
+.trade-card__side:last-child {
+  padding-left: 18px;
+}
+.trade-card__team {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-link);
+  margin-bottom: 4px;
+}
+.trade-card__label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.trade-card__assets {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.trade-card__assets strong {
+  color: var(--text-primary);
+}
+.trade-card__note {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-muted);
+  padding: 0 18px 10px;
+}
 </style>
 </head>
 <body>
 
 <!-- ================================================================
-     LIGHT MODE
+     TRADES LIST PAGE
      ================================================================ -->
-<div class="mockup-label">Light Mode &mdash; Trade Tree Visualization</div>
+<div class="mockup-label">Trades &mdash; Trade List Page</div>
 <div class="shell-wrapper" id="shell-light">
 
   <!-- Banner -->
@@ -829,619 +547,159 @@ body {
   <!-- Main Content -->
   <main class="content">
 
-    <!-- Trade Detail Header -->
-    <div class="trade-header">
-      <div class="trade-header__title">Trade: BOS &#8596; OTT &mdash; March 8, 2024</div>
-      <div class="trade-header__date">NHL &middot; Regular Season &middot; Trade ID #2024-0308-001</div>
-      <div class="trade-header__summary">
-        <div class="trade-header__side">
-          <div class="trade-header__side-team">BOS acquires:</div>
-          <div class="trade-header__side-assets">J. Smith (C)</div>
+    <!-- Page Header -->
+    <div class="trades-header">
+      <div class="trades-title">Trades</div>
+      <div class="trades-subtitle">2025-26 NHL Season</div>
+    </div>
+
+    <!-- Filters -->
+    <div class="trades-filters">
+      <select>
+        <option>All Teams</option>
+        <option>BOS</option>
+        <option>TOR</option>
+        <option>NYR</option>
+        <option>CHI</option>
+      </select>
+      <select>
+        <option>2025-26</option>
+        <option>2024-25</option>
+        <option>2023-24</option>
+      </select>
+    </div>
+
+    <!-- Trade List -->
+
+    <!-- Trade 1: BOS / FLA — Mar 7, 2026 -->
+    <div class="trade-card">
+      <div class="trade-card__date">March 7, 2026</div>
+      <div class="trade-card__body">
+        <div class="trade-card__side">
+          <div class="trade-card__team">Boston Bruins (BOS)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            <strong>M. Tkachuk</strong> (LW)
+          </div>
         </div>
-        <div class="trade-header__side">
-          <div class="trade-header__side-team">OTT acquires:</div>
-          <div class="trade-header__side-assets">2024 1st Round Pick, M. Johnson (LW)</div>
+        <div class="trade-card__side">
+          <div class="trade-card__team">Florida Panthers (FLA)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            <strong>B. Marchand</strong> (LW)<br>
+            2026 1st Round Pick<br>
+            2027 2nd Round Pick
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Horizontal DAG Trade Tree -->
-    <div class="tree-section">
-      <div class="tree-section__label">
-        Trade Tree &mdash; Horizontal DAG
-        <span class="tree-section__hint">Scroll to pan &middot; Time flows left to right</span>
-      </div>
-
-      <div class="tree-viewport" id="tree-viewport-light">
-
-        <div class="tree-canvas">
-          <svg class="tree-svg" viewBox="0 0 1400 400" xmlns="http://www.w3.org/2000/svg">
-
-            <!-- Time axis -->
-            <text class="time-axis-label" x="80" y="388">Feb 2023</text>
-            <text class="time-axis-label" x="310" y="388">Jul 2023</text>
-            <text class="time-axis-label" x="555" y="388">Mar 2024</text>
-            <text class="time-axis-label" x="800" y="388">Jun 2024</text>
-            <text class="time-axis-label" x="1020" y="388">Jul 2024</text>
-            <text class="time-axis-label" x="1230" y="388">Jan 2025</text>
-            <line x1="40" y1="374" x2="1370" y2="374" stroke="var(--border-default)" stroke-width="1" stroke-dasharray="4,4"/>
-
-            <!-- ==================== EDGES ==================== -->
-
-            <!-- Edge: Trade 1 (COL->TBL) to Trade 2 (TBL->OTT) -->
-            <path d="M 210,178 C 270,178 270,168 320,168" class="tree-edge"/>
-            <!-- Edge label: J. Smith -->
-            <rect class="tree-edge-label-bg" x="232" y="161" width="62" height="14" rx="2"/>
-            <text class="tree-edge-label" x="263" y="172" text-anchor="middle">J. Smith</text>
-
-            <!-- Edge: Trade 2 (TBL->OTT) to Focus Trade (OTT->BOS) -->
-            <path d="M 470,168 C 530,168 530,155 555,155" class="tree-edge"/>
-            <!-- Edge label: J. Smith -->
-            <rect class="tree-edge-label-bg" x="482" y="148" width="62" height="14" rx="2"/>
-            <text class="tree-edge-label" x="513" y="159" text-anchor="middle">J. Smith</text>
-
-            <!-- Edge: Focus Trade to Trade 4 (OTT->DET) - 1st Rd Pick -->
-            <path d="M 770,138 C 830,138 830,118 860,118" class="tree-edge"/>
-            <!-- Edge label: 2024 1st Rd -->
-            <rect class="tree-edge-label-bg" x="787" y="112" width="68" height="14" rx="2"/>
-            <text class="tree-edge-label" x="821" y="123" text-anchor="middle">2024 1st Rd</text>
-
-            <!-- Edge: Focus Trade to Trade 5 (OTT->CGY) - M. Johnson -->
-            <path d="M 770,178 C 830,178 880,258 1020,258" class="tree-edge"/>
-            <!-- Edge label: M. Johnson -->
-            <rect class="tree-edge-label-bg" x="862" y="218" width="70" height="14" rx="2"/>
-            <text class="tree-edge-label" x="897" y="229" text-anchor="middle">M. Johnson</text>
-
-            <!-- Edge: Trade 4 (OTT->DET) to Trade 6 (DET->MTL) - 1st Rd Pick -->
-            <path d="M 1050,118 C 1110,118 1130,178 1160,178" class="tree-edge"/>
-            <!-- Edge label: 2024 1st Rd -->
-            <rect class="tree-edge-label-bg" x="1078" y="139" width="68" height="14" rx="2"/>
-            <text class="tree-edge-label" x="1112" y="150" text-anchor="middle">2024 1st Rd</text>
-
-            <!-- ==================== TRADE NODES ==================== -->
-
-            <!-- Trade 1: COL -> TBL (Feb 15, 2023) - Deepest ancestor -->
-            <foreignObject x="30" y="128" width="180" height="100">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node">
-                <div class="trade-node__date">Feb 15, 2023</div>
-                <div class="trade-node__teams">COL <span class="trade-node__arrow">&#8594;</span> TBL</div>
-                <div class="trade-node__assets">J. Smith for<br/>3rd Rd Pick + P. Kowalski</div>
-              </div>
-            </foreignObject>
-
-            <!-- Trade 2: TBL -> OTT (Jul 1, 2023) - Ancestor -->
-            <foreignObject x="290" y="118" width="180" height="100">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node">
-                <div class="trade-node__date">Jul 1, 2023</div>
-                <div class="trade-node__teams">TBL <span class="trade-node__arrow">&#8594;</span> OTT</div>
-                <div class="trade-node__assets">J. Smith for<br/>2024 2nd Rd Pick</div>
-              </div>
-            </foreignObject>
-
-            <!-- FOCUS TRADE: OTT -> BOS (Mar 8, 2024) -->
-            <foreignObject x="555" y="100" width="215" height="116">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node trade-node--focus">
-                <div class="trade-node__date">Mar 8, 2024</div>
-                <div class="trade-node__teams">BOS <span class="trade-node__arrow">&#8596;</span> OTT</div>
-                <div class="trade-node__assets">BOS gets J. Smith (C)<br/>OTT gets 2024 1st Rd +<br/>M. Johnson (LW)</div>
-              </div>
-            </foreignObject>
-
-            <!-- Trade 4: OTT -> DET (Jun 28, 2024) - Descendant via 1st Rd Pick -->
-            <foreignObject x="860" y="68" width="190" height="100">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node">
-                <div class="trade-node__date">Jun 28, 2024</div>
-                <div class="trade-node__teams">OTT <span class="trade-node__arrow">&#8594;</span> DET</div>
-                <div class="trade-node__assets">2024 1st Rd Pick for<br/>R. Walters (RD)</div>
-              </div>
-            </foreignObject>
-
-            <!-- Trade 5: OTT -> CGY (Jul 12, 2024) - Descendant via M. Johnson -->
-            <foreignObject x="1020" y="218" width="190" height="100">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node">
-                <div class="trade-node__date">Jul 12, 2024</div>
-                <div class="trade-node__teams">OTT <span class="trade-node__arrow">&#8594;</span> CGY</div>
-                <div class="trade-node__assets">M. Johnson (LW) for<br/>2025 Cond. 4th Rd Pick</div>
-              </div>
-            </foreignObject>
-
-            <!-- Trade 6: DET -> MTL (Jan 10, 2025) - Deep descendant via 1st Rd Pick -->
-            <foreignObject x="1160" y="128" width="190" height="100">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node">
-                <div class="trade-node__date">Jan 10, 2025</div>
-                <div class="trade-node__teams">DET <span class="trade-node__arrow">&#8594;</span> MTL</div>
-                <div class="trade-node__assets">2024 1st Rd Pick for<br/>L. Beaumont (C)</div>
-              </div>
-            </foreignObject>
-
-          </svg>
-        </div>
-
-        <!-- Minimap -->
-        <div class="minimap">
-          <svg class="minimap__svg" viewBox="0 0 150 80" xmlns="http://www.w3.org/2000/svg">
-            <!-- Simplified edges -->
-            <line x1="22" y1="34" x2="39" y2="32" class="minimap__edge"/>
-            <line x1="53" y1="32" x2="65" y2="29" class="minimap__edge"/>
-            <line x1="80" y1="26" x2="95" y2="22" class="minimap__edge"/>
-            <line x1="80" y1="36" x2="108" y2="50" class="minimap__edge"/>
-            <line x1="108" y1="22" x2="122" y2="34" class="minimap__edge"/>
-
-            <!-- Simplified node rectangles -->
-            <rect class="minimap__node" x="6" y="28" width="16" height="10" rx="1"/>
-            <rect class="minimap__node" x="39" y="26" width="16" height="10" rx="1"/>
-            <rect class="minimap__node--focus" x="65" y="22" width="18" height="12" rx="1" fill="var(--color-focus-border)"/>
-            <rect class="minimap__node" x="95" y="16" width="16" height="10" rx="1"/>
-            <rect class="minimap__node" x="108" y="44" width="16" height="10" rx="1"/>
-            <rect class="minimap__node" x="122" y="28" width="16" height="10" rx="1"/>
-
-            <!-- Viewport rectangle -->
-            <rect class="minimap__viewport" x="2" y="4" width="85" height="72"/>
-          </svg>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Mobile Fallback Timeline -->
-    <div class="mobile-fallback">
-      <div class="mobile-fallback__label">
-        Mobile View<span class="mobile-fallback__subtitle">(screens &lt; 768px)</span>
-      </div>
-
-      <div class="timeline">
-
-        <div class="timeline__item">
-          <div class="timeline__date">Feb 15, 2023</div>
-          <div class="timeline__dot"></div>
-          <div class="timeline__card">
-            <div class="timeline__card-teams">COL &#8594; TBL</div>
-            <div class="timeline__card-assets">
-              Colorado trades <strong>J. Smith</strong> (C) to Tampa Bay for <strong>2023 3rd Rd Pick</strong> + <strong>P. Kowalski</strong> (RW)
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
+    <!-- Trade 2: TOR / NYR — Mar 3, 2026 -->
+    <div class="trade-card">
+      <div class="trade-card__date">March 3, 2026</div>
+      <div class="trade-card__body">
+        <div class="trade-card__side">
+          <div class="trade-card__team">Toronto Maple Leafs (TOR)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            <strong>J. Trocheck</strong> (C)
           </div>
         </div>
-
-        <div class="timeline__item">
-          <div class="timeline__date">Jul 1, 2023</div>
-          <div class="timeline__dot"></div>
-          <div class="timeline__card">
-            <div class="timeline__card-teams">TBL &#8594; OTT</div>
-            <div class="timeline__card-assets">
-              Tampa Bay trades <strong>J. Smith</strong> (C) to Ottawa for <strong>2024 2nd Rd Pick</strong>
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
+        <div class="trade-card__side">
+          <div class="trade-card__team">New York Rangers (NYR)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            2026 2nd Round Pick<br>
+            2027 3rd Round Pick
           </div>
-        </div>
-
-        <div class="timeline__item">
-          <div class="timeline__date">Mar 8, 2024</div>
-          <div class="timeline__dot timeline__dot--focus"></div>
-          <div class="timeline__card timeline__card--focus">
-            <div class="timeline__card-teams">BOS &#8596; OTT &mdash; Focus Trade</div>
-            <div class="timeline__card-assets">
-              Boston acquires <strong>J. Smith</strong> (C) from Ottawa for <strong>2024 1st Rd Pick</strong> + <strong>M. Johnson</strong> (LW)
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
-          </div>
-        </div>
-
-        <div class="timeline__item">
-          <div class="timeline__date">Jun 28, 2024</div>
-          <div class="timeline__dot"></div>
-          <div class="timeline__card">
-            <div class="timeline__card-teams">OTT &#8594; DET</div>
-            <div class="timeline__card-assets">
-              Ottawa trades <strong>2024 1st Rd Pick</strong> (from BOS) to Detroit for <strong>R. Walters</strong> (RD)
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
-          </div>
-        </div>
-
-        <div class="timeline__item">
-          <div class="timeline__date">Jul 12, 2024</div>
-          <div class="timeline__dot"></div>
-          <div class="timeline__card">
-            <div class="timeline__card-teams">OTT &#8594; CGY</div>
-            <div class="timeline__card-assets">
-              Ottawa trades <strong>M. Johnson</strong> (LW) to Calgary for <strong>2025 Conditional 4th Rd Pick</strong>
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
-          </div>
-        </div>
-
-        <div class="timeline__item">
-          <div class="timeline__date">Jan 10, 2025</div>
-          <div class="timeline__dot"></div>
-          <div class="timeline__card">
-            <div class="timeline__card-teams">DET &#8594; MTL</div>
-            <div class="timeline__card-assets">
-              Detroit trades <strong>2024 1st Rd Pick</strong> (originally from BOS) to Montreal for <strong>L. Beaumont</strong> (C)
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer">
-    Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
-  </footer>
-
-</div>
-
-
-<!-- ================================================================
-     DARK MODE
-     ================================================================ -->
-<div class="mockup-label">Dark Mode &mdash; Trade Tree Visualization</div>
-<div class="shell-wrapper" id="shell-dark" data-theme="dark">
-
-  <!-- Banner -->
-  <header class="banner">
-    <div class="banner__brand">
-      <span class="banner__brand-icon">H</span>
-      Hockey League Hub
-    </div>
-    <div class="banner__search">
-      <div class="banner__search-wrap">
-        <input type="text" placeholder="Search players, teams, trades...">
-      </div>
-    </div>
-    <button class="banner__hamburger" aria-label="Menu">&#9776;</button>
-  </header>
-
-  <!-- Live Score Ticker -->
-  <div class="ticker">
-    <div class="ticker__track">
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">BOS</span>
-          <span class="ticker__score">3</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score">2</span>
-          <span class="ticker__team">TOR</span>
-        </div>
-        <span class="ticker__status ticker__status--final">Final</span>
-      </div>
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">NYR</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__team">MTL</span>
-        </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
-      </div>
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">DET</span>
-          <span class="ticker__dash">vs</span>
-          <span class="ticker__team">CHI</span>
-        </div>
-        <span class="ticker__status ticker__status--pending">7:00 PM</span>
-      </div>
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">PIT</span>
-          <span class="ticker__score ticker__score--live">4</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">2</span>
-          <span class="ticker__team">WSH</span>
-        </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
-      </div>
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">EDM</span>
-          <span class="ticker__score">5</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score">1</span>
-          <span class="ticker__team">CGY</span>
-        </div>
-        <span class="ticker__status ticker__status--final">Final</span>
-      </div>
-      <!-- Duplicate for seamless scroll -->
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">BOS</span>
-          <span class="ticker__score">3</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score">2</span>
-          <span class="ticker__team">TOR</span>
-        </div>
-        <span class="ticker__status ticker__status--final">Final</span>
-      </div>
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">NYR</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">1</span>
-          <span class="ticker__team">MTL</span>
-        </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
-      </div>
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">DET</span>
-          <span class="ticker__dash">vs</span>
-          <span class="ticker__team">CHI</span>
-        </div>
-        <span class="ticker__status ticker__status--pending">7:00 PM</span>
-      </div>
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">PIT</span>
-          <span class="ticker__score ticker__score--live">4</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score ticker__score--live">2</span>
-          <span class="ticker__team">WSH</span>
-        </div>
-        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
-      </div>
-      <div class="ticker__game">
-        <div class="ticker__teams">
-          <span class="ticker__team">EDM</span>
-          <span class="ticker__score">5</span>
-          <span class="ticker__dash">&ndash;</span>
-          <span class="ticker__score">1</span>
-          <span class="ticker__team">CGY</span>
-        </div>
-        <span class="ticker__status ticker__status--final">Final</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Secondary Navigation -->
-  <nav class="nav">
-    <a href="#" class="nav__link">Scores</a>
-    <a href="#" class="nav__link">Standings</a>
-    <a href="#" class="nav__link">Stats</a>
-    <a href="#" class="nav__link">Teams</a>
-    <a href="#" class="nav__link">Schedule</a>
-    <a href="#" class="nav__link">Players</a>
-    <a href="#" class="nav__link">Salary Cap</a>
-    <a href="#" class="nav__link nav__link--active">Trades</a>
-    <a href="#" class="nav__link">Free Agents</a>
-    <a href="#" class="nav__link">Personnel</a>
-  </nav>
-
-  <!-- Main Content -->
-  <main class="content">
-
-    <!-- Trade Detail Header -->
-    <div class="trade-header">
-      <div class="trade-header__title">Trade: BOS &#8596; OTT &mdash; March 8, 2024</div>
-      <div class="trade-header__date">NHL &middot; Regular Season &middot; Trade ID #2024-0308-001</div>
-      <div class="trade-header__summary">
-        <div class="trade-header__side">
-          <div class="trade-header__side-team">BOS acquires:</div>
-          <div class="trade-header__side-assets">J. Smith (C)</div>
-        </div>
-        <div class="trade-header__side">
-          <div class="trade-header__side-team">OTT acquires:</div>
-          <div class="trade-header__side-assets">2024 1st Round Pick, M. Johnson (LW)</div>
         </div>
       </div>
     </div>
 
-    <!-- Horizontal DAG Trade Tree -->
-    <div class="tree-section">
-      <div class="tree-section__label">
-        Trade Tree &mdash; Horizontal DAG
-        <span class="tree-section__hint">Scroll to pan &middot; Time flows left to right</span>
-      </div>
-
-      <div class="tree-viewport" id="tree-viewport-dark">
-
-        <div class="tree-canvas">
-          <svg class="tree-svg" viewBox="0 0 1400 400" xmlns="http://www.w3.org/2000/svg">
-
-            <!-- Time axis -->
-            <text class="time-axis-label" x="80" y="388">Feb 2023</text>
-            <text class="time-axis-label" x="310" y="388">Jul 2023</text>
-            <text class="time-axis-label" x="555" y="388">Mar 2024</text>
-            <text class="time-axis-label" x="800" y="388">Jun 2024</text>
-            <text class="time-axis-label" x="1020" y="388">Jul 2024</text>
-            <text class="time-axis-label" x="1230" y="388">Jan 2025</text>
-            <line x1="40" y1="374" x2="1370" y2="374" stroke="var(--border-default)" stroke-width="1" stroke-dasharray="4,4"/>
-
-            <!-- ==================== EDGES ==================== -->
-
-            <!-- Edge: Trade 1 (COL->TBL) to Trade 2 (TBL->OTT) -->
-            <path d="M 210,178 C 270,178 270,168 320,168" class="tree-edge"/>
-            <rect class="tree-edge-label-bg" x="232" y="161" width="62" height="14" rx="2"/>
-            <text class="tree-edge-label" x="263" y="172" text-anchor="middle">J. Smith</text>
-
-            <!-- Edge: Trade 2 (TBL->OTT) to Focus Trade (OTT->BOS) -->
-            <path d="M 470,168 C 530,168 530,155 555,155" class="tree-edge"/>
-            <rect class="tree-edge-label-bg" x="482" y="148" width="62" height="14" rx="2"/>
-            <text class="tree-edge-label" x="513" y="159" text-anchor="middle">J. Smith</text>
-
-            <!-- Edge: Focus Trade to Trade 4 (OTT->DET) -->
-            <path d="M 770,138 C 830,138 830,118 860,118" class="tree-edge"/>
-            <rect class="tree-edge-label-bg" x="787" y="112" width="68" height="14" rx="2"/>
-            <text class="tree-edge-label" x="821" y="123" text-anchor="middle">2024 1st Rd</text>
-
-            <!-- Edge: Focus Trade to Trade 5 (OTT->CGY) -->
-            <path d="M 770,178 C 830,178 880,258 1020,258" class="tree-edge"/>
-            <rect class="tree-edge-label-bg" x="862" y="218" width="70" height="14" rx="2"/>
-            <text class="tree-edge-label" x="897" y="229" text-anchor="middle">M. Johnson</text>
-
-            <!-- Edge: Trade 4 (OTT->DET) to Trade 6 (DET->MTL) -->
-            <path d="M 1050,118 C 1110,118 1130,178 1160,178" class="tree-edge"/>
-            <rect class="tree-edge-label-bg" x="1078" y="139" width="68" height="14" rx="2"/>
-            <text class="tree-edge-label" x="1112" y="150" text-anchor="middle">2024 1st Rd</text>
-
-            <!-- ==================== TRADE NODES ==================== -->
-
-            <!-- Trade 1: COL -> TBL -->
-            <foreignObject x="30" y="128" width="180" height="100">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node">
-                <div class="trade-node__date">Feb 15, 2023</div>
-                <div class="trade-node__teams">COL <span class="trade-node__arrow">&#8594;</span> TBL</div>
-                <div class="trade-node__assets">J. Smith for<br/>3rd Rd Pick + P. Kowalski</div>
-              </div>
-            </foreignObject>
-
-            <!-- Trade 2: TBL -> OTT -->
-            <foreignObject x="290" y="118" width="180" height="100">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node">
-                <div class="trade-node__date">Jul 1, 2023</div>
-                <div class="trade-node__teams">TBL <span class="trade-node__arrow">&#8594;</span> OTT</div>
-                <div class="trade-node__assets">J. Smith for<br/>2024 2nd Rd Pick</div>
-              </div>
-            </foreignObject>
-
-            <!-- FOCUS TRADE: OTT -> BOS -->
-            <foreignObject x="555" y="100" width="215" height="116">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node trade-node--focus">
-                <div class="trade-node__date">Mar 8, 2024</div>
-                <div class="trade-node__teams">BOS <span class="trade-node__arrow">&#8596;</span> OTT</div>
-                <div class="trade-node__assets">BOS gets J. Smith (C)<br/>OTT gets 2024 1st Rd +<br/>M. Johnson (LW)</div>
-              </div>
-            </foreignObject>
-
-            <!-- Trade 4: OTT -> DET -->
-            <foreignObject x="860" y="68" width="190" height="100">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node">
-                <div class="trade-node__date">Jun 28, 2024</div>
-                <div class="trade-node__teams">OTT <span class="trade-node__arrow">&#8594;</span> DET</div>
-                <div class="trade-node__assets">2024 1st Rd Pick for<br/>R. Walters (RD)</div>
-              </div>
-            </foreignObject>
-
-            <!-- Trade 5: OTT -> CGY -->
-            <foreignObject x="1020" y="218" width="190" height="100">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node">
-                <div class="trade-node__date">Jul 12, 2024</div>
-                <div class="trade-node__teams">OTT <span class="trade-node__arrow">&#8594;</span> CGY</div>
-                <div class="trade-node__assets">M. Johnson (LW) for<br/>2025 Cond. 4th Rd Pick</div>
-              </div>
-            </foreignObject>
-
-            <!-- Trade 6: DET -> MTL -->
-            <foreignObject x="1160" y="128" width="190" height="100">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="trade-node">
-                <div class="trade-node__date">Jan 10, 2025</div>
-                <div class="trade-node__teams">DET <span class="trade-node__arrow">&#8594;</span> MTL</div>
-                <div class="trade-node__assets">2024 1st Rd Pick for<br/>L. Beaumont (C)</div>
-              </div>
-            </foreignObject>
-
-          </svg>
+    <!-- Trade 3: COL / SEA — Feb 28, 2026 -->
+    <div class="trade-card">
+      <div class="trade-card__date">February 28, 2026</div>
+      <div class="trade-card__body">
+        <div class="trade-card__side">
+          <div class="trade-card__team">Colorado Avalanche (COL)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            <strong>B. Tanev</strong> (RD)
+          </div>
         </div>
-
-        <!-- Minimap -->
-        <div class="minimap">
-          <svg class="minimap__svg" viewBox="0 0 150 80" xmlns="http://www.w3.org/2000/svg">
-            <line x1="22" y1="34" x2="39" y2="32" class="minimap__edge"/>
-            <line x1="53" y1="32" x2="65" y2="29" class="minimap__edge"/>
-            <line x1="80" y1="26" x2="95" y2="22" class="minimap__edge"/>
-            <line x1="80" y1="36" x2="108" y2="50" class="minimap__edge"/>
-            <line x1="108" y1="22" x2="122" y2="34" class="minimap__edge"/>
-
-            <rect class="minimap__node" x="6" y="28" width="16" height="10" rx="1"/>
-            <rect class="minimap__node" x="39" y="26" width="16" height="10" rx="1"/>
-            <rect class="minimap__node--focus" x="65" y="22" width="18" height="12" rx="1" fill="var(--color-focus-border)"/>
-            <rect class="minimap__node" x="95" y="16" width="16" height="10" rx="1"/>
-            <rect class="minimap__node" x="108" y="44" width="16" height="10" rx="1"/>
-            <rect class="minimap__node" x="122" y="28" width="16" height="10" rx="1"/>
-
-            <rect class="minimap__viewport" x="2" y="4" width="85" height="72"/>
-          </svg>
+        <div class="trade-card__side">
+          <div class="trade-card__team">Seattle Kraken (SEA)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            2026 3rd Round Pick<br>
+            2027 5th Round Pick
+          </div>
         </div>
-
       </div>
     </div>
 
-    <!-- Mobile Fallback Timeline -->
-    <div class="mobile-fallback">
-      <div class="mobile-fallback__label">
-        Mobile View<span class="mobile-fallback__subtitle">(screens &lt; 768px)</span>
+    <!-- Trade 4: DAL / NSH — Feb 20, 2026 -->
+    <div class="trade-card">
+      <div class="trade-card__date">February 20, 2026</div>
+      <div class="trade-card__body">
+        <div class="trade-card__side">
+          <div class="trade-card__team">Dallas Stars (DAL)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            <strong>M. Duchene</strong> (C)
+          </div>
+        </div>
+        <div class="trade-card__side">
+          <div class="trade-card__team">Nashville Predators (NSH)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            2026 4th Round Pick
+          </div>
+        </div>
       </div>
+      <div class="trade-card__note">50% salary retained by NSH</div>
+    </div>
 
-      <div class="timeline">
-
-        <div class="timeline__item">
-          <div class="timeline__date">Feb 15, 2023</div>
-          <div class="timeline__dot"></div>
-          <div class="timeline__card">
-            <div class="timeline__card-teams">COL &#8594; TBL</div>
-            <div class="timeline__card-assets">
-              Colorado trades <strong>J. Smith</strong> (C) to Tampa Bay for <strong>2023 3rd Rd Pick</strong> + <strong>P. Kowalski</strong> (RW)
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
+    <!-- Trade 5: NYR / DET — Feb 15, 2026 -->
+    <div class="trade-card">
+      <div class="trade-card__date">February 15, 2026</div>
+      <div class="trade-card__body">
+        <div class="trade-card__side">
+          <div class="trade-card__team">New York Rangers (NYR)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            <strong>V. Tarasenko</strong> (RW)
           </div>
         </div>
-
-        <div class="timeline__item">
-          <div class="timeline__date">Jul 1, 2023</div>
-          <div class="timeline__dot"></div>
-          <div class="timeline__card">
-            <div class="timeline__card-teams">TBL &#8594; OTT</div>
-            <div class="timeline__card-assets">
-              Tampa Bay trades <strong>J. Smith</strong> (C) to Ottawa for <strong>2024 2nd Rd Pick</strong>
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
+        <div class="trade-card__side">
+          <div class="trade-card__team">Detroit Red Wings (DET)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            2026 2nd Round Pick<br>
+            <strong>C. Lundkvist</strong> (RD)
           </div>
         </div>
+      </div>
+    </div>
 
-        <div class="timeline__item">
-          <div class="timeline__date">Mar 8, 2024</div>
-          <div class="timeline__dot timeline__dot--focus"></div>
-          <div class="timeline__card timeline__card--focus">
-            <div class="timeline__card-teams">BOS &#8596; OTT &mdash; Focus Trade</div>
-            <div class="timeline__card-assets">
-              Boston acquires <strong>J. Smith</strong> (C) from Ottawa for <strong>2024 1st Rd Pick</strong> + <strong>M. Johnson</strong> (LW)
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
+    <!-- Trade 6: CHI / ANA — Jan 8, 2026 -->
+    <div class="trade-card">
+      <div class="trade-card__date">January 8, 2026</div>
+      <div class="trade-card__body">
+        <div class="trade-card__side">
+          <div class="trade-card__team">Chicago Blackhawks (CHI)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            Future Considerations
           </div>
         </div>
-
-        <div class="timeline__item">
-          <div class="timeline__date">Jun 28, 2024</div>
-          <div class="timeline__dot"></div>
-          <div class="timeline__card">
-            <div class="timeline__card-teams">OTT &#8594; DET</div>
-            <div class="timeline__card-assets">
-              Ottawa trades <strong>2024 1st Rd Pick</strong> (from BOS) to Detroit for <strong>R. Walters</strong> (RD)
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
+        <div class="trade-card__side">
+          <div class="trade-card__team">Anaheim Ducks (ANA)</div>
+          <div class="trade-card__label">Acquires</div>
+          <div class="trade-card__assets">
+            <strong>N. Foligno</strong> (LW)
           </div>
         </div>
-
-        <div class="timeline__item">
-          <div class="timeline__date">Jul 12, 2024</div>
-          <div class="timeline__dot"></div>
-          <div class="timeline__card">
-            <div class="timeline__card-teams">OTT &#8594; CGY</div>
-            <div class="timeline__card-assets">
-              Ottawa trades <strong>M. Johnson</strong> (LW) to Calgary for <strong>2025 Conditional 4th Rd Pick</strong>
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
-          </div>
-        </div>
-
-        <div class="timeline__item">
-          <div class="timeline__date">Jan 10, 2025</div>
-          <div class="timeline__dot"></div>
-          <div class="timeline__card">
-            <div class="timeline__card-teams">DET &#8594; MTL</div>
-            <div class="timeline__card-assets">
-              Detroit trades <strong>2024 1st Rd Pick</strong> (originally from BOS) to Montreal for <strong>L. Beaumont</strong> (C)
-            </div>
-            <a href="#" class="timeline__card-link">View Trade &rarr;</a>
-          </div>
-        </div>
-
       </div>
     </div>
 

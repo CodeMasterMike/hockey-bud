@@ -512,7 +512,7 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
    =================================================================== */
 .projections-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -877,6 +877,7 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
   <div class="tab-nav">
     <button class="active">Overview</button>
     <button>Team Detail</button>
+    <button>CHIP Graph</button>
     <button>Buyout Calculator</button>
     <button>Cap Explained</button>
   </div>
@@ -892,59 +893,7 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
 
   <div class="teams-grid">
 
-    <!-- Team 1: Florida Panthers (near cap) -->
-    <div class="team-card" onclick="void(0)">
-      <div class="team-card__header">
-        <div class="team-card__logo" style="background:#C8102E;">FLA</div>
-        <div class="team-card__name">Florida Panthers</div>
-      </div>
-      <div class="team-card__stat">
-        <span>Players on Cap</span>
-        <span class="team-card__stat-value">23</span>
-      </div>
-      <div class="cap-bar">
-        <div class="cap-bar__fill cap-bar__fill--high" style="width:96.6%;"></div>
-      </div>
-      <div class="cap-bar__pct">96.6%</div>
-      <div class="team-card__stat">
-        <span>Cap Used</span>
-        <span class="team-card__stat-value">$85,000,000</span>
-      </div>
-      <div class="team-card__stat">
-        <span>Cap Available</span>
-        <span class="team-card__stat-value">$3,000,000</span>
-      </div>
-    </div>
-
-    <!-- Team 2: Toronto Maple Leafs (over cap using LTIR) -->
-    <div class="team-card" onclick="void(0)">
-      <div class="team-card__header">
-        <div class="team-card__logo" style="background:#00205B;">TOR</div>
-        <div class="team-card__name">Toronto Maple Leafs</div>
-      </div>
-      <div class="team-card__stat">
-        <span>Players on Cap</span>
-        <span class="team-card__stat-value">24</span>
-      </div>
-      <div class="cap-bar">
-        <div class="cap-bar__fill cap-bar__fill--ltir" style="width:100%;"></div>
-      </div>
-      <div class="cap-bar__pct">102.3%</div>
-      <div class="team-card__stat">
-        <span>Cap Used</span>
-        <span class="team-card__stat-value">$90,024,000</span>
-      </div>
-      <div class="team-card__stat">
-        <span>Cap Available</span>
-        <span class="team-card__stat-value">$0</span>
-      </div>
-      <div class="team-card__stat team-card__stat--ltir">
-        <span>LTIR Used</span>
-        <span class="team-card__stat-value">$4,500,000</span>
-      </div>
-    </div>
-
-    <!-- Team 3: Boston Bruins (moderate space) -->
+    <!-- Team 1: Boston Bruins (moderate space) -->
     <div class="team-card" onclick="void(0)">
       <div class="team-card__header">
         <div class="team-card__logo" style="background:#000000; border: 1px solid var(--border-default);">BOS</div>
@@ -966,61 +915,10 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
         <span>Cap Available</span>
         <span class="team-card__stat-value">$5,550,000</span>
       </div>
+      <div class="team-card__stat"><span>CHIP</span><span class="team-card__stat-value">$0</span></div>
     </div>
 
-    <!-- Team 4: Edmonton Oilers (tight) -->
-    <div class="team-card" onclick="void(0)">
-      <div class="team-card__header">
-        <div class="team-card__logo" style="background:#041E42;">EDM</div>
-        <div class="team-card__name">Edmonton Oilers</div>
-      </div>
-      <div class="team-card__stat">
-        <span>Players on Cap</span>
-        <span class="team-card__stat-value">23</span>
-      </div>
-      <div class="cap-bar">
-        <div class="cap-bar__fill cap-bar__fill--high" style="width:98.2%;"></div>
-      </div>
-      <div class="cap-bar__pct">98.2%</div>
-      <div class="team-card__stat">
-        <span>Cap Used</span>
-        <span class="team-card__stat-value">$86,416,000</span>
-      </div>
-      <div class="team-card__stat">
-        <span>Cap Available</span>
-        <span class="team-card__stat-value">$1,584,000</span>
-      </div>
-    </div>
-
-    <!-- Team 5: Colorado Avalanche (LTIR) -->
-    <div class="team-card" onclick="void(0)">
-      <div class="team-card__header">
-        <div class="team-card__logo" style="background:#6F263D;">COL</div>
-        <div class="team-card__name">Colorado Avalanche</div>
-      </div>
-      <div class="team-card__stat">
-        <span>Players on Cap</span>
-        <span class="team-card__stat-value">24</span>
-      </div>
-      <div class="cap-bar">
-        <div class="cap-bar__fill cap-bar__fill--ltir" style="width:100%;"></div>
-      </div>
-      <div class="cap-bar__pct">101.1%</div>
-      <div class="team-card__stat">
-        <span>Cap Used</span>
-        <span class="team-card__stat-value">$88,968,000</span>
-      </div>
-      <div class="team-card__stat">
-        <span>Cap Available</span>
-        <span class="team-card__stat-value">$0</span>
-      </div>
-      <div class="team-card__stat team-card__stat--ltir">
-        <span>LTIR Used</span>
-        <span class="team-card__stat-value">$7,200,000</span>
-      </div>
-    </div>
-
-    <!-- Team 6: Carolina Hurricanes (comfortable) -->
+    <!-- Team 2: Carolina Hurricanes (comfortable) -->
     <div class="team-card" onclick="void(0)">
       <div class="team-card__header">
         <div class="team-card__logo" style="background:#CE1126;">CAR</div>
@@ -1042,6 +940,111 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
         <span>Cap Available</span>
         <span class="team-card__stat-value">$11,000,000</span>
       </div>
+      <div class="team-card__stat"><span>CHIP</span><span class="team-card__stat-value">$1,200,000</span></div>
+    </div>
+
+    <!-- Team 3: Chicago Blackhawks (rebuilding, lots of space) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#CF0A2C;">CHI</div>
+        <div class="team-card__name">Chicago Blackhawks</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">19</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--normal" style="width:74.4%;"></div>
+      </div>
+      <div class="cap-bar__pct">74.4%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$65,472,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$22,528,000</span>
+      </div>
+      <div class="team-card__stat"><span>CHIP</span><span class="team-card__stat-value">$0</span></div>
+    </div>
+
+    <!-- Team 4: Colorado Avalanche (LTIR) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#6F263D;">COL</div>
+        <div class="team-card__name">Colorado Avalanche</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">24</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--ltir" style="width:100%;"></div>
+      </div>
+      <div class="cap-bar__pct">101.1%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$88,968,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$0</span>
+      </div>
+      <div class="team-card__stat"><span>CHIP</span><span class="team-card__stat-value">$3,450,000</span></div>
+      <div class="team-card__stat team-card__stat--ltir">
+        <span>LTIR Used</span>
+        <span class="team-card__stat-value">$7,200,000</span>
+      </div>
+    </div>
+
+    <!-- Team 5: Edmonton Oilers (tight) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#041E42;">EDM</div>
+        <div class="team-card__name">Edmonton Oilers</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">23</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--high" style="width:98.2%;"></div>
+      </div>
+      <div class="cap-bar__pct">98.2%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$86,416,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$1,584,000</span>
+      </div>
+      <div class="team-card__stat"><span>CHIP</span><span class="team-card__stat-value">$850,000</span></div>
+    </div>
+
+    <!-- Team 6: Florida Panthers (near cap) -->
+    <div class="team-card" onclick="void(0)">
+      <div class="team-card__header">
+        <div class="team-card__logo" style="background:#C8102E;">FLA</div>
+        <div class="team-card__name">Florida Panthers</div>
+      </div>
+      <div class="team-card__stat">
+        <span>Players on Cap</span>
+        <span class="team-card__stat-value">23</span>
+      </div>
+      <div class="cap-bar">
+        <div class="cap-bar__fill cap-bar__fill--high" style="width:96.6%;"></div>
+      </div>
+      <div class="cap-bar__pct">96.6%</div>
+      <div class="team-card__stat">
+        <span>Cap Used</span>
+        <span class="team-card__stat-value">$85,000,000</span>
+      </div>
+      <div class="team-card__stat">
+        <span>Cap Available</span>
+        <span class="team-card__stat-value">$3,000,000</span>
+      </div>
+      <div class="team-card__stat"><span>CHIP</span><span class="team-card__stat-value">$2,100,000</span></div>
     </div>
 
     <!-- Team 7: New York Rangers (near cap) -->
@@ -1066,29 +1069,35 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
         <span>Cap Available</span>
         <span class="team-card__stat-value">$2,024,000</span>
       </div>
+      <div class="team-card__stat"><span>CHIP</span><span class="team-card__stat-value">$1,800,000</span></div>
     </div>
 
-    <!-- Team 8: Chicago Blackhawks (rebuilding, lots of space) -->
+    <!-- Team 8: Toronto Maple Leafs (over cap using LTIR) -->
     <div class="team-card" onclick="void(0)">
       <div class="team-card__header">
-        <div class="team-card__logo" style="background:#CF0A2C;">CHI</div>
-        <div class="team-card__name">Chicago Blackhawks</div>
+        <div class="team-card__logo" style="background:#00205B;">TOR</div>
+        <div class="team-card__name">Toronto Maple Leafs</div>
       </div>
       <div class="team-card__stat">
         <span>Players on Cap</span>
-        <span class="team-card__stat-value">19</span>
+        <span class="team-card__stat-value">24</span>
       </div>
       <div class="cap-bar">
-        <div class="cap-bar__fill cap-bar__fill--normal" style="width:74.4%;"></div>
+        <div class="cap-bar__fill cap-bar__fill--ltir" style="width:100%;"></div>
       </div>
-      <div class="cap-bar__pct">74.4%</div>
+      <div class="cap-bar__pct">102.3%</div>
       <div class="team-card__stat">
         <span>Cap Used</span>
-        <span class="team-card__stat-value">$65,472,000</span>
+        <span class="team-card__stat-value">$90,024,000</span>
       </div>
       <div class="team-card__stat">
         <span>Cap Available</span>
-        <span class="team-card__stat-value">$22,528,000</span>
+        <span class="team-card__stat-value">$0</span>
+      </div>
+      <div class="team-card__stat"><span>CHIP</span><span class="team-card__stat-value">$4,500,000</span></div>
+      <div class="team-card__stat team-card__stat--ltir">
+        <span>LTIR Used</span>
+        <span class="team-card__stat-value">$4,500,000</span>
       </div>
     </div>
 
@@ -1310,27 +1319,43 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
   <div class="projections-grid">
     <div class="projection-card">
       <div class="projection-season">2026&ndash;27</div>
-      <div class="projection-amount">$65,000,000</div>
+      <div class="projection-amount">$74,200,000</div>
       <div class="projection-bar">
-        <div class="projection-bar__fill" style="width:73.9%;"></div>
+        <div class="projection-bar__fill" style="width:84.3%;"></div>
       </div>
-      <div class="projection-label">73.9% of projected $88M cap</div>
+      <div class="projection-label">84.3% of projected $88M cap</div>
     </div>
     <div class="projection-card">
       <div class="projection-season">2027&ndash;28</div>
-      <div class="projection-amount">$52,000,000</div>
+      <div class="projection-amount">$58,500,000</div>
       <div class="projection-bar">
-        <div class="projection-bar__fill" style="width:59.1%;"></div>
+        <div class="projection-bar__fill" style="width:66.5%;"></div>
       </div>
-      <div class="projection-label">59.1% of projected $88M cap</div>
+      <div class="projection-label">66.5% of projected $88M cap</div>
     </div>
     <div class="projection-card">
       <div class="projection-season">2028&ndash;29</div>
-      <div class="projection-amount">$38,000,000</div>
+      <div class="projection-amount">$42,800,000</div>
       <div class="projection-bar">
-        <div class="projection-bar__fill" style="width:43.2%;"></div>
+        <div class="projection-bar__fill" style="width:48.6%;"></div>
       </div>
-      <div class="projection-label">43.2% of projected $88M cap</div>
+      <div class="projection-label">48.6% of projected $88M cap</div>
+    </div>
+    <div class="projection-card">
+      <div class="projection-season">2029&ndash;30</div>
+      <div class="projection-amount">$28,100,000</div>
+      <div class="projection-bar">
+        <div class="projection-bar__fill" style="width:31.9%;"></div>
+      </div>
+      <div class="projection-label">31.9% of projected $88M cap</div>
+    </div>
+    <div class="projection-card">
+      <div class="projection-season">2030&ndash;31</div>
+      <div class="projection-amount">$15,400,000</div>
+      <div class="projection-bar">
+        <div class="projection-bar__fill" style="width:17.5%;"></div>
+      </div>
+      <div class="projection-label">17.5% of projected $88M cap</div>
     </div>
   </div>
 
@@ -1361,11 +1386,120 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
         <span class="pick-badge">7th</span>
       </div>
     </div>
+    <div class="draft-year">
+      <div class="draft-year__label">2028 NHL Draft</div>
+      <div class="draft-picks-list">
+        <span class="pick-badge">1st</span>
+        <span class="pick-badge">2nd</span>
+        <span class="pick-badge pick-badge--missing">3rd</span>
+        <span class="pick-badge">4th</span>
+        <span class="pick-badge">5th</span>
+        <span class="pick-badge pick-badge--acquired">6th (NYR)</span>
+        <span class="pick-badge">7th</span>
+      </div>
+    </div>
+    <div class="draft-year">
+      <div class="draft-year__label">2029 NHL Draft</div>
+      <div class="draft-picks-list">
+        <span class="pick-badge">1st</span>
+        <span class="pick-badge">2nd</span>
+        <span class="pick-badge">3rd</span>
+        <span class="pick-badge pick-badge--missing">4th</span>
+        <span class="pick-badge">5th</span>
+        <span class="pick-badge">6th</span>
+        <span class="pick-badge">7th</span>
+      </div>
+    </div>
+    <div class="draft-year">
+      <div class="draft-year__label">2030 NHL Draft</div>
+      <div class="draft-picks-list">
+        <span class="pick-badge">1st</span>
+        <span class="pick-badge">2nd</span>
+        <span class="pick-badge">3rd</span>
+        <span class="pick-badge">4th</span>
+        <span class="pick-badge">5th</span>
+        <span class="pick-badge">6th</span>
+        <span class="pick-badge">7th</span>
+      </div>
+    </div>
   </div>
 
 
   <!-- =============================================================
-       SECTION 3 — BUYOUT CALCULATOR
+       SECTION 3 — CHIP GRAPH
+       ============================================================= -->
+  <div class="section-divider">
+    <h3 class="section-header" style="margin-top:0;">CHIP &mdash; Cap Hit of Injured Players</h3>
+    <p class="section-desc">Per-game charge of players missing games through injury/illness (annual cap hit &divide; 82). This graph will expand to include many additional statistical views.</p>
+  </div>
+
+  <div class="chip-graph-card" style="background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 4px; padding: 24px; margin-bottom: 32px;">
+    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 16px;">All Teams &mdash; CHIP (2025&ndash;26)</div>
+
+    <!-- Horizontal bar chart using inline styles -->
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 11px; font-weight: 700; min-width: 32px; text-align: right; color: var(--text-primary);">TOR</span>
+        <div style="flex: 1; height: 18px; background: var(--bg-row-alt); border-radius: 3px; overflow: hidden;">
+          <div style="width: 90%; height: 100%; background: var(--color-ltir); border-radius: 3px;"></div>
+        </div>
+        <span style="font-size: 10px; color: var(--text-muted); min-width: 80px;">$4,500,000</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 11px; font-weight: 700; min-width: 32px; text-align: right; color: var(--text-primary);">COL</span>
+        <div style="flex: 1; height: 18px; background: var(--bg-row-alt); border-radius: 3px; overflow: hidden;">
+          <div style="width: 69%; height: 100%; background: var(--color-cap-used); border-radius: 3px;"></div>
+        </div>
+        <span style="font-size: 10px; color: var(--text-muted); min-width: 80px;">$3,450,000</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 11px; font-weight: 700; min-width: 32px; text-align: right; color: var(--text-primary);">FLA</span>
+        <div style="flex: 1; height: 18px; background: var(--bg-row-alt); border-radius: 3px; overflow: hidden;">
+          <div style="width: 42%; height: 100%; background: var(--color-cap-used); border-radius: 3px;"></div>
+        </div>
+        <span style="font-size: 10px; color: var(--text-muted); min-width: 80px;">$2,100,000</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 11px; font-weight: 700; min-width: 32px; text-align: right; color: var(--text-primary);">NYR</span>
+        <div style="flex: 1; height: 18px; background: var(--bg-row-alt); border-radius: 3px; overflow: hidden;">
+          <div style="width: 36%; height: 100%; background: var(--color-cap-used); border-radius: 3px;"></div>
+        </div>
+        <span style="font-size: 10px; color: var(--text-muted); min-width: 80px;">$1,800,000</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 11px; font-weight: 700; min-width: 32px; text-align: right; color: var(--text-primary);">CAR</span>
+        <div style="flex: 1; height: 18px; background: var(--bg-row-alt); border-radius: 3px; overflow: hidden;">
+          <div style="width: 24%; height: 100%; background: var(--color-cap-used); border-radius: 3px;"></div>
+        </div>
+        <span style="font-size: 10px; color: var(--text-muted); min-width: 80px;">$1,200,000</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 11px; font-weight: 700; min-width: 32px; text-align: right; color: var(--text-primary);">EDM</span>
+        <div style="flex: 1; height: 18px; background: var(--bg-row-alt); border-radius: 3px; overflow: hidden;">
+          <div style="width: 17%; height: 100%; background: var(--color-cap-used); border-radius: 3px;"></div>
+        </div>
+        <span style="font-size: 10px; color: var(--text-muted); min-width: 80px;">$850,000</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 11px; font-weight: 700; min-width: 32px; text-align: right; color: var(--text-primary);">BOS</span>
+        <div style="flex: 1; height: 18px; background: var(--bg-row-alt); border-radius: 3px; overflow: hidden;">
+          <div style="width: 0%; height: 100%; background: var(--color-cap-used); border-radius: 3px;"></div>
+        </div>
+        <span style="font-size: 10px; color: var(--text-muted); min-width: 80px;">$0</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 11px; font-weight: 700; min-width: 32px; text-align: right; color: var(--text-primary);">CHI</span>
+        <div style="flex: 1; height: 18px; background: var(--bg-row-alt); border-radius: 3px; overflow: hidden;">
+          <div style="width: 0%; height: 100%; background: var(--color-cap-used); border-radius: 3px;"></div>
+        </div>
+        <span style="font-size: 10px; color: var(--text-muted); min-width: 80px;">$0</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =============================================================
+       SECTION 4 — BUYOUT CALCULATOR
        ============================================================= -->
   <div class="section-divider">
     <h3 class="section-header" style="margin-top:0;">Buyout Calculator</h3>
@@ -1483,7 +1617,7 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
 
 
   <!-- =============================================================
-       SECTION 4 — CAP EXPLAINED
+       SECTION 5 — CAP EXPLAINED
        ============================================================= -->
   <div class="section-divider">
     <h3 class="section-header" style="margin-top:0;">Cap Explained</h3>
@@ -1565,6 +1699,25 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
         <div class="cap-entry__col-label">Plain Language</div>
         <div class="cap-entry__col-text">
           When trading a player, a team can agree to continue paying up to <strong>50%</strong> of the player's cap hit. This counts against the trading team's cap, not the receiving team's. A team can only retain salary on a maximum of <strong>three</strong> contracts at a time. This mechanism is often used to facilitate trades involving high-salaried players.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entry 5: Escrow -->
+  <div class="cap-entry">
+    <div class="cap-entry__title">Escrow</div>
+    <div class="cap-entry__body">
+      <div class="cap-entry__col">
+        <div class="cap-entry__col-label">CBA / Legal Text</div>
+        <div class="cap-entry__col-text cap-entry__col-text--cba">
+          Players shall pay into an escrow account a percentage of their salary as determined annually by the NHL and NHLPA. The escrow rate is calculated based on projected hockey-related revenue (HRR) and the players' guaranteed share thereof. At season's end, escrow funds are used to ensure the players' actual compensation equals their negotiated percentage of HRR. Any excess escrow is returned to players; any shortfall results in forfeiture of escrow funds to the league.
+        </div>
+      </div>
+      <div class="cap-entry__col">
+        <div class="cap-entry__col-label">Plain Language</div>
+        <div class="cap-entry__col-text">
+          Escrow is like a safety deposit on every paycheck. The NHL withholds a percentage of each player's salary during the season. At the end of the year, the league checks whether total player salaries match the agreed-upon share of league revenue (currently ~50%). If revenue was strong, players get some escrow money back. If revenue fell short, the league keeps enough escrow to balance the books. For players, this means their actual take-home pay can be significantly less than their listed salary &mdash; sometimes 10-15% less in years with high escrow rates.
         </div>
       </div>
     </div>

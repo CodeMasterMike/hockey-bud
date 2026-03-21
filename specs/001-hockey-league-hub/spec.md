@@ -14,6 +14,13 @@
 - Q: Should the Goals and Penalties sections in the Game Hub be separate? → A: No. Combine them into one large box, separated by a sharp dividing line. Minimize wasted space between the goals-by-period/shots-by-period box scores and the goals summary.
 - Q: Should the dark mode banner remain black? → A: No. In dark mode, the banner at the top should use the same soft yellow/beige (`#F5F0E1`) used for text color, and the text in the banner should use the same dark blue (`#0A1628`) as the rest of the page background. Banner interactive elements (search input, hamburger button) should adapt with dark-tinted controls instead of white-tinted.
 - Q: What should the default theme be? → A: Dark mode should be the default mode. Users can still toggle to light mode via the theme toggle.
+- Q: What color should goal dots use on the rink diagram? → A: Goals should be half white and half the team's primary color (no team uses white as their team color for this purpose). Previously they were half green — changed to white for better contrast and visual clarity.
+- Q: How should teams be ordered on the Salary Cap overview page? → A: Alphabetically by location name (e.g., "Boston" Bruins, "Carolina" Hurricanes, etc.).
+- Q: Should CHIP (Cap Hit of Injured Players) be shown? → A: Yes. Add CHIP to each team card on the overview (annual cap charge ÷ 82 per game missed). Add a CHIP Graph tab between Team Detail and Buyout Calculator showing all 32 teams in a horizontal bar chart. This graph tab will eventually expand to include many different statistical views.
+- Q: How many years of future cap commitments should be shown? → A: 5 years forward from the current season.
+- Q: How many years of draft pick inventory should be shown? → A: 5 years forward.
+- Q: Should Escrow be included in Cap Explained? → A: Yes. Add an Escrow section explaining how players pay a percentage of salary into escrow, calculated against hockey-related revenue (HRR), with any excess returned or shortfall forfeited.
+- Q: Should the trade tree visualization remain? → A: No. Remove the trade tree completely — an entirely new style will be added in the future. For now, the Trades page should be a simple chronological list of all trades in the current season, most recent on top, with filters for team and season.
 
 ### Session 2026-03-19
 
@@ -97,7 +104,7 @@ A visitor clicks "Game Hub" on any score box and is taken to a detailed game pag
 5. **Given** a visitor hovers over a player name anywhere in the Game Hub, **When** the popup appears, **Then** it displays the player's headshot and season stats (GP, G, A, +/-, PIM).
 6. **Given** the Player Stats tab, **When** the grids load, **Then** two side-by-side grids appear (away on left, home on right) with skater rows showing #, G, A, PTS, +/-, HIT, PIM, TOI, SOG, GV, TK, WAR, xGF/60, FO%. Goalie rows have a separate header showing SA, SV, SV%, TOI, HDC/HDS, LDC/LDS, WAR. Rows alternate in shading and the grid scrolls horizontally if needed.
 7. **Given** the Rink Instances tab, **When** displayed, **Then** an accurately dimensioned rink diagram shows rink measurements, penalty boxes, and indicates which side has the home bench and which has the away bench. The diagram includes an accurate view of the layout of the stands with actual seat colors if available; if seat color information is unavailable, an outline of the stands using best available information with washed-out gray seats.
-8. **Given** the Rink Instances tab, **When** the visitor selects the "Goals" view, **Then** dots appear on the ice at each goal's location, each dot half bright green and half the scoring team's primary color.
+8. **Given** the Rink Instances tab, **When** the visitor selects the "Goals" view, **Then** dots appear on the ice at each goal's location, each dot half white and half the scoring team's primary color. No team uses white as their team color for this purpose.
 9. **Given** a visitor hovers over any event dot on the rink, **When** the tooltip appears, **Then** it shows the action type, the player who performed it, and the game clock time.
 10. **Given** a visitor clicks a dot that has corresponding video, **When** they click, **Then** a video player pops up with footage of the play. Dots with available video display a small, unintrusive indicator — a small black dot within the colored dot (not a play button) — that users will learn indicates video availability. This indicator must be easily changeable in the future.
 11. **Given** the Team Stats tab, **When** displayed, **Then** a complete official score sheet with all standard information appears beneath the summaries.
@@ -184,7 +191,7 @@ A visitor navigates to a player's profile page and sees their headshot (with car
 
 ### User Story 7 - Browse Salary Cap Information (Priority: P7)
 
-A visitor navigates to the Salary Cap page and sees all NHL teams with their logo, number of players on cap, total cap used, cap available, and LTIR cap space. They click a team to see detailed per-player cap allocation with years remaining, UFA/RFA status, contract clauses, future cap projections, draft pick inventory, and a buyout calculator. A "Salary Cap Explained" guide provides searchable, plain-language explanations of all cap rules.
+A visitor navigates to the Salary Cap page and sees all 32 NHL teams listed alphabetically by location name, each showing their logo, number of players on cap, total cap used, cap available, LTIR cap space, and CHIP (Cap Hit of Injured Players — annual cap charge ÷ 82 per game missed). They can filter by cap used and CHIP. A CHIP Graph tab shows a horizontal bar chart of all 32 teams' CHIP values (this tab will eventually include many different statistical views). They click a team to see detailed per-player cap allocation with years remaining, UFA/RFA status, contract clauses, future cap commitments for the next 5 years, draft pick inventory for the next 5 years, and a buyout calculator. A "Salary Cap Explained" guide provides searchable, plain-language explanations of all cap rules including escrow.
 
 **Why this priority**: Salary cap information is essential for understanding team-building decisions and is highly sought after by engaged fans.
 
@@ -192,30 +199,30 @@ A visitor navigates to the Salary Cap page and sees all NHL teams with their log
 
 **Acceptance Scenarios**:
 
-1. **Given** the Salary Cap default page, **When** displayed, **Then** all 32 NHL teams show their logo, number of players on cap, total cap used, cap available, and LTIR cap space.
+1. **Given** the Salary Cap default page, **When** displayed, **Then** all 32 NHL teams are listed alphabetically by location name, each showing their logo, number of players on cap, total cap used, cap available, LTIR cap space, and CHIP (Cap Hit of Injured Players). A filter allows sorting/viewing by cap used and CHIP.
 2. **Given** a team's cap detail page, **When** displayed, **Then** each player shows cap hit, years remaining, UFA/RFA status, and any special clauses (NMC, NTC, etc.), with a forward-looking focus on team-building implications.
-3. **Given** the team cap detail page, **When** displayed, **Then** it includes projected salary cap usage for coming years and available draft picks.
-4. **Given** the buyout calculator, **When** a visitor selects a player, **Then** the calculator shows the cap implications of buying out that player over the applicable years.
-5. **Given** the "Salary Cap Explained" page, **When** the visitor searches for a term, **Then** the search returns relevant sections with legal terms explained in plain language alongside the original terminology.
-6. **Given** a section of the Salary Cap Explained guide, **When** the visitor reads it, **Then** an adjacent plain-language companion explains the legal terms in an accessible way.
+3. **Given** the team cap detail page, **When** displayed, **Then** it includes projected salary cap commitments for the next 5 years and draft pick inventory for the next 5 years.
+4. **Given** the CHIP Graph tab, **When** displayed, **Then** a horizontal bar chart shows all 32 teams' CHIP values sorted from highest to lowest. This tab will expand to include many different statistical views in the future.
+5. **Given** the buyout calculator, **When** a visitor selects a player, **Then** the calculator shows the cap implications of buying out that player over the applicable years.
+6. **Given** the "Salary Cap Explained" page, **When** the visitor searches for a term, **Then** the search returns relevant sections with legal terms explained in plain language alongside the original terminology. Topics include escrow as it pertains to NHL contracts.
+7. **Given** a section of the Salary Cap Explained guide, **When** the visitor reads it, **Then** an adjacent plain-language companion explains the legal terms in an accessible way.
 
 ---
 
 ### User Story 8 - View Trade History and Trade Trees (Priority: P8)
 
-A visitor navigates to the Trades page and sees all trades from the current season listed with the most recent first. They filter by season or team and search for a specific player. Clicking a trade opens a detailed page with all known trade information and a visual trade tree showing all prior and subsequent transactions involving the traded pieces, traced as deep as the chain extends in both directions.
+A visitor navigates to the Trades page and sees all trades from the current season listed chronologically with the most recent first. They can filter by team and by season. Each trade shows the date, the two teams involved, and the assets exchanged (players, draft picks, salary retained). A trade tree visualization is planned for the future but is not included in the current phase.
 
 **Why this priority**: Trade information connects players, teams, and draft picks across time and is a highly engaging research feature for dedicated fans.
 
-**Independent Test**: Can be tested by searching for a known traded player, viewing the trade details, and navigating the complete trade tree.
+**Independent Test**: Can be tested by loading the Trades page, verifying trades are listed chronologically, and filtering by team and season.
 
 **Acceptance Scenarios**:
 
-1. **Given** the Trades page, **When** displayed, **Then** all trades from the current season appear with the most recent at the top.
+1. **Given** the Trades page, **When** displayed, **Then** all trades from the current season appear in a chronological list with the most recent at the top, showing the date, teams involved, and assets exchanged.
 2. **Given** the Trades page, **When** a visitor filters by a specific team, **Then** only trades involving that team are shown.
-3. **Given** the Trades page, **When** a visitor searches for a player by name, **Then** that player's complete trade history is displayed.
-4. **Given** a trade detail page, **When** a trade tree exists, **Then** it displays a clean, navigable visualization of all prior and subsequent transactions involving the traded pieces, with each branch going as deep as necessary in both directions.
-5. **Given** a trade tree, **When** any player or pick within the tree is displayed, **Then** it is clickable to navigate to the relevant player profile or draft information.
+3. **Given** the Trades page, **When** a visitor filters by season, **Then** trades from that season are shown.
+4. **Given** a trade entry, **When** displayed, **Then** it shows both sides of the trade with team names, player names, draft pick details, and any salary retention noted.
 
 ---
 
