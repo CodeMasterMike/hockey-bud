@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject, merge, timer, switchMap, startWith, shareReplay } from 'rxjs';
 import { SignalRService, ScoreUpdate } from './signalr.service';
+import { TICKER_POLL_INTERVAL_MS } from '../constants';
 
 export interface ScoresResponse {
   date: string;
@@ -166,11 +167,10 @@ export class ScoresApiService {
   }
 
   getTicker(leagueId: string): Observable<TickerResponse> {
-    // Merge SignalR-triggered refreshes with 30s fallback polling
     return merge(
       this.signalR.scoreUpdate$,
       this.refresh$,
-      timer(0, 30000)
+      timer(0, TICKER_POLL_INTERVAL_MS)
     ).pipe(
       startWith(null),
       switchMap(() => this.http.get<TickerResponse>(`/api/leagues/${leagueId}/scores/ticker`)),

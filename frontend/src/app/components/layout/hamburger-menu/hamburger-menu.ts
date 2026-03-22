@@ -1,8 +1,9 @@
-import { Component, input, output, inject } from '@angular/core';
+import { Component, input, output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ThemeService } from '../../../services/theme.service';
 
 @Component({
   selector: 'app-hamburger-menu',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (isOpen()) {
       <div class="flyout-overlay" (click)="closed.emit()"></div>

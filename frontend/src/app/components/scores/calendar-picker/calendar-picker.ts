@@ -1,7 +1,8 @@
-import { Component, input, output, signal, computed } from '@angular/core';
+import { Component, input, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-calendar-picker',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="cal">
       <div class="cal__header">

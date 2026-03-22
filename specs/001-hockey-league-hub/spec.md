@@ -664,6 +664,7 @@ When a new version is deployed, the Azure Container App creates a new revision a
 - Automated performance/load testing in CI/CD
 - Staging environment (third tier between dev and prod)
 - Integration of the same data for additional leagues (AHL, ECHL, KHL, SHL, Liiga, etc.)
+- **Mobile app (iOS & Android) via .NET MAUI** — native companion app consuming the existing REST API and SignalR hub. Pre-work required: API versioning (`/api/v1/...`) to safely evolve endpoints once mobile clients are in app stores with independent update cycles; JWT/OAuth authentication (shared with web); push notifications via APNs/FCM for score alerts when the app is backgrounded; response pagination on endpoints that currently return full lists for cellular-friendly payloads
 
 ## Deployment, Hosting & Infrastructure
 

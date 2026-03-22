@@ -18,9 +18,16 @@ public class ScoresController(ScoresQueryService scoresQuery, HockeyHubDbContext
         var id = await ResolveLeagueId(leagueId, ct);
         if (id is null) return NotFound("League not found");
 
-        var gameDate = date is not null
-            ? DateOnly.ParseExact(date, "yyyy-MM-dd")
-            : DateOnly.FromDateTime(DateTime.UtcNow.AddHours(-8));
+        DateOnly gameDate;
+        if (date is not null)
+        {
+            if (!DateOnly.TryParseExact(date, "yyyy-MM-dd", out gameDate))
+                return BadRequest("Invalid date format. Expected yyyy-MM-dd.");
+        }
+        else
+        {
+            gameDate = HockeyHub.Core.NhlDateHelper.GetCurrentGameDay();
+        }
 
         var result = await scoresQuery.GetScoresByDateAsync(id.Value, gameDate, ct);
         return Ok(result);

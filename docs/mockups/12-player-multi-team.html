@@ -1,0 +1,2562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M012 - Multi-Team Player Profile | Hockey League Hub</title>
+
+<!-- Self-hosted Courier Prime -->
+<style>
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: italic; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-italic.woff2') format('woff2'); }
+</style>
+
+<style>
+/* ===================================================================
+   DESIGN TOKENS
+   =================================================================== */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1; --bg-banner: #000000; --bg-nav: #1A1A1A; --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04); --text-primary: #1A1A1A; --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A; --text-on-banner: #F5F0E1; --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25); --color-link: #2C5F8A; --color-link-hover: #1A3D5C;
+  --color-live: #C0392B; --color-pending: #D4A017; --color-final: #4A4A4A;
+  --bg-ticker: #111111; --text-ticker: #F5F0E1;
+  --bg-era-original-six: rgba(139,90,43,0.05); --bg-era-expansion: rgba(34,85,102,0.05);
+  --bg-era-salary-cap: rgba(60,60,60,0.05);
+}
+
+[data-theme="dark"] {
+  --bg-page: #0A1628; --bg-banner: #F5F0E1; --bg-nav: #0D1B2A; --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06); --text-primary: #F5F0E1; --text-secondary: #B8B0A0;
+  --text-muted: #807868; --text-on-banner: #0A1628;
+  --border-default: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6; --color-link-hover: #8DC0F0;
+  --color-live: #E74C3C; --color-pending: #F1C40F; --color-final: #B8B0A0;
+  --bg-ticker: #050D1A;
+  --bg-era-original-six: rgba(218,165,32,0.08); --bg-era-expansion: rgba(70,160,190,0.08);
+  --bg-era-salary-cap: rgba(180,180,180,0.06);
+}
+
+/* ===================================================================
+   RESET + BASE
+   =================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  background: #E8E0D0;
+  color: #1A1A1A;
+}
+
+/* ===================================================================
+   MOCKUP LAYOUT
+   =================================================================== */
+.mockup-label {
+  text-align: center;
+  padding: 18px 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #555;
+  background: #E8E0D0;
+}
+
+.shell-wrapper {
+  max-width: 1280px;
+  margin: 0 auto 40px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.18);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-page);
+  color: var(--text-primary);
+}
+
+/* ===================================================================
+   BANNER
+   =================================================================== */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-banner, #000);
+  color: var(--text-on-banner);
+  padding: 0 24px;
+  height: 56px;
+}
+
+.banner__brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.banner__brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--text-on-banner);
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.banner__search {
+  flex: 0 1 420px;
+  margin: 0 24px;
+}
+
+.banner__search input {
+  width: 100%;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-on-banner);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  outline: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.banner__search input::placeholder { color: rgba(245,240,225,0.5); }
+.banner__search input:focus { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.4); }
+
+.banner__search-wrap { position: relative; }
+.banner__search-wrap::before {
+  content: "\1F50D";
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  font-size: 14px; opacity: 0.5; pointer-events: none;
+}
+
+.banner__hamburger {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  color: var(--text-on-banner);
+  font-size: 22px;
+  cursor: pointer;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  line-height: 1;
+}
+
+.banner__hamburger:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.35); }
+
+/* ===================================================================
+   LIVE SCORE TICKER
+   =================================================================== */
+.ticker {
+  background: var(--bg-ticker);
+  color: var(--text-ticker);
+  height: 40px;
+  overflow: hidden;
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.ticker__track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 0;
+  animation: ticker-scroll 30s linear infinite;
+  width: max-content;
+}
+
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker__game {
+  display: flex; align-items: center;
+  padding: 0 28px;
+  font-size: 12px; font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  height: 100%;
+}
+
+.ticker__game:last-child { border-right: none; }
+.ticker__teams { display: flex; align-items: center; gap: 6px; }
+.ticker__team { color: var(--text-ticker); }
+.ticker__score { color: var(--text-ticker); margin: 0 4px; }
+.ticker__score--live { color: var(--color-live); }
+.ticker__dash { color: rgba(245,240,225,0.4); margin: 0 2px; }
+.ticker__status { margin-left: 10px; font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; }
+.ticker__status--live { color: var(--color-live); }
+.ticker__status--final { color: var(--color-final); opacity: 0.7; }
+.ticker__status--pending { color: var(--color-pending); }
+.ticker__live-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--color-live); margin-right: 5px;
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* ===================================================================
+   SECONDARY NAV
+   =================================================================== */
+.nav {
+  background: var(--bg-nav);
+  display: flex; align-items: center; justify-content: center;
+  height: 44px; padding: 0 16px; gap: 0;
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+
+.nav__link {
+  color: rgba(245,240,225,0.65);
+  text-decoration: none;
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+  height: 100%;
+  display: flex; align-items: center;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nav__link:hover { color: rgba(245,240,225,0.9); }
+.nav__link--active { color: #F5F0E1; border-bottom-color: #F5F0E1; }
+
+/* ===================================================================
+   FOOTER
+   =================================================================== */
+.footer {
+  padding: 24px 48px;
+  border-top: 1px solid var(--border-default);
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-page);
+}
+
+.footer a { color: var(--color-link); text-decoration: none; }
+.footer a:hover { color: var(--color-link-hover); }
+
+/* ===================================================================
+   BREADCRUMB
+   =================================================================== */
+.breadcrumb {
+  padding: 16px 48px 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg-page);
+}
+
+.breadcrumb a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover { color: var(--color-link-hover); }
+
+.breadcrumb__sep {
+  margin: 0 6px;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* ===================================================================
+   PLAYER PROFILE - HERO SECTION
+   =================================================================== */
+.profile {
+  padding: 24px 48px 40px;
+  background: var(--bg-page);
+}
+
+.profile__hero {
+  display: grid;
+  grid-template-columns: 200px 1fr 320px;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+/* Headshot area */
+.headshot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.headshot__main {
+  width: 200px;
+  height: 240px;
+  background: #000000;
+  border: 3px solid #C52032;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.headshot__initials {
+  font-size: 56px;
+  font-weight: 700;
+  color: #C52032;
+  line-height: 1;
+}
+
+.headshot__number {
+  font-size: 28px;
+  font-weight: 700;
+  color: rgba(197,32,50,0.6);
+  margin-top: 4px;
+}
+
+.headshot__main:hover .headshot__gallery-label {
+  opacity: 1;
+}
+
+.headshot__gallery-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.75);
+  color: #C52032;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+  padding: 6px 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+/* Career gallery thumbnails */
+.headshot__thumbnails {
+  display: flex;
+  gap: 6px;
+}
+
+.headshot__thumb {
+  width: 45px;
+  height: 54px;
+  border-radius: 3px;
+  border: 2px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.headshot__thumb:hover {
+  border-color: var(--border-strong);
+}
+
+.headshot__thumb--active {
+  border-color: #C52032;
+}
+
+.headshot__thumb-initials {
+  font-size: 14px;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+
+.headshot__thumb-label {
+  font-size: 8px;
+  letter-spacing: 0.02em;
+  opacity: 0.7;
+}
+
+.headshot__gallery-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Bio info */
+.bio {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.bio__name {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 2px;
+  color: var(--text-primary);
+}
+
+.bio__team-line {
+  font-size: 14px;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}
+
+.bio__team-link {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.bio__team-link:hover { color: var(--color-link-hover); }
+
+.bio__details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 24px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.bio__detail-label {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bio__detail-value {
+  color: var(--text-primary);
+}
+
+.bio__draft {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-default);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.bio__draft-label {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.bio__nation-link {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: 700;
+}
+.bio__nation-link:hover { color: var(--color-link-hover); text-decoration: underline; }
+
+/* Career history (right column) */
+.career-history {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 20px;
+}
+
+.career-history__title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.career-history__team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-default);
+  font-size: 13px;
+}
+
+.career-history__team:last-of-type { border-bottom: none; }
+
+.career-history__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.career-history__team-name {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.career-history__jersey {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.career-history__years {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.career-history__awards {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-default);
+}
+
+.career-history__awards-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.career-history__award {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.career-history__award-icon {
+  color: #D4A017;
+  font-size: 14px;
+}
+
+.career-history__award-team-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.career-history__award-team-abbr {
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--text-primary);
+  min-width: 28px;
+}
+
+/* ===================================================================
+   STATS TABS + TABLE
+   =================================================================== */
+.stats-section {
+  margin-bottom: 40px;
+}
+
+.stats-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.stats-section__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stats-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border-default);
+  margin-bottom: 0;
+}
+
+.stats-tab {
+  padding: 10px 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font-primary);
+}
+
+.stats-tab:hover { color: var(--text-secondary); }
+
+.stats-tab--active {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}
+
+/* Stats sub-tabs (Regular Season / Playoffs) */
+.stats-subtabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 0;
+  padding-left: 20px;
+}
+.stats-subtab {
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font-primary);
+}
+.stats-subtab:hover { color: var(--text-secondary); }
+.stats-subtab--active {
+  color: var(--text-primary);
+  border-bottom-color: var(--color-link);
+}
+
+.stats-table-wrap {
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.stats-table th {
+  background: var(--bg-nav);
+  color: #F5F0E1;
+  text-align: right;
+  padding: 10px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  position: sticky;
+  top: 0;
+}
+
+.stats-table th:first-child,
+.stats-table th:nth-child(2) {
+  text-align: left;
+}
+
+.stats-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.stats-table td:first-child,
+.stats-table td:nth-child(2) {
+  text-align: left;
+}
+
+.stats-table td:first-child {
+  font-weight: 700;
+}
+
+.stats-table tr:last-child td { border-bottom: none; }
+
+/* Era tint rows */
+.stats-table tr.era-salary-cap td {
+  background: var(--bg-era-salary-cap);
+}
+
+.stats-table tr.era-salary-cap:nth-child(odd) td {
+  background: var(--bg-era-salary-cap);
+}
+
+.stats-table tr.era-salary-cap:nth-child(even) td {
+  background: color-mix(in srgb, var(--bg-era-salary-cap), var(--bg-row-alt));
+}
+
+/* Team separator row in stats table */
+.stats-table tr.team-separator td {
+  background: var(--bg-card);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border-strong);
+  border-top: 2px solid var(--border-strong);
+  color: var(--text-primary);
+}
+
+.stats-table tr.team-separator .team-sep-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stats-table tr.team-separator .team-sep-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stats-table tr.team-separator .team-sep-name {
+  color: var(--text-primary);
+}
+
+.stats-table tr.team-separator .team-sep-years {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* Team subtotals row */
+.stats-table tr.team-subtotal td {
+  font-weight: 700;
+  font-style: italic;
+  border-top: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--bg-card), var(--bg-era-salary-cap));
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+/* Career totals */
+.stats-table tr.career-totals td {
+  font-weight: 700;
+  border-top: 2px solid var(--border-strong);
+  background: var(--bg-card);
+}
+
+/* Team link in table */
+.stats-table .team-link {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+.stats-table .team-link:hover { color: var(--color-link-hover); }
+
+/* ===================================================================
+   AWARDS SECTION
+   =================================================================== */
+.awards-section {
+  margin-bottom: 40px;
+}
+
+.awards-section__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.awards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.award-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 20px 24px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.award-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.award-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.award-card__icon {
+  color: #D4A017;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.award-card__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.award-card__description {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.award-card__instances {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.award-instance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 6px 10px;
+  background: var(--bg-page);
+  border-radius: 3px;
+  border: 1px solid var(--border-default);
+}
+
+.award-instance__dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.award-instance__team {
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--text-primary);
+  min-width: 28px;
+}
+
+.award-instance__year {
+  color: var(--text-secondary);
+}
+
+/* ===================================================================
+   PLAYING STYLE SECTION
+   =================================================================== */
+.playing-style {
+  margin-bottom: 40px;
+}
+
+.playing-style__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.playing-style__narrative {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 800px;
+  margin-bottom: 20px;
+}
+
+.playing-style__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.style-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 18px 16px;
+  text-align: center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.style-stat-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.style-stat-card__value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.style-stat-card__label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ===================================================================
+   PLAYER PAGE TABS
+   =================================================================== */
+.player-page-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--bg-page);
+  padding: 0 48px;
+  border-bottom: 2px solid var(--border-strong);
+}
+.player-page-tab {
+  font-family: var(--font-primary);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 28px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.player-page-tab:hover { color: var(--text-secondary); }
+.player-page-tab.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}
+
+/* ===================================================================
+   TEAM LOGOS
+   =================================================================== */
+.team-logo { display: inline-block; vertical-align: middle; object-fit: contain; }
+.team-logo--xs { width: 14px; height: 14px; }
+.team-logo--sm { width: 18px; height: 18px; }
+.team-logo--md { width: 20px; height: 20px; }
+.team-logo--lg { width: 28px; height: 28px; }
+.team-logo--xl { width: 44px; height: 44px; }
+.ticker__team { display: inline-flex; align-items: center; gap: 3px; }
+</style>
+</head>
+<body>
+
+<!-- NOTE: This mockup demonstrates the multi-team player profile pattern.
+     Shows Claude Giroux (PHI 2008-2022, OTT 2022-present) with awards won on different teams.
+     Key patterns demonstrated:
+     - Team separator headers in stats table with colored dot + team name
+     - Per-team subtotal rows
+     - Awards section with colored team dots showing which team each award was won with
+     - Career gallery thumbnails spanning multiple team eras
+     - Career history sidebar with multiple team entries -->
+
+<!-- ================================================================
+     LIGHT MODE
+     ================================================================ -->
+<div class="mockup-label">Light Mode &mdash; Multi-Team Player Profile: Claude Giroux</div>
+<div class="shell-wrapper" id="shell-light">
+
+  <!-- Banner -->
+  <header class="banner">
+    <div class="banner__brand">
+      <span class="banner__brand-icon">H</span>
+      Hockey League Hub
+    </div>
+    <div class="banner__search">
+      <div class="banner__search-wrap">
+        <input type="text" placeholder="Search players, teams, trades...">
+      </div>
+    </div>
+    <button class="banner__hamburger" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <!-- Live Score Ticker -->
+  <div class="ticker">
+    <div class="ticker__track">
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--sm">OTT</span>
+          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--sm">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 12:44</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm">PHI</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--sm">NJD</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--sm">MTL</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--sm">BOS</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--sm">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--sm">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--sm">EDM</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/VAN_light.svg" alt="VAN" class="team-logo team-logo--sm">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+      <!-- Duplicate for seamless scroll -->
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--sm">OTT</span>
+          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--sm">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 12:44</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm">PHI</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--sm">NJD</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--sm">MTL</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--sm">BOS</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--sm">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--sm">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--sm">EDM</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/VAN_light.svg" alt="VAN" class="team-logo team-logo--sm">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav__link">Scores</a>
+    <a href="#" class="nav__link">Standings</a>
+    <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link">Teams</a>
+    <a href="#" class="nav__link">Schedule</a>
+    <a href="#" class="nav__link nav__link--active">Players</a>
+    <a href="#" class="nav__link">Salary Cap</a>
+    <a href="#" class="nav__link">Trades</a>
+    <a href="#" class="nav__link">Free Agents</a>
+    <a href="#" class="nav__link">Personnel</a>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="#">Players</a>
+    <span class="breadcrumb__sep">/</span>
+    <a href="#">Ottawa Senators</a>
+    <span class="breadcrumb__sep">/</span>
+    Claude Giroux
+  </div>
+
+  <!-- Player Profile Content -->
+  <main class="profile">
+
+    <!-- ============================================================
+         1. HERO: Headshot + Bio + Career History
+         ============================================================ -->
+    <div class="profile__hero">
+
+      <!-- Headshot area (current team: OTT) -->
+      <div class="headshot">
+        <div class="headshot__main">
+          <span class="headshot__initials">CG</span>
+          <span class="headshot__number">#28</span>
+          <div class="headshot__gallery-label">Career Gallery</div>
+        </div>
+        <div class="headshot__thumbnails">
+          <div class="headshot__thumb headshot__thumb--active" style="background: #000; color: #C52032; border-color: #C52032;">
+            <span class="headshot__thumb-initials">CG</span>
+            <span class="headshot__thumb-label">OTT '25</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #C52032;">
+            <span class="headshot__thumb-initials">CG</span>
+            <span class="headshot__thumb-label">OTT '22</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #F4762A;">
+            <span class="headshot__thumb-initials">CG</span>
+            <span class="headshot__thumb-label">PHI '19</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #F4762A;">
+            <span class="headshot__thumb-initials">CG</span>
+            <span class="headshot__thumb-label">PHI '13</span>
+          </div>
+        </div>
+        <span class="headshot__gallery-hint">Career Gallery &mdash; 4 photos</span>
+      </div>
+
+      <!-- Biographical info -->
+      <div class="bio">
+        <h1 class="bio__name">Claude Giroux</h1>
+        <div class="bio__team-line">
+          <img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--lg" style="margin-right:6px"><a href="#" class="bio__team-link">Ottawa Senators</a> &nbsp;&bull;&nbsp; #28 &nbsp;&bull;&nbsp; C/RW
+        </div>
+        <div class="bio__details">
+          <div>
+            <div class="bio__detail-label">Age</div>
+            <div class="bio__detail-value">38 (Born: Jan 12, 1988)</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Birthplace</div>
+            <div class="bio__detail-value">Hearst, <a href="#" class="bio__nation-link" title="View all NHL players from Canada">CAN</a></div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Height</div>
+            <div class="bio__detail-value">5'11"</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Weight</div>
+            <div class="bio__detail-value">185 lbs</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Position(s)</div>
+            <div class="bio__detail-value">C / RW</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Handedness</div>
+            <div class="bio__detail-value">Right</div>
+          </div>
+        </div>
+        <div class="bio__draft">
+          <div class="bio__draft-label">Draft</div>
+          2006 Round 1, Pick 22 &mdash; Philadelphia Flyers
+        </div>
+      </div>
+
+      <!-- Career history -->
+      <div class="career-history">
+        <div class="career-history__title">Career History</div>
+        <div class="career-history__team">
+          <span class="career-history__dot" style="background: #C52032; border: 2px solid #000;"></span>
+          <img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--md" style="margin-right:4px"><span class="career-history__team-name">OTT</span>
+          <span class="career-history__jersey">#28</span>
+          <span class="career-history__years">2022&ndash;present</span>
+        </div>
+        <div class="career-history__team">
+          <span class="career-history__dot" style="background: #F4762A; border: 2px solid #000;"></span>
+          <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--md" style="margin-right:4px"><span class="career-history__team-name">PHI</span>
+          <span class="career-history__jersey">#28</span>
+          <span class="career-history__years">2008&ndash;2022</span>
+        </div>
+
+        <div class="career-history__awards">
+          <div class="career-history__awards-label">Awards &amp; Trophies</div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            <span class="career-history__award-team-dot" style="background: #F4762A;"></span>
+            <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="career-history__award-team-abbr">PHI</span>
+            Bobby Clarke Trophy (2014)
+          </div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            <span class="career-history__award-team-dot" style="background: #F4762A;"></span>
+            <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="career-history__award-team-abbr">PHI</span>
+            NHL All-Star (2011, 2012)
+          </div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            <span class="career-history__award-team-dot" style="background: #C52032;"></span>
+            <img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--sm" style="margin-right:2px"><span class="career-history__award-team-abbr">OTT</span>
+            NHL All-Star (2023)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player Page Tabs -->
+    <div class="player-page-tabs">
+      <button class="player-page-tab active">Overview &amp; Stats</button>
+      <button class="player-page-tab">Contracts &amp; Trades</button>
+    </div>
+
+    <!-- ============================================================
+         2. SEASON-BY-SEASON STATS (Multi-Team)
+         ============================================================ -->
+    <div class="stats-section">
+      <div class="stats-section__header">
+        <h2 class="stats-section__title">Season Statistics</h2>
+      </div>
+      <div class="stats-tabs">
+        <button class="stats-tab stats-tab--active">NHL</button>
+        <button class="stats-tab">Other Leagues</button>
+        <button class="stats-tab">Combined</button>
+      </div>
+      <div class="stats-subtabs">
+        <button class="stats-subtab stats-subtab--active">Regular Season</button>
+        <button class="stats-subtab">Playoffs</button>
+      </div>
+      <div class="stats-table-wrap">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>Season</th>
+              <th>Team</th>
+              <th>GP</th>
+              <th>G</th>
+              <th>A</th>
+              <th>PTS</th>
+              <th>P/PG</th>
+              <th>+/-</th>
+              <th>PIM</th>
+              <th>PPG</th>
+              <th>SHG</th>
+              <th>GWG</th>
+              <th>S</th>
+              <th>S%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- ── PHI Team Section ── -->
+            <tr class="team-separator">
+              <td colspan="14">
+                <div class="team-sep-content">
+                  <span class="team-sep-dot" style="background: #F4762A;"></span>
+                  <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--md" style="margin-right:4px"><span class="team-sep-name">Philadelphia Flyers</span>
+                  <span class="team-sep-years">2008&ndash;2022</span>
+                </div>
+              </td>
+            </tr>
+            <!-- 2008-09 -->
+            <tr class="era-salary-cap">
+              <td>2008-09</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>42</td>
+              <td>9</td>
+              <td>18</td>
+              <td>27</td>
+              <td>0.64</td>
+              <td>-5</td>
+              <td>26</td>
+              <td>3</td>
+              <td>0</td>
+              <td>1</td>
+              <td>87</td>
+              <td>10.3</td>
+            </tr>
+            <!-- 2009-10 -->
+            <tr class="era-salary-cap">
+              <td>2009-10</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>16</td>
+              <td>31</td>
+              <td>47</td>
+              <td>0.57</td>
+              <td>-2</td>
+              <td>38</td>
+              <td>4</td>
+              <td>1</td>
+              <td>3</td>
+              <td>162</td>
+              <td>9.9</td>
+            </tr>
+            <!-- 2010-11 -->
+            <tr class="era-salary-cap">
+              <td>2010-11</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>25</td>
+              <td>51</td>
+              <td>76</td>
+              <td>0.93</td>
+              <td>+18</td>
+              <td>47</td>
+              <td>7</td>
+              <td>0</td>
+              <td>4</td>
+              <td>223</td>
+              <td>11.2</td>
+            </tr>
+            <!-- 2011-12 -->
+            <tr class="era-salary-cap">
+              <td>2011-12</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>77</td>
+              <td>28</td>
+              <td>65</td>
+              <td>93</td>
+              <td>1.21</td>
+              <td>+16</td>
+              <td>38</td>
+              <td>8</td>
+              <td>2</td>
+              <td>6</td>
+              <td>259</td>
+              <td>10.8</td>
+            </tr>
+            <!-- 2012-13 (lockout-shortened) -->
+            <tr class="era-salary-cap">
+              <td>2012-13</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>48</td>
+              <td>13</td>
+              <td>35</td>
+              <td>48</td>
+              <td>1.00</td>
+              <td>+6</td>
+              <td>22</td>
+              <td>4</td>
+              <td>1</td>
+              <td>2</td>
+              <td>143</td>
+              <td>9.1</td>
+            </tr>
+            <!-- 2013-14 -->
+            <tr class="era-salary-cap">
+              <td>2013-14</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>28</td>
+              <td>58</td>
+              <td>86</td>
+              <td>1.05</td>
+              <td>+7</td>
+              <td>46</td>
+              <td>8</td>
+              <td>0</td>
+              <td>5</td>
+              <td>223</td>
+              <td>12.6</td>
+            </tr>
+            <!-- 2014-15 -->
+            <tr class="era-salary-cap">
+              <td>2014-15</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>81</td>
+              <td>25</td>
+              <td>48</td>
+              <td>73</td>
+              <td>0.90</td>
+              <td>-8</td>
+              <td>36</td>
+              <td>7</td>
+              <td>0</td>
+              <td>3</td>
+              <td>213</td>
+              <td>11.7</td>
+            </tr>
+            <!-- 2015-16 -->
+            <tr class="era-salary-cap">
+              <td>2015-16</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>71</td>
+              <td>22</td>
+              <td>45</td>
+              <td>67</td>
+              <td>0.94</td>
+              <td>+3</td>
+              <td>30</td>
+              <td>6</td>
+              <td>1</td>
+              <td>4</td>
+              <td>195</td>
+              <td>11.3</td>
+            </tr>
+            <!-- 2016-17 -->
+            <tr class="era-salary-cap">
+              <td>2016-17</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>14</td>
+              <td>44</td>
+              <td>58</td>
+              <td>0.71</td>
+              <td>-14</td>
+              <td>40</td>
+              <td>5</td>
+              <td>0</td>
+              <td>2</td>
+              <td>192</td>
+              <td>7.3</td>
+            </tr>
+            <!-- 2017-18 -->
+            <tr class="era-salary-cap">
+              <td>2017-18</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>34</td>
+              <td>68</td>
+              <td>102</td>
+              <td>1.24</td>
+              <td>+8</td>
+              <td>28</td>
+              <td>11</td>
+              <td>0</td>
+              <td>6</td>
+              <td>229</td>
+              <td>14.8</td>
+            </tr>
+            <!-- 2018-19 -->
+            <tr class="era-salary-cap">
+              <td>2018-19</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>22</td>
+              <td>43</td>
+              <td>65</td>
+              <td>0.79</td>
+              <td>-11</td>
+              <td>24</td>
+              <td>5</td>
+              <td>0</td>
+              <td>4</td>
+              <td>198</td>
+              <td>11.1</td>
+            </tr>
+            <!-- 2019-20 -->
+            <tr class="era-salary-cap">
+              <td>2019-20</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>69</td>
+              <td>21</td>
+              <td>32</td>
+              <td>53</td>
+              <td>0.77</td>
+              <td>+3</td>
+              <td>20</td>
+              <td>7</td>
+              <td>0</td>
+              <td>3</td>
+              <td>178</td>
+              <td>11.8</td>
+            </tr>
+            <!-- 2020-21 -->
+            <tr class="era-salary-cap">
+              <td>2020-21</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>56</td>
+              <td>15</td>
+              <td>17</td>
+              <td>32</td>
+              <td>0.57</td>
+              <td>-18</td>
+              <td>14</td>
+              <td>4</td>
+              <td>0</td>
+              <td>2</td>
+              <td>136</td>
+              <td>11.0</td>
+            </tr>
+            <!-- 2021-22 -->
+            <tr class="era-salary-cap">
+              <td>2021-22</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>57</td>
+              <td>18</td>
+              <td>24</td>
+              <td>42</td>
+              <td>0.74</td>
+              <td>-5</td>
+              <td>16</td>
+              <td>6</td>
+              <td>0</td>
+              <td>3</td>
+              <td>155</td>
+              <td>11.6</td>
+            </tr>
+            <!-- PHI Subtotals -->
+            <tr class="team-subtotal">
+              <td>PHI Total</td>
+              <td></td>
+              <td>993</td>
+              <td>290</td>
+              <td>579</td>
+              <td>869</td>
+              <td>0.88</td>
+              <td>-2</td>
+              <td>425</td>
+              <td>87</td>
+              <td>5</td>
+              <td>48</td>
+              <td>2,793</td>
+              <td>10.4</td>
+            </tr>
+
+            <!-- ── OTT Team Section ── -->
+            <tr class="team-separator">
+              <td colspan="14">
+                <div class="team-sep-content">
+                  <span class="team-sep-dot" style="background: #C52032;"></span>
+                  <img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--md" style="margin-right:4px"><span class="team-sep-name">Ottawa Senators</span>
+                  <span class="team-sep-years">2022&ndash;present</span>
+                </div>
+              </td>
+            </tr>
+            <!-- 2022-23 -->
+            <tr class="era-salary-cap">
+              <td>2022-23</td>
+              <td><a href="#" class="team-link">OTT</a></td>
+              <td>82</td>
+              <td>22</td>
+              <td>38</td>
+              <td>60</td>
+              <td>0.73</td>
+              <td>+2</td>
+              <td>20</td>
+              <td>7</td>
+              <td>0</td>
+              <td>4</td>
+              <td>179</td>
+              <td>12.3</td>
+            </tr>
+            <!-- 2023-24 -->
+            <tr class="era-salary-cap">
+              <td>2023-24</td>
+              <td><a href="#" class="team-link">OTT</a></td>
+              <td>79</td>
+              <td>18</td>
+              <td>35</td>
+              <td>53</td>
+              <td>0.67</td>
+              <td>-4</td>
+              <td>18</td>
+              <td>5</td>
+              <td>0</td>
+              <td>3</td>
+              <td>161</td>
+              <td>11.2</td>
+            </tr>
+            <!-- 2024-25 -->
+            <tr class="era-salary-cap">
+              <td>2024-25</td>
+              <td><a href="#" class="team-link">OTT</a></td>
+              <td>75</td>
+              <td>14</td>
+              <td>30</td>
+              <td>44</td>
+              <td>0.59</td>
+              <td>-1</td>
+              <td>14</td>
+              <td>4</td>
+              <td>0</td>
+              <td>2</td>
+              <td>138</td>
+              <td>10.1</td>
+            </tr>
+            <!-- 2025-26 (current season) -->
+            <tr class="era-salary-cap">
+              <td>2025-26</td>
+              <td><a href="#" class="team-link">OTT</a></td>
+              <td>62</td>
+              <td>10</td>
+              <td>24</td>
+              <td>34</td>
+              <td>0.55</td>
+              <td>+1</td>
+              <td>10</td>
+              <td>3</td>
+              <td>0</td>
+              <td>1</td>
+              <td>108</td>
+              <td>9.3</td>
+            </tr>
+            <!-- OTT Subtotals -->
+            <tr class="team-subtotal">
+              <td>OTT Total</td>
+              <td></td>
+              <td>298</td>
+              <td>64</td>
+              <td>127</td>
+              <td>191</td>
+              <td>0.64</td>
+              <td>-2</td>
+              <td>62</td>
+              <td>19</td>
+              <td>0</td>
+              <td>10</td>
+              <td>586</td>
+              <td>10.9</td>
+            </tr>
+
+            <!-- Career totals -->
+            <tr class="career-totals">
+              <td>Career</td>
+              <td></td>
+              <td>1,291</td>
+              <td>354</td>
+              <td>706</td>
+              <td>1,060</td>
+              <td>0.82</td>
+              <td>-4</td>
+              <td>487</td>
+              <td>106</td>
+              <td>5</td>
+              <td>58</td>
+              <td>3,379</td>
+              <td>10.5</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         3. AWARDS (Multi-Team)
+         ============================================================ -->
+    <div class="awards-section">
+      <h2 class="awards-section__title">Awards &amp; Honors</h2>
+      <div class="awards-grid">
+
+        <!-- Bobby Clarke Trophy -->
+        <div class="award-card">
+          <div class="award-card__header">
+            <span class="award-card__icon">&#9733;</span>
+            <span class="award-card__name">Bobby Clarke Trophy</span>
+          </div>
+          <div class="award-card__description">Philadelphia Flyers team MVP</div>
+          <div class="award-card__instances">
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #F4762A;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">PHI</span>
+              <span class="award-instance__year">2013-14</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- NHL All-Star Game -->
+        <div class="award-card">
+          <div class="award-card__header">
+            <span class="award-card__icon">&#9733;</span>
+            <span class="award-card__name">NHL All-Star Game</span>
+          </div>
+          <div class="award-card__description">Selected to NHL All-Star Game</div>
+          <div class="award-card__instances">
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #F4762A;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">PHI</span>
+              <span class="award-instance__year">2011</span>
+            </div>
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #F4762A;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">PHI</span>
+              <span class="award-instance__year">2012</span>
+            </div>
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #C52032;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">OTT</span>
+              <span class="award-instance__year">2023</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hart Trophy Finalist -->
+        <div class="award-card">
+          <div class="award-card__header">
+            <span class="award-card__icon">&#9733;</span>
+            <span class="award-card__name">Hart Trophy Finalist</span>
+          </div>
+          <div class="award-card__description">NHL Most Valuable Player (top 3 finalist)</div>
+          <div class="award-card__instances">
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #F4762A;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">PHI</span>
+              <span class="award-instance__year">2013-14</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- NHL First All-Star Team -->
+        <div class="award-card">
+          <div class="award-card__header">
+            <span class="award-card__icon">&#9733;</span>
+            <span class="award-card__name">NHL First All-Star Team</span>
+          </div>
+          <div class="award-card__description">Named to NHL First All-Star Team</div>
+          <div class="award-card__instances">
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #F4762A;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">PHI</span>
+              <span class="award-instance__year">2017-18</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         4. PLAYING STYLE
+         ============================================================ -->
+    <div class="playing-style">
+      <h2 class="playing-style__title">Playing Style</h2>
+      <p class="playing-style__narrative">
+        A consummate two-way forward with exceptional vision and playmaking ability. Giroux combines elite faceoff skills with a relentless compete level, equally dangerous on the power play and penalty kill. His ability to read developing plays and thread passes through traffic has made him one of the most productive setup men of his generation. A natural leader who captained Philadelphia for nearly a decade, he brings veteran savvy and positional intelligence that elevate the play of his linemates. Despite a shift to a complementary role in Ottawa, his hockey IQ and puck-handling remain among the best in the league.
+      </p>
+      <div class="playing-style__stats">
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">56.4%</div>
+          <div class="style-stat-card__label">Career FO%</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">0.82</div>
+          <div class="style-stat-card__label">Career P/PG</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">1,060</div>
+          <div class="style-stat-card__label">Career Points</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">1,291</div>
+          <div class="style-stat-card__label">Games Played</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
+  </footer>
+
+</div>
+
+
+<!-- ================================================================
+     DARK MODE
+     ================================================================ -->
+<div class="mockup-label">Dark Mode &mdash; Multi-Team Player Profile: Claude Giroux</div>
+<div class="shell-wrapper" id="shell-dark" data-theme="dark">
+
+  <!-- Banner -->
+  <header class="banner">
+    <div class="banner__brand">
+      <span class="banner__brand-icon">H</span>
+      Hockey League Hub
+    </div>
+    <div class="banner__search">
+      <div class="banner__search-wrap">
+        <input type="text" placeholder="Search players, teams, trades...">
+      </div>
+    </div>
+    <button class="banner__hamburger" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <!-- Live Score Ticker -->
+  <div class="ticker">
+    <div class="ticker__track">
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--sm">OTT</span>
+          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--sm">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 12:44</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm">PHI</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--sm">NJD</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--sm">MTL</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--sm">BOS</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--sm">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--sm">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--sm">EDM</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/VAN_light.svg" alt="VAN" class="team-logo team-logo--sm">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+      <!-- Duplicate for seamless scroll -->
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--sm">OTT</span>
+          <span class="ticker__score ticker__score--live">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score ticker__score--live">2</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--sm">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 12:44</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm">PHI</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--sm">NJD</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--sm">MTL</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--sm">BOS</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--sm">COL</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--sm">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </div>
+      <div class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--sm">EDM</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/VAN_light.svg" alt="VAN" class="team-logo team-logo--sm">VAN</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">10:00 PM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav__link">Scores</a>
+    <a href="#" class="nav__link">Standings</a>
+    <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link">Teams</a>
+    <a href="#" class="nav__link">Schedule</a>
+    <a href="#" class="nav__link nav__link--active">Players</a>
+    <a href="#" class="nav__link">Salary Cap</a>
+    <a href="#" class="nav__link">Trades</a>
+    <a href="#" class="nav__link">Free Agents</a>
+    <a href="#" class="nav__link">Personnel</a>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="#">Players</a>
+    <span class="breadcrumb__sep">/</span>
+    <a href="#">Ottawa Senators</a>
+    <span class="breadcrumb__sep">/</span>
+    Claude Giroux
+  </div>
+
+  <!-- Player Profile Content -->
+  <main class="profile">
+
+    <!-- HERO -->
+    <div class="profile__hero">
+
+      <!-- Headshot area (current team: OTT) -->
+      <div class="headshot">
+        <div class="headshot__main">
+          <span class="headshot__initials">CG</span>
+          <span class="headshot__number">#28</span>
+          <div class="headshot__gallery-label">Career Gallery</div>
+        </div>
+        <div class="headshot__thumbnails">
+          <div class="headshot__thumb headshot__thumb--active" style="background: #000; color: #C52032; border-color: #C52032;">
+            <span class="headshot__thumb-initials">CG</span>
+            <span class="headshot__thumb-label">OTT '25</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #C52032;">
+            <span class="headshot__thumb-initials">CG</span>
+            <span class="headshot__thumb-label">OTT '22</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #F4762A;">
+            <span class="headshot__thumb-initials">CG</span>
+            <span class="headshot__thumb-label">PHI '19</span>
+          </div>
+          <div class="headshot__thumb" style="background: #000; color: #F4762A;">
+            <span class="headshot__thumb-initials">CG</span>
+            <span class="headshot__thumb-label">PHI '13</span>
+          </div>
+        </div>
+        <span class="headshot__gallery-hint">Career Gallery &mdash; 4 photos</span>
+      </div>
+
+      <!-- Biographical info -->
+      <div class="bio">
+        <h1 class="bio__name">Claude Giroux</h1>
+        <div class="bio__team-line">
+          <a href="#" class="bio__team-link">Ottawa Senators</a> &nbsp;&bull;&nbsp; #28 &nbsp;&bull;&nbsp; C/RW
+        </div>
+        <div class="bio__details">
+          <div>
+            <div class="bio__detail-label">Age</div>
+            <div class="bio__detail-value">38 (Born: Jan 12, 1988)</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Birthplace</div>
+            <div class="bio__detail-value">Hearst, <a href="#" class="bio__nation-link" title="View all NHL players from Canada">CAN</a></div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Height</div>
+            <div class="bio__detail-value">5'11"</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Weight</div>
+            <div class="bio__detail-value">185 lbs</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Position(s)</div>
+            <div class="bio__detail-value">C / RW</div>
+          </div>
+          <div>
+            <div class="bio__detail-label">Handedness</div>
+            <div class="bio__detail-value">Right</div>
+          </div>
+        </div>
+        <div class="bio__draft">
+          <div class="bio__draft-label">Draft</div>
+          2006 Round 1, Pick 22 &mdash; Philadelphia Flyers
+        </div>
+      </div>
+
+      <!-- Career history -->
+      <div class="career-history">
+        <div class="career-history__title">Career History</div>
+        <div class="career-history__team">
+          <span class="career-history__dot" style="background: #C52032; border: 2px solid #F5F0E1;"></span>
+          <span class="career-history__team-name">OTT</span>
+          <span class="career-history__jersey">#28</span>
+          <span class="career-history__years">2022&ndash;present</span>
+        </div>
+        <div class="career-history__team">
+          <span class="career-history__dot" style="background: #F4762A; border: 2px solid #F5F0E1;"></span>
+          <span class="career-history__team-name">PHI</span>
+          <span class="career-history__jersey">#28</span>
+          <span class="career-history__years">2008&ndash;2022</span>
+        </div>
+
+        <div class="career-history__awards">
+          <div class="career-history__awards-label">Awards &amp; Trophies</div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            <span class="career-history__award-team-dot" style="background: #F4762A;"></span>
+            <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="career-history__award-team-abbr">PHI</span>
+            Bobby Clarke Trophy (2014)
+          </div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            <span class="career-history__award-team-dot" style="background: #F4762A;"></span>
+            <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="career-history__award-team-abbr">PHI</span>
+            NHL All-Star (2011, 2012)
+          </div>
+          <div class="career-history__award">
+            <span class="career-history__award-icon">&#9733;</span>
+            <span class="career-history__award-team-dot" style="background: #C52032;"></span>
+            <img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--sm" style="margin-right:2px"><span class="career-history__award-team-abbr">OTT</span>
+            NHL All-Star (2023)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player Page Tabs -->
+    <div class="player-page-tabs">
+      <button class="player-page-tab active">Overview &amp; Stats</button>
+      <button class="player-page-tab">Contracts &amp; Trades</button>
+    </div>
+
+    <!-- SEASON-BY-SEASON STATS (Multi-Team) -->
+    <div class="stats-section">
+      <div class="stats-section__header">
+        <h2 class="stats-section__title">Season Statistics</h2>
+      </div>
+      <div class="stats-tabs">
+        <button class="stats-tab stats-tab--active">NHL</button>
+        <button class="stats-tab">Other Leagues</button>
+        <button class="stats-tab">Combined</button>
+      </div>
+      <div class="stats-subtabs">
+        <button class="stats-subtab stats-subtab--active">Regular Season</button>
+        <button class="stats-subtab">Playoffs</button>
+      </div>
+      <div class="stats-table-wrap">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>Season</th>
+              <th>Team</th>
+              <th>GP</th>
+              <th>G</th>
+              <th>A</th>
+              <th>PTS</th>
+              <th>P/PG</th>
+              <th>+/-</th>
+              <th>PIM</th>
+              <th>PPG</th>
+              <th>SHG</th>
+              <th>GWG</th>
+              <th>S</th>
+              <th>S%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- PHI Team Section -->
+            <tr class="team-separator">
+              <td colspan="14">
+                <div class="team-sep-content">
+                  <span class="team-sep-dot" style="background: #F4762A;"></span>
+                  <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--md" style="margin-right:4px"><span class="team-sep-name">Philadelphia Flyers</span>
+                  <span class="team-sep-years">2008&ndash;2022</span>
+                </div>
+              </td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2008-09</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>42</td>
+              <td>9</td>
+              <td>18</td>
+              <td>27</td>
+              <td>0.64</td>
+              <td>-5</td>
+              <td>26</td>
+              <td>3</td>
+              <td>0</td>
+              <td>1</td>
+              <td>87</td>
+              <td>10.3</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2009-10</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>16</td>
+              <td>31</td>
+              <td>47</td>
+              <td>0.57</td>
+              <td>-2</td>
+              <td>38</td>
+              <td>4</td>
+              <td>1</td>
+              <td>3</td>
+              <td>162</td>
+              <td>9.9</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2010-11</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>25</td>
+              <td>51</td>
+              <td>76</td>
+              <td>0.93</td>
+              <td>+18</td>
+              <td>47</td>
+              <td>7</td>
+              <td>0</td>
+              <td>4</td>
+              <td>223</td>
+              <td>11.2</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2011-12</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>77</td>
+              <td>28</td>
+              <td>65</td>
+              <td>93</td>
+              <td>1.21</td>
+              <td>+16</td>
+              <td>38</td>
+              <td>8</td>
+              <td>2</td>
+              <td>6</td>
+              <td>259</td>
+              <td>10.8</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2012-13</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>48</td>
+              <td>13</td>
+              <td>35</td>
+              <td>48</td>
+              <td>1.00</td>
+              <td>+6</td>
+              <td>22</td>
+              <td>4</td>
+              <td>1</td>
+              <td>2</td>
+              <td>143</td>
+              <td>9.1</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2013-14</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>28</td>
+              <td>58</td>
+              <td>86</td>
+              <td>1.05</td>
+              <td>+7</td>
+              <td>46</td>
+              <td>8</td>
+              <td>0</td>
+              <td>5</td>
+              <td>223</td>
+              <td>12.6</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2014-15</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>81</td>
+              <td>25</td>
+              <td>48</td>
+              <td>73</td>
+              <td>0.90</td>
+              <td>-8</td>
+              <td>36</td>
+              <td>7</td>
+              <td>0</td>
+              <td>3</td>
+              <td>213</td>
+              <td>11.7</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2015-16</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>71</td>
+              <td>22</td>
+              <td>45</td>
+              <td>67</td>
+              <td>0.94</td>
+              <td>+3</td>
+              <td>30</td>
+              <td>6</td>
+              <td>1</td>
+              <td>4</td>
+              <td>195</td>
+              <td>11.3</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2016-17</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>14</td>
+              <td>44</td>
+              <td>58</td>
+              <td>0.71</td>
+              <td>-14</td>
+              <td>40</td>
+              <td>5</td>
+              <td>0</td>
+              <td>2</td>
+              <td>192</td>
+              <td>7.3</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2017-18</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>34</td>
+              <td>68</td>
+              <td>102</td>
+              <td>1.24</td>
+              <td>+8</td>
+              <td>28</td>
+              <td>11</td>
+              <td>0</td>
+              <td>6</td>
+              <td>229</td>
+              <td>14.8</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2018-19</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>82</td>
+              <td>22</td>
+              <td>43</td>
+              <td>65</td>
+              <td>0.79</td>
+              <td>-11</td>
+              <td>24</td>
+              <td>5</td>
+              <td>0</td>
+              <td>4</td>
+              <td>198</td>
+              <td>11.1</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2019-20</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>69</td>
+              <td>21</td>
+              <td>32</td>
+              <td>53</td>
+              <td>0.77</td>
+              <td>+3</td>
+              <td>20</td>
+              <td>7</td>
+              <td>0</td>
+              <td>3</td>
+              <td>178</td>
+              <td>11.8</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2020-21</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>56</td>
+              <td>15</td>
+              <td>17</td>
+              <td>32</td>
+              <td>0.57</td>
+              <td>-18</td>
+              <td>14</td>
+              <td>4</td>
+              <td>0</td>
+              <td>2</td>
+              <td>136</td>
+              <td>11.0</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2021-22</td>
+              <td><a href="#" class="team-link">PHI</a></td>
+              <td>57</td>
+              <td>18</td>
+              <td>24</td>
+              <td>42</td>
+              <td>0.74</td>
+              <td>-5</td>
+              <td>16</td>
+              <td>6</td>
+              <td>0</td>
+              <td>3</td>
+              <td>155</td>
+              <td>11.6</td>
+            </tr>
+            <tr class="team-subtotal">
+              <td>PHI Total</td>
+              <td></td>
+              <td>993</td>
+              <td>290</td>
+              <td>579</td>
+              <td>869</td>
+              <td>0.88</td>
+              <td>-2</td>
+              <td>425</td>
+              <td>87</td>
+              <td>5</td>
+              <td>48</td>
+              <td>2,793</td>
+              <td>10.4</td>
+            </tr>
+
+            <!-- OTT Team Section -->
+            <tr class="team-separator">
+              <td colspan="14">
+                <div class="team-sep-content">
+                  <span class="team-sep-dot" style="background: #C52032;"></span>
+                  <img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--md" style="margin-right:4px"><span class="team-sep-name">Ottawa Senators</span>
+                  <span class="team-sep-years">2022&ndash;present</span>
+                </div>
+              </td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2022-23</td>
+              <td><a href="#" class="team-link">OTT</a></td>
+              <td>82</td>
+              <td>22</td>
+              <td>38</td>
+              <td>60</td>
+              <td>0.73</td>
+              <td>+2</td>
+              <td>20</td>
+              <td>7</td>
+              <td>0</td>
+              <td>4</td>
+              <td>179</td>
+              <td>12.3</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2023-24</td>
+              <td><a href="#" class="team-link">OTT</a></td>
+              <td>79</td>
+              <td>18</td>
+              <td>35</td>
+              <td>53</td>
+              <td>0.67</td>
+              <td>-4</td>
+              <td>18</td>
+              <td>5</td>
+              <td>0</td>
+              <td>3</td>
+              <td>161</td>
+              <td>11.2</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2024-25</td>
+              <td><a href="#" class="team-link">OTT</a></td>
+              <td>75</td>
+              <td>14</td>
+              <td>30</td>
+              <td>44</td>
+              <td>0.59</td>
+              <td>-1</td>
+              <td>14</td>
+              <td>4</td>
+              <td>0</td>
+              <td>2</td>
+              <td>138</td>
+              <td>10.1</td>
+            </tr>
+            <tr class="era-salary-cap">
+              <td>2025-26</td>
+              <td><a href="#" class="team-link">OTT</a></td>
+              <td>62</td>
+              <td>10</td>
+              <td>24</td>
+              <td>34</td>
+              <td>0.55</td>
+              <td>+1</td>
+              <td>10</td>
+              <td>3</td>
+              <td>0</td>
+              <td>1</td>
+              <td>108</td>
+              <td>9.3</td>
+            </tr>
+            <tr class="team-subtotal">
+              <td>OTT Total</td>
+              <td></td>
+              <td>298</td>
+              <td>64</td>
+              <td>127</td>
+              <td>191</td>
+              <td>0.64</td>
+              <td>-2</td>
+              <td>62</td>
+              <td>19</td>
+              <td>0</td>
+              <td>10</td>
+              <td>586</td>
+              <td>10.9</td>
+            </tr>
+
+            <!-- Career totals -->
+            <tr class="career-totals">
+              <td>Career</td>
+              <td></td>
+              <td>1,291</td>
+              <td>354</td>
+              <td>706</td>
+              <td>1,060</td>
+              <td>0.82</td>
+              <td>-4</td>
+              <td>487</td>
+              <td>106</td>
+              <td>5</td>
+              <td>58</td>
+              <td>3,379</td>
+              <td>10.5</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AWARDS (Multi-Team) -->
+    <div class="awards-section">
+      <h2 class="awards-section__title">Awards &amp; Honors</h2>
+      <div class="awards-grid">
+
+        <div class="award-card">
+          <div class="award-card__header">
+            <span class="award-card__icon">&#9733;</span>
+            <span class="award-card__name">Bobby Clarke Trophy</span>
+          </div>
+          <div class="award-card__description">Philadelphia Flyers team MVP</div>
+          <div class="award-card__instances">
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #F4762A;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">PHI</span>
+              <span class="award-instance__year">2013-14</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="award-card">
+          <div class="award-card__header">
+            <span class="award-card__icon">&#9733;</span>
+            <span class="award-card__name">NHL All-Star Game</span>
+          </div>
+          <div class="award-card__description">Selected to NHL All-Star Game</div>
+          <div class="award-card__instances">
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #F4762A;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">PHI</span>
+              <span class="award-instance__year">2011</span>
+            </div>
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #F4762A;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">PHI</span>
+              <span class="award-instance__year">2012</span>
+            </div>
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #C52032;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">OTT</span>
+              <span class="award-instance__year">2023</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="award-card">
+          <div class="award-card__header">
+            <span class="award-card__icon">&#9733;</span>
+            <span class="award-card__name">Hart Trophy Finalist</span>
+          </div>
+          <div class="award-card__description">NHL Most Valuable Player (top 3 finalist)</div>
+          <div class="award-card__instances">
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #F4762A;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">PHI</span>
+              <span class="award-instance__year">2013-14</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="award-card">
+          <div class="award-card__header">
+            <span class="award-card__icon">&#9733;</span>
+            <span class="award-card__name">NHL First All-Star Team</span>
+          </div>
+          <div class="award-card__description">Named to NHL First All-Star Team</div>
+          <div class="award-card__instances">
+            <div class="award-instance">
+              <span class="award-instance__dot" style="background: #F4762A;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--sm" style="margin-right:2px"><span class="award-instance__team">PHI</span>
+              <span class="award-instance__year">2017-18</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PLAYING STYLE -->
+    <div class="playing-style">
+      <h2 class="playing-style__title">Playing Style</h2>
+      <p class="playing-style__narrative">
+        A consummate two-way forward with exceptional vision and playmaking ability. Giroux combines elite faceoff skills with a relentless compete level, equally dangerous on the power play and penalty kill. His ability to read developing plays and thread passes through traffic has made him one of the most productive setup men of his generation. A natural leader who captained Philadelphia for nearly a decade, he brings veteran savvy and positional intelligence that elevate the play of his linemates. Despite a shift to a complementary role in Ottawa, his hockey IQ and puck-handling remain among the best in the league.
+      </p>
+      <div class="playing-style__stats">
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">56.4%</div>
+          <div class="style-stat-card__label">Career FO%</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">0.82</div>
+          <div class="style-stat-card__label">Career P/PG</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">1,060</div>
+          <div class="style-stat-card__label">Career Points</div>
+        </div>
+        <div class="style-stat-card">
+          <div class="style-stat-card__value">1,291</div>
+          <div class="style-stat-card__label">Games Played</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
+  </footer>
+
+</div>
+
+</body>
+</html>

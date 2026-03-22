@@ -1,24 +1,36 @@
-import { Component, input, output, inject, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, input, output, inject, computed, OnInit, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { ScoreGame } from '../../../services/scores-api.service';
 import { GameClockService, ClockState } from '../../../services/game-clock.service';
+import { DEFAULT_LEAGUE_ID, CLOSE_GAME_PERIOD_THRESHOLD, CLOSE_GAME_TIME_THRESHOLD_MS, getPeriodLabel } from '../../../constants';
 
 @Component({
   selector: 'app-score-box',
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="box" [class.box--live]="game().status === 'Live'" (click)="expand.emit()">
       <!-- Away team (top) -->
       <div class="box__team">
-        <span class="box__abbrev">{{ game().awayTeam.abbreviation }}</span>
+        <span class="box__team-info">
+          @if (game().awayTeam.logoUrl) {
+            <img [src]="game().awayTeam.logoUrl" [alt]="game().awayTeam.abbreviation" class="box__logo">
+          }
+          <span class="box__abbrev">{{ game().awayTeam.abbreviation }}</span>
+        </span>
         @if (game().status !== 'Scheduled') {
           <span class="box__score">{{ game().awayTeam.score }}</span>
         }
       </div>
       <!-- Home team (bottom) -->
       <div class="box__team">
-        <span class="box__abbrev">{{ game().homeTeam.abbreviation }}</span>
+        <span class="box__team-info">
+          @if (game().homeTeam.logoUrl) {
+            <img [src]="game().homeTeam.logoUrl" [alt]="game().homeTeam.abbreviation" class="box__logo">
+          }
+          <span class="box__abbrev">{{ game().homeTeam.abbreviation }}</span>
+        </span>
         @if (game().status !== 'Scheduled') {
           <span class="box__score">{{ game().homeTeam.score }}</span>
         }
@@ -80,6 +92,16 @@ import { GameClockService, ClockState } from '../../../services/game-clock.servi
       align-items: center;
       padding: 3px 0;
     }
+    .box__team-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .box__logo {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
     .box__abbrev {
       font-weight: 700;
       color: var(--text-primary);
@@ -140,21 +162,20 @@ import { GameClockService, ClockState } from '../../../services/game-clock.servi
     .box__hub-link:hover { text-decoration: underline; }
   `]
 })
-export class ScoreBox implements OnInit, OnDestroy {
+export class ScoreBox implements OnInit {
   game = input.required<ScoreGame>();
-  leagueId = input<string>('nhl');
+  leagueId = input<string>(DEFAULT_LEAGUE_ID);
   expand = output<void>();
 
   private clockService = inject(GameClockService);
+  private destroyRef = inject(DestroyRef);
   private clockState: ClockState | null = null;
-  private sub?: Subscription;
 
   clockDisplay = computed(() => {
     const g = this.game();
     if (g.status !== 'Live') return '';
     if (this.clockState) {
-      const periodLabel = this.getPeriodLabel(this.clockState.period);
-      return `${periodLabel} ${this.clockState.display}`;
+      return `${getPeriodLabel(this.clockState.period)} ${this.clockState.display}`;
     }
     const label = g.currentPeriodLabel ?? '';
     return `${label} ${g.periodTimeRemaining ?? ''}`.trim();
@@ -165,24 +186,16 @@ export class ScoreBox implements OnInit, OnDestroy {
     if (g.status !== 'Live') return false;
     const timeLeft = this.clockState?.timeRemainingMs ?? (g.periodTimeRemainingSeconds ?? 0) * 1000;
     const period = this.clockState?.period ?? g.currentPeriod ?? 0;
-    return period >= 3 && timeLeft <= 5 * 60 * 1000;
+    return period >= CLOSE_GAME_PERIOD_THRESHOLD && timeLeft <= CLOSE_GAME_TIME_THRESHOLD_MS;
   });
 
   ngOnInit(): void {
-    this.sub = this.clockService.updates$.subscribe(state => {
+    this.clockService.updates$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(state => {
       if (state.gameId === this.game().id) {
         this.clockState = state;
       }
     });
-  }
-
-  private getPeriodLabel(period: number): string {
-    if (period <= 3) return `${period === 1 ? '1st' : period === 2 ? '2nd' : '3rd'}`;
-    if (period === 4) return 'OT';
-    return `${period - 3}OT`;
-  }
-
-  ngOnDestroy(): void {
-    this.sub?.unsubscribe();
   }
 }

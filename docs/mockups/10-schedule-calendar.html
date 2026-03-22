@@ -601,6 +601,115 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
   color: var(--bg-card);
   font-weight: 700;
 }
+
+/* ===================================================================
+   COMPACT VIEW: game count number + hover tooltip
+   =================================================================== */
+.calendar__compact-count {
+  display: none;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  padding: 16px 0 8px;
+  line-height: 1;
+  cursor: default;
+}
+.calendar__compact-count--zero {
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  opacity: 0.5;
+}
+.calendar__compact-label {
+  display: block;
+  font-size: 0.56rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+
+/* Compact tooltip */
+.compact-tooltip {
+  display: none;
+  position: absolute;
+  z-index: 60;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  min-width: 180px;
+  max-width: 240px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  padding: 8px 10px;
+  white-space: normal;
+}
+.compact-tooltip__game {
+  font-size: 0.65rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  padding: 1px 0;
+}
+.compact-tooltip__game--score {
+  color: var(--text-primary);
+}
+
+/* Show tooltip on cell hover in compact mode */
+.calendar__grid[data-view="compact"] .calendar__cell--has-games:hover .compact-tooltip {
+  display: block;
+}
+
+/* Clean view: hide dots */
+.calendar__grid[data-view="clean"] .team-dot {
+  display: none;
+}
+
+/* Compact view: hide games/more, show count */
+.calendar__grid[data-view="compact"] .calendar__game,
+.calendar__grid[data-view="compact"] .calendar__more,
+.calendar__grid[data-view="compact"] .calendar__bye-text,
+.calendar__grid[data-view="compact"] .calendar__game-count {
+  display: none;
+}
+.calendar__grid[data-view="compact"] .calendar__compact-count {
+  display: block;
+}
+
+/* In compact view, make cells taller for centered number */
+.calendar__grid[data-view="compact"] .calendar__cell {
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* SoS tab content section */
+.sos-content {
+  display: none;
+}
+.sos-content.active {
+  display: block;
+}
+.calendar-content {
+  display: block;
+}
+.calendar-content.active {
+  display: block;
+}
+
+/* ── Team Logos ── */
+.team-logo { display: inline-block; vertical-align: middle; object-fit: contain; }
+.team-logo--xs { width: 13px; height: 13px; }
+.team-logo--sm { width: 18px; height: 18px; }
+/* Hide team logos in clean and compact views (they only show in detailed) */
+.calendar__grid[data-view="clean"] .team-logo,
+.calendar__grid[data-view="compact"] .team-logo {
+  display: none;
+}
 </style>
 </head>
 <body>
@@ -680,11 +789,20 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
     </div>
   </div>
 
-  <!-- View Switcher -->
-  <div class="view-switcher">
-    <button class="view-switcher__btn active">Detailed</button>
-    <button class="view-switcher__btn">Clean</button>
-    <button class="view-switcher__btn">Compact</button>
+  <!-- Schedule Tabs: Calendar / Strength of Schedule -->
+  <div class="view-switcher" id="schedule-tabs">
+    <button class="view-switcher__btn active" data-schedule-tab="calendar">Calendar</button>
+    <button class="view-switcher__btn" data-schedule-tab="sos">Strength of Schedule</button>
+  </div>
+
+  <!-- === CALENDAR TAB CONTENT === -->
+  <div class="calendar-content" id="calendar-content">
+
+  <!-- View Switcher: Detailed / Clean / Compact -->
+  <div class="view-switcher" id="calendar-view-switcher">
+    <button class="view-switcher__btn active" data-calendar-view="detailed">Detailed</button>
+    <button class="view-switcher__btn" data-calendar-view="clean">Clean</button>
+    <button class="view-switcher__btn" data-calendar-view="compact">Compact</button>
   </div>
 
   <!-- Calendar -->
@@ -702,7 +820,7 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
     </div>
 
     <!-- Calendar Grid: March 2026 (Mar 1 = Sunday) -->
-    <div class="calendar__grid">
+    <div class="calendar__grid" data-view="detailed">
 
       <!-- ============ WEEK 1 ============ -->
 
@@ -714,6 +832,11 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
         </div>
         <div class="calendar__game calendar__game--score">All-Star Game</div>
         <div class="calendar__game calendar__game--score">Atlantic 8 &ndash; Metro 6</div>
+        <div class="calendar__compact-count" data-count="1">1<span class="calendar__compact-label">game</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">All-Star Game</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">Atlantic 8 &ndash; Metro 6</div>
+        </div>
       </div>
 
       <!-- Mar 2 (Mon) - ALL-STAR (skills comp / no games) -->
@@ -724,6 +847,7 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
         </div>
         <div class="calendar__game" style="color: var(--text-muted); font-style: italic;">All-Star Break</div>
         <div class="calendar__game" style="color: var(--text-muted); font-style: italic;">No games scheduled</div>
+        <div class="calendar__compact-count calendar__compact-count--zero" data-count="0">0<span class="calendar__compact-label">games</span></div>
       </div>
 
       <!-- Mar 3 (Tue) - 8 games -->
@@ -732,11 +856,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">3</span>
           <span class="calendar__game-count">8 games</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--bos"></span>BOS 4 &ndash; <span class="team-dot team-dot--tor"></span>TOR 3</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span>NYR 2 &ndash; <span class="team-dot team-dot--njd"></span>NJD 5</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span>FLA 3 &ndash; <span class="team-dot team-dot--tbl"></span>TBL 1</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span>COL 6 &ndash; <span class="team-dot team-dot--dal"></span>DAL 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--bos"></span><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--xs" style="margin:0 1px">BOS 4 &ndash; <span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--xs" style="margin:0 1px">NYR 2 &ndash; <span class="team-dot team-dot--njd"></span><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--xs" style="margin:0 1px">NJD 5</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span><img src="https://assets.nhle.com/logos/nhl/svg/FLA_light.svg" alt="FLA" class="team-logo team-logo--xs" style="margin:0 1px">FLA 3 &ndash; <span class="team-dot team-dot--tbl"></span><img src="https://assets.nhle.com/logos/nhl/svg/TBL_light.svg" alt="TBL" class="team-logo team-logo--xs" style="margin:0 1px">TBL 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--xs" style="margin:0 1px">COL 6 &ndash; <span class="team-dot team-dot--dal"></span><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--xs" style="margin:0 1px">DAL 2</div>
         <div class="calendar__more">+4 more</div>
+        <div class="calendar__compact-count" data-count="8">8<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">BOS 4 &ndash; TOR 3</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">NYR 2 &ndash; NJD 5</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">FLA 3 &ndash; TBL 1</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">COL 6 &ndash; DAL 2</div>
+          <div class="compact-tooltip__game">+4 more</div>
+        </div>
       </div>
 
       <!-- Mar 4 (Wed) - 6 games -->
@@ -745,11 +877,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">4</span>
           <span class="calendar__game-count">6 games</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--mtl"></span>MTL 1 &ndash; <span class="team-dot team-dot--ott"></span>OTT 3</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--det"></span>DET 4 &ndash; <span class="team-dot team-dot--cbj"></span>CBJ 4 OT</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wsh"></span>WSH 5 &ndash; <span class="team-dot team-dot--phi"></span>PHI 2</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--chi"></span>CHI 2 &ndash; <span class="team-dot team-dot--stl"></span>STL 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--mtl"></span><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--xs" style="margin:0 1px">MTL 1 &ndash; <span class="team-dot team-dot--ott"></span><img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--xs" style="margin:0 1px">OTT 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--det"></span><img src="https://assets.nhle.com/logos/nhl/svg/DET_light.svg" alt="DET" class="team-logo team-logo--xs" style="margin:0 1px">DET 4 &ndash; <span class="team-dot team-dot--cbj"></span><img src="https://assets.nhle.com/logos/nhl/svg/CBJ_light.svg" alt="CBJ" class="team-logo team-logo--xs" style="margin:0 1px">CBJ 4 OT</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--xs" style="margin:0 1px">WSH 5 &ndash; <span class="team-dot team-dot--phi"></span><img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--xs" style="margin:0 1px">PHI 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--chi"></span><img src="https://assets.nhle.com/logos/nhl/svg/CHI_light.svg" alt="CHI" class="team-logo team-logo--xs" style="margin:0 1px">CHI 2 &ndash; <span class="team-dot team-dot--stl"></span><img src="https://assets.nhle.com/logos/nhl/svg/STL_light.svg" alt="STL" class="team-logo team-logo--xs" style="margin:0 1px">STL 3</div>
         <div class="calendar__more">+2 more</div>
+        <div class="calendar__compact-count" data-count="6">6<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">MTL 1 &ndash; OTT 3</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">DET 4 &ndash; CBJ 4 OT</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">WSH 5 &ndash; PHI 2</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">CHI 2 &ndash; STL 3</div>
+          <div class="compact-tooltip__game">+2 more</div>
+        </div>
       </div>
 
       <!-- Mar 5 (Thu) - 10 games -->
@@ -758,11 +898,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">5</span>
           <span class="calendar__game-count">10 games</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tor"></span>TOR 5 &ndash; <span class="team-dot team-dot--buf"></span>BUF 2</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--car"></span>CAR 3 &ndash; <span class="team-dot team-dot--fla"></span>FLA 2</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--edm"></span>EDM 4 &ndash; <span class="team-dot team-dot--van"></span>VAN 1</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--vgk"></span>VGK 3 &ndash; <span class="team-dot team-dot--lak"></span>LAK 3 SO</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR 5 &ndash; <span class="team-dot team-dot--buf"></span><img src="https://assets.nhle.com/logos/nhl/svg/BUF_light.svg" alt="BUF" class="team-logo team-logo--xs" style="margin:0 1px">BUF 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--car"></span><img src="https://assets.nhle.com/logos/nhl/svg/CAR_light.svg" alt="CAR" class="team-logo team-logo--xs" style="margin:0 1px">CAR 3 &ndash; <span class="team-dot team-dot--fla"></span><img src="https://assets.nhle.com/logos/nhl/svg/FLA_light.svg" alt="FLA" class="team-logo team-logo--xs" style="margin:0 1px">FLA 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--edm"></span><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--xs" style="margin:0 1px">EDM 4 &ndash; <span class="team-dot team-dot--van"></span><img src="https://assets.nhle.com/logos/nhl/svg/VAN_light.svg" alt="VAN" class="team-logo team-logo--xs" style="margin:0 1px">VAN 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--vgk"></span><img src="https://assets.nhle.com/logos/nhl/svg/VGK_light.svg" alt="VGK" class="team-logo team-logo--xs" style="margin:0 1px">VGK 3 &ndash; <span class="team-dot team-dot--lak"></span><img src="https://assets.nhle.com/logos/nhl/svg/LAK_light.svg" alt="LAK" class="team-logo team-logo--xs" style="margin:0 1px">LAK 3 SO</div>
         <div class="calendar__more">+6 more</div>
+        <div class="calendar__compact-count" data-count="10">10<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">TOR 5 &ndash; BUF 2</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">CAR 3 &ndash; FLA 2</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">EDM 4 &ndash; VAN 1</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">VGK 3 &ndash; LAK 3 SO</div>
+          <div class="compact-tooltip__game">+6 more</div>
+        </div>
       </div>
 
       <!-- Mar 6 (Fri) - 8 games -->
@@ -771,11 +919,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">6</span>
           <span class="calendar__game-count">8 games</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--pit"></span>PIT 6 &ndash; <span class="team-dot team-dot--wsh"></span>WSH 4</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyi"></span>NYI 2 &ndash; <span class="team-dot team-dot--nyr"></span>NYR 3</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wpg"></span>WPG 4 &ndash; <span class="team-dot team-dot--min"></span>MIN 1</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--sea"></span>SEA 2 &ndash; <span class="team-dot team-dot--cgy"></span>CGY 5</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--pit"></span><img src="https://assets.nhle.com/logos/nhl/svg/PIT_light.svg" alt="PIT" class="team-logo team-logo--xs" style="margin:0 1px">PIT 6 &ndash; <span class="team-dot team-dot--wsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--xs" style="margin:0 1px">WSH 4</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyi"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYI_light.svg" alt="NYI" class="team-logo team-logo--xs" style="margin:0 1px">NYI 2 &ndash; <span class="team-dot team-dot--nyr"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--xs" style="margin:0 1px">NYR 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wpg"></span><img src="https://assets.nhle.com/logos/nhl/svg/WPG_light.svg" alt="WPG" class="team-logo team-logo--xs" style="margin:0 1px">WPG 4 &ndash; <span class="team-dot team-dot--min"></span><img src="https://assets.nhle.com/logos/nhl/svg/MIN_light.svg" alt="MIN" class="team-logo team-logo--xs" style="margin:0 1px">MIN 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--sea"></span><img src="https://assets.nhle.com/logos/nhl/svg/SEA_light.svg" alt="SEA" class="team-logo team-logo--xs" style="margin:0 1px">SEA 2 &ndash; <span class="team-dot team-dot--cgy"></span><img src="https://assets.nhle.com/logos/nhl/svg/CGY_light.svg" alt="CGY" class="team-logo team-logo--xs" style="margin:0 1px">CGY 5</div>
         <div class="calendar__more">+4 more</div>
+        <div class="calendar__compact-count" data-count="8">8<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">PIT 6 &ndash; WSH 4</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">NYI 2 &ndash; NYR 3</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">WPG 4 &ndash; MIN 1</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">SEA 2 &ndash; CGY 5</div>
+          <div class="compact-tooltip__game">+4 more</div>
+        </div>
       </div>
 
       <!-- Mar 7 (Sat) - TRADE DEADLINE + 12 games -->
@@ -784,11 +940,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">7</span>
           <span class="calendar__badge--deadline">TRADE DEADLINE</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--bos"></span>BOS 3 &ndash; <span class="team-dot team-dot--mtl"></span>MTL 2</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tor"></span>TOR 4 &ndash; <span class="team-dot team-dot--det"></span>DET 1</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span>COL 5 &ndash; <span class="team-dot team-dot--edm"></span>EDM 3</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span>FLA 4 &ndash; <span class="team-dot team-dot--car"></span>CAR 4 OT</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--bos"></span><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--xs" style="margin:0 1px">BOS 3 &ndash; <span class="team-dot team-dot--mtl"></span><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--xs" style="margin:0 1px">MTL 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR 4 &ndash; <span class="team-dot team-dot--det"></span><img src="https://assets.nhle.com/logos/nhl/svg/DET_light.svg" alt="DET" class="team-logo team-logo--xs" style="margin:0 1px">DET 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--xs" style="margin:0 1px">COL 5 &ndash; <span class="team-dot team-dot--edm"></span><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--xs" style="margin:0 1px">EDM 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span><img src="https://assets.nhle.com/logos/nhl/svg/FLA_light.svg" alt="FLA" class="team-logo team-logo--xs" style="margin:0 1px">FLA 4 &ndash; <span class="team-dot team-dot--car"></span><img src="https://assets.nhle.com/logos/nhl/svg/CAR_light.svg" alt="CAR" class="team-logo team-logo--xs" style="margin:0 1px">CAR 4 OT</div>
         <div class="calendar__more">+8 more</div>
+        <div class="calendar__compact-count" data-count="12">12<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">BOS 3 &ndash; MTL 2</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">TOR 4 &ndash; DET 1</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">COL 5 &ndash; EDM 3</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">FLA 4 &ndash; CAR 4 OT</div>
+          <div class="compact-tooltip__game">+8 more</div>
+        </div>
       </div>
 
       <!-- ============ WEEK 2 ============ -->
@@ -799,11 +963,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">8</span>
           <span class="calendar__game-count">11 games</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span>NYR 3 &ndash; <span class="team-dot team-dot--phi"></span>PHI 1</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tbl"></span>TBL 5 &ndash; <span class="team-dot team-dot--ott"></span>OTT 2</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--dal"></span>DAL 3 &ndash; <span class="team-dot team-dot--nsh"></span>NSH 4</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--van"></span>VAN 2 &ndash; <span class="team-dot team-dot--sea"></span>SEA 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--xs" style="margin:0 1px">NYR 3 &ndash; <span class="team-dot team-dot--phi"></span><img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--xs" style="margin:0 1px">PHI 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tbl"></span><img src="https://assets.nhle.com/logos/nhl/svg/TBL_light.svg" alt="TBL" class="team-logo team-logo--xs" style="margin:0 1px">TBL 5 &ndash; <span class="team-dot team-dot--ott"></span><img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--xs" style="margin:0 1px">OTT 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--dal"></span><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--xs" style="margin:0 1px">DAL 3 &ndash; <span class="team-dot team-dot--nsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/NSH_light.svg" alt="NSH" class="team-logo team-logo--xs" style="margin:0 1px">NSH 4</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--van"></span><img src="https://assets.nhle.com/logos/nhl/svg/VAN_light.svg" alt="VAN" class="team-logo team-logo--xs" style="margin:0 1px">VAN 2 &ndash; <span class="team-dot team-dot--sea"></span><img src="https://assets.nhle.com/logos/nhl/svg/SEA_light.svg" alt="SEA" class="team-logo team-logo--xs" style="margin:0 1px">SEA 1</div>
         <div class="calendar__more">+7 more</div>
+        <div class="calendar__compact-count" data-count="11">11<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">NYR 3 &ndash; PHI 1</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">TBL 5 &ndash; OTT 2</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">DAL 3 &ndash; NSH 4</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">VAN 2 &ndash; SEA 1</div>
+          <div class="compact-tooltip__game">+7 more</div>
+        </div>
       </div>
 
       <!-- Mar 9 (Mon) - 5 games -->
@@ -812,11 +984,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">9</span>
           <span class="calendar__game-count">5 games</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wsh"></span>WSH 2 &ndash; <span class="team-dot team-dot--njd"></span>NJD 4</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--stl"></span>STL 3 &ndash; <span class="team-dot team-dot--chi"></span>CHI 1</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--lak"></span>LAK 4 &ndash; <span class="team-dot team-dot--ana"></span>ANA 2</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--edm"></span>EDM 6 &ndash; <span class="team-dot team-dot--cgy"></span>CGY 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--xs" style="margin:0 1px">WSH 2 &ndash; <span class="team-dot team-dot--njd"></span><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--xs" style="margin:0 1px">NJD 4</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--stl"></span><img src="https://assets.nhle.com/logos/nhl/svg/STL_light.svg" alt="STL" class="team-logo team-logo--xs" style="margin:0 1px">STL 3 &ndash; <span class="team-dot team-dot--chi"></span><img src="https://assets.nhle.com/logos/nhl/svg/CHI_light.svg" alt="CHI" class="team-logo team-logo--xs" style="margin:0 1px">CHI 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--lak"></span><img src="https://assets.nhle.com/logos/nhl/svg/LAK_light.svg" alt="LAK" class="team-logo team-logo--xs" style="margin:0 1px">LAK 4 &ndash; <span class="team-dot team-dot--ana"></span><img src="https://assets.nhle.com/logos/nhl/svg/ANA_light.svg" alt="ANA" class="team-logo team-logo--xs" style="margin:0 1px">ANA 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--edm"></span><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--xs" style="margin:0 1px">EDM 6 &ndash; <span class="team-dot team-dot--cgy"></span><img src="https://assets.nhle.com/logos/nhl/svg/CGY_light.svg" alt="CGY" class="team-logo team-logo--xs" style="margin:0 1px">CGY 3</div>
         <div class="calendar__more">+1 more</div>
+        <div class="calendar__compact-count" data-count="5">5<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">WSH 2 &ndash; NJD 4</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">STL 3 &ndash; CHI 1</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">LAK 4 &ndash; ANA 2</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">EDM 6 &ndash; CGY 3</div>
+          <div class="compact-tooltip__game">+1 more</div>
+        </div>
       </div>
 
       <!-- Mar 10 (Tue) - 9 games -->
@@ -825,11 +1005,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">10</span>
           <span class="calendar__game-count">9 games</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--bos"></span>BOS 2 &ndash; <span class="team-dot team-dot--car"></span>CAR 3</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tor"></span>TOR 3 &ndash; <span class="team-dot team-dot--fla"></span>FLA 5</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--pit"></span>PIT 4 &ndash; <span class="team-dot team-dot--cbj"></span>CBJ 2</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wpg"></span>WPG 3 &ndash; <span class="team-dot team-dot--col"></span>COL 3 OT</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--bos"></span><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--xs" style="margin:0 1px">BOS 2 &ndash; <span class="team-dot team-dot--car"></span><img src="https://assets.nhle.com/logos/nhl/svg/CAR_light.svg" alt="CAR" class="team-logo team-logo--xs" style="margin:0 1px">CAR 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR 3 &ndash; <span class="team-dot team-dot--fla"></span><img src="https://assets.nhle.com/logos/nhl/svg/FLA_light.svg" alt="FLA" class="team-logo team-logo--xs" style="margin:0 1px">FLA 5</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--pit"></span><img src="https://assets.nhle.com/logos/nhl/svg/PIT_light.svg" alt="PIT" class="team-logo team-logo--xs" style="margin:0 1px">PIT 4 &ndash; <span class="team-dot team-dot--cbj"></span><img src="https://assets.nhle.com/logos/nhl/svg/CBJ_light.svg" alt="CBJ" class="team-logo team-logo--xs" style="margin:0 1px">CBJ 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wpg"></span><img src="https://assets.nhle.com/logos/nhl/svg/WPG_light.svg" alt="WPG" class="team-logo team-logo--xs" style="margin:0 1px">WPG 3 &ndash; <span class="team-dot team-dot--col"></span><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--xs" style="margin:0 1px">COL 3 OT</div>
         <div class="calendar__more">+5 more</div>
+        <div class="calendar__compact-count" data-count="9">9<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">BOS 2 &ndash; CAR 3</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">TOR 3 &ndash; FLA 5</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">PIT 4 &ndash; CBJ 2</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">WPG 3 &ndash; COL 3 OT</div>
+          <div class="compact-tooltip__game">+5 more</div>
+        </div>
       </div>
 
       <!-- Mar 11 (Wed) - 7 games -->
@@ -838,11 +1026,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">11</span>
           <span class="calendar__game-count">7 games</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--mtl"></span>MTL 2 &ndash; <span class="team-dot team-dot--buf"></span>BUF 1</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--det"></span>DET 3 &ndash; <span class="team-dot team-dot--phi"></span>PHI 5</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nsh"></span>NSH 4 &ndash; <span class="team-dot team-dot--dal"></span>DAL 2</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--vgk"></span>VGK 5 &ndash; <span class="team-dot team-dot--sjs"></span>SJS 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--mtl"></span><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--xs" style="margin:0 1px">MTL 2 &ndash; <span class="team-dot team-dot--buf"></span><img src="https://assets.nhle.com/logos/nhl/svg/BUF_light.svg" alt="BUF" class="team-logo team-logo--xs" style="margin:0 1px">BUF 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--det"></span><img src="https://assets.nhle.com/logos/nhl/svg/DET_light.svg" alt="DET" class="team-logo team-logo--xs" style="margin:0 1px">DET 3 &ndash; <span class="team-dot team-dot--phi"></span><img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--xs" style="margin:0 1px">PHI 5</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/NSH_light.svg" alt="NSH" class="team-logo team-logo--xs" style="margin:0 1px">NSH 4 &ndash; <span class="team-dot team-dot--dal"></span><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--xs" style="margin:0 1px">DAL 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--vgk"></span><img src="https://assets.nhle.com/logos/nhl/svg/VGK_light.svg" alt="VGK" class="team-logo team-logo--xs" style="margin:0 1px">VGK 5 &ndash; <span class="team-dot team-dot--sjs"></span><img src="https://assets.nhle.com/logos/nhl/svg/SJS_light.svg" alt="SJS" class="team-logo team-logo--xs" style="margin:0 1px">SJS 1</div>
         <div class="calendar__more">+3 more</div>
+        <div class="calendar__compact-count" data-count="7">7<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">MTL 2 &ndash; BUF 1</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">DET 3 &ndash; PHI 5</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">NSH 4 &ndash; DAL 2</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">VGK 5 &ndash; SJS 1</div>
+          <div class="compact-tooltip__game">+3 more</div>
+        </div>
       </div>
 
       <!-- Mar 12 (Thu) - 10 games -->
@@ -851,11 +1047,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">12</span>
           <span class="calendar__game-count">10 games</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span>NYR 4 &ndash; <span class="team-dot team-dot--bos"></span>BOS 3 OT</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--car"></span>CAR 5 &ndash; <span class="team-dot team-dot--tbl"></span>TBL 2</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--edm"></span>EDM 3 &ndash; <span class="team-dot team-dot--wpg"></span>WPG 4</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--chi"></span>CHI 2 &ndash; <span class="team-dot team-dot--min"></span>MIN 6</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--xs" style="margin:0 1px">NYR 4 &ndash; <span class="team-dot team-dot--bos"></span><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--xs" style="margin:0 1px">BOS 3 OT</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--car"></span><img src="https://assets.nhle.com/logos/nhl/svg/CAR_light.svg" alt="CAR" class="team-logo team-logo--xs" style="margin:0 1px">CAR 5 &ndash; <span class="team-dot team-dot--tbl"></span><img src="https://assets.nhle.com/logos/nhl/svg/TBL_light.svg" alt="TBL" class="team-logo team-logo--xs" style="margin:0 1px">TBL 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--edm"></span><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--xs" style="margin:0 1px">EDM 3 &ndash; <span class="team-dot team-dot--wpg"></span><img src="https://assets.nhle.com/logos/nhl/svg/WPG_light.svg" alt="WPG" class="team-logo team-logo--xs" style="margin:0 1px">WPG 4</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--chi"></span><img src="https://assets.nhle.com/logos/nhl/svg/CHI_light.svg" alt="CHI" class="team-logo team-logo--xs" style="margin:0 1px">CHI 2 &ndash; <span class="team-dot team-dot--min"></span><img src="https://assets.nhle.com/logos/nhl/svg/MIN_light.svg" alt="MIN" class="team-logo team-logo--xs" style="margin:0 1px">MIN 6</div>
         <div class="calendar__more">+6 more</div>
+        <div class="calendar__compact-count" data-count="10">10<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">NYR 4 &ndash; BOS 3 OT</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">CAR 5 &ndash; TBL 2</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">EDM 3 &ndash; WPG 4</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">CHI 2 &ndash; MIN 6</div>
+          <div class="compact-tooltip__game">+6 more</div>
+        </div>
       </div>
 
       <!-- Mar 13 (Fri) - 7 games -->
@@ -864,11 +1068,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">13</span>
           <span class="calendar__game-count">7 games</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span>FLA 4 &ndash; <span class="team-dot team-dot--wsh"></span>WSH 3</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--njd"></span>NJD 2 &ndash; <span class="team-dot team-dot--nyi"></span>NYI 1</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span>COL 5 &ndash; <span class="team-dot team-dot--uta"></span>UTA 3</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--van"></span>VAN 3 &ndash; <span class="team-dot team-dot--lak"></span>LAK 4</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span><img src="https://assets.nhle.com/logos/nhl/svg/FLA_light.svg" alt="FLA" class="team-logo team-logo--xs" style="margin:0 1px">FLA 4 &ndash; <span class="team-dot team-dot--wsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--xs" style="margin:0 1px">WSH 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--njd"></span><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--xs" style="margin:0 1px">NJD 2 &ndash; <span class="team-dot team-dot--nyi"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYI_light.svg" alt="NYI" class="team-logo team-logo--xs" style="margin:0 1px">NYI 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--xs" style="margin:0 1px">COL 5 &ndash; <span class="team-dot team-dot--uta"></span><img src="https://assets.nhle.com/logos/nhl/svg/UTA_light.svg" alt="UTA" class="team-logo team-logo--xs" style="margin:0 1px">UTA 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--van"></span><img src="https://assets.nhle.com/logos/nhl/svg/VAN_light.svg" alt="VAN" class="team-logo team-logo--xs" style="margin:0 1px">VAN 3 &ndash; <span class="team-dot team-dot--lak"></span><img src="https://assets.nhle.com/logos/nhl/svg/LAK_light.svg" alt="LAK" class="team-logo team-logo--xs" style="margin:0 1px">LAK 4</div>
         <div class="calendar__more">+3 more</div>
+        <div class="calendar__compact-count" data-count="7">7<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">FLA 4 &ndash; WSH 3</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">NJD 2 &ndash; NYI 1</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">COL 5 &ndash; UTA 3</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">VAN 3 &ndash; LAK 4</div>
+          <div class="compact-tooltip__game">+3 more</div>
+        </div>
       </div>
 
       <!-- Mar 14 (Sat) - BYE WEEK + 10 games -->
@@ -878,10 +1090,17 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__badge--bye">&#9638; BYE WEEK</span>
         </div>
         <div class="calendar__bye-text">BOS, TOR, EDM, VGK off</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span>NYR 3 &ndash; <span class="team-dot team-dot--pit"></span>PIT 2</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--car"></span>CAR 6 &ndash; <span class="team-dot team-dot--mtl"></span>MTL 1</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--dal"></span>DAL 4 &ndash; <span class="team-dot team-dot--stl"></span>STL 3 SO</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nyr"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--xs" style="margin:0 1px">NYR 3 &ndash; <span class="team-dot team-dot--pit"></span><img src="https://assets.nhle.com/logos/nhl/svg/PIT_light.svg" alt="PIT" class="team-logo team-logo--xs" style="margin:0 1px">PIT 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--car"></span><img src="https://assets.nhle.com/logos/nhl/svg/CAR_light.svg" alt="CAR" class="team-logo team-logo--xs" style="margin:0 1px">CAR 6 &ndash; <span class="team-dot team-dot--mtl"></span><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--xs" style="margin:0 1px">MTL 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--dal"></span><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--xs" style="margin:0 1px">DAL 4 &ndash; <span class="team-dot team-dot--stl"></span><img src="https://assets.nhle.com/logos/nhl/svg/STL_light.svg" alt="STL" class="team-logo team-logo--xs" style="margin:0 1px">STL 3 SO</div>
         <div class="calendar__more">+7 more</div>
+        <div class="calendar__compact-count" data-count="10">10<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">NYR 3 &ndash; PIT 2</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">CAR 6 &ndash; MTL 1</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">DAL 4 &ndash; STL 3 SO</div>
+          <div class="compact-tooltip__game">+7 more</div>
+        </div>
       </div>
 
       <!-- ============ WEEK 3 ============ -->
@@ -893,10 +1112,17 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__badge--bye">&#9638; BYE WEEK</span>
         </div>
         <div class="calendar__bye-text">BOS, TOR, EDM, VGK off</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span>FLA 5 &ndash; <span class="team-dot team-dot--njd"></span>NJD 3</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tbl"></span>TBL 4 &ndash; <span class="team-dot team-dot--det"></span>DET 2</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span>COL 7 &ndash; <span class="team-dot team-dot--chi"></span>CHI 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--fla"></span><img src="https://assets.nhle.com/logos/nhl/svg/FLA_light.svg" alt="FLA" class="team-logo team-logo--xs" style="margin:0 1px">FLA 5 &ndash; <span class="team-dot team-dot--njd"></span><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--xs" style="margin:0 1px">NJD 3</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--tbl"></span><img src="https://assets.nhle.com/logos/nhl/svg/TBL_light.svg" alt="TBL" class="team-logo team-logo--xs" style="margin:0 1px">TBL 4 &ndash; <span class="team-dot team-dot--det"></span><img src="https://assets.nhle.com/logos/nhl/svg/DET_light.svg" alt="DET" class="team-logo team-logo--xs" style="margin:0 1px">DET 2</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--col"></span><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--xs" style="margin:0 1px">COL 7 &ndash; <span class="team-dot team-dot--chi"></span><img src="https://assets.nhle.com/logos/nhl/svg/CHI_light.svg" alt="CHI" class="team-logo team-logo--xs" style="margin:0 1px">CHI 2</div>
         <div class="calendar__more">+9 more</div>
+        <div class="calendar__compact-count" data-count="12">12<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">FLA 5 &ndash; NJD 3</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">TBL 4 &ndash; DET 2</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">COL 7 &ndash; CHI 2</div>
+          <div class="compact-tooltip__game">+9 more</div>
+        </div>
       </div>
 
       <!-- Mar 16 (Mon) - 6 games -->
@@ -905,11 +1131,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">16</span>
           <span class="calendar__game-count">6 games</span>
         </div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--ott"></span>OTT 3 &ndash; <span class="team-dot team-dot--mtl"></span>MTL 2 OT</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wsh"></span>WSH 4 &ndash; <span class="team-dot team-dot--cbj"></span>CBJ 1</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nsh"></span>NSH 2 &ndash; <span class="team-dot team-dot--wpg"></span>WPG 5</div>
-        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--sea"></span>SEA 3 &ndash; <span class="team-dot team-dot--van"></span>VAN 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--ott"></span><img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--xs" style="margin:0 1px">OTT 3 &ndash; <span class="team-dot team-dot--mtl"></span><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--xs" style="margin:0 1px">MTL 2 OT</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--wsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--xs" style="margin:0 1px">WSH 4 &ndash; <span class="team-dot team-dot--cbj"></span><img src="https://assets.nhle.com/logos/nhl/svg/CBJ_light.svg" alt="CBJ" class="team-logo team-logo--xs" style="margin:0 1px">CBJ 1</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--nsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/NSH_light.svg" alt="NSH" class="team-logo team-logo--xs" style="margin:0 1px">NSH 2 &ndash; <span class="team-dot team-dot--wpg"></span><img src="https://assets.nhle.com/logos/nhl/svg/WPG_light.svg" alt="WPG" class="team-logo team-logo--xs" style="margin:0 1px">WPG 5</div>
+        <div class="calendar__game calendar__game--score"><span class="team-dot team-dot--sea"></span><img src="https://assets.nhle.com/logos/nhl/svg/SEA_light.svg" alt="SEA" class="team-logo team-logo--xs" style="margin:0 1px">SEA 3 &ndash; <span class="team-dot team-dot--van"></span><img src="https://assets.nhle.com/logos/nhl/svg/VAN_light.svg" alt="VAN" class="team-logo team-logo--xs" style="margin:0 1px">VAN 1</div>
         <div class="calendar__more">+2 more</div>
+        <div class="calendar__compact-count" data-count="6">6<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game compact-tooltip__game--score">OTT 3 &ndash; MTL 2 OT</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">WSH 4 &ndash; CBJ 1</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">NSH 2 &ndash; WPG 5</div>
+          <div class="compact-tooltip__game compact-tooltip__game--score">SEA 3 &ndash; VAN 1</div>
+          <div class="compact-tooltip__game">+2 more</div>
+        </div>
       </div>
 
       <!-- Mar 17 (Tue) - TODAY - 8 games -->
@@ -918,11 +1152,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">17</span>
           <span class="calendar__game-count">8 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span>BOS @ <span class="team-dot team-dot--tor"></span>TOR 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyr"></span>NYR @ <span class="team-dot team-dot--car"></span>CAR 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--pit"></span>PIT @ <span class="team-dot team-dot--wsh"></span>WSH 7:30</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span>EDM @ <span class="team-dot team-dot--col"></span>COL 9:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--xs" style="margin:0 1px">BOS @ <span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyr"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--xs" style="margin:0 1px">NYR @ <span class="team-dot team-dot--car"></span><img src="https://assets.nhle.com/logos/nhl/svg/CAR_light.svg" alt="CAR" class="team-logo team-logo--xs" style="margin:0 1px">CAR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--pit"></span><img src="https://assets.nhle.com/logos/nhl/svg/PIT_light.svg" alt="PIT" class="team-logo team-logo--xs" style="margin:0 1px">PIT @ <span class="team-dot team-dot--wsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--xs" style="margin:0 1px">WSH 7:30</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--xs" style="margin:0 1px">EDM @ <span class="team-dot team-dot--col"></span><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--xs" style="margin:0 1px">COL 9:00</div>
         <div class="calendar__more">+4 more</div>
+        <div class="calendar__compact-count" data-count="8">8<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">BOS @ TOR 7:00</div>
+          <div class="compact-tooltip__game">NYR @ CAR 7:00</div>
+          <div class="compact-tooltip__game">PIT @ WSH 7:30</div>
+          <div class="compact-tooltip__game">EDM @ COL 9:00</div>
+          <div class="compact-tooltip__game">+4 more</div>
+        </div>
       </div>
 
       <!-- Mar 18 (Wed) - 7 games -->
@@ -931,11 +1173,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">18</span>
           <span class="calendar__game-count">7 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--fla"></span>FLA @ <span class="team-dot team-dot--tbl"></span>TBL 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--det"></span>DET @ <span class="team-dot team-dot--chi"></span>CHI 8:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--stl"></span>STL @ <span class="team-dot team-dot--min"></span>MIN 8:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--lak"></span>LAK @ <span class="team-dot team-dot--vgk"></span>VGK 10:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--fla"></span><img src="https://assets.nhle.com/logos/nhl/svg/FLA_light.svg" alt="FLA" class="team-logo team-logo--xs" style="margin:0 1px">FLA @ <span class="team-dot team-dot--tbl"></span><img src="https://assets.nhle.com/logos/nhl/svg/TBL_light.svg" alt="TBL" class="team-logo team-logo--xs" style="margin:0 1px">TBL 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--det"></span><img src="https://assets.nhle.com/logos/nhl/svg/DET_light.svg" alt="DET" class="team-logo team-logo--xs" style="margin:0 1px">DET @ <span class="team-dot team-dot--chi"></span><img src="https://assets.nhle.com/logos/nhl/svg/CHI_light.svg" alt="CHI" class="team-logo team-logo--xs" style="margin:0 1px">CHI 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--stl"></span><img src="https://assets.nhle.com/logos/nhl/svg/STL_light.svg" alt="STL" class="team-logo team-logo--xs" style="margin:0 1px">STL @ <span class="team-dot team-dot--min"></span><img src="https://assets.nhle.com/logos/nhl/svg/MIN_light.svg" alt="MIN" class="team-logo team-logo--xs" style="margin:0 1px">MIN 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--lak"></span><img src="https://assets.nhle.com/logos/nhl/svg/LAK_light.svg" alt="LAK" class="team-logo team-logo--xs" style="margin:0 1px">LAK @ <span class="team-dot team-dot--vgk"></span><img src="https://assets.nhle.com/logos/nhl/svg/VGK_light.svg" alt="VGK" class="team-logo team-logo--xs" style="margin:0 1px">VGK 10:00</div>
         <div class="calendar__more">+3 more</div>
+        <div class="calendar__compact-count" data-count="7">7<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">FLA @ TBL 7:00</div>
+          <div class="compact-tooltip__game">DET @ CHI 8:00</div>
+          <div class="compact-tooltip__game">STL @ MIN 8:00</div>
+          <div class="compact-tooltip__game">LAK @ VGK 10:00</div>
+          <div class="compact-tooltip__game">+3 more</div>
+        </div>
       </div>
 
       <!-- Mar 19 (Thu) - 9 games -->
@@ -944,11 +1194,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">19</span>
           <span class="calendar__game-count">9 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span>TOR @ <span class="team-dot team-dot--mtl"></span>MTL 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--njd"></span>NJD @ <span class="team-dot team-dot--phi"></span>PHI 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--car"></span>CAR @ <span class="team-dot team-dot--ott"></span>OTT 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--dal"></span>DAL @ <span class="team-dot team-dot--nsh"></span>NSH 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR @ <span class="team-dot team-dot--mtl"></span><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--xs" style="margin:0 1px">MTL 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--njd"></span><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--xs" style="margin:0 1px">NJD @ <span class="team-dot team-dot--phi"></span><img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--xs" style="margin:0 1px">PHI 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--car"></span><img src="https://assets.nhle.com/logos/nhl/svg/CAR_light.svg" alt="CAR" class="team-logo team-logo--xs" style="margin:0 1px">CAR @ <span class="team-dot team-dot--ott"></span><img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--xs" style="margin:0 1px">OTT 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--dal"></span><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--xs" style="margin:0 1px">DAL @ <span class="team-dot team-dot--nsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/NSH_light.svg" alt="NSH" class="team-logo team-logo--xs" style="margin:0 1px">NSH 8:00</div>
         <div class="calendar__more">+5 more</div>
+        <div class="calendar__compact-count" data-count="9">9<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">TOR @ MTL 7:00</div>
+          <div class="compact-tooltip__game">NJD @ PHI 7:00</div>
+          <div class="compact-tooltip__game">CAR @ OTT 7:00</div>
+          <div class="compact-tooltip__game">DAL @ NSH 8:00</div>
+          <div class="compact-tooltip__game">+5 more</div>
+        </div>
       </div>
 
       <!-- Mar 20 (Fri) - 8 games -->
@@ -957,11 +1215,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">20</span>
           <span class="calendar__game-count">8 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span>BOS @ <span class="team-dot team-dot--nyr"></span>NYR 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wsh"></span>WSH @ <span class="team-dot team-dot--pit"></span>PIT 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--col"></span>COL @ <span class="team-dot team-dot--wpg"></span>WPG 8:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--van"></span>VAN @ <span class="team-dot team-dot--edm"></span>EDM 9:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--xs" style="margin:0 1px">BOS @ <span class="team-dot team-dot--nyr"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--xs" style="margin:0 1px">NYR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--xs" style="margin:0 1px">WSH @ <span class="team-dot team-dot--pit"></span><img src="https://assets.nhle.com/logos/nhl/svg/PIT_light.svg" alt="PIT" class="team-logo team-logo--xs" style="margin:0 1px">PIT 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--col"></span><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--xs" style="margin:0 1px">COL @ <span class="team-dot team-dot--wpg"></span><img src="https://assets.nhle.com/logos/nhl/svg/WPG_light.svg" alt="WPG" class="team-logo team-logo--xs" style="margin:0 1px">WPG 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--van"></span><img src="https://assets.nhle.com/logos/nhl/svg/VAN_light.svg" alt="VAN" class="team-logo team-logo--xs" style="margin:0 1px">VAN @ <span class="team-dot team-dot--edm"></span><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--xs" style="margin:0 1px">EDM 9:00</div>
         <div class="calendar__more">+4 more</div>
+        <div class="calendar__compact-count" data-count="8">8<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">BOS @ NYR 7:00</div>
+          <div class="compact-tooltip__game">WSH @ PIT 7:00</div>
+          <div class="compact-tooltip__game">COL @ WPG 8:00</div>
+          <div class="compact-tooltip__game">VAN @ EDM 9:00</div>
+          <div class="compact-tooltip__game">+4 more</div>
+        </div>
       </div>
 
       <!-- Mar 21 (Sat) - 14 games -->
@@ -970,11 +1236,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">21</span>
           <span class="calendar__game-count">14 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span>TOR @ <span class="team-dot team-dot--buf"></span>BUF 1:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--fla"></span>FLA @ <span class="team-dot team-dot--car"></span>CAR 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--det"></span>DET @ <span class="team-dot team-dot--cbj"></span>CBJ 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span>EDM @ <span class="team-dot team-dot--cgy"></span>CGY 10:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR @ <span class="team-dot team-dot--buf"></span><img src="https://assets.nhle.com/logos/nhl/svg/BUF_light.svg" alt="BUF" class="team-logo team-logo--xs" style="margin:0 1px">BUF 1:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--fla"></span><img src="https://assets.nhle.com/logos/nhl/svg/FLA_light.svg" alt="FLA" class="team-logo team-logo--xs" style="margin:0 1px">FLA @ <span class="team-dot team-dot--car"></span><img src="https://assets.nhle.com/logos/nhl/svg/CAR_light.svg" alt="CAR" class="team-logo team-logo--xs" style="margin:0 1px">CAR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--det"></span><img src="https://assets.nhle.com/logos/nhl/svg/DET_light.svg" alt="DET" class="team-logo team-logo--xs" style="margin:0 1px">DET @ <span class="team-dot team-dot--cbj"></span><img src="https://assets.nhle.com/logos/nhl/svg/CBJ_light.svg" alt="CBJ" class="team-logo team-logo--xs" style="margin:0 1px">CBJ 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--xs" style="margin:0 1px">EDM @ <span class="team-dot team-dot--cgy"></span><img src="https://assets.nhle.com/logos/nhl/svg/CGY_light.svg" alt="CGY" class="team-logo team-logo--xs" style="margin:0 1px">CGY 10:00</div>
         <div class="calendar__more">+10 more</div>
+        <div class="calendar__compact-count" data-count="14">14<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">TOR @ BUF 1:00</div>
+          <div class="compact-tooltip__game">FLA @ CAR 7:00</div>
+          <div class="compact-tooltip__game">DET @ CBJ 7:00</div>
+          <div class="compact-tooltip__game">EDM @ CGY 10:00</div>
+          <div class="compact-tooltip__game">+10 more</div>
+        </div>
       </div>
 
       <!-- ============ WEEK 4 ============ -->
@@ -985,11 +1259,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">22</span>
           <span class="calendar__game-count">10 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--mtl"></span>MTL @ <span class="team-dot team-dot--bos"></span>BOS 1:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyi"></span>NYI @ <span class="team-dot team-dot--njd"></span>NJD 5:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--stl"></span>STL @ <span class="team-dot team-dot--chi"></span>CHI 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--sea"></span>SEA @ <span class="team-dot team-dot--lak"></span>LAK 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--mtl"></span><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--xs" style="margin:0 1px">MTL @ <span class="team-dot team-dot--bos"></span><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--xs" style="margin:0 1px">BOS 1:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyi"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYI_light.svg" alt="NYI" class="team-logo team-logo--xs" style="margin:0 1px">NYI @ <span class="team-dot team-dot--njd"></span><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--xs" style="margin:0 1px">NJD 5:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--stl"></span><img src="https://assets.nhle.com/logos/nhl/svg/STL_light.svg" alt="STL" class="team-logo team-logo--xs" style="margin:0 1px">STL @ <span class="team-dot team-dot--chi"></span><img src="https://assets.nhle.com/logos/nhl/svg/CHI_light.svg" alt="CHI" class="team-logo team-logo--xs" style="margin:0 1px">CHI 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--sea"></span><img src="https://assets.nhle.com/logos/nhl/svg/SEA_light.svg" alt="SEA" class="team-logo team-logo--xs" style="margin:0 1px">SEA @ <span class="team-dot team-dot--lak"></span><img src="https://assets.nhle.com/logos/nhl/svg/LAK_light.svg" alt="LAK" class="team-logo team-logo--xs" style="margin:0 1px">LAK 8:00</div>
         <div class="calendar__more">+6 more</div>
+        <div class="calendar__compact-count" data-count="10">10<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">MTL @ BOS 1:00</div>
+          <div class="compact-tooltip__game">NYI @ NJD 5:00</div>
+          <div class="compact-tooltip__game">STL @ CHI 7:00</div>
+          <div class="compact-tooltip__game">SEA @ LAK 8:00</div>
+          <div class="compact-tooltip__game">+6 more</div>
+        </div>
       </div>
 
       <!-- Mar 23 (Mon) - 6 games -->
@@ -998,11 +1280,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">23</span>
           <span class="calendar__game-count">6 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--phi"></span>PHI @ <span class="team-dot team-dot--wsh"></span>WSH 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--ott"></span>OTT @ <span class="team-dot team-dot--tbl"></span>TBL 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--min"></span>MIN @ <span class="team-dot team-dot--nsh"></span>NSH 8:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--ana"></span>ANA @ <span class="team-dot team-dot--vgk"></span>VGK 10:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--phi"></span><img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--xs" style="margin:0 1px">PHI @ <span class="team-dot team-dot--wsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--xs" style="margin:0 1px">WSH 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--ott"></span><img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--xs" style="margin:0 1px">OTT @ <span class="team-dot team-dot--tbl"></span><img src="https://assets.nhle.com/logos/nhl/svg/TBL_light.svg" alt="TBL" class="team-logo team-logo--xs" style="margin:0 1px">TBL 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--min"></span><img src="https://assets.nhle.com/logos/nhl/svg/MIN_light.svg" alt="MIN" class="team-logo team-logo--xs" style="margin:0 1px">MIN @ <span class="team-dot team-dot--nsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/NSH_light.svg" alt="NSH" class="team-logo team-logo--xs" style="margin:0 1px">NSH 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--ana"></span><img src="https://assets.nhle.com/logos/nhl/svg/ANA_light.svg" alt="ANA" class="team-logo team-logo--xs" style="margin:0 1px">ANA @ <span class="team-dot team-dot--vgk"></span><img src="https://assets.nhle.com/logos/nhl/svg/VGK_light.svg" alt="VGK" class="team-logo team-logo--xs" style="margin:0 1px">VGK 10:00</div>
         <div class="calendar__more">+2 more</div>
+        <div class="calendar__compact-count" data-count="6">6<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">PHI @ WSH 7:00</div>
+          <div class="compact-tooltip__game">OTT @ TBL 7:00</div>
+          <div class="compact-tooltip__game">MIN @ NSH 8:00</div>
+          <div class="compact-tooltip__game">ANA @ VGK 10:00</div>
+          <div class="compact-tooltip__game">+2 more</div>
+        </div>
       </div>
 
       <!-- Mar 24 (Tue) - 10 games -->
@@ -1011,11 +1301,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">24</span>
           <span class="calendar__game-count">10 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span>BOS @ <span class="team-dot team-dot--det"></span>DET 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyr"></span>NYR @ <span class="team-dot team-dot--tor"></span>TOR 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--car"></span>CAR @ <span class="team-dot team-dot--njd"></span>NJD 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wpg"></span>WPG @ <span class="team-dot team-dot--dal"></span>DAL 8:30</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--xs" style="margin:0 1px">BOS @ <span class="team-dot team-dot--det"></span><img src="https://assets.nhle.com/logos/nhl/svg/DET_light.svg" alt="DET" class="team-logo team-logo--xs" style="margin:0 1px">DET 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyr"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--xs" style="margin:0 1px">NYR @ <span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--car"></span><img src="https://assets.nhle.com/logos/nhl/svg/CAR_light.svg" alt="CAR" class="team-logo team-logo--xs" style="margin:0 1px">CAR @ <span class="team-dot team-dot--njd"></span><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--xs" style="margin:0 1px">NJD 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wpg"></span><img src="https://assets.nhle.com/logos/nhl/svg/WPG_light.svg" alt="WPG" class="team-logo team-logo--xs" style="margin:0 1px">WPG @ <span class="team-dot team-dot--dal"></span><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--xs" style="margin:0 1px">DAL 8:30</div>
         <div class="calendar__more">+6 more</div>
+        <div class="calendar__compact-count" data-count="10">10<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">BOS @ DET 7:00</div>
+          <div class="compact-tooltip__game">NYR @ TOR 7:00</div>
+          <div class="compact-tooltip__game">CAR @ NJD 7:00</div>
+          <div class="compact-tooltip__game">WPG @ DAL 8:30</div>
+          <div class="compact-tooltip__game">+6 more</div>
+        </div>
       </div>
 
       <!-- Mar 25 (Wed) - 5 games -->
@@ -1024,11 +1322,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">25</span>
           <span class="calendar__game-count">5 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--fla"></span>FLA @ <span class="team-dot team-dot--pit"></span>PIT 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--cbj"></span>CBJ @ <span class="team-dot team-dot--buf"></span>BUF 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--chi"></span>CHI @ <span class="team-dot team-dot--col"></span>COL 9:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--cgy"></span>CGY @ <span class="team-dot team-dot--van"></span>VAN 10:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--fla"></span><img src="https://assets.nhle.com/logos/nhl/svg/FLA_light.svg" alt="FLA" class="team-logo team-logo--xs" style="margin:0 1px">FLA @ <span class="team-dot team-dot--pit"></span><img src="https://assets.nhle.com/logos/nhl/svg/PIT_light.svg" alt="PIT" class="team-logo team-logo--xs" style="margin:0 1px">PIT 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--cbj"></span><img src="https://assets.nhle.com/logos/nhl/svg/CBJ_light.svg" alt="CBJ" class="team-logo team-logo--xs" style="margin:0 1px">CBJ @ <span class="team-dot team-dot--buf"></span><img src="https://assets.nhle.com/logos/nhl/svg/BUF_light.svg" alt="BUF" class="team-logo team-logo--xs" style="margin:0 1px">BUF 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--chi"></span><img src="https://assets.nhle.com/logos/nhl/svg/CHI_light.svg" alt="CHI" class="team-logo team-logo--xs" style="margin:0 1px">CHI @ <span class="team-dot team-dot--col"></span><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--xs" style="margin:0 1px">COL 9:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--cgy"></span><img src="https://assets.nhle.com/logos/nhl/svg/CGY_light.svg" alt="CGY" class="team-logo team-logo--xs" style="margin:0 1px">CGY @ <span class="team-dot team-dot--van"></span><img src="https://assets.nhle.com/logos/nhl/svg/VAN_light.svg" alt="VAN" class="team-logo team-logo--xs" style="margin:0 1px">VAN 10:00</div>
         <div class="calendar__more">+1 more</div>
+        <div class="calendar__compact-count" data-count="5">5<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">FLA @ PIT 7:00</div>
+          <div class="compact-tooltip__game">CBJ @ BUF 7:00</div>
+          <div class="compact-tooltip__game">CHI @ COL 9:00</div>
+          <div class="compact-tooltip__game">CGY @ VAN 10:00</div>
+          <div class="compact-tooltip__game">+1 more</div>
+        </div>
       </div>
 
       <!-- Mar 26 (Thu) - 9 games -->
@@ -1037,11 +1343,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">26</span>
           <span class="calendar__game-count">9 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span>TOR @ <span class="team-dot team-dot--ott"></span>OTT 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--mtl"></span>MTL @ <span class="team-dot team-dot--nyr"></span>NYR 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tbl"></span>TBL @ <span class="team-dot team-dot--car"></span>CAR 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span>EDM @ <span class="team-dot team-dot--min"></span>MIN 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR @ <span class="team-dot team-dot--ott"></span><img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--xs" style="margin:0 1px">OTT 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--mtl"></span><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--xs" style="margin:0 1px">MTL @ <span class="team-dot team-dot--nyr"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--xs" style="margin:0 1px">NYR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tbl"></span><img src="https://assets.nhle.com/logos/nhl/svg/TBL_light.svg" alt="TBL" class="team-logo team-logo--xs" style="margin:0 1px">TBL @ <span class="team-dot team-dot--car"></span><img src="https://assets.nhle.com/logos/nhl/svg/CAR_light.svg" alt="CAR" class="team-logo team-logo--xs" style="margin:0 1px">CAR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--xs" style="margin:0 1px">EDM @ <span class="team-dot team-dot--min"></span><img src="https://assets.nhle.com/logos/nhl/svg/MIN_light.svg" alt="MIN" class="team-logo team-logo--xs" style="margin:0 1px">MIN 8:00</div>
         <div class="calendar__more">+5 more</div>
+        <div class="calendar__compact-count" data-count="9">9<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">TOR @ OTT 7:00</div>
+          <div class="compact-tooltip__game">MTL @ NYR 7:00</div>
+          <div class="compact-tooltip__game">TBL @ CAR 7:00</div>
+          <div class="compact-tooltip__game">EDM @ MIN 8:00</div>
+          <div class="compact-tooltip__game">+5 more</div>
+        </div>
       </div>
 
       <!-- Mar 27 (Fri) - 8 games -->
@@ -1050,11 +1364,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">27</span>
           <span class="calendar__game-count">8 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wsh"></span>WSH @ <span class="team-dot team-dot--bos"></span>BOS 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--det"></span>DET @ <span class="team-dot team-dot--nyi"></span>NYI 7:30</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--dal"></span>DAL @ <span class="team-dot team-dot--stl"></span>STL 8:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--lak"></span>LAK @ <span class="team-dot team-dot--sea"></span>SEA 10:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--xs" style="margin:0 1px">WSH @ <span class="team-dot team-dot--bos"></span><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--xs" style="margin:0 1px">BOS 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--det"></span><img src="https://assets.nhle.com/logos/nhl/svg/DET_light.svg" alt="DET" class="team-logo team-logo--xs" style="margin:0 1px">DET @ <span class="team-dot team-dot--nyi"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYI_light.svg" alt="NYI" class="team-logo team-logo--xs" style="margin:0 1px">NYI 7:30</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--dal"></span><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--xs" style="margin:0 1px">DAL @ <span class="team-dot team-dot--stl"></span><img src="https://assets.nhle.com/logos/nhl/svg/STL_light.svg" alt="STL" class="team-logo team-logo--xs" style="margin:0 1px">STL 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--lak"></span><img src="https://assets.nhle.com/logos/nhl/svg/LAK_light.svg" alt="LAK" class="team-logo team-logo--xs" style="margin:0 1px">LAK @ <span class="team-dot team-dot--sea"></span><img src="https://assets.nhle.com/logos/nhl/svg/SEA_light.svg" alt="SEA" class="team-logo team-logo--xs" style="margin:0 1px">SEA 10:00</div>
         <div class="calendar__more">+4 more</div>
+        <div class="calendar__compact-count" data-count="8">8<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">WSH @ BOS 7:00</div>
+          <div class="compact-tooltip__game">DET @ NYI 7:30</div>
+          <div class="compact-tooltip__game">DAL @ STL 8:00</div>
+          <div class="compact-tooltip__game">LAK @ SEA 10:00</div>
+          <div class="compact-tooltip__game">+4 more</div>
+        </div>
       </div>
 
       <!-- Mar 28 (Sat) - 15 games -->
@@ -1063,11 +1385,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">28</span>
           <span class="calendar__game-count">15 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span>BOS @ <span class="team-dot team-dot--phi"></span>PHI 1:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span>TOR @ <span class="team-dot team-dot--fla"></span>FLA 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyr"></span>NYR @ <span class="team-dot team-dot--wsh"></span>WSH 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span>EDM @ <span class="team-dot team-dot--wpg"></span>WPG 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--xs" style="margin:0 1px">BOS @ <span class="team-dot team-dot--phi"></span><img src="https://assets.nhle.com/logos/nhl/svg/PHI_light.svg" alt="PHI" class="team-logo team-logo--xs" style="margin:0 1px">PHI 1:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR @ <span class="team-dot team-dot--fla"></span><img src="https://assets.nhle.com/logos/nhl/svg/FLA_light.svg" alt="FLA" class="team-logo team-logo--xs" style="margin:0 1px">FLA 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--nyr"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--xs" style="margin:0 1px">NYR @ <span class="team-dot team-dot--wsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--xs" style="margin:0 1px">WSH 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--xs" style="margin:0 1px">EDM @ <span class="team-dot team-dot--wpg"></span><img src="https://assets.nhle.com/logos/nhl/svg/WPG_light.svg" alt="WPG" class="team-logo team-logo--xs" style="margin:0 1px">WPG 7:00</div>
         <div class="calendar__more">+11 more</div>
+        <div class="calendar__compact-count" data-count="15">15<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">BOS @ PHI 1:00</div>
+          <div class="compact-tooltip__game">TOR @ FLA 7:00</div>
+          <div class="compact-tooltip__game">NYR @ WSH 7:00</div>
+          <div class="compact-tooltip__game">EDM @ WPG 7:00</div>
+          <div class="compact-tooltip__game">+11 more</div>
+        </div>
       </div>
 
       <!-- ============ WEEK 5 ============ -->
@@ -1078,11 +1408,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">29</span>
           <span class="calendar__game-count">11 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--mtl"></span>MTL @ <span class="team-dot team-dot--tor"></span>TOR 1:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--njd"></span>NJD @ <span class="team-dot team-dot--pit"></span>PIT 5:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--col"></span>COL @ <span class="team-dot team-dot--nsh"></span>NSH 6:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--van"></span>VAN @ <span class="team-dot team-dot--cgy"></span>CGY 8:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--mtl"></span><img src="https://assets.nhle.com/logos/nhl/svg/MTL_light.svg" alt="MTL" class="team-logo team-logo--xs" style="margin:0 1px">MTL @ <span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR 1:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--njd"></span><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--xs" style="margin:0 1px">NJD @ <span class="team-dot team-dot--pit"></span><img src="https://assets.nhle.com/logos/nhl/svg/PIT_light.svg" alt="PIT" class="team-logo team-logo--xs" style="margin:0 1px">PIT 5:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--col"></span><img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--xs" style="margin:0 1px">COL @ <span class="team-dot team-dot--nsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/NSH_light.svg" alt="NSH" class="team-logo team-logo--xs" style="margin:0 1px">NSH 6:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--van"></span><img src="https://assets.nhle.com/logos/nhl/svg/VAN_light.svg" alt="VAN" class="team-logo team-logo--xs" style="margin:0 1px">VAN @ <span class="team-dot team-dot--cgy"></span><img src="https://assets.nhle.com/logos/nhl/svg/CGY_light.svg" alt="CGY" class="team-logo team-logo--xs" style="margin:0 1px">CGY 8:00</div>
         <div class="calendar__more">+7 more</div>
+        <div class="calendar__compact-count" data-count="11">11<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">MTL @ TOR 1:00</div>
+          <div class="compact-tooltip__game">NJD @ PIT 5:00</div>
+          <div class="compact-tooltip__game">COL @ NSH 6:00</div>
+          <div class="compact-tooltip__game">VAN @ CGY 8:00</div>
+          <div class="compact-tooltip__game">+7 more</div>
+        </div>
       </div>
 
       <!-- Mar 30 (Mon) - 7 games -->
@@ -1091,11 +1429,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">30</span>
           <span class="calendar__game-count">7 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--car"></span>CAR @ <span class="team-dot team-dot--fla"></span>FLA 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--ott"></span>OTT @ <span class="team-dot team-dot--buf"></span>BUF 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--chi"></span>CHI @ <span class="team-dot team-dot--det"></span>DET 7:30</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--lak"></span>LAK @ <span class="team-dot team-dot--ana"></span>ANA 10:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--car"></span><img src="https://assets.nhle.com/logos/nhl/svg/CAR_light.svg" alt="CAR" class="team-logo team-logo--xs" style="margin:0 1px">CAR @ <span class="team-dot team-dot--fla"></span><img src="https://assets.nhle.com/logos/nhl/svg/FLA_light.svg" alt="FLA" class="team-logo team-logo--xs" style="margin:0 1px">FLA 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--ott"></span><img src="https://assets.nhle.com/logos/nhl/svg/OTT_light.svg" alt="OTT" class="team-logo team-logo--xs" style="margin:0 1px">OTT @ <span class="team-dot team-dot--buf"></span><img src="https://assets.nhle.com/logos/nhl/svg/BUF_light.svg" alt="BUF" class="team-logo team-logo--xs" style="margin:0 1px">BUF 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--chi"></span><img src="https://assets.nhle.com/logos/nhl/svg/CHI_light.svg" alt="CHI" class="team-logo team-logo--xs" style="margin:0 1px">CHI @ <span class="team-dot team-dot--det"></span><img src="https://assets.nhle.com/logos/nhl/svg/DET_light.svg" alt="DET" class="team-logo team-logo--xs" style="margin:0 1px">DET 7:30</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--lak"></span><img src="https://assets.nhle.com/logos/nhl/svg/LAK_light.svg" alt="LAK" class="team-logo team-logo--xs" style="margin:0 1px">LAK @ <span class="team-dot team-dot--ana"></span><img src="https://assets.nhle.com/logos/nhl/svg/ANA_light.svg" alt="ANA" class="team-logo team-logo--xs" style="margin:0 1px">ANA 10:00</div>
         <div class="calendar__more">+3 more</div>
+        <div class="calendar__compact-count" data-count="7">7<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">CAR @ FLA 7:00</div>
+          <div class="compact-tooltip__game">OTT @ BUF 7:00</div>
+          <div class="compact-tooltip__game">CHI @ DET 7:30</div>
+          <div class="compact-tooltip__game">LAK @ ANA 10:00</div>
+          <div class="compact-tooltip__game">+3 more</div>
+        </div>
       </div>
 
       <!-- Mar 31 (Tue) - 9 games -->
@@ -1104,11 +1450,19 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
           <span class="calendar__date-num">31</span>
           <span class="calendar__game-count">9 games</span>
         </div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span>BOS @ <span class="team-dot team-dot--njd"></span>NJD 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span>TOR @ <span class="team-dot team-dot--nyr"></span>NYR 7:00</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wsh"></span>WSH @ <span class="team-dot team-dot--tbl"></span>TBL 7:30</div>
-        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span>EDM @ <span class="team-dot team-dot--dal"></span>DAL 8:30</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--bos"></span><img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--xs" style="margin:0 1px">BOS @ <span class="team-dot team-dot--njd"></span><img src="https://assets.nhle.com/logos/nhl/svg/NJD_light.svg" alt="NJD" class="team-logo team-logo--xs" style="margin:0 1px">NJD 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--tor"></span><img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--xs" style="margin:0 1px">TOR @ <span class="team-dot team-dot--nyr"></span><img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--xs" style="margin:0 1px">NYR 7:00</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--wsh"></span><img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--xs" style="margin:0 1px">WSH @ <span class="team-dot team-dot--tbl"></span><img src="https://assets.nhle.com/logos/nhl/svg/TBL_light.svg" alt="TBL" class="team-logo team-logo--xs" style="margin:0 1px">TBL 7:30</div>
+        <div class="calendar__game calendar__game--time"><span class="team-dot team-dot--edm"></span><img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--xs" style="margin:0 1px">EDM @ <span class="team-dot team-dot--dal"></span><img src="https://assets.nhle.com/logos/nhl/svg/DAL_light.svg" alt="DAL" class="team-logo team-logo--xs" style="margin:0 1px">DAL 8:30</div>
         <div class="calendar__more">+5 more</div>
+        <div class="calendar__compact-count" data-count="9">9<span class="calendar__compact-label">games</span></div>
+        <div class="compact-tooltip">
+          <div class="compact-tooltip__game">BOS @ NJD 7:00</div>
+          <div class="compact-tooltip__game">TOR @ NYR 7:00</div>
+          <div class="compact-tooltip__game">WSH @ TBL 7:30</div>
+          <div class="compact-tooltip__game">EDM @ DAL 8:30</div>
+          <div class="compact-tooltip__game">+5 more</div>
+        </div>
       </div>
 
       <!-- Empty cells for Apr 1-4 -->
@@ -1146,18 +1500,14 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
   <!-- Click hint -->
   <div class="click-hint">Click any date to view full scores and game details.</div>
 
-  <!-- Schedule Tabs -->
-  <div style="margin-top: 28px; margin-bottom: 16px;">
-    <div class="view-switcher">
-      <button class="view-switcher__btn active">Calendar</button>
-      <button class="view-switcher__btn">Strength of Schedule</button>
-    </div>
-  </div>
+  </div><!-- /#calendar-content -->
 
-  <!-- Strength of Schedule Placeholder -->
-  <div style="background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 4px; padding: 32px; text-align: center; margin-bottom: 28px;">
-    <div style="font-size: 0.92rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-primary); margin-bottom: 8px;">Strength of Remaining Schedule</div>
-    <div style="font-size: 0.78rem; color: var(--text-muted); font-style: italic;">The methodology for calculating strength of schedule will be defined in a future update. This section will display each team's remaining schedule difficulty ranking with supporting metrics.</div>
+  <!-- === STRENGTH OF SCHEDULE TAB CONTENT === -->
+  <div class="sos-content" id="sos-content">
+    <div style="background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 4px; padding: 32px; text-align: center; margin-bottom: 28px;">
+      <div style="font-size: 0.92rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-primary); margin-bottom: 8px;">Strength of Remaining Schedule</div>
+      <div style="font-size: 0.78rem; color: var(--text-muted); font-style: italic;">The methodology for calculating strength of schedule will be defined in a future update. This section will display each team's remaining schedule difficulty ranking with supporting metrics.</div>
+    </div>
   </div>
 
   <!-- Season Context -->
@@ -1204,6 +1554,60 @@ function toggleTheme() {
     html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
   );
 }
+
+/* ===================================================================
+   SCHEDULE TABS: Calendar / Strength of Schedule
+   =================================================================== */
+(function() {
+  var scheduleTabs = document.getElementById('schedule-tabs');
+  var calendarContent = document.getElementById('calendar-content');
+  var sosContent = document.getElementById('sos-content');
+
+  scheduleTabs.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-schedule-tab]');
+    if (!btn) return;
+
+    // Update active button
+    var allBtns = scheduleTabs.querySelectorAll('.view-switcher__btn');
+    allBtns.forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+
+    var tab = btn.getAttribute('data-schedule-tab');
+    if (tab === 'calendar') {
+      calendarContent.style.display = 'block';
+      sosContent.style.display = 'none';
+      sosContent.classList.remove('active');
+      calendarContent.classList.add('active');
+    } else {
+      calendarContent.style.display = 'none';
+      sosContent.style.display = 'block';
+      calendarContent.classList.remove('active');
+      sosContent.classList.add('active');
+    }
+  });
+})();
+
+/* ===================================================================
+   CALENDAR VIEW SWITCHER: Detailed / Clean / Compact
+   =================================================================== */
+(function() {
+  var viewSwitcher = document.getElementById('calendar-view-switcher');
+  var calendarGrid = document.querySelector('.calendar__grid');
+
+  viewSwitcher.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-calendar-view]');
+    if (!btn) return;
+
+    // Update active button
+    var allBtns = viewSwitcher.querySelectorAll('.view-switcher__btn');
+    allBtns.forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+
+    // Set the data-view attribute on the grid
+    var view = btn.getAttribute('data-calendar-view');
+    calendarGrid.setAttribute('data-view', view);
+  });
+})();
 </script>
 
 </body>

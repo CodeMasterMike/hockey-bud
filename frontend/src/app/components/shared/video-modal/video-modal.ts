@@ -1,7 +1,8 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-video-modal',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (videoUrl()) {
       <div class="modal-overlay" (click)="closed.emit()" (keydown.escape)="closed.emit()" tabindex="-1">

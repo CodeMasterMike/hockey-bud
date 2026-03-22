@@ -1,6 +1,6 @@
 # hockey-site Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-03-21
+Auto-generated from all feature plans. Last updated: 2026-03-22
 
 ## Active Technologies
 - C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend) + ASP.NET Core 10, Entity Framework Core 10, Hangfire, SignalR, Angular SSR, RxJS, Tailwind CSS v3, Angular CDK (001-hockey-league-hub)
@@ -13,7 +13,8 @@ backend/
 ├── src/
 │   ├── HockeyHub.Core/             # Entities + interfaces (no dependencies)
 │   │   ├── Models/Entities/         # League, Team, Season, Arena, Player, Personnel, FranchiseHistory, Game, GamePeriodScore, StandingsSnapshot
-│   │   └── Providers/               # INhlDataProvider interface + DTOs, IScoreBroadcaster
+│   │   ├── Providers/               # INhlDataProvider interface + DTOs, IScoreBroadcaster
+│   │   └── NhlDateHelper.cs         # Shared NHL game day boundary logic (3 AM ET cutoff, DST-aware)
 │   ├── HockeyHub.Data/             # Data access (depends on Core)
 │   │   ├── Data/HockeyHubDbContext.cs + Migrations/
 │   │   ├── Providers/NhlWebApiProvider.cs
@@ -37,6 +38,7 @@ frontend/
 │   │   ├── main-page/             # League selection grid
 │   │   ├── scores/                # ScoresPage, ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker
 │   │   └── [standings,...]/       # Placeholder route components (11 remaining)
+│   ├── constants.ts               # Shared constants (league ID, polling intervals, SignalR config, close-game thresholds, getPeriodLabel)
 │   ├── services/                  # ThemeService, SignalRService, ScoresApiService, GameClockService
 │   ├── directives/                # TooltipDirective
 │   ├── pipes/                     # EraPipe, TimezonePipe
@@ -79,8 +81,13 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - Connection strings in appsettings.json (PostgreSQL: `hockeyhub`/`hockeyhub_dev`, Redis: `localhost:6379`)
 - EF migrations live in HockeyHub.Data; run `dotnet ef` from Api project with `--project ../HockeyHub.Data`
 - Frontend live clock: `GameClockService` uses `requestAnimationFrame` for smooth countdown between server pushes, resyncs on each SignalR `ClockSync` event
+- NHL game day boundary: `NhlDateHelper` (Core) centralizes the 3 AM ET cutoff logic — all sync jobs, queries, and controllers must use this instead of raw UTC offsets
+- Frontend constants: `constants.ts` holds all magic numbers (polling intervals, SignalR config, close-game thresholds, default league ID) and shared utilities (`getPeriodLabel`) — never hardcode these in components
+- All Angular components use `ChangeDetectionStrategy.OnPush` — required for performance given 60fps clock updates during live games
+- Subscription cleanup uses `takeUntilDestroyed(destroyRef)` — do not use manual `Subscription[]` + `ngOnDestroy` patterns
 
 ## Recent Changes
+- Code quality pass: Consolidated 4 inconsistent timezone/game-day calculations into `NhlDateHelper`; added `TryParseExact` validation on ScoresController date param; fixed incomplete `TeamAbbreviation` (was always empty) and `HomeShots`/`AwayShots` (was always 0) in NhlWebApiProvider by extracting from boxscore; added `HttpResponseMessage` disposal; made `HasLiveGames` async; added error handlers to ExpandedScoreBox/PregameMatchup subscriptions; extracted all magic numbers to `constants.ts`; added `OnPush` change detection to all 13 components; standardized subscription cleanup on `takeUntilDestroyed`; replaced `any` types in SignalR service with proper types
 - Mockup/spec edit 5: Team profile — Active Roster/Depth Chart as navigable tabs, depth chart condensed with Defense/Goalies beside Forwards in 2-column layout with clear section labels; Schedule — 3 view modes (Detailed/Clean/Compact), Strength of Schedule tab placeholder; Player profile — P/PG stat added, Regular Season/Playoffs sub-tabs, top-level Overview & Stats / Contracts & Trades tabs, clickable birth nation → nation players page with search and past-player filter, multi-team player mockup planned; Players page — most searched players default with day/week/month/year filter, search bar searches players + nations
 - Mockup/spec edit 4: Rink diagram goal dots changed from half-green to half-white/half-team-color; Salary Cap overview teams reordered alphabetically by location, CHIP stat added to team cards, CHIP Graph tab added between Team Detail and Buyout Calculator, future cap commitments expanded to 5 years, draft pick inventory expanded to 5 years, Escrow added to Cap Explained; Trade tree removed entirely and replaced with simple chronological trade list with team/season filters
 - Mockup/spec edit 3: Dark mode banner inverted to beige/dark-blue (#F5F0E1 bg, #0A1628 text) with banner-specific CSS tokens for interactive elements; dark mode set as default; expanded score box stats condensed to half width with Season/All-Time H2H tables adjacent; pregame box shows top goal scorer, assist maker, and points getter alongside goalie stats (same player listed for each stat they lead); Game Hub goals and penalties merged into single card with sharp divider; reduced vertical spacing in Game Hub

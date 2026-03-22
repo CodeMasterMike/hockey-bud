@@ -1,24 +1,35 @@
-import { Component, input, output, inject, signal, OnInit } from '@angular/core';
+import { Component, input, output, inject, signal, OnInit, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { ScoreGame, ScoresApiService, ExpandedScore } from '../../../services/scores-api.service';
+import { DEFAULT_LEAGUE_ID } from '../../../constants';
 
 @Component({
   selector: 'app-expanded-score-box',
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="expanded">
       <div class="expanded__header">
         <div class="expanded__teams">
+          @if (game().awayTeam.logoUrl) {
+            <img [src]="game().awayTeam.logoUrl" [alt]="game().awayTeam.abbreviation" class="expanded__logo">
+          }
           <span class="expanded__abbrev">{{ game().awayTeam.abbreviation }}</span>
           <span class="expanded__score">{{ game().awayTeam.score }}</span>
           <span class="expanded__dash">&ndash;</span>
           <span class="expanded__score">{{ game().homeTeam.score }}</span>
           <span class="expanded__abbrev">{{ game().homeTeam.abbreviation }}</span>
+          @if (game().homeTeam.logoUrl) {
+            <img [src]="game().homeTeam.logoUrl" [alt]="game().homeTeam.abbreviation" class="expanded__logo">
+          }
         </div>
         <button class="expanded__close" (click)="collapse.emit()" aria-label="Collapse">&times;</button>
       </div>
 
-      @if (data()) {
+      @if (error()) {
+        <div class="expanded__loading">Failed to load details.</div>
+      } @else if (data()) {
         <!-- Period box scores side by side -->
         <div class="expanded__box-scores">
           <!-- Goals box score -->
@@ -239,6 +250,7 @@ import { ScoreGame, ScoresApiService, ExpandedScore } from '../../../services/sc
       align-items: center;
       gap: 8px;
     }
+    .expanded__logo { width: 28px; height: 28px; object-fit: contain; }
     .expanded__abbrev { font-weight: 700; font-size: 16px; color: var(--text-primary); }
     .expanded__score { font-weight: 700; font-size: 22px; color: var(--text-primary); }
     .expanded__dash { color: var(--text-muted); font-size: 18px; }
@@ -376,15 +388,20 @@ import { ScoreGame, ScoresApiService, ExpandedScore } from '../../../services/sc
 })
 export class ExpandedScoreBox implements OnInit {
   game = input.required<ScoreGame>();
-  leagueId = input<string>('nhl');
+  leagueId = input<string>(DEFAULT_LEAGUE_ID);
   collapse = output<void>();
 
   private scoresApi = inject(ScoresApiService);
+  private destroyRef = inject(DestroyRef);
   data = signal<ExpandedScore | null>(null);
+  error = signal(false);
 
   ngOnInit(): void {
-    this.scoresApi.getExpandedScore(this.leagueId(), this.game().id).subscribe({
-      next: data => this.data.set(data)
+    this.scoresApi.getExpandedScore(this.leagueId(), this.game().id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: data => this.data.set(data),
+      error: () => this.error.set(true)
     });
   }
 }

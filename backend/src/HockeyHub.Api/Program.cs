@@ -63,6 +63,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Apply pending EF migrations on startup
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<HockeyHubDbContext>();
+    db.Database.Migrate();
+}
+
 // Middleware pipeline
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseCors("DevCors");

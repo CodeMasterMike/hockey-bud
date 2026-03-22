@@ -1,5 +1,6 @@
 import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { THEME_STORAGE_KEY } from '../constants';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
@@ -8,7 +9,7 @@ export class ThemeService {
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
-      const saved = localStorage.getItem('theme');
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
       const dark = saved ? saved === 'dark' : true;
       this.isDark.set(dark);
       this.apply(dark);
@@ -19,7 +20,7 @@ export class ThemeService {
     const next = !this.isDark();
     this.isDark.set(next);
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('theme', next ? 'dark' : 'light');
+      localStorage.setItem(THEME_STORAGE_KEY, next ? 'dark' : 'light');
       this.apply(next);
     }
   }

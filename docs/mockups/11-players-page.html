@@ -1,0 +1,2246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M011 - Players Page | Hockey League Hub</title>
+
+<!-- Self-hosted Courier Prime -->
+<style>
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: italic; font-weight: 400; font-display: swap; src: url('../../frontend/src/assets/fonts/courier-prime-italic.woff2') format('woff2'); }
+</style>
+
+<style>
+/* ===================================================================
+   DESIGN TOKENS
+   =================================================================== */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1;
+  --bg-banner: #000000;
+  --bg-nav: #1A1A1A;
+  --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04);
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A;
+  --text-on-banner: #F5F0E1;
+  --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25);
+  --color-link: #2C5F8A;
+  --color-link-hover: #1A3D5C;
+  --color-live: #C0392B;
+  --color-pending: #D4A017;
+  --color-final: #4A4A4A;
+  --bg-ticker: #111111;
+  --text-ticker: #F5F0E1;
+  --banner-input-bg: rgba(255,255,255,0.08);
+  --banner-input-border: rgba(255,255,255,0.2);
+  --banner-placeholder: rgba(245,240,225,0.5);
+  --banner-hover-bg: rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] {
+  --bg-page: #0A1628;
+  --bg-nav: #0D1B2A;
+  --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06);
+  --text-primary: #F5F0E1;
+  --text-secondary: #B8B0A0;
+  --text-muted: #807868;
+  --border-default: rgba(255,255,255,0.1);
+  --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6;
+  --color-link-hover: #8DC0F0;
+  --color-live: #E74C3C;
+  --color-pending: #F1C40F;
+  --color-final: #B8B0A0;
+  --bg-banner: #F5F0E1;
+  --text-on-banner: #0A1628;
+  --bg-ticker: #050D1A;
+  --banner-input-bg: rgba(0,0,0,0.06);
+  --banner-input-border: rgba(0,0,0,0.15);
+  --banner-placeholder: rgba(10,22,40,0.4);
+  --banner-hover-bg: rgba(0,0,0,0.06);
+}
+
+/* ===================================================================
+   RESET + BASE
+   =================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  background: #E8E0D0;
+  color: #1A1A1A;
+}
+
+/* ===================================================================
+   MOCKUP LAYOUT
+   =================================================================== */
+.mockup-label {
+  text-align: center;
+  padding: 18px 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #555;
+  background: #E8E0D0;
+}
+
+.shell-wrapper {
+  max-width: 1280px;
+  margin: 0 auto 40px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.18);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-page);
+  color: var(--text-primary);
+}
+
+/* ===================================================================
+   BANNER
+   =================================================================== */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-banner, #000);
+  color: var(--text-on-banner);
+  padding: 0 24px;
+  height: 56px;
+}
+
+.banner__brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.banner__brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--text-on-banner);
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.banner__search {
+  flex: 0 1 420px;
+  margin: 0 24px;
+}
+
+.banner__search input {
+  width: 100%;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid var(--banner-input-border);
+  border-radius: 4px;
+  background: var(--banner-input-bg);
+  color: var(--text-on-banner);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  outline: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.banner__search input::placeholder {
+  color: var(--banner-placeholder);
+}
+
+.banner__search input:focus {
+  background: var(--banner-input-bg);
+  border-color: var(--banner-input-border);
+}
+
+.banner__search-wrap {
+  position: relative;
+}
+
+.banner__search-wrap::before {
+  content: "\1F50D";
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.banner__hamburger {
+  background: none;
+  border: 1px solid var(--banner-input-border);
+  border-radius: 4px;
+  color: var(--text-on-banner);
+  font-size: 22px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  line-height: 1;
+}
+
+.banner__hamburger:hover {
+  background: var(--banner-hover-bg);
+  border-color: var(--banner-input-border);
+}
+
+/* ===================================================================
+   SCORE BAR
+   =================================================================== */
+.ticker {
+  background: var(--bg-ticker);
+  color: var(--text-ticker);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.ticker__arrow {
+  background: none;
+  border: none;
+  color: var(--text-ticker);
+  font-size: 18px;
+  cursor: pointer;
+  width: 36px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.ticker__arrow:hover {
+  opacity: 1;
+  background: rgba(255,255,255,0.08);
+}
+
+.ticker__track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 8px;
+  overflow: hidden;
+  flex: 1;
+  padding: 0 4px;
+  scroll-behavior: smooth;
+}
+
+.ticker__game {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  text-decoration: none;
+  color: var(--text-ticker);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.ticker__game:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
+}
+
+.ticker__teams {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ticker__team { color: var(--text-ticker); }
+.ticker__score { color: var(--text-ticker); margin: 0 4px; }
+.ticker__dash { color: rgba(245,240,225,0.4); margin: 0 2px; }
+
+.ticker__status {
+  margin-left: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+}
+
+.ticker__status--close-game {
+  color: var(--color-live) !important;
+}
+
+.ticker__live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-live);
+  margin-right: 5px;
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* ===================================================================
+   SECONDARY NAV
+   =================================================================== */
+.nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 16px;
+  gap: 0;
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+
+.nav__link {
+  color: rgba(245,240,225,0.65);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nav__link:hover {
+  color: rgba(245,240,225,0.9);
+}
+
+.nav__link--active {
+  color: #F5F0E1;
+  border-bottom-color: #F5F0E1;
+}
+
+/* ===================================================================
+   CONTENT AREA
+   =================================================================== */
+.content {
+  min-height: 400px;
+  padding: 32px 48px 40px;
+  background: var(--bg-page);
+}
+
+.content__heading {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.content__subheading {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  font-style: italic;
+}
+
+/* ===================================================================
+   PLAYERS PAGE: SEARCH BAR
+   =================================================================== */
+.players-search {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.players-search__input {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  font-size: 14px;
+  letter-spacing: -0.02em;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.players-search__input::placeholder {
+  color: var(--text-muted);
+}
+
+.players-search__input:focus {
+  border-color: var(--color-link);
+  box-shadow: 0 0 0 2px rgba(44,95,138,0.15);
+}
+
+[data-theme="dark"] .players-search__input:focus {
+  box-shadow: 0 0 0 2px rgba(107,163,214,0.2);
+}
+
+.players-search__icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ===================================================================
+   PLAYERS PAGE: TIME FILTER TABS
+   =================================================================== */
+.time-filter {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 24px;
+}
+
+.time-filter__label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-right: 16px;
+  white-space: nowrap;
+}
+
+.time-filter__tabs {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.time-filter__tab {
+  font-family: var(--font-primary);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 20px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: none;
+  border-right: 1px solid var(--border-default);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: background 0.15s, color 0.15s;
+}
+
+.time-filter__tab:last-child {
+  border-right: none;
+}
+
+.time-filter__tab:hover {
+  background: var(--bg-row-alt);
+  color: var(--text-primary);
+}
+
+.time-filter__tab--active {
+  background: var(--text-primary);
+  color: var(--bg-card);
+  font-weight: 700;
+}
+
+.time-filter__tab--active:hover {
+  background: var(--text-primary);
+  color: var(--bg-card);
+}
+
+/* ===================================================================
+   PLAYERS PAGE: SECTION LABEL
+   =================================================================== */
+.players-section-label {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+/* ===================================================================
+   PLAYERS PAGE: CARD GRID
+   =================================================================== */
+.player-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.player-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 20px 16px 16px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  color: inherit;
+}
+
+.player-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.player-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.player-card__headshot {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-row-alt);
+  border: 2px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.player-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.player-card__name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-link);
+  text-decoration: none;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s;
+}
+
+.player-card__name:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+}
+
+.player-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.player-card__team-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.player-card__team {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.player-card__pos {
+  color: var(--text-muted);
+}
+
+.player-card__divider {
+  border: none;
+  border-top: 1px solid var(--border-default);
+  margin-bottom: 12px;
+}
+
+/* ===================================================================
+   PLAYERS PAGE: STAT ROW
+   =================================================================== */
+.player-card__stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.player-card__stat {
+  text-align: center;
+  flex: 1;
+}
+
+.player-card__stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.player-card__stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.player-card__stat-value--positive {
+  color: #2E7D32;
+}
+
+.player-card__stat-value--negative {
+  color: #C62828;
+}
+
+/* ===================================================================
+   FLYOUT MENU
+   =================================================================== */
+.flyout-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.flyout-overlay--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.flyout {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 320px;
+  height: 100%;
+  background: var(--bg-card);
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.flyout--open {
+  transform: translateX(0);
+}
+
+.flyout__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.flyout__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.flyout__close {
+  background: none;
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.flyout__close:hover {
+  background: var(--bg-row-alt);
+}
+
+.flyout__body {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.flyout__section {
+  margin-bottom: 28px;
+}
+
+.flyout__section:last-child {
+  margin-bottom: 0;
+}
+
+.flyout__section-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.flyout__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 14px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.flyout__item:last-child {
+  border-bottom: none;
+}
+
+.flyout__item-icon {
+  margin-right: 12px;
+  font-size: 16px;
+  opacity: 0.7;
+  width: 22px;
+  text-align: center;
+}
+
+.flyout__item-label {
+  flex: 1;
+}
+
+.flyout__item-value {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.flyout__select {
+  font-family: var(--font-primary);
+  font-size: 13px;
+  padding: 6px 28px 6px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234A4A4A'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  letter-spacing: -0.02em;
+}
+
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--border-strong);
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle--active {
+  background: var(--color-link);
+}
+
+.toggle__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggle--active .toggle__knob {
+  transform: translateX(20px);
+}
+
+/* ===================================================================
+   FOOTER
+   =================================================================== */
+.footer {
+  padding: 24px 48px;
+  border-top: 1px solid var(--border-default);
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-page);
+}
+
+.footer a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: var(--color-link-hover);
+}
+
+/* ===================================================================
+   TEAM LOGOS
+   =================================================================== */
+.team-logo { display: inline-block; vertical-align: middle; object-fit: contain; }
+.team-logo--xs { width: 14px; height: 14px; }
+.team-logo--sm { width: 18px; height: 18px; }
+.team-logo--md { width: 22px; height: 22px; }
+.team-logo--lg { width: 32px; height: 32px; }
+.team-logo--xl { width: 44px; height: 44px; }
+.player-card__meta { display: flex; align-items: center; }
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     LIGHT MODE
+     ================================================================ -->
+<div class="mockup-label">Light Mode</div>
+<div class="shell-wrapper" id="shell-light">
+
+  <!-- Banner -->
+  <header class="banner">
+    <div class="banner__brand">
+      <span class="banner__brand-icon">H</span>
+      Hockey League Hub
+    </div>
+    <div class="banner__search">
+      <div class="banner__search-wrap">
+        <input type="text" placeholder="Search players, teams, trades...">
+      </div>
+    </div>
+    <button class="banner__hamburger" onclick="toggleFlyout('light')" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <!-- Score Bar -->
+  <div class="ticker">
+    <button class="ticker__arrow" onclick="scrollTicker('light', -1)" aria-label="Scroll left">&#9664;</button>
+    <div class="ticker__track" id="ticker-track-light">
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">CGY</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">VGK</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">0</span>
+          <span class="ticker__team">SEA</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">CAR</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__team">FLA</span>
+        </div>
+        <span class="ticker__status ticker__status--live ticker__status--close-game"><span class="ticker__live-dot"></span>OT 02:41</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">PIT</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">WSH</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">TBL</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">OTT</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>1st 11:05</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">MIN</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">WPG</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">8:00 PM</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">COL</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">9:30 PM</span>
+      </a>
+    </div>
+    <button class="ticker__arrow" onclick="scrollTicker('light', 1)" aria-label="Scroll right">&#9654;</button>
+  </div>
+
+  <!-- Secondary Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav__link">Scores</a>
+    <a href="#" class="nav__link">Standings</a>
+    <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link nav__link--active">Players</a>
+    <a href="#" class="nav__link">Teams</a>
+    <a href="#" class="nav__link">Schedule</a>
+    <a href="#" class="nav__link">Salary Cap</a>
+    <a href="#" class="nav__link">Trades</a>
+    <a href="#" class="nav__link">Free Agents</a>
+    <a href="#" class="nav__link">Personnel</a>
+  </nav>
+
+  <!-- Content: Players Page -->
+  <main class="content">
+    <h1 class="content__heading">Players</h1>
+    <p class="content__subheading">Search players and nations, or browse the most searched players this week</p>
+
+    <!-- Search Bar -->
+    <div class="players-search">
+      <span class="players-search__icon">&#128269;</span>
+      <input class="players-search__input" type="text" placeholder="Search players, nations...">
+    </div>
+
+    <!-- Time Filter Tabs -->
+    <div class="time-filter">
+      <span class="time-filter__label">Most Searched</span>
+      <div class="time-filter__tabs">
+        <button class="time-filter__tab">Day</button>
+        <button class="time-filter__tab time-filter__tab--active">Week</button>
+        <button class="time-filter__tab">Month</button>
+        <button class="time-filter__tab">Year</button>
+      </div>
+    </div>
+
+    <!-- Section Label -->
+    <div class="players-section-label">Most Searched Players &mdash; This Week</div>
+
+    <!-- Player Card Grid -->
+    <div class="player-grid">
+
+      <!-- 1. Connor McDavid -->
+      <a href="#player/mcdavid" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">CM</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Connor McDavid</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#FF4C00;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">EDM</span>
+              <span class="player-card__pos">C</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">68</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">32</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">64</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">96</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+22</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 2. Nathan MacKinnon -->
+      <a href="#player/mackinnon" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">NM</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Nathan MacKinnon</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#6F263D;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">COL</span>
+              <span class="player-card__pos">C</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">70</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">29</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">62</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">91</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+18</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 3. Nikita Kucherov -->
+      <a href="#player/kucherov" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">NK</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Nikita Kucherov</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#002868;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/TBL_light.svg" alt="TBL" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">TBL</span>
+              <span class="player-card__pos">RW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">66</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">34</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">55</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">89</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+15</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 4. Auston Matthews -->
+      <a href="#player/matthews" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">AM</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Auston Matthews</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#00205B;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">TOR</span>
+              <span class="player-card__pos">C</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">65</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">42</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">33</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">75</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+12</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 5. Leon Draisaitl -->
+      <a href="#player/draisaitl" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">LD</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Leon Draisaitl</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#FF4C00;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">EDM</span>
+              <span class="player-card__pos">C</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">69</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">36</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">48</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">84</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+16</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 6. Cale Makar -->
+      <a href="#player/makar" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">CM</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Cale Makar</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#6F263D;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">COL</span>
+              <span class="player-card__pos">D</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">68</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">18</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">52</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">70</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+25</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 7. David Pastrnak -->
+      <a href="#player/pastrnak" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">DP</div>
+          <div class="player-card__info">
+            <span class="player-card__name">David Pastrnak</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#FFB81C;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">BOS</span>
+              <span class="player-card__pos">RW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">71</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">38</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">40</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">78</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+10</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 8. Kirill Kaprizov -->
+      <a href="#player/kaprizov" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">KK</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Kirill Kaprizov</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#154734;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/MIN_light.svg" alt="MIN" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">MIN</span>
+              <span class="player-card__pos">LW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">67</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">35</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">46</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">81</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+14</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 9. Artemi Panarin -->
+      <a href="#player/panarin" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">AP</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Artemi Panarin</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#0038A8;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">NYR</span>
+              <span class="player-card__pos">LW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">69</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">26</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">55</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">81</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+20</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 10. Sidney Crosby -->
+      <a href="#player/crosby" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">SC</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Sidney Crosby</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#FCB514;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PIT_light.svg" alt="PIT" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">PIT</span>
+              <span class="player-card__pos">C</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">66</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">22</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">48</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">70</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+8</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 11. Alex Ovechkin -->
+      <a href="#player/ovechkin" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">AO</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Alex Ovechkin</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#C8102E;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">WSH</span>
+              <span class="player-card__pos">LW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">62</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">28</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">22</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">50</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--negative">-4</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 12. Mikko Rantanen -->
+      <a href="#player/rantanen" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">MR</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Mikko Rantanen</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#6F263D;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">COL</span>
+              <span class="player-card__pos">RW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">70</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">30</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">45</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">75</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+19</div>
+          </div>
+        </div>
+      </a>
+
+    </div><!-- /player-grid -->
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
+  </footer>
+
+  <!-- Flyout overlay + panel -->
+  <div class="flyout-overlay" id="flyout-overlay-light" onclick="toggleFlyout('light')"></div>
+  <div class="flyout" id="flyout-light">
+    <div class="flyout__header">
+      <span class="flyout__title">Menu</span>
+      <button class="flyout__close" onclick="toggleFlyout('light')">&times;</button>
+    </div>
+    <div class="flyout__body">
+      <div class="flyout__section">
+        <div class="flyout__section-label">Account</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#128100;</span>
+          <span class="flyout__item-label">Profile</span>
+          <span class="flyout__item-value">Guest</span>
+        </div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#9881;</span>
+          <span class="flyout__item-label">Settings</span>
+          <span class="flyout__item-value">&rsaquo;</span>
+        </div>
+      </div>
+      <div class="flyout__section">
+        <div class="flyout__section-label">League</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#127944;</span>
+          <span class="flyout__item-label">League Selector</span>
+          <select class="flyout__select">
+            <option selected>NHL</option>
+            <option>AHL</option>
+            <option>ECHL</option>
+            <option>OHL</option>
+            <option>WHL</option>
+            <option>QMJHL</option>
+          </select>
+        </div>
+      </div>
+      <div class="flyout__section">
+        <div class="flyout__section-label">Appearance</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#9790;</span>
+          <span class="flyout__item-label">Dark Mode</span>
+          <div class="toggle" id="toggle-light" onclick="toggleDarkMode('light')">
+            <div class="toggle__knob"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     DARK MODE
+     ================================================================ -->
+<div class="mockup-label">Dark Mode</div>
+<div class="shell-wrapper" id="shell-dark" data-theme="dark">
+
+  <!-- Banner -->
+  <header class="banner">
+    <div class="banner__brand">
+      <span class="banner__brand-icon">H</span>
+      Hockey League Hub
+    </div>
+    <div class="banner__search">
+      <div class="banner__search-wrap">
+        <input type="text" placeholder="Search players, teams, trades...">
+      </div>
+    </div>
+    <button class="banner__hamburger" onclick="toggleFlyout('dark')" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <!-- Score Bar -->
+  <div class="ticker">
+    <button class="ticker__arrow" onclick="scrollTicker('dark', -1)" aria-label="Scroll left">&#9664;</button>
+    <div class="ticker__track" id="ticker-track-dark">
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">BOS</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">TOR</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">EDM</span>
+          <span class="ticker__score">5</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">CGY</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">VGK</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">0</span>
+          <span class="ticker__team">SEA</span>
+        </div>
+        <span class="ticker__status ticker__status--final">Final</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">CAR</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">3</span>
+          <span class="ticker__team">FLA</span>
+        </div>
+        <span class="ticker__status ticker__status--live ticker__status--close-game"><span class="ticker__live-dot"></span>OT 02:41</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">PIT</span>
+          <span class="ticker__score">4</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__team">WSH</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>3rd 08:15</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">NYR</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">MTL</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>2nd 14:32</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">TBL</span>
+          <span class="ticker__score">2</span>
+          <span class="ticker__dash">&ndash;</span>
+          <span class="ticker__score">1</span>
+          <span class="ticker__team">OTT</span>
+        </div>
+        <span class="ticker__status ticker__status--live"><span class="ticker__live-dot"></span>1st 11:05</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">DET</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">CHI</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">7:00 PM</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">MIN</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">WPG</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">8:00 PM</span>
+      </a>
+      <a href="#game-hub" class="ticker__game">
+        <div class="ticker__teams">
+          <span class="ticker__team">COL</span>
+          <span class="ticker__dash">vs</span>
+          <span class="ticker__team">DAL</span>
+        </div>
+        <span class="ticker__status ticker__status--pending">9:30 PM</span>
+      </a>
+    </div>
+    <button class="ticker__arrow" onclick="scrollTicker('dark', 1)" aria-label="Scroll right">&#9654;</button>
+  </div>
+
+  <!-- Secondary Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav__link">Scores</a>
+    <a href="#" class="nav__link">Standings</a>
+    <a href="#" class="nav__link">Stats</a>
+    <a href="#" class="nav__link nav__link--active">Players</a>
+    <a href="#" class="nav__link">Teams</a>
+    <a href="#" class="nav__link">Schedule</a>
+    <a href="#" class="nav__link">Salary Cap</a>
+    <a href="#" class="nav__link">Trades</a>
+    <a href="#" class="nav__link">Free Agents</a>
+    <a href="#" class="nav__link">Personnel</a>
+  </nav>
+
+  <!-- Content: Players Page -->
+  <main class="content">
+    <h1 class="content__heading">Players</h1>
+    <p class="content__subheading">Search players and nations, or browse the most searched players this week</p>
+
+    <!-- Search Bar -->
+    <div class="players-search">
+      <span class="players-search__icon">&#128269;</span>
+      <input class="players-search__input" type="text" placeholder="Search players, nations...">
+    </div>
+
+    <!-- Time Filter Tabs -->
+    <div class="time-filter">
+      <span class="time-filter__label">Most Searched</span>
+      <div class="time-filter__tabs">
+        <button class="time-filter__tab">Day</button>
+        <button class="time-filter__tab time-filter__tab--active">Week</button>
+        <button class="time-filter__tab">Month</button>
+        <button class="time-filter__tab">Year</button>
+      </div>
+    </div>
+
+    <!-- Section Label -->
+    <div class="players-section-label">Most Searched Players &mdash; This Week</div>
+
+    <!-- Player Card Grid -->
+    <div class="player-grid">
+
+      <!-- 1. Connor McDavid -->
+      <a href="#player/mcdavid" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">CM</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Connor McDavid</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#FF4C00;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">EDM</span>
+              <span class="player-card__pos">C</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">68</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">32</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">64</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">96</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+22</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 2. Nathan MacKinnon -->
+      <a href="#player/mackinnon" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">NM</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Nathan MacKinnon</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#6F263D;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">COL</span>
+              <span class="player-card__pos">C</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">70</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">29</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">62</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">91</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+18</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 3. Nikita Kucherov -->
+      <a href="#player/kucherov" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">NK</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Nikita Kucherov</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#002868;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/TBL_light.svg" alt="TBL" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">TBL</span>
+              <span class="player-card__pos">RW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">66</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">34</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">55</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">89</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+15</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 4. Auston Matthews -->
+      <a href="#player/matthews" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">AM</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Auston Matthews</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#00205B;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/TOR_light.svg" alt="TOR" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">TOR</span>
+              <span class="player-card__pos">C</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">65</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">42</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">33</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">75</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+12</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 5. Leon Draisaitl -->
+      <a href="#player/draisaitl" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">LD</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Leon Draisaitl</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#FF4C00;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/EDM_light.svg" alt="EDM" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">EDM</span>
+              <span class="player-card__pos">C</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">69</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">36</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">48</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">84</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+16</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 6. Cale Makar -->
+      <a href="#player/makar" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">CM</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Cale Makar</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#6F263D;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">COL</span>
+              <span class="player-card__pos">D</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">68</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">18</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">52</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">70</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+25</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 7. David Pastrnak -->
+      <a href="#player/pastrnak" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">DP</div>
+          <div class="player-card__info">
+            <span class="player-card__name">David Pastrnak</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#FFB81C;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/BOS_light.svg" alt="BOS" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">BOS</span>
+              <span class="player-card__pos">RW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">71</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">38</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">40</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">78</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+10</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 8. Kirill Kaprizov -->
+      <a href="#player/kaprizov" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">KK</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Kirill Kaprizov</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#154734;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/MIN_light.svg" alt="MIN" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">MIN</span>
+              <span class="player-card__pos">LW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">67</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">35</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">46</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">81</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+14</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 9. Artemi Panarin -->
+      <a href="#player/panarin" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">AP</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Artemi Panarin</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#0038A8;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/NYR_light.svg" alt="NYR" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">NYR</span>
+              <span class="player-card__pos">LW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">69</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">26</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">55</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">81</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+20</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 10. Sidney Crosby -->
+      <a href="#player/crosby" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">SC</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Sidney Crosby</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#FCB514;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/PIT_light.svg" alt="PIT" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">PIT</span>
+              <span class="player-card__pos">C</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">66</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">22</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">48</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">70</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+8</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 11. Alex Ovechkin -->
+      <a href="#player/ovechkin" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">AO</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Alex Ovechkin</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#C8102E;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/WSH_light.svg" alt="WSH" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">WSH</span>
+              <span class="player-card__pos">LW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">62</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">28</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">22</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">50</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--negative">-4</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 12. Mikko Rantanen -->
+      <a href="#player/rantanen" class="player-card">
+        <div class="player-card__header">
+          <div class="player-card__headshot">MR</div>
+          <div class="player-card__info">
+            <span class="player-card__name">Mikko Rantanen</span>
+            <div class="player-card__meta">
+              <span class="player-card__team-dot" style="background:#6F263D;"></span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/COL_light.svg" alt="COL" class="team-logo team-logo--sm" style="margin-right:3px"><span class="player-card__team">COL</span>
+              <span class="player-card__pos">RW</span>
+            </div>
+          </div>
+        </div>
+        <hr class="player-card__divider">
+        <div class="player-card__stats">
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">GP</div>
+            <div class="player-card__stat-value">70</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">G</div>
+            <div class="player-card__stat-value">30</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">A</div>
+            <div class="player-card__stat-value">45</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">PTS</div>
+            <div class="player-card__stat-value">75</div>
+          </div>
+          <div class="player-card__stat">
+            <div class="player-card__stat-label">+/-</div>
+            <div class="player-card__stat-value player-card__stat-value--positive">+19</div>
+          </div>
+        </div>
+      </a>
+
+    </div><!-- /player-grid -->
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Hockey League Hub &copy; 2026 &nbsp;|&nbsp; <a href="#">About</a> &nbsp;|&nbsp; <a href="#">API</a> &nbsp;|&nbsp; <a href="#">Contact</a> &nbsp;|&nbsp; Data provided for educational purposes.
+  </footer>
+
+  <!-- Flyout overlay + panel -->
+  <div class="flyout-overlay" id="flyout-overlay-dark" onclick="toggleFlyout('dark')"></div>
+  <div class="flyout" id="flyout-dark">
+    <div class="flyout__header">
+      <span class="flyout__title">Menu</span>
+      <button class="flyout__close" onclick="toggleFlyout('dark')">&times;</button>
+    </div>
+    <div class="flyout__body">
+      <div class="flyout__section">
+        <div class="flyout__section-label">Account</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#128100;</span>
+          <span class="flyout__item-label">Profile</span>
+          <span class="flyout__item-value">Guest</span>
+        </div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#9881;</span>
+          <span class="flyout__item-label">Settings</span>
+          <span class="flyout__item-value">&rsaquo;</span>
+        </div>
+      </div>
+      <div class="flyout__section">
+        <div class="flyout__section-label">League</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#127944;</span>
+          <span class="flyout__item-label">League Selector</span>
+          <select class="flyout__select">
+            <option selected>NHL</option>
+            <option>AHL</option>
+            <option>ECHL</option>
+            <option>OHL</option>
+            <option>WHL</option>
+            <option>QMJHL</option>
+          </select>
+        </div>
+      </div>
+      <div class="flyout__section">
+        <div class="flyout__section-label">Appearance</div>
+        <div class="flyout__item">
+          <span class="flyout__item-icon">&#9790;</span>
+          <span class="flyout__item-label">Dark Mode</span>
+          <div class="toggle toggle--active" id="toggle-dark" onclick="toggleDarkMode('dark')">
+            <div class="toggle__knob"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     JAVASCRIPT
+     ================================================================ -->
+<script>
+function toggleFlyout(mode) {
+  var overlay = document.getElementById('flyout-overlay-' + mode);
+  var flyout = document.getElementById('flyout-' + mode);
+  overlay.classList.toggle('flyout-overlay--visible');
+  flyout.classList.toggle('flyout--open');
+}
+
+function toggleDarkMode(mode) {
+  var shell = document.getElementById('shell-' + mode);
+  var toggle = document.getElementById('toggle-' + mode);
+  var isDark = shell.hasAttribute('data-theme');
+  if (isDark) {
+    shell.removeAttribute('data-theme');
+  } else {
+    shell.setAttribute('data-theme', 'dark');
+  }
+  toggle.classList.toggle('toggle--active');
+}
+
+function scrollTicker(mode, direction) {
+  var track = document.getElementById('ticker-track-' + mode);
+  var gameBox = track.querySelector('.ticker__game');
+  if (!gameBox) return;
+  var boxWidth = gameBox.offsetWidth + 8;
+  track.scrollBy({ left: direction * boxWidth * 2, behavior: 'smooth' });
+}
+
+// Time filter tab interaction
+document.querySelectorAll('.time-filter__tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    var parent = this.closest('.time-filter__tabs');
+    parent.querySelectorAll('.time-filter__tab').forEach(function(t) {
+      t.classList.remove('time-filter__tab--active');
+    });
+    this.classList.add('time-filter__tab--active');
+  });
+});
+</script>
+
+</body>
+</html>

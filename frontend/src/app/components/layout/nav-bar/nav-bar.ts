@@ -1,9 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { DEFAULT_LEAGUE_ID } from '../../../constants';
 
 @Component({
   selector: 'app-nav-bar',
   imports: [RouterLink, RouterLinkActive],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="nav">
       @for (link of navLinks; track link.path) {
@@ -47,7 +49,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   `]
 })
 export class NavBar {
-  leagueId = input('nhl');
+  leagueId = input(DEFAULT_LEAGUE_ID);
 
   navLinks = [
     { path: 'scores', label: 'Scores' },

@@ -1,7 +1,8 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-pagination',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="pagination">
       <button class="pagination__btn" [disabled]="currentPage() <= 1" (click)="pageChange.emit(currentPage() - 1)">&laquo; Prev</button>

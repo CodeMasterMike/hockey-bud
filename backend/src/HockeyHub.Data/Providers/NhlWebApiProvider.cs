@@ -222,7 +222,7 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
             try
             {
                 _logger.LogDebug("NHL API request: {Path} (attempt {Attempt})", path, attempt + 1);
-                var response = await _http.GetAsync(path, ct);
+                using var response = await _http.GetAsync(path, ct);
 
                 if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                 {
@@ -403,6 +403,34 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         JsonElement boxscore,
         JsonElement? playByPlay)
     {
+        // Build team ID → abbreviation lookup from the boxscore's team info
+        var teamIdToAbbrev = new Dictionary<int, string>();
+        if (boxscore.TryGetProperty("homeTeam", out var bsHome)
+            && bsHome.TryGetProperty("id", out var homeId)
+            && bsHome.TryGetProperty("abbrev", out var homeAbbrev))
+        {
+            teamIdToAbbrev[homeId.GetInt32()] = homeAbbrev.GetString()!;
+        }
+        if (boxscore.TryGetProperty("awayTeam", out var bsAway)
+            && bsAway.TryGetProperty("id", out var awayId)
+            && bsAway.TryGetProperty("abbrev", out var awayAbbrev))
+        {
+            teamIdToAbbrev[awayId.GetInt32()] = awayAbbrev.GetString()!;
+        }
+
+        // Extract per-period shot counts from the boxscore
+        var periodShotsByPeriod = new Dictionary<int, (int Home, int Away)>();
+        if (boxscore.TryGetProperty("shotsByPeriod", out var shotsByPeriod))
+        {
+            foreach (var sp in shotsByPeriod.EnumerateArray())
+            {
+                var period = sp.GetProperty("period").GetInt32();
+                var homeSog = sp.TryGetProperty("home", out var hs) ? hs.GetInt32() : 0;
+                var awaySog = sp.TryGetProperty("away", out var aws) ? aws.GetInt32() : 0;
+                periodShotsByPeriod[period] = (homeSog, awaySog);
+            }
+        }
+
         var periodScores = new List<NhlPeriodScore>();
         if (landing.TryGetProperty("summary", out var summary)
             && summary.TryGetProperty("linescore", out var linescore)
@@ -410,15 +438,17 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         {
             foreach (var p in byPeriod.EnumerateArray())
             {
+                var periodNum = p.GetProperty("period").GetInt32();
+                var shots = periodShotsByPeriod.GetValueOrDefault(periodNum);
                 periodScores.Add(new NhlPeriodScore(
-                    Period: p.GetProperty("period").GetInt32(),
+                    Period: periodNum,
                     PeriodLabel: p.TryGetProperty("periodDescriptor", out var pd)
                         ? pd.GetProperty("periodType").GetString()!
                         : "",
                     HomeGoals: p.TryGetProperty("home", out var h) ? h.GetInt32() : 0,
                     AwayGoals: p.TryGetProperty("away", out var a) ? a.GetInt32() : 0,
-                    HomeShots: 0,
-                    AwayShots: 0
+                    HomeShots: shots.Home,
+                    AwayShots: shots.Away
                 ));
             }
         }
@@ -446,6 +476,12 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
                 if (eventType is null) continue;
 
                 var details = play.TryGetProperty("details", out var d) ? d : (JsonElement?)null;
+
+                // Resolve team abbreviation from eventOwnerTeamId
+                var teamAbbrev = "";
+                if (details?.TryGetProperty("eventOwnerTeamId", out var ownerTeamId) == true)
+                    teamIdToAbbrev.TryGetValue(ownerTeamId.GetInt32(), out teamAbbrev!);
+
                 events.Add(new NhlGameEvent(
                     EventType: eventType,
                     Period: play.TryGetProperty("periodDescriptor", out var pd2)
@@ -454,9 +490,7 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
                     GameClockTime: play.TryGetProperty("timeInPeriod", out var tip)
                         ? tip.GetString()!
                         : "00:00",
-                    TeamAbbreviation: details?.TryGetProperty("eventOwnerTeamId", out _) == true
-                        ? ""
-                        : "",
+                    TeamAbbreviation: teamAbbrev,
                     PrimaryPlayerId: details?.TryGetProperty("scoringPlayerId", out var sp) == true
                         ? sp.GetInt32()
                         : details?.TryGetProperty("committedByPlayerId", out var cbp) == true
@@ -494,13 +528,48 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
             }
         }
 
+        // Extract team stats from boxscore
+        var homeStats = ParseTeamStats(boxscore, "homeTeam");
+        var awayStats = ParseTeamStats(boxscore, "awayTeam");
+
         return new NhlGameDetailData(
             GameId: gameId,
             PeriodScores: periodScores,
             Events: events,
             PlayerStats: [],
-            HomeStats: new NhlGameTeamStats(0, 0, 0, 0, 0, 0, 0, null),
-            AwayStats: new NhlGameTeamStats(0, 0, 0, 0, 0, 0, 0, null)
+            HomeStats: homeStats,
+            AwayStats: awayStats
+        );
+    }
+
+    private static NhlGameTeamStats ParseTeamStats(JsonElement boxscore, string teamKey)
+    {
+        if (!boxscore.TryGetProperty(teamKey, out var team))
+            return new NhlGameTeamStats(0, 0, 0, 0, 0, 0, 0, null);
+
+        var teamStats = team.TryGetProperty("teamGameStats", out var stats) ? stats : (JsonElement?)null;
+
+        int GetStat(string key) =>
+            teamStats?.EnumerateArray()
+                .Where(s => s.GetProperty("category").GetString() == key)
+                .Select(s => (int?)s.GetProperty("value").GetInt32())
+                .FirstOrDefault() ?? 0;
+
+        decimal GetDecimalStat(string key) =>
+            teamStats?.EnumerateArray()
+                .Where(s => s.GetProperty("category").GetString() == key)
+                .Select(s => (decimal?)s.GetProperty("value").GetDecimal())
+                .FirstOrDefault() ?? 0;
+
+        return new NhlGameTeamStats(
+            ShotsOnGoal: GetStat("sog"),
+            Hits: GetStat("hits"),
+            PowerPlayGoals: GetStat("powerPlay"),      // boxscore format: "x/y"
+            PowerPlayOpps: GetStat("powerPlayPctg"),    // may need adjustment per API version
+            FaceoffPct: GetDecimalStat("faceoffWinningPctg"),
+            Takeaways: GetStat("takeaways"),
+            Giveaways: GetStat("giveaways"),
+            TimeOnAttack: null
         );
     }
 

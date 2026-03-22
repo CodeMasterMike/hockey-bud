@@ -11,13 +11,7 @@ public class ScoresQueryService(
     RedisCacheService cache,
     ILogger<ScoresQueryService> logger)
 {
-    // NHL game day boundary: games starting before ~3 AM ET belong to the previous day.
-    // Use America/New_York to handle DST automatically.
-    private static readonly TimeZoneInfo EasternTz =
-        TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
-
-    private static DateOnly GetNhlGameDay() =>
-        DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, EasternTz).AddHours(-3));
+    private static DateOnly GetNhlGameDay() => HockeyHub.Core.NhlDateHelper.GetCurrentGameDay();
 
     public async Task<ScoresResponse> GetScoresByDateAsync(
         int leagueId, DateOnly date, CancellationToken ct = default)
@@ -50,7 +44,7 @@ public class ScoresQueryService(
                 .ToDictionaryAsync(s => s.TeamId, ct);
 
             return gameEntities.Select(g => MapToDto(g, standings)).ToList();
-        }, HasLiveGames(date) ? RedisCacheService.LiveScoresTtl : TimeSpan.FromMinutes(5), ct);
+        }, await HasLiveGamesAsync(date) ? RedisCacheService.LiveScoresTtl : TimeSpan.FromMinutes(5), ct);
 
         // Check if we should show previous day link
         var showPreviousDay = false;
@@ -88,7 +82,7 @@ public class ScoresQueryService(
                 .Include(g => g.AwayTeam)
                 .FirstOrDefaultAsync(g => g.Id == gameId, ct);
 
-            if (game is null) return null!;
+            if (game is null) return null;
 
             return new ExpandedScoreDto(
                 GameId: game.Id,
@@ -169,7 +163,7 @@ public class ScoresQueryService(
                     AwayTeam: new TickerTeamDto(g.AwayTeam.Id, g.AwayTeam.Abbreviation, g.AwayTeam.LogoUrl),
                     HomeScore: g.HomeScore,
                     AwayScore: g.AwayScore,
-                    ScheduledStartLocal: TimeZoneInfo.ConvertTime(g.ScheduledStart, EasternTz).ToString("h:mm tt")
+                    ScheduledStartLocal: HockeyHub.Core.NhlDateHelper.FormatStartTimeEastern(g.ScheduledStart)
                 ))
                 .ToListAsync(ct);
         }, RedisCacheService.LiveScoresTtl, ct);
@@ -241,7 +235,7 @@ public class ScoresQueryService(
             Status: game.Status,
             ScheduledStart: game.ScheduledStart,
             ScheduledStartLocal: game.Status == "Scheduled"
-                ? game.ScheduledStart.ToOffset(TimeSpan.FromHours(-5)).ToString("h:mm tt")
+                ? HockeyHub.Core.NhlDateHelper.FormatStartTimeEastern(game.ScheduledStart)
                 : null,
             CurrentPeriod: game.CurrentPeriod,
             CurrentPeriodLabel: game.CurrentPeriodLabel,
@@ -277,9 +271,9 @@ public class ScoresQueryService(
         );
     }
 
-    private bool HasLiveGames(DateOnly date)
+    private async Task<bool> HasLiveGamesAsync(DateOnly date)
     {
-        return db.Games.Any(g => g.GameDateLocal == date && g.Status == "Live");
+        return await db.Games.AnyAsync(g => g.GameDateLocal == date && g.Status == "Live");
     }
 
     private static string FormatPowerPlay(int? goals, int? opps) =>

@@ -1,6 +1,12 @@
 import { Injectable, PLATFORM_ID, inject, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Subject } from 'rxjs';
+import {
+  SIGNALR_HUB_URL,
+  SIGNALR_RECONNECT_DELAYS,
+  SIGNALR_INITIAL_RETRY_DELAY_MS,
+  SIGNALR_EVENTS,
+} from '../constants';
 
 export interface ScoreUpdate {
   gameId: number;
@@ -39,8 +45,8 @@ export class SignalRService implements OnDestroy {
   readonly eventUpdate$ = new Subject<EventUpdate>();
   readonly transactionUpdate$ = new Subject<TransactionUpdate>();
 
-  private connection: any = null;
-  private reconnectTimer: any = null;
+  private connection: import('@microsoft/signalr').HubConnection | null = null;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -52,23 +58,24 @@ export class SignalRService implements OnDestroy {
     try {
       const signalR = await import('@microsoft/signalr');
       this.connection = new signalR.HubConnectionBuilder()
-        .withUrl('/hubs/scores')
-        .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+        .withUrl(SIGNALR_HUB_URL)
+        .withAutomaticReconnect(SIGNALR_RECONNECT_DELAYS)
         .build();
 
-      this.connection.on('ReceiveScoreUpdate', (data: ScoreUpdate) => this.scoreUpdate$.next(data));
-      this.connection.on('ReceiveClockSync', (data: ClockSync) => this.clockSync$.next(data));
-      this.connection.on('ReceiveEventUpdate', (data: EventUpdate) => this.eventUpdate$.next(data));
-      this.connection.on('ReceiveTransactionUpdate', (data: TransactionUpdate) => this.transactionUpdate$.next(data));
+      this.connection.on(SIGNALR_EVENTS.SCORE_UPDATE, (data: ScoreUpdate) => this.scoreUpdate$.next(data));
+      this.connection.on(SIGNALR_EVENTS.CLOCK_SYNC, (data: ClockSync) => this.clockSync$.next(data));
+      this.connection.on(SIGNALR_EVENTS.EVENT_UPDATE, (data: EventUpdate) => this.eventUpdate$.next(data));
+      this.connection.on(SIGNALR_EVENTS.TRANSACTION_UPDATE, (data: TransactionUpdate) => this.transactionUpdate$.next(data));
 
       await this.connection.start();
-    } catch {
+    } catch (err) {
+      console.warn('SignalR connection failed, retrying in', SIGNALR_INITIAL_RETRY_DELAY_MS / 1000, 's:', err);
       this.scheduleReconnect();
     }
   }
 
   private scheduleReconnect(): void {
-    this.reconnectTimer = setTimeout(() => this.connect(), 30000);
+    this.reconnectTimer = setTimeout(() => this.connect(), SIGNALR_INITIAL_RETRY_DELAY_MS);
   }
 
   async joinGameGroup(gameId: number): Promise<void> {
@@ -84,7 +91,7 @@ export class SignalRService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    clearTimeout(this.reconnectTimer);
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
     this.connection?.stop();
   }
 }

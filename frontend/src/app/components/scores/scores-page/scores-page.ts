@@ -1,16 +1,18 @@
-import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ScoresApiService, ScoresResponse, ScoreGame } from '../../../services/scores-api.service';
 import { GameClockService } from '../../../services/game-clock.service';
 import { ScoreBox } from '../score-box/score-box';
 import { ExpandedScoreBox } from '../expanded-score-box/expanded-score-box';
 import { PregameMatchup } from '../pregame-matchup/pregame-matchup';
 import { CalendarPicker } from '../calendar-picker/calendar-picker';
+import { DEFAULT_LEAGUE_ID } from '../../../constants';
 
 @Component({
   selector: 'app-scores-page',
   imports: [ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="scores-page">
       <div class="scores-header">
@@ -166,12 +168,13 @@ import { CalendarPicker } from '../calendar-picker/calendar-picker';
     }
   `]
 })
-export class ScoresPage implements OnInit, OnDestroy {
+export class ScoresPage implements OnInit {
   private route = inject(ActivatedRoute);
   private scoresApi = inject(ScoresApiService);
   private clockService = inject(GameClockService);
+  private destroyRef = inject(DestroyRef);
 
-  leagueId = signal('nhl');
+  leagueId = signal(DEFAULT_LEAGUE_ID);
   selectedDate = signal<string | null>(null);
   scoresData = signal<ScoresResponse | null>(null);
   loading = signal(true);
@@ -181,43 +184,40 @@ export class ScoresPage implements OnInit, OnDestroy {
 
   games = computed(() => this.scoresData()?.games ?? []);
 
-  private subs: Subscription[] = [];
-
   ngOnInit(): void {
-    this.subs.push(
-      this.route.paramMap.subscribe(params => {
-        const league = params.get('leagueId') ?? 'nhl';
-        this.leagueId.set(league);
-        this.loadScores();
-      })
-    );
+    this.route.paramMap.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(params => {
+      const league = params.get('leagueId') ?? DEFAULT_LEAGUE_ID;
+      this.leagueId.set(league);
+      this.loadScores();
+    });
 
-    // Subscribe to live score updates for refresh
-    this.subs.push(
-      this.scoresApi.scoreUpdates$.subscribe(() => {
-        this.loadScores(false);
-      })
-    );
+    this.scoresApi.scoreUpdates$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.loadScores(false);
+    });
   }
 
   loadScores(showLoading = true): void {
     if (showLoading) this.loading.set(true);
     const date = this.selectedDate() ?? undefined;
 
-    this.subs.push(
-      this.scoresApi.getScores(this.leagueId(), date).subscribe({
-        next: data => {
-          this.scoresData.set(data);
-          this.loading.set(false);
-          this.errorMessage.set(null);
-          this.initLiveClocks(data.games);
-        },
-        error: () => {
-          this.loading.set(false);
-          this.errorMessage.set('Unable to load scores. Please try again.');
-        }
-      })
-    );
+    this.scoresApi.getScores(this.leagueId(), date).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: data => {
+        this.scoresData.set(data);
+        this.loading.set(false);
+        this.errorMessage.set(null);
+        this.initLiveClocks(data.games);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.errorMessage.set('Unable to load scores. Please try again.');
+      }
+    });
   }
 
   navigateDate(offset: number): void {
@@ -255,9 +255,5 @@ export class ScoresPage implements OnInit, OnDestroy {
         );
       }
     }
-  }
-
-  ngOnDestroy(): void {
-    this.subs.forEach(s => s.unsubscribe());
   }
 }

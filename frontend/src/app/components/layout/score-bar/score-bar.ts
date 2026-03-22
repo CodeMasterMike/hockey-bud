@@ -1,20 +1,27 @@
-import { Component, ElementRef, viewChild, inject, signal, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Component, ElementRef, viewChild, inject, signal, OnInit, ChangeDetectionStrategy, DestroyRef, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { ScoresApiService, TickerGame } from '../../../services/scores-api.service';
 import { GameClockService, ClockState } from '../../../services/game-clock.service';
+import { DEFAULT_LEAGUE_ID, CLOSE_GAME_PERIOD_THRESHOLD, CLOSE_GAME_TIME_THRESHOLD_MS, getPeriodLabel } from '../../../constants';
 
 @Component({
   selector: 'app-score-bar',
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="ticker" aria-live="polite">
       <button class="ticker__arrow" (click)="scroll(-1)" aria-label="Scroll left">&#9664;</button>
       <div class="ticker__track" #track>
         @for (game of games(); track game.id) {
-          <a [routerLink]="['/nhl/game-hub', game.id]" class="ticker__game">
-            <span class="ticker__team">{{ game.awayTeam.abbreviation }}</span>
+          <a [routerLink]="['/' + leagueId + '/game-hub', game.id]" class="ticker__game">
+            <span class="ticker__team">
+              @if (game.awayTeam.logoUrl) {
+                <img [src]="game.awayTeam.logoUrl" [alt]="game.awayTeam.abbreviation" class="ticker__logo">
+              }
+              {{ game.awayTeam.abbreviation }}
+            </span>
             @if (game.status !== 'Scheduled') {
               <span class="ticker__score">{{ game.awayScore }}</span>
               <span class="ticker__dash">&ndash;</span>
@@ -22,7 +29,12 @@ import { GameClockService, ClockState } from '../../../services/game-clock.servi
             } @else {
               <span class="ticker__dash">vs</span>
             }
-            <span class="ticker__team">{{ game.homeTeam.abbreviation }}</span>
+            <span class="ticker__team">
+              @if (game.homeTeam.logoUrl) {
+                <img [src]="game.homeTeam.logoUrl" [alt]="game.homeTeam.abbreviation" class="ticker__logo">
+              }
+              {{ game.homeTeam.abbreviation }}
+            </span>
             <span class="ticker__status" [class.ticker__status--close]="isCloseGame(game)">
               @if (game.status === 'Live') {
                 <span class="ticker__live-dot"></span>
@@ -93,6 +105,13 @@ import { GameClockService, ClockState } from '../../../services/game-clock.servi
       color: var(--text-ticker);
     }
     .ticker__game:hover { background: rgba(255,255,255,0.1); }
+    .ticker__logo {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      vertical-align: middle;
+      margin-right: 2px;
+    }
     .ticker__score, .ticker__team, .ticker__status { color: #fff; }
     .ticker__dash { color: rgba(245,240,225,0.4); }
     .ticker__status--close { color: var(--color-live) !important; }
@@ -116,51 +135,51 @@ import { GameClockService, ClockState } from '../../../services/game-clock.servi
     }
   `]
 })
-export class ScoreBar implements OnInit, OnDestroy {
+export class ScoreBar implements OnInit {
   private track = viewChild<ElementRef<HTMLDivElement>>('track');
   private platformId = inject(PLATFORM_ID);
   private scoresApi = inject(ScoresApiService);
   private clockService = inject(GameClockService);
+  private destroyRef = inject(DestroyRef);
 
+  readonly leagueId = DEFAULT_LEAGUE_ID;
   games = signal<TickerGame[]>([]);
   private clockStates = new Map<number, ClockState>();
-  private subs: Subscription[] = [];
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    this.subs.push(
-      this.scoresApi.getTicker('nhl').subscribe({
-        next: ticker => {
-          this.games.set(ticker.games);
-          for (const game of ticker.games) {
-            if (game.status === 'Live' && game.periodTimeRemainingSeconds != null) {
-              this.clockService.initClock(
-                game.id,
-                game.period ?? 1,
-                game.periodTimeRemainingSeconds,
-                true
-              );
-            }
+    this.scoresApi.getTicker(this.leagueId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: ticker => {
+        this.games.set(ticker.games);
+        for (const game of ticker.games) {
+          if (game.status === 'Live' && game.periodTimeRemainingSeconds != null) {
+            this.clockService.initClock(
+              game.id,
+              game.period ?? 1,
+              game.periodTimeRemainingSeconds,
+              true
+            );
           }
         }
-      })
-    );
+      }
+    });
 
-    this.subs.push(
-      this.clockService.updates$.subscribe(state => {
-        this.clockStates.set(state.gameId, state);
-      })
-    );
+    this.clockService.updates$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(state => {
+      this.clockStates.set(state.gameId, state);
+    });
   }
 
   getClockDisplay(game: TickerGame): string {
     const state = this.clockStates.get(game.id);
     if (state) {
-      const periodLabel = this.getPeriodLabel(state.period);
-      return `${periodLabel} ${state.display}`;
+      return `${getPeriodLabel(state.period)} ${state.display}`;
     }
-    const label = game.period ? this.getPeriodLabel(game.period) : '';
+    const label = game.period ? getPeriodLabel(game.period) : '';
     return `${label} ${game.periodTimeRemaining ?? ''}`.trim();
   }
 
@@ -169,7 +188,7 @@ export class ScoreBar implements OnInit, OnDestroy {
     const state = this.clockStates.get(game.id);
     const timeMs = state?.timeRemainingMs ?? (game.periodTimeRemainingSeconds ?? 0) * 1000;
     const period = state?.period ?? game.period ?? 0;
-    return period >= 3 && timeMs <= 5 * 60 * 1000;
+    return period >= CLOSE_GAME_PERIOD_THRESHOLD && timeMs <= CLOSE_GAME_TIME_THRESHOLD_MS;
   }
 
   scroll(direction: number): void {
@@ -178,15 +197,5 @@ export class ScoreBar implements OnInit, OnDestroy {
     const box = el.querySelector('.ticker__game') as HTMLElement;
     if (!box) return;
     el.scrollBy({ left: direction * (box.offsetWidth + 8) * 2, behavior: 'smooth' });
-  }
-
-  private getPeriodLabel(period: number): string {
-    if (period <= 3) return period === 1 ? '1st' : period === 2 ? '2nd' : '3rd';
-    if (period === 4) return 'OT';
-    return `${period - 3}OT`;
-  }
-
-  ngOnDestroy(): void {
-    this.subs.forEach(s => s.unsubscribe());
   }
 }

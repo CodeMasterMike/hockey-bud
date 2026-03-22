@@ -1,21 +1,32 @@
-import { Component, input, output, inject, signal, OnInit } from '@angular/core';
+import { Component, input, output, inject, signal, OnInit, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ScoreGame, ScoresApiService, PregameMatchup as PregameData } from '../../../services/scores-api.service';
+import { DEFAULT_LEAGUE_ID } from '../../../constants';
 
 @Component({
   selector: 'app-pregame-matchup',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="pregame">
       <div class="pregame__header">
         <div class="pregame__teams">
+          @if (game().awayTeam.logoUrl) {
+            <img [src]="game().awayTeam.logoUrl" [alt]="game().awayTeam.abbreviation" class="pregame__logo">
+          }
           <span class="pregame__abbrev">{{ game().awayTeam.abbreviation }}</span>
           <span class="pregame__vs">vs</span>
           <span class="pregame__abbrev">{{ game().homeTeam.abbreviation }}</span>
+          @if (game().homeTeam.logoUrl) {
+            <img [src]="game().homeTeam.logoUrl" [alt]="game().homeTeam.abbreviation" class="pregame__logo">
+          }
           <span class="pregame__time">{{ game().scheduledStartLocal }}</span>
         </div>
         <button class="pregame__close" (click)="collapse.emit()" aria-label="Collapse">&times;</button>
       </div>
 
-      @if (data()) {
+      @if (error()) {
+        <div class="pregame__loading">Failed to load matchup.</div>
+      } @else if (data()) {
         <div class="pregame__content">
           <!-- Starting goalies + team leaders side by side -->
           <div class="pregame__section">
@@ -118,6 +129,7 @@ import { ScoreGame, ScoresApiService, PregameMatchup as PregameData } from '../.
       margin-bottom: 12px;
     }
     .pregame__teams { display: flex; align-items: center; gap: 8px; }
+    .pregame__logo { width: 28px; height: 28px; object-fit: contain; }
     .pregame__abbrev { font-weight: 700; font-size: 16px; color: var(--text-primary); }
     .pregame__vs { color: var(--text-muted); font-size: 12px; }
     .pregame__time { color: var(--text-muted); font-size: 12px; margin-left: 8px; }
@@ -165,15 +177,20 @@ import { ScoreGame, ScoresApiService, PregameMatchup as PregameData } from '../.
 })
 export class PregameMatchup implements OnInit {
   game = input.required<ScoreGame>();
-  leagueId = input<string>('nhl');
+  leagueId = input<string>(DEFAULT_LEAGUE_ID);
   collapse = output<void>();
 
   private scoresApi = inject(ScoresApiService);
+  private destroyRef = inject(DestroyRef);
   data = signal<PregameData | null>(null);
+  error = signal(false);
 
   ngOnInit(): void {
-    this.scoresApi.getPregame(this.leagueId(), this.game().id).subscribe({
-      next: data => this.data.set(data)
+    this.scoresApi.getPregame(this.leagueId(), this.game().id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: data => this.data.set(data),
+      error: () => this.error.set(true)
     });
   }
 }

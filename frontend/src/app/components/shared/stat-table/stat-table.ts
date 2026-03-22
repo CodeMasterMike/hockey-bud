@@ -1,4 +1,4 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 
 export interface StatColumn {
   key: string;
@@ -14,6 +14,7 @@ export interface SortEvent {
 
 @Component({
   selector: 'app-stat-table',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="stat-table-wrap">
       <table class="stat-table">

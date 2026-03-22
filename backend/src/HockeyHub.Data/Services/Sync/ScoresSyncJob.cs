@@ -16,7 +16,7 @@ public class ScoresSyncJob(
 {
     public async Task SyncAsync(CancellationToken ct = default)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(-8));
+        var today = HockeyHub.Core.NhlDateHelper.GetCurrentGameDay();
         logger.LogInformation("Syncing scores for {Date}", today);
 
         var nhlGames = await nhlProvider.GetScoresAsync(today, ct);
