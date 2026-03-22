@@ -270,7 +270,7 @@ A visitor navigates to the Personnel page and browses staff members for each tea
 
 ### User Story 11 - View Season Schedule (Priority: P11)
 
-A visitor navigates to the Schedule page (located between Teams and Players in the navigation) and sees the season schedule with important dates prominently marked, including the trade deadline, free agent deadline, offer sheet deadline, arbitration deadline, All-Star break, and bye weeks. Three view options are available: Detailed (with team color dots and scores), Clean (same layout without color dots), and Compact (game count only with hover info box). A Strength of Schedule tab provides remaining schedule analysis.
+A visitor navigates to the Schedule page (located after Teams in the navigation per FR-006a) and sees the season schedule with important dates prominently marked, including the trade deadline, free agent deadline, offer sheet deadline, arbitration deadline, All-Star break, and bye weeks. Three view options are available: Detailed (with team color dots and scores), Clean (same layout without color dots), and Compact (game count only with hover info box). A Strength of Schedule tab provides remaining schedule analysis.
 
 **Why this priority**: A dedicated schedule view with key dates provides fans a comprehensive calendar of the season's important milestones.
 
@@ -313,7 +313,8 @@ A visitor navigates to the Schedule page (located between Teams and Players in t
 
 #### Global Design & Navigation
 - **FR-001**: The site MUST display pages in a soft yellow-beige color (antique book tone) with black text by default.
-- **FR-002**: The site MUST provide a dark mode with a very dark blue page color and the same soft yellow-beige used in light mode for text.
+- **FR-002**: The site MUST provide a dark mode with a very dark blue page color (`#0A1628`) and the same soft yellow-beige used in light mode for text. Dark mode MUST be the default theme. Users can toggle to light mode via the theme toggle.
+- **FR-002a**: In dark mode, the banner MUST use the soft yellow-beige (`#F5F0E1`) as the background color and the dark blue (`#0A1628`) for text. Banner interactive elements (search input, hamburger button) MUST adapt with dark-tinted controls instead of white-tinted.
 - **FR-003**: All text MUST be rendered in a typewriter-style font that remains compact and easy to read.
 - **FR-004**: All text, language, and shorthand MUST be written in American English.
 - **FR-005**: The site MUST display a black banner at the top of every page with the site name "To Be Determined" on the left, a global search bar in the center (on league pages only — no search bar on the main page), and a hamburger menu button on the right.
@@ -345,7 +346,7 @@ A visitor navigates to the Schedule page (located between Teams and Players in t
 - **FR-019**: Season records and standings rank MUST display explanatory tooltips on hover.
 - **FR-020**: Each score box MUST include a clickable "Game Hub" link at the bottom.
 - **FR-021**: Score boxes MUST be expandable. The expanded view MUST include: (a) a period-by-period goals box score and a period-by-period shots on goal box score placed side by side at half width each, (b) a vertical stat column containing PP, HIT, FO%, TK, GV, and TOP (time of possession), (c) away team goal summaries and penalty summaries to the LEFT of the stat column, (d) home team goal summaries and penalty summaries to the RIGHT of the stat column. The inline scoreboard (team names/scores block) is removed from the expanded view; each team's season record and league standings rank MUST be shown next to the team name in the box score table headers.
-- **FR-021a**: Score boxes for games that have not started MUST appear in collapsed state using the same compact format as active games — showing the start time and basic team info. When expanded, the pregame box MUST be 2x2 (2 rows, 2 columns) and show a matchup summary including: a stat comparison table showing each team's GF/GP, GA/GP, SF/GP, SA/GP, PP%, and PK%; head-to-head record showing each team's W/OTW/SOW for the current season and W/OTW/SOW/T all time; top goal scorers per team; top points getters per team; and starting goalie GAA and SV% (or "Awaiting starting goalie confirmation").
+- **FR-021a**: Score boxes for games that have not started MUST appear in collapsed state using the same compact format as active games — showing the start time and basic team info. When expanded, the pregame box MUST be 2x2 (2 rows, 2 columns) and show a matchup summary including: a stat comparison table showing each team's GF/GP, GA/GP, SF/GP, SA/GP, PP%, and PK%; head-to-head record showing each team's W/OTW/SOW for the current season and W/OTW/SOW/T all time; top goal scorer, top assist maker, and top points getter per team (if the same player leads multiple categories, they are listed for each stat they lead); and starting goalie GAA and SV% (or "Awaiting starting goalie confirmation").
 - **FR-022**: Only one expanded score box may be visible at a time; expanding a new box MUST collapse the previously expanded one. Only one box per game MUST exist (either small or large, never both simultaneously). When a box is expanded, exactly 3 small boxes MUST fit vertically beside the expanded box (the expanded box spans 3 rows and 3 columns in a 4-column grid). Small boxes remain 1x1 and MUST NOT stretch to fill the expanded box's height. Remaining small boxes wrap to subsequent rows in the standard 4-column format.
 
 #### Game Hub
@@ -362,7 +363,7 @@ A visitor navigates to the Schedule page (located between Teams and Players in t
 - **FR-033**: Player stat grids MUST scroll horizontally if columns exceed the display width.
 - **FR-034**: The Rink Instances tab MUST display an accurately dimensioned diagram of the game's rink, including measurements and labels for the home bench and away bench sides, penalty boxes, and an accurate view of the layout of the stands with actual seat colors if available. If seat color information is unavailable, display an outline of the stands based on best available information with seats shown in washed-out gray.
 - **FR-035**: The rink diagram MUST support switchable views for goals, shots (including goals), hits, giveaways, and takeaways, with the ability to add more views in the future.
-- **FR-036**: Event dots on the rink MUST use the acting team's primary color; goal dots MUST be half bright green and half the scoring team's color.
+- **FR-036**: Event dots on the rink MUST use the acting team's primary color; goal dots MUST be half white and half the scoring team's primary color. No team uses white as their team color for this purpose.
 - **FR-037**: Hovering over a rink dot MUST display the action type, player, and game clock time. Clicking a dot with available video MUST open a modal containing an embedded video player (sourced from the data provider) with footage of the play including multiple replays from multiple angles. Dots with available video MUST show a small, unintrusive indicator: a small black dot within the colored dot (not a traditional play button). This indicator design must be easily changeable.
 
 #### Standings
@@ -379,8 +380,9 @@ A visitor navigates to the Schedule page (located between Teams and Players in t
 - **FR-045a**: Stats, Free Agents, and other pages with large result sets MUST paginate results at 50 rows per page with page navigation controls. Re-sorting by a stat column MUST apply across the full data set, not just the visible page.
 
 #### Schedule
-- **FR-045b**: The Schedule page MUST display the full season schedule in a calendar format with all games.
+- **FR-045b**: The Schedule page MUST display the full season schedule in a calendar format with all games. Three view options MUST be available: (1) "Detailed" (default) — showing team color dots and scores, (2) "Clean" — same layout without colored dots next to teams, (3) "Compact" — showing only the game count per day, with games listed in a hover info box.
 - **FR-045c**: Important league dates MUST be prominently displayed on the schedule: trade deadline, free agent deadline, offer sheet deadline, arbitration deadline, All-Star break, bye weeks, and any other significant dates.
+- **FR-045d**: A "Strength of Schedule" tab MUST be available on the Schedule page, displaying remaining schedule analysis. The methodology for calculating strength of schedule will be defined in a future update.
 
 #### Teams
 - **FR-046**: The Teams index page MUST display all current NHL team icons sorted alphabetically by team location name (e.g., Florida Panthers under "F" for Florida). This convention applies to all team alphabetical ordering across the site.
@@ -393,28 +395,31 @@ A visitor navigates to the Schedule page (located between Teams and Players in t
 - **FR-053**: All statistics and cap information in the depth chart MUST display explanatory tooltips on hover.
 
 #### Players
-- **FR-053a**: The Players navigation link MUST take the user to a page listing the most searched players in the last week by default. A filter MUST allow switching between most searched players in the last day, last week (default), last month, and last year. Each player listing MUST be clickable to navigate to that player's profile page.
+- **FR-053a**: The Players navigation link MUST take the user to a page listing the most searched players in the last week by default. A filter MUST allow switching between most searched players in the last day, last week (default), last month, and last year. Each player listing MUST be clickable to navigate to that player's profile page. The search bar MUST search for both players and nations, returning matching results for either.
 - **FR-054**: The player profile MUST display the most recent headshot in the top left, with a career headshot gallery appearing on hover.
 - **FR-055**: Biographical information MUST include age, birthplace, team, position(s), stick handedness, height, weight, draft year, draft selection number, and drafting team.
 - **FR-056**: Position display MUST show any position played at least 5% of total 5-on-5 ice time in the past 5 years, ordered by most ice time in the last 2 years 5-on-5 (5-year totals as tiebreaker).
 - **FR-057**: To the right of biographical info, the profile MUST show every team the player has played for, jersey numbers worn on each team, and awards won with each team.
-- **FR-058**: Player season-by-season stats MUST be displayed with three tabs: NHL (default), Other Leagues, and Combined.
+- **FR-058**: Player season-by-season stats MUST be displayed with three tabs: NHL (default), Other Leagues, and Combined. Beneath these tabs, sub-tabs for "Regular Season" and "Playoffs" MUST be available. All stats tables MUST include P/PG (Points Per Game) between the PTS and +/- columns.
 - **FR-059**: The player style profile MUST include a brief narrative of the player's playing style with 2-4 verified, legitimate supporting statistics relevant to that style.
 - **FR-060**: The contract/history section MUST include current contract summary, contract history, trade history (each trade clickable to the trade detail page), and free agency history.
 - **FR-061**: Clicking the player's salary cap information MUST navigate to a dedicated page showing complete contract history and detailed current contract overview.
 - **FR-061a**: Emergency goaltenders (EBUGs) MUST have player profiles that clearly indicate EBUG status, with all available stats displayed.
+- **FR-061b**: The player profile MUST provide two top-level tabs — "Overview & Stats" (containing season-by-season stats per FR-058 and playing style profile per FR-059) and "Contracts & Trades" (containing contract/salary per FR-060/FR-061 and trade history) — allowing the user to switch without scrolling.
+- **FR-061c**: Clicking a player's birth nation MUST navigate to a nation players page listing all current NHL players from that nation in alphabetical order by last name. A filter MUST allow including past players or showing only past players. A search bar MUST be provided with results filtered appropriately. Other nations with NHL players MUST be browsable from the same page.
 
 #### Salary Cap
-- **FR-062**: The default Salary Cap page MUST list all NHL teams with their logo, number of players on cap, total cap used, cap available, and LTIR cap space.
+- **FR-062**: The default Salary Cap page MUST list all NHL teams alphabetically by location name, each showing their logo, number of players on cap, total cap used, cap available, LTIR cap space, and CHIP (Cap Hit of Injured Players — annual cap charge ÷ 82 per game missed). A filter MUST allow sorting/viewing by cap used and CHIP.
 - **FR-063**: Clicking a team MUST open a detailed page showing each player's cap hit, years remaining, UFA/RFA status, and contract clauses (NMC, NTC, etc.).
-- **FR-064**: The team cap detail page MUST include projected salary cap usage for coming years and available draft picks.
+- **FR-064**: The team cap detail page MUST include projected salary cap commitments for the next 5 years and draft pick inventory for the next 5 years.
 - **FR-065**: The team cap detail page MUST include a buyout calculator that computes and displays the cap implications of buying out a selected player.
-- **FR-066**: A "Salary Cap Explained" button MUST open a searchable guide with all salary cap rules, featuring a glossary and plain-language explanations alongside the original legal terminology.
+- **FR-066**: A "Salary Cap Explained" button MUST open a searchable guide with all salary cap rules, featuring a glossary and plain-language explanations alongside the original legal terminology. Topics MUST include escrow (how players pay a percentage of salary into escrow calculated against hockey-related revenue, with excess returned or shortfall forfeited).
+- **FR-066a**: A CHIP Graph tab MUST appear between the Team Detail and Buyout Calculator sections, displaying a horizontal bar chart of all 32 teams' CHIP values sorted highest to lowest. This tab will expand to include additional statistical views in the future.
 
 #### Trades
 - **FR-067**: The Trades page MUST list all trades from the current season, most recent first.
 - **FR-068**: Filters MUST be available for previous seasons and specific teams; a search box MUST allow searching by player name.
-- **FR-069**: Clicking a trade MUST display all known details and a clean, navigable visual trade tree showing all prior and subsequent transactions involving the traded pieces, traced as deep as necessary in both directions.
+- **FR-069**: Clicking a trade MUST display all known details including the date, teams involved, and all assets exchanged (players, draft picks, salary retained). A trade tree visualization is planned for the future but is not included in the current phase.
 
 #### Free Agents
 - **FR-070**: The pending free agents tab MUST list upcoming free agents with RFA/UFA status, current cap hit, current team, and all standard player stats, sorted by cap hit by default.
@@ -455,7 +460,7 @@ A visitor navigates to the Schedule page (located between Teams and Players in t
 - **SC-009**: All game clock times are displayed in the correct "Period Time" format (e.g., "2nd 12:57") with zero formatting errors across the site.
 - **SC-010**: Both light mode and dark mode are fully usable with all content readable, no contrast issues, and consistent visual hierarchy.
 - **SC-011**: Rink diagrams accurately reflect each venue's dimensions and correctly identify home and away bench sides, penalty boxes, and stand layout.
-- **SC-012**: Trade trees display the complete chain of transactions with no missing links for trades where data is available, tracing both prior and subsequent transactions.
+- **SC-012**: The trades list displays all trades for the selected season in correct chronological order with complete details, and team/season filters return accurate results.
 - **SC-013**: The buyout calculator produces cap impact figures that match official CBA buyout formulas.
 - **SC-014**: 90% of visitors rate the site's readability and ease of navigation as "easy" or "very easy" in user testing.
 - **SC-015**: All cross-links between entities (players, teams, trades, contracts) correctly navigate to the intended destination page with zero broken links.
@@ -501,7 +506,7 @@ A visitor navigates to the Schedule page (located between Teams and Players in t
 - Expandable score boxes with exclusive open behavior and pregame matchup summaries
 - Sortable stat columns across standings, stats, and free agent pages
 - Rink event diagrams with team-colored dots, five switchable views, penalty boxes, and stand layout
-- Trade trees with full transaction chain visualization in both directions (prior and subsequent)
+- Chronological trade list with team and season filters (trade tree visualization deferred to future phase)
 - Buyout calculator on team salary cap pages
 - Salary Cap Explained searchable guide with plain-language companion
 - Official score sheet display in Game Hub
@@ -525,4 +530,5 @@ A visitor navigates to the Schedule page (located between Teams and Players in t
 - Additional rink diagram views beyond the initial five (goals, shots, hits, giveaways, takeaways)
 - Lineups tab content in Game Hub (tab is present but detailed specification to be defined separately)
 - Past teams on the Teams index page
+- Trade tree visualization (will be added in a future phase with an entirely new style)
 - Integration of the same data for additional leagues (AHL, ECHL, KHL, SHL, Liiga, etc.)
