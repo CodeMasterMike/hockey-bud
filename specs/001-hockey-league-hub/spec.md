@@ -286,6 +286,80 @@ A visitor navigates to the Schedule page (located after Teams in the navigation 
 
 ---
 
+### User Story 12 - Automated Deployment Pipeline (Priority: P12)
+
+A developer pushes code to a pull request branch on GitHub. A CI pipeline automatically runs backend build, tests, and frontend build, lint, and tests. The PR cannot be merged until CI passes. When the PR is merged to main, a deploy pipeline automatically builds container images, pushes them to the container registry, applies database migrations, deploys the backend to the dev Container App, deploys the frontend to the dev Static Web App, and runs smoke tests. The developer can verify the deployment succeeded via the GitHub Actions run status and the dev environment URL.
+
+**Why this priority**: Automated deployment eliminates manual error, ensures every change is tested before merge, and provides a consistent path from code to running environment.
+
+**Independent Test**: Can be tested by pushing a PR, verifying CI runs, merging, and confirming the dev environment reflects the new code.
+
+**Acceptance Scenarios**:
+
+1. **Given** a developer opens a pull request, **When** CI runs, **Then** the backend builds, all backend tests pass, the frontend builds, all frontend tests pass, and lint checks pass. The PR is blocked from merging until CI succeeds.
+2. **Given** a PR is merged to main, **When** the deploy-dev pipeline triggers, **Then** the backend container image is built and pushed to Azure Container Registry, EF Core migrations are applied to the dev database, the dev Container App is updated to the new image, and the frontend is deployed to the dev Static Web App.
+3. **Given** a deploy-dev pipeline completes, **When** smoke tests run, **Then** the API health check endpoint returns 200, the frontend loads without errors, and the SignalR hub is connectable.
+4. **Given** a developer triggers a production deployment (via manual dispatch or release tag), **When** the deploy-prod pipeline runs, **Then** an approval gate is required before database migrations are applied, the prod Container App is updated, the frontend is deployed to prod, and smoke tests verify the deployment.
+5. **Given** a deployment fails at any step, **When** the pipeline reports the failure, **Then** the previous working revision remains active (no partial deployment) and the developer is notified via GitHub Actions status.
+
+---
+
+### User Story 13 - Infrastructure Health Monitoring and Alerting (Priority: P13)
+
+An operator views the Azure Portal monitoring dashboard and sees real-time metrics for the running application: API request rate, response times, error rate, active SignalR connections, Hangfire job status, and database health. When a metric breaches a defined threshold (e.g., error rate > 1%, API P95 > 2s), an alert is triggered and the operator is notified. Application logs from all services are centralized in a single Log Analytics Workspace for querying and troubleshooting.
+
+**Why this priority**: Monitoring and alerting are essential for maintaining the 99.9% uptime target (SC-017) and diagnosing issues before they impact visitors.
+
+**Independent Test**: Can be tested by verifying the dashboard displays live metrics, intentionally triggering an alert condition, and confirming the alert fires.
+
+**Acceptance Scenarios**:
+
+1. **Given** the Azure Portal monitoring dashboard, **When** an operator views it, **Then** it displays: API request rate, P95 response time, error rate, active SignalR connections, Hangfire job success/failure counts, and database CPU/DTU usage — all updating in near real-time.
+2. **Given** the API P95 response time exceeds 2 seconds for 5 minutes, **When** the alert evaluates, **Then** a notification is sent to the configured alert recipients.
+3. **Given** the API error rate exceeds 1% over a 5-minute window, **When** the alert evaluates, **Then** a notification is sent.
+4. **Given** a Container App crashes or restarts unexpectedly, **When** the event is detected, **Then** an alert is triggered.
+5. **Given** a Hangfire job (ScoresSyncJob or StandingsSyncJob) fails, **When** the failure is logged, **Then** an alert is triggered and the failure details are available in the Log Analytics Workspace.
+6. **Given** a SignalR connection drop count exceeds the configured threshold, **When** the alert evaluates, **Then** a notification is sent.
+7. **Given** any service emits logs, **When** the logs are ingested, **Then** they are queryable in the centralized Log Analytics Workspace within 5 minutes.
+
+---
+
+### User Story 14 - Data Seeding and Database Recovery (Priority: P14)
+
+A developer setting up a new environment (or recovering from data loss in dev) runs the `--seed` CLI command to populate the database from the NHL API. In production, automated daily backups and point-in-time restore provide data recovery without re-seeding. Database migrations are applied automatically as part of the deployment pipeline, ensuring schema is always in sync with the deployed code.
+
+**Why this priority**: Reliable data seeding and recovery ensure environments can be stood up quickly and production data is never permanently lost.
+
+**Independent Test**: Can be tested by seeding a fresh dev database, verifying data integrity, and in prod by confirming backup schedules and performing a test restore.
+
+**Acceptance Scenarios**:
+
+1. **Given** a fresh dev environment with an empty database, **When** the developer runs `dotnet run -- --seed`, **Then** all NHL teams, players, games, standings, and related data are populated from the NHL API and the site is fully functional.
+2. **Given** the dev PostgreSQL container restarts or loses data, **When** the developer re-runs `--seed`, **Then** the database is repopulated and the site recovers without manual intervention beyond running the seed command.
+3. **Given** the prod database, **When** daily backup runs, **Then** a full backup is stored with point-in-time restore capability covering the last 35 days.
+4. **Given** a production data issue, **When** an operator initiates a point-in-time restore, **Then** the database is restored to the specified timestamp and the application reconnects without code changes.
+5. **Given** a deployment pipeline runs, **When** EF Core migrations are applied, **Then** the database schema matches the deployed code version and no manual migration steps are required.
+
+---
+
+### User Story 15 - Zero-Downtime Deployments and Rollback (Priority: P15)
+
+When a new version is deployed, the Azure Container App creates a new revision and routes traffic to it only after health checks pass. If the new revision fails health checks, traffic remains on the previous revision. An operator can manually roll back to any previous revision via the Azure Portal or CLI.
+
+**Why this priority**: Zero-downtime deployments are required to meet the 99.9% uptime target and ensure visitors are never disrupted during releases.
+
+**Independent Test**: Can be tested by deploying a new version during active traffic and verifying no requests are dropped, then deploying a broken version and verifying automatic fallback.
+
+**Acceptance Scenarios**:
+
+1. **Given** a new backend version is deployed, **When** the Container App creates a new revision, **Then** traffic is routed to the new revision only after its health check endpoint returns 200.
+2. **Given** a new revision fails health checks, **When** the Container App evaluates readiness, **Then** traffic remains on the previous healthy revision and the deployment is marked as failed.
+3. **Given** a successful deployment, **When** the operator decides to roll back, **Then** they can reactivate a previous revision via Azure Portal or CLI and traffic shifts to it within 60 seconds.
+4. **Given** a frontend deployment to Azure Static Web Apps, **When** the new build is deployed, **Then** the CDN serves the new version globally within 5 minutes with no downtime for visitors.
+5. **Given** active SignalR connections during a backend deployment, **When** the new revision activates, **Then** existing connections gracefully reconnect without permanent loss of live score updates.
+
+---
+
 ### Edge Cases
 
 - **No games scheduled**: When no games are scheduled for the selected day, display a message indicating no games are scheduled and show the next upcoming game date.
@@ -306,6 +380,13 @@ A visitor navigates to the Schedule page (located after Teams in the navigation 
 - **Pending game events**: When a game event (e.g., a goal) is under review, it must be displayed as pending until officially confirmed. The pending state should be visually distinct.
 - **Emergency goaltenders (EBUGs)**: EBUGs receive player profiles that clearly indicate their EBUG status. Any stats they accumulate are tracked and displayed.
 - **Partial trade/signing information**: When a trade or signing is confirmed but details are incomplete, display all available information with a note that "More information is still processing."
+- **CI pipeline failure on PR**: When the CI pipeline fails on a pull request, the PR is blocked from merging. The developer must fix the failure and push again; no manual override is permitted.
+- **Database migration failure during deployment**: If an EF Core migration fails during the deploy pipeline, the deployment is halted before the new container image is activated. The previous revision remains live and the developer is alerted.
+- **Container App crash loop**: If the backend Container App enters a crash loop (repeated restarts), Azure Container Apps stops scheduling the failing revision and an alert fires. The previous stable revision continues serving traffic.
+- **Dev database data loss**: If the dev PostgreSQL container loses its data (volume failure, accidental deletion), the developer re-runs `--seed` to repopulate. No backup restore is required for dev.
+- **Redis unavailability**: If Redis becomes unavailable, the backend MUST degrade gracefully — cached data is fetched from the database directly, and SignalR falls back to in-memory backplane (single-instance only). A "Data as of [timestamp]" indicator appears if cached data is stale.
+- **Deployment during live games**: Deployments during active NHL games MUST use zero-downtime revision swaps. Active SignalR connections MUST reconnect gracefully. If smoke tests fail, the deployment is rolled back automatically.
+- **Azure region outage**: In the event of an Azure region outage, the site is unavailable until the region recovers. Multi-region failover is deferred to a future phase. The 99.9% uptime target accounts for this risk.
 
 ## Requirements *(mandatory)*
 
@@ -429,6 +510,33 @@ A visitor navigates to the Schedule page (located after Teams in the navigation 
 - **FR-072**: The Personnel section MUST provide a database of team staff organized by role: coaches, GMs, scouts, trainers, equipment managers, and owners (in that order).
 - **FR-073**: Each staff profile MUST include hockey-related information, awards, stats (if applicable), a link to their playing career (if applicable), and a history of predecessors at their position.
 
+#### Deployment & CI/CD
+- **FR-074**: A CI pipeline MUST run on every pull request, executing backend build, backend tests, frontend build, frontend lint, and frontend tests. The PR MUST be blocked from merging until all checks pass.
+- **FR-075**: Merging a PR to the main branch MUST automatically trigger a deploy-dev pipeline that builds and pushes the backend container image to Azure Container Registry, applies EF Core migrations to the dev database, updates the dev Container App to the new revision, deploys the frontend to the dev Azure Static Web App, and runs smoke tests.
+- **FR-076**: Production deployments MUST be triggered manually (via workflow dispatch or release tag) and MUST include an approval gate before database migrations are applied.
+- **FR-077**: All deployments MUST be zero-downtime. Azure Container Apps MUST route traffic to a new revision only after its health check endpoint returns a successful response. If the health check fails, the previous revision MUST remain active.
+- **FR-078**: The backend API MUST expose a `/health` endpoint that returns HTTP 200 when the application is ready to serve traffic (database connection verified, Redis connection verified).
+- **FR-079**: Rollback to any previous Container App revision MUST be possible via Azure Portal or CLI, with traffic shifting within 60 seconds.
+
+#### Infrastructure & Security
+- **FR-080**: All Azure resources MUST be defined in Bicep templates stored in the `infra/` directory, with separate parameter files for dev and prod environments.
+- **FR-081**: All secrets (database connection strings, API keys, Redis connection strings) MUST be stored in Azure Key Vault and referenced by Container Apps as managed secrets. No secrets MUST appear in source code, CI/CD logs, or environment variable definitions in Bicep templates.
+- **FR-082**: The production database MUST use a private endpoint accessible only from the Container Apps subnet. The dev database MUST be accessible from the Container Apps environment and configured developer IPs.
+- **FR-083**: Azure Container Registry MUST have admin access disabled. CI/CD pipelines MUST authenticate via a service principal with scoped permissions.
+- **FR-084**: HTTPS MUST be enforced on all public endpoints (frontend and backend). HTTP requests MUST redirect to HTTPS.
+
+#### Monitoring & Observability
+- **FR-085**: The .NET backend MUST integrate the Application Insights SDK for request tracing, dependency tracking, exception logging, and performance metrics.
+- **FR-086**: The Angular frontend MUST integrate the Application Insights JavaScript SDK for page load times, client-side errors, and API call performance tracking.
+- **FR-087**: Alerts MUST be configured for: API P95 response time > 2 seconds, API error rate > 1% over a 5-minute window, Container App crash/restart events, database connection failures, SignalR connection drops exceeding threshold, and Hangfire job failures.
+- **FR-088**: An Azure Portal dashboard MUST display: API request rate, P95 response time, error rate, active SignalR connections, Hangfire job success/failure counts, and database CPU/DTU usage.
+- **FR-089**: All service logs MUST be aggregated in a centralized Log Analytics Workspace and be queryable within 5 minutes of emission.
+
+#### Data Recovery
+- **FR-090**: The production PostgreSQL database MUST have automated daily backups with point-in-time restore capability covering the last 35 days.
+- **FR-091**: The dev environment MUST support full data recovery via the `--seed` CLI command without requiring database backups.
+- **FR-092**: The backend API MUST degrade gracefully when Redis is unavailable — serving data directly from the database with a "Data as of [timestamp]" indicator, and falling back to an in-memory SignalR backplane for single-instance operation.
+
 ### Key Entities
 
 - **League**: A professional hockey league (e.g., NHL). Contains teams, a schedule, standings, and league-wide statistics. Identified by name and logo.
@@ -465,6 +573,15 @@ A visitor navigates to the Schedule page (located after Teams in the navigation 
 - **SC-014**: 90% of visitors rate the site's readability and ease of navigation as "easy" or "very easy" in user testing.
 - **SC-015**: All cross-links between entities (players, teams, trades, contracts) correctly navigate to the intended destination page with zero broken links.
 - **SC-016**: During live games, scores on the scores page, Game Hub, and the live score ticker update automatically at the fastest feasible cadence (target: sub-60 seconds) without requiring a page refresh.
+- **SC-018**: CI pipeline completes (build + test + lint for both frontend and backend) within 10 minutes on every pull request.
+- **SC-019**: Dev deployments complete end-to-end (image push, migration, revision update, frontend deploy, smoke tests) within 10 minutes of merge to main.
+- **SC-020**: Zero visitor-facing downtime during deployments — no dropped requests, no SignalR disconnections lasting more than 30 seconds.
+- **SC-021**: The `/health` endpoint returns 200 within 5 seconds when the application is healthy and returns a non-200 status within 10 seconds when a critical dependency (database or Redis) is unreachable.
+- **SC-022**: All alert conditions fire within 5 minutes of the threshold being breached.
+- **SC-023**: All service logs are queryable in Log Analytics within 5 minutes of emission.
+- **SC-024**: A fresh dev environment can be fully seeded from the NHL API and serving traffic within 30 minutes of running `--seed`.
+- **SC-025**: Production database point-in-time restore completes within 1 hour and the application reconnects without code changes.
+- **SC-026**: Dev environment monthly Azure costs remain under $50.
 
 ## Assumptions
 
@@ -482,7 +599,7 @@ A visitor navigates to the Schedule page (located after Teams in the navigation 
 - A Schedule page with season calendar and important dates is a primary navigation section, positioned between Teams and Players.
 - All data refreshes as fast as possible. Standings, stats, and rosters update just before and after each game. Trades and free agents update in near real-time. Live game scores update at sub-60-second cadence.
 - Rink diagrams are based on publicly available arena dimension data for each NHL venue, including stand layouts and seat colors where available.
-- The site is delivered as a statically generated site with incremental rebuilds triggered at each data refresh interval, served via CDN. Client-side polling handles live score updates between rebuilds.
+- The frontend is deployed to Azure Static Web Apps (with built-in CDN) and the backend API runs on Azure Container Apps. Live score updates are pushed via SignalR WebSockets; static content is served via CDN.
 - Advanced stats (WAR, xGF/60, xGA/60, etc.) depend on a data source providing these metrics; cells display "—" when data is unavailable.
 - The initial stat column set on each page is fixed; user customization of displayed stats is deferred to the account management future phase.
 - Manual time zone override is deferred to the account management future phase; the system relies on automatic detection initially.
@@ -518,6 +635,17 @@ A visitor navigates to the Schedule page (located after Teams in the navigation 
 - Partial information display for confirmed but incomplete trades/signings
 - Historical data extending as far back as reliable data allows, with era differentiation
 - FO% added to standings stats
+- GitHub Actions CI/CD pipelines (CI on PR, deploy-dev on merge, deploy-prod on manual/tag)
+- Azure Container Apps hosting for backend API, Hangfire, and dev-only PostgreSQL/Redis
+- Azure Static Web Apps hosting for Angular frontend with built-in CDN and SSL
+- Infrastructure as Code via Bicep templates
+- Azure Key Vault for secret management
+- Azure Monitor + Application Insights for monitoring, alerting, and centralized logging
+- Zero-downtime deployments with health-check-gated revision swaps and rollback capability
+- `/health` endpoint for backend readiness checks
+- Automated database backups with point-in-time restore (prod)
+- Data seeding via `--seed` CLI for dev environment recovery
+- Graceful Redis degradation (database fallback + in-memory SignalR backplane)
 
 ### Out of Scope (Future Phases)
 - User accounts, authentication, and personalization settings
@@ -531,4 +659,121 @@ A visitor navigates to the Schedule page (located after Teams in the navigation 
 - Lineups tab content in Game Hub (tab is present but detailed specification to be defined separately)
 - Past teams on the Teams index page
 - Trade tree visualization (will be added in a future phase with an entirely new style)
+- Multi-region failover / geo-redundant hosting
+- Blue-green or canary deployment strategies
+- Automated performance/load testing in CI/CD
+- Staging environment (third tier between dev and prod)
 - Integration of the same data for additional leagues (AHL, ECHL, KHL, SHL, Liiga, etc.)
+
+## Deployment, Hosting & Infrastructure
+
+### Cloud Platform
+- **Provider**: Microsoft Azure
+- **Domain**: TBD (to be registered when site name is finalized)
+
+### Environments
+
+| Aspect | Dev | Prod |
+|--------|-----|------|
+| **Purpose** | Development, testing, demos | Live site |
+| **Budget target** | Under $50/mo (lower is better) | TBD — scaled to traffic |
+| **Frontend** | Azure Static Web Apps (Free tier) | Azure Static Web Apps (Standard tier) |
+| **Backend API** | Azure Container Apps (consumption plan) | Azure Container Apps (consumption plan) |
+| **PostgreSQL** | Containerized in Azure Container Apps (data can be re-seeded from NHL API) | Azure Database for PostgreSQL Flexible Server (Burstable B1ms or higher) |
+| **Redis** | Containerized in Azure Container Apps | Azure Cache for Redis (Basic C0 or higher) |
+| **Hangfire worker** | Runs in the backend Container App | Runs in the backend Container App (separate revision if scaling needed) |
+
+### Frontend Hosting — Azure Static Web Apps
+- Angular SSR app deployed to Azure Static Web Apps
+- Built-in global CDN, automatic SSL/TLS certificates, and custom domain support
+- API calls route to the backend Container App via configured environment-specific API base URLs
+- Preview environments auto-generated for pull requests
+
+### Backend Hosting — Azure Container Apps
+- ASP.NET Core API, Redis (dev only), and PostgreSQL (dev only) run as Container Apps in a shared Container Apps Environment
+- Consumption-based pricing — scales to zero when idle, scales up under load
+- SignalR connections maintained via Azure Container Apps' built-in support for WebSockets
+- Hangfire dashboard exposed at `/hangfire` (restricted to authorized IPs/roles in prod)
+
+### Database Strategy
+- **Dev**: PostgreSQL runs as a container in Azure Container Apps with a persistent Azure Files volume. Data loss is acceptable — the `--seed` CLI command re-populates from the NHL API
+- **Prod**: Azure Database for PostgreSQL Flexible Server with automated daily backups, point-in-time restore (up to 35 days), and geo-redundant backup storage
+- EF Core migrations applied via CI/CD pipeline before deployment (see below)
+
+### Redis Strategy
+- **Dev**: Redis runs as a container in Azure Container Apps. Used for cache and SignalR backplane
+- **Prod**: Azure Cache for Redis (managed). Provides persistence, monitoring, and high availability
+
+### CI/CD — GitHub Actions
+
+#### Pipeline Structure
+```
+.github/workflows/
+├── ci.yml                  # Runs on every PR — build, test, lint
+├── deploy-dev.yml          # Deploys to dev on merge to main
+└── deploy-prod.yml         # Deploys to prod on manual trigger or release tag
+```
+
+#### CI Pipeline (every PR)
+1. **Backend**: `dotnet build` → `dotnet test` → publish container image
+2. **Frontend**: `npm ci` → `npm run lint` → `npm test` → `ng build`
+3. Both must pass before merge is allowed
+
+#### Deploy Pipeline (dev — on merge to main)
+1. Build and push backend container image to Azure Container Registry (ACR)
+2. Run EF Core migrations against the dev database
+3. Update the dev Container App revision to the new image
+4. Deploy frontend to Azure Static Web Apps dev environment
+5. Run smoke tests (health check endpoints, basic page load)
+
+#### Deploy Pipeline (prod — manual trigger or release tag)
+1. Build and push backend container image to ACR (tagged with release version)
+2. Run EF Core migrations against the prod database (with approval gate)
+3. Update the prod Container App revision to the new image
+4. Deploy frontend to Azure Static Web Apps production
+5. Run smoke tests and verify SignalR connectivity
+
+### SSL & CDN
+- Azure Static Web Apps provides built-in CDN and free managed SSL certificates for the frontend
+- Backend API secured with managed SSL via Azure Container Apps ingress
+- Custom domain DNS configured via Azure DNS or external registrar when domain is acquired
+- HTTPS enforced on all endpoints; HTTP redirects to HTTPS
+
+### Monitoring & Alerting — Azure Monitor + Application Insights
+- **Application Insights** SDK integrated into the .NET backend for request tracing, dependency tracking, exception logging, and performance metrics
+- **Frontend tracking** via Application Insights JavaScript SDK for page load times, client-side errors, and API call performance
+- **Alerts configured for**:
+  - API response time > 2 seconds (P95)
+  - Error rate > 1% over 5-minute window
+  - Container App restart or crash events
+  - Database connection failures
+  - SignalR connection drops exceeding threshold
+  - Hangfire job failures (ScoresSyncJob, StandingsSyncJob)
+- **Dashboard**: Azure Portal dashboard with key metrics — request rate, response time, error rate, active SignalR connections, Hangfire job status, database DTU/CPU usage
+- **Log Analytics Workspace** for centralized log aggregation and querying across all services
+
+### Infrastructure as Code
+- Azure resources defined in Bicep templates (stored in `infra/` directory)
+- GitHub Actions workflows use `az deployment` to provision/update infrastructure
+- Separate parameter files for dev and prod environments (`infra/parameters.dev.json`, `infra/parameters.prod.json`)
+
+### Security
+- Backend API keys and connection strings stored in Azure Key Vault, referenced by Container Apps as secrets
+- No secrets in source code or CI/CD logs — GitHub Actions secrets used for deployment credentials
+- Azure Container Registry with admin access disabled; CI/CD authenticates via service principal
+- Network: backend Container Apps accept traffic only from Static Web Apps and known IPs (prod). Dev is more permissive for testing
+- Database: private endpoint in prod; firewall rules restrict access to Container Apps subnet only
+
+### Estimated Dev Environment Monthly Cost
+| Service | Estimated Cost |
+|---------|---------------|
+| Azure Static Web Apps (Free tier) | $0 |
+| Azure Container Apps (backend API — consumption) | $5–15 |
+| Azure Container Apps (PostgreSQL container) | $3–8 |
+| Azure Container Apps (Redis container) | $2–5 |
+| Azure Container Registry (Basic tier) | $5 |
+| Azure Monitor / Application Insights (free tier) | $0 |
+| Azure Key Vault (standard) | < $1 |
+| **Total estimate** | **$15–35/mo** |
+
+*Costs assume low traffic dev usage. Container Apps consumption pricing charges only for active CPU/memory seconds — services scale to zero when idle.*

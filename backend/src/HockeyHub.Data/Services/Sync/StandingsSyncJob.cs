@@ -99,7 +99,12 @@ public class StandingsSyncJob(
         }
 
         await db.SaveChangesAsync(ct);
-        await cache.RemoveAsync($"standings:{league.Id}", ct);
+
+        // Invalidate scores caches that embed standings data (record, rank, pointsPct)
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+            TimeZoneInfo.FindSystemTimeZoneById("America/New_York")).AddHours(-3));
+        await cache.RemoveAsync($"scores:{league.Id}:{today:yyyy-MM-dd}", ct);
+        await cache.RemoveAsync($"scores:ticker:{league.Id}", ct);
 
         logger.LogInformation("Synced standings for {Count} teams", ranked.Count);
     }

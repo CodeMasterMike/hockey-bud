@@ -11,6 +11,14 @@ public class ScoresQueryService(
     RedisCacheService cache,
     ILogger<ScoresQueryService> logger)
 {
+    // NHL game day boundary: games starting before ~3 AM ET belong to the previous day.
+    // Use America/New_York to handle DST automatically.
+    private static readonly TimeZoneInfo EasternTz =
+        TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
+
+    private static DateOnly GetNhlGameDay() =>
+        DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, EasternTz).AddHours(-3));
+
     public async Task<ScoresResponse> GetScoresByDateAsync(
         int leagueId, DateOnly date, CancellationToken ct = default)
     {
@@ -46,7 +54,7 @@ public class ScoresQueryService(
 
         // Check if we should show previous day link
         var showPreviousDay = false;
-        if (date == DateOnly.FromDateTime(DateTime.UtcNow.AddHours(-8)))
+        if (date == GetNhlGameDay())
         {
             var lastGameEnd = await db.Games
                 .Where(g => g.Season.LeagueId == leagueId && g.GameDateLocal == date && g.Status == "Final")
@@ -142,7 +150,7 @@ public class ScoresQueryService(
 
         var games = await cache.GetOrSetAsync(cacheKey, async _ =>
         {
-            var today = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(-8));
+            var today = GetNhlGameDay();
 
             return await db.Games
                 .Where(g => g.Season.LeagueId == leagueId && g.GameDateLocal == today)
@@ -161,7 +169,7 @@ public class ScoresQueryService(
                     AwayTeam: new TickerTeamDto(g.AwayTeam.Id, g.AwayTeam.Abbreviation, g.AwayTeam.LogoUrl),
                     HomeScore: g.HomeScore,
                     AwayScore: g.AwayScore,
-                    ScheduledStartLocal: g.ScheduledStart.ToOffset(TimeSpan.FromHours(-5)).ToString("h:mm tt")
+                    ScheduledStartLocal: TimeZoneInfo.ConvertTime(g.ScheduledStart, EasternTz).ToString("h:mm tt")
                 ))
                 .ToListAsync(ct);
         }, RedisCacheService.LiveScoresTtl, ct);

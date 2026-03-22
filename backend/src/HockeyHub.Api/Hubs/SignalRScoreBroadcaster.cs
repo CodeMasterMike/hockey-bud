@@ -8,13 +8,12 @@ public class SignalRScoreBroadcaster(IHubContext<GameHub> hubContext) : IScoreBr
     public async Task BroadcastScoreUpdateAsync(
         int gameId, int homeScore, int awayScore, string status, CancellationToken ct = default)
     {
-        await hubContext.Clients.Group("live-games").SendAsync("ReceiveScoreUpdate", new
-        {
-            gameId,
-            homeScore,
-            awayScore,
-            status
-        }, ct);
+        var payload = new { gameId, homeScore, awayScore, status };
+
+        await Task.WhenAll(
+            hubContext.Clients.Group("live-games").SendAsync("ReceiveScoreUpdate", payload, ct),
+            hubContext.Clients.Group($"game-{gameId}").SendAsync("ReceiveScoreUpdate", payload, ct)
+        );
     }
 
     public async Task BroadcastClockSyncAsync(

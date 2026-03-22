@@ -30,7 +30,9 @@ import { CalendarPicker } from '../calendar-picker/calendar-picker';
         }
       </div>
 
-      @if (loading()) {
+      @if (errorMessage()) {
+        <div class="scores-error">{{ errorMessage() }}</div>
+      } @else if (loading()) {
         <div class="scores-loading">Loading scores...</div>
       } @else if (games().length === 0) {
         <div class="scores-empty">No games scheduled for this date.</div>
@@ -128,6 +130,13 @@ import { CalendarPicker } from '../calendar-picker/calendar-picker';
     .scores-grid__cell--expanded {
       grid-column: 1 / -1;
     }
+    .scores-error {
+      font-family: var(--font-primary);
+      color: #c44;
+      text-align: center;
+      padding: 48px 0;
+      font-size: 14px;
+    }
     .scores-loading, .scores-empty {
       font-family: var(--font-primary);
       color: var(--text-muted);
@@ -166,6 +175,7 @@ export class ScoresPage implements OnInit, OnDestroy {
   selectedDate = signal<string | null>(null);
   scoresData = signal<ScoresResponse | null>(null);
   loading = signal(true);
+  errorMessage = signal<string | null>(null);
   expandedGameId = signal<number | null>(null);
   showCalendar = signal(false);
 
@@ -199,9 +209,13 @@ export class ScoresPage implements OnInit, OnDestroy {
         next: data => {
           this.scoresData.set(data);
           this.loading.set(false);
+          this.errorMessage.set(null);
           this.initLiveClocks(data.games);
         },
-        error: () => this.loading.set(false)
+        error: () => {
+          this.loading.set(false);
+          this.errorMessage.set('Unable to load scores. Please try again.');
+        }
       })
     );
   }

@@ -1,29 +1,34 @@
+using HockeyHub.Data.Data;
 using HockeyHub.Data.Services.Queries;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HockeyHub.Api.Controllers;
 
 [ApiController]
 [Route("api")]
-public class ScoresController(ScoresQueryService scoresQuery) : ControllerBase
+public class ScoresController(ScoresQueryService scoresQuery, HockeyHubDbContext db) : ControllerBase
 {
     [HttpGet("leagues/{leagueId}/scores")]
     public async Task<IActionResult> GetScores(
-        int leagueId,
+        string leagueId,
         [FromQuery] string? date = null,
         CancellationToken ct = default)
     {
+        var id = await ResolveLeagueId(leagueId, ct);
+        if (id is null) return NotFound("League not found");
+
         var gameDate = date is not null
             ? DateOnly.ParseExact(date, "yyyy-MM-dd")
             : DateOnly.FromDateTime(DateTime.UtcNow.AddHours(-8));
 
-        var result = await scoresQuery.GetScoresByDateAsync(leagueId, gameDate, ct);
+        var result = await scoresQuery.GetScoresByDateAsync(id.Value, gameDate, ct);
         return Ok(result);
     }
 
     [HttpGet("leagues/{leagueId}/scores/{gameId:int}/expanded")]
     public async Task<IActionResult> GetExpanded(
-        int leagueId, int gameId, CancellationToken ct = default)
+        string leagueId, int gameId, CancellationToken ct = default)
     {
         var result = await scoresQuery.GetExpandedScoreAsync(gameId, ct);
         if (result is null) return NotFound();
@@ -39,18 +44,31 @@ public class ScoresController(ScoresQueryService scoresQuery) : ControllerBase
 
     [HttpGet("leagues/{leagueId}/scores/ticker")]
     public async Task<IActionResult> GetTicker(
-        int leagueId, CancellationToken ct = default)
+        string leagueId, CancellationToken ct = default)
     {
-        var result = await scoresQuery.GetTickerAsync(leagueId, ct);
+        var id = await ResolveLeagueId(leagueId, ct);
+        if (id is null) return NotFound("League not found");
+
+        var result = await scoresQuery.GetTickerAsync(id.Value, ct);
         return Ok(result);
     }
 
     [HttpGet("leagues/{leagueId}/scores/{gameId:int}/pregame")]
     public async Task<IActionResult> GetPregame(
-        int leagueId, int gameId, CancellationToken ct = default)
+        string leagueId, int gameId, CancellationToken ct = default)
     {
         var result = await scoresQuery.GetPregameAsync(gameId, ct);
         if (result is null) return NotFound();
         return Ok(result);
+    }
+
+    private async Task<int?> ResolveLeagueId(string leagueId, CancellationToken ct)
+    {
+        if (int.TryParse(leagueId, out var numericId))
+            return numericId;
+
+        var league = await db.Leagues
+            .FirstOrDefaultAsync(l => l.Abbreviation.ToLower() == leagueId.ToLower(), ct);
+        return league?.Id;
     }
 }

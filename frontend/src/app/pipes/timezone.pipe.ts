@@ -21,6 +21,8 @@ export class TimezonePipe implements PipeTransform {
         return date.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
       case 'datetime':
         return date.toLocaleString(undefined, { month: '2-digit', day: '2-digit', hour: 'numeric', minute: '2-digit' });
+      default:
+        return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
     }
   }
 }
