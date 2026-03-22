@@ -565,6 +565,42 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
 .season-context__date-value {
   color: var(--text-muted);
 }
+
+/* ===================================================================
+   VIEW SWITCHER
+   =================================================================== */
+.view-switcher {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  overflow: hidden;
+  width: fit-content;
+}
+.view-switcher__btn {
+  font-family: var(--font-primary);
+  font-size: 0.78rem;
+  padding: 8px 20px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: none;
+  border-right: 1px solid var(--border-default);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.view-switcher__btn:last-child { border-right: none; }
+.view-switcher__btn:hover {
+  background: var(--bg-row-alt);
+  color: var(--text-primary);
+}
+.view-switcher__btn.active {
+  background: var(--text-primary);
+  color: var(--bg-card);
+  font-weight: 700;
+}
 </style>
 </head>
 <body>
@@ -642,6 +678,13 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
         <div class="month-nav__dropdown-item"><span class="team-dot team-dot--edm"></span> Edmonton Oilers</div>
       </div>
     </div>
+  </div>
+
+  <!-- View Switcher -->
+  <div class="view-switcher">
+    <button class="view-switcher__btn active">Detailed</button>
+    <button class="view-switcher__btn">Clean</button>
+    <button class="view-switcher__btn">Compact</button>
   </div>
 
   <!-- Calendar -->
@@ -1102,6 +1145,20 @@ a:hover { color: var(--color-link-hover); text-decoration: underline; }
 
   <!-- Click hint -->
   <div class="click-hint">Click any date to view full scores and game details.</div>
+
+  <!-- Schedule Tabs -->
+  <div style="margin-top: 28px; margin-bottom: 16px;">
+    <div class="view-switcher">
+      <button class="view-switcher__btn active">Calendar</button>
+      <button class="view-switcher__btn">Strength of Schedule</button>
+    </div>
+  </div>
+
+  <!-- Strength of Schedule Placeholder -->
+  <div style="background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 4px; padding: 32px; text-align: center; margin-bottom: 28px;">
+    <div style="font-size: 0.92rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-primary); margin-bottom: 8px;">Strength of Remaining Schedule</div>
+    <div style="font-size: 0.78rem; color: var(--text-muted); font-style: italic;">The methodology for calculating strength of schedule will be defined in a future update. This section will display each team's remaining schedule difficulty ranking with supporting metrics.</div>
+  </div>
 
   <!-- Season Context -->
   <div class="season-context">

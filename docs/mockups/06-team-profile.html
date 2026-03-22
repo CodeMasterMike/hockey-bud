@@ -393,14 +393,14 @@ table.roster tbody td.yrs { text-align: center; width: 40px; }
   flex: 1;
   background: var(--bg-card);
   border: 1px solid var(--border-default);
-  padding: 10px 14px;
+  padding: 6px 10px;
   transition: border-color 0.15s;
   min-width: 0;
 }
 .player-card:hover { border-color: var(--border-strong); }
 .player-card .pc-name {
   font-weight: 700;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -416,7 +416,7 @@ table.roster tbody td.yrs { text-align: center; width: 40px; }
 .player-card .pc-stats {
   font-size: 0.72rem;
   color: var(--text-secondary);
-  margin-top: 4px;
+  margin-top: 2px;
 }
 .player-card .pc-stats .stat-label {
   color: var(--text-muted);
@@ -443,7 +443,7 @@ table.roster tbody td.yrs { text-align: center; width: 40px; }
   max-width: 300px;
   background: var(--bg-card);
   border: 1px solid var(--border-default);
-  padding: 10px 14px;
+  padding: 6px 10px;
 }
 .goalie-card:hover { border-color: var(--border-strong); }
 .goalie-card .gc-role {
@@ -522,6 +522,62 @@ table.roster tbody td.yrs { text-align: center; width: 40px; }
   .nav-links { gap: 12px; }
   .nav-links a { font-size: 0.7rem; }
   .page { padding: 20px 12px 40px; }
+}
+
+/* ── Content Tabs ── */
+.content-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+  border-bottom: 2px solid var(--border-strong);
+}
+.content-tab {
+  font-family: var(--font-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 12px 24px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.content-tab:hover { color: var(--text-secondary); }
+.content-tab.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}
+
+/* ── Depth Chart Grid Layout ── */
+.depth-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.depth-layout__forwards {
+  /* Forwards take the left column */
+}
+.depth-layout__defense-goalies {
+  /* Defense + Goalies stack in the right column */
+}
+@media (max-width: 960px) {
+  .depth-layout { grid-template-columns: 1fr; }
+}
+
+.depth-section-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border-strong);
 }
 </style>
 </head>
@@ -622,9 +678,14 @@ table.roster tbody td.yrs { text-align: center; width: 40px; }
     </div>
   </div>
 
+  <!-- ── Roster / Depth Chart Tabs ── -->
+  <div class="content-tabs">
+    <button class="content-tab active" onclick="showTab('roster')">Active Roster</button>
+    <button class="content-tab" onclick="showTab('depth')">Depth Chart</button>
+  </div>
+
   <!-- ── Roster Table ── -->
-  <div class="roster-section">
-    <div class="section-title">Active Roster</div>
+  <div class="roster-section" id="tab-roster">
     <div class="roster-table-wrap">
       <table class="roster">
         <thead>
@@ -796,14 +857,15 @@ table.roster tbody td.yrs { text-align: center; width: 40px; }
   </div>
 
   <!-- ── Depth Chart ── -->
-  <div class="depth-section">
-    <div class="depth-header">
-      <div class="section-title" style="margin-bottom:0; border-bottom:none; padding-bottom:0;">Depth Chart</div>
-      <div class="view-toggle">
-        <button class="active" id="btn-stats" onclick="showStats()">Stats View</button>
-        <button id="btn-cap" onclick="showCap()">Cap View</button>
-      </div>
+  <div class="depth-section" id="tab-depth" style="display:none;">
+    <div class="view-toggle" style="margin-bottom: 16px;">
+      <button class="active" id="btn-stats" onclick="showStats()">Stats View</button>
+      <button id="btn-cap" onclick="showCap()">Cap View</button>
     </div>
+
+    <div class="depth-layout">
+      <div class="depth-layout__forwards">
+        <div class="depth-section-label">Forwards</div>
 
     <!-- Forward Lines -->
     <div class="depth-group">
@@ -970,6 +1032,11 @@ table.roster tbody td.yrs { text-align: center; width: 40px; }
       </div>
     </div>
 
+      </div><!-- /.depth-layout__forwards -->
+
+      <div class="depth-layout__defense-goalies">
+        <div class="depth-section-label">Defense &amp; Goalies</div>
+
     <!-- Defense Pairings -->
     <div class="depth-group">
       <div class="depth-group-title">Defense Pairings</div>
@@ -1098,6 +1165,9 @@ table.roster tbody td.yrs { text-align: center; width: 40px; }
       </div>
     </div>
 
+      </div><!-- /.depth-layout__defense-goalies -->
+    </div><!-- /.depth-layout -->
+
     <!-- Injured / Scratched -->
     <div class="injury-section">
       <div class="injury-title">Injured / Scratched</div>
@@ -1132,6 +1202,23 @@ function toggleTheme() {
     html.removeAttribute('data-theme');
   } else {
     html.setAttribute('data-theme', 'dark');
+  }
+}
+
+// Roster / Depth Chart tab toggle
+function showTab(tab) {
+  const tabs = document.querySelectorAll('.content-tab');
+  const roster = document.getElementById('tab-roster');
+  const depth = document.getElementById('tab-depth');
+  tabs.forEach(t => t.classList.remove('active'));
+  if (tab === 'roster') {
+    tabs[0].classList.add('active');
+    roster.style.display = '';
+    depth.style.display = 'none';
+  } else {
+    tabs[1].classList.add('active');
+    roster.style.display = 'none';
+    depth.style.display = '';
   }
 }
 

@@ -21,6 +21,13 @@
 - Q: How many years of draft pick inventory should be shown? → A: 5 years forward.
 - Q: Should Escrow be included in Cap Explained? → A: Yes. Add an Escrow section explaining how players pay a percentage of salary into escrow, calculated against hockey-related revenue (HRR), with any excess returned or shortfall forfeited.
 - Q: Should the trade tree visualization remain? → A: No. Remove the trade tree completely — an entirely new style will be added in the future. For now, the Trades page should be a simple chronological list of all trades in the current season, most recent on top, with filters for team and season.
+- Q: How should Active Roster and Depth Chart be organized on the Team Profile? → A: Turn them into tabs that users can easily navigate back and forth from. Condense the depth chart player cards to reduce wasted space. Layout Defense and Goalies beside Forwards (side by side) to minimize scrolling. Add clear section labels (Forwards / Defense & Goalies) so there is no confusion when they are placed closer together.
+- Q: How should the Schedule calendar handle visual density? → A: Provide 3 view options: (1) Detailed — current view with colored team dots and scores (default), (2) Clean — same layout but without colored dots next to teams, (3) Compact — shows only the game count per day, with games listed in a hover info box. Also add a "Strength of Schedule" tab — the methodology for determining strength of schedule will be laid out at a later time.
+- Q: What should the Players navigation link show? → A: The Players page shows the most searched players in the last week by default. A filter allows switching between most searched in the last day, week (default), month, and year. The search bar should search for both players and nations.
+- Q: Should a multi-team player mockup be created? → A: Yes. Create a mockup of a player who has played on multiple teams and won award(s) on those different teams to show how that appears in the career history section.
+- Q: What stat tabs should be available on the player profile stats section? → A: Beneath the NHL / Other Leagues / Combined tabs, add sub-tabs for "Regular Season" and "Playoffs". Include the stat Points Per Game (P/PG) between PTS and +/- columns.
+- Q: Where should player contract and trade history appear? → A: Move Contract & Salary and Trade History to a new top-level tab named "Contracts & Trades" so users can switch between Overview & Stats and Contracts & Trades without scrolling.
+- Q: Should the player's birth nation be clickable? → A: Yes. Clicking the nation navigates to a page listing all current NHL players from that nation in alphabetical order by last name. Add a filter to include past players or only show past players. Include a search bar with results filtered appropriately and a way to browse other nations. On the Players default view, the search bar should also search for nations in addition to players.
 
 ### Session 2026-03-19
 
@@ -148,7 +155,7 @@ A visitor navigates to the Stats page and views league-wide statistics broken in
 
 ### User Story 5 - Explore Team Profiles, Rosters, and Depth Charts (Priority: P5)
 
-A visitor navigates to the Teams page, sees all current NHL team icons listed alphabetically by team location name (e.g., Florida Panthers sorted under "F" for Florida), clicks one, and views the team's profile. The profile shows the team logo, current and all-time records, franchise history, Stanley Cup wins (total, since 1973, since 2006), and the full roster. A depth chart tab organizes the roster by lines and pairings with a toggle between stats view and salary cap view.
+A visitor navigates to the Teams page, sees all current NHL team icons listed alphabetically by team location name (e.g., Florida Panthers sorted under "F" for Florida), clicks one, and views the team's profile. The profile shows the team logo, current and all-time records, franchise history, Stanley Cup wins (total, since 1973, since 2006), and the full roster. Active Roster and Depth Chart are presented as navigable tabs so users can easily switch between them. The depth chart is condensed with Defense and Goalies displayed beside Forwards to minimize scrolling, with clear section labels to avoid confusion. A toggle switches between stats view and salary cap view.
 
 **Why this priority**: Team profiles are the primary way fans explore their favorite team's roster and organizational structure.
 
@@ -158,8 +165,8 @@ A visitor navigates to the Teams page, sees all current NHL team icons listed al
 
 1. **Given** a visitor on the Teams index page, **When** displayed, **Then** all current NHL team icons are listed alphabetically by team location name (e.g., Florida Panthers under "F" for Florida).
 2. **Given** a visitor clicks a team icon, **When** the team profile loads, **Then** it displays the team logo (top left), current season record beside it, all-time record below that, the year/season the team joined the league, franchise relocation history (if applicable), and on the right side: total Stanley Cup wins, Stanley Cups since 1973, and Stanley Cups since 2006.
-3. **Given** the team profile roster view, **When** displayed, **Then** each player lists their number, position, stick handedness, place of birth, date of birth, draft year, and years in the league.
-4. **Given** the depth chart tab, **When** displayed, **Then** players are organized by forward lines (LW-C-RW), defense pairings (LD-RD), and goalies, each in a clean box showing main position, secondary positions, and GP/PTS (or GP/W for goalies, with glove handedness).
+3. **Given** the team profile, **When** displayed, **Then** Active Roster and Depth Chart are presented as tabs that users can switch between without scrolling. Each player in the roster lists their number, position, stick handedness, place of birth, date of birth, draft year, and years in the league.
+4. **Given** the depth chart tab, **When** displayed, **Then** players are organized by forward lines (LW-C-RW) on the left and defense pairings (LD-RD) + goalies on the right, in a condensed side-by-side layout with clear section labels (Forwards / Defense & Goalies) to prevent confusion. Each player appears in a compact box showing main position, secondary positions, and GP/PTS (or GP/W for goalies, with glove handedness).
 5. **Given** the depth chart tab, **When** the visitor toggles to cap view, **Then** each player's display changes from position/stats to cap hit and years remaining (e.g., "12.6m/6").
 6. **Given** the depth chart, **When** players are injured or regularly scratched, **Then** they appear in a separate section below the active depth chart, organized by position, with their status (injured or scratched) indicated.
 7. **Given** any stat or cap value in the depth chart, **When** the visitor hovers over it, **Then** a tooltip explains what the value represents.
@@ -168,7 +175,7 @@ A visitor navigates to the Teams page, sees all current NHL team icons listed al
 
 ### User Story 6 - View Player Profiles (Priority: P6)
 
-A visitor navigates to a player's profile page and sees their headshot (with career headshot gallery on hover), biographical info, position history, career team/number/award history, comprehensive season-by-season stats (NHL by default, with tabs for other leagues and combined), a brief playing style profile with supporting stats, and contract/trade/free agency history. Every entity mentioned is clickable. Emergency goaltenders (EBUGs) are included with their own player profiles, clearly indicating EBUG status.
+A visitor navigates to a player's profile page and sees their headshot (with career headshot gallery on hover), biographical info (with clickable birth nation linking to a nation players page), position history, career team/number/award history, and two top-level tabs: "Overview & Stats" (containing season-by-season stats with NHL/Other Leagues/Combined tabs and Regular Season/Playoffs sub-tabs including P/PG stat, plus playing style profile) and "Contracts & Trades" (containing contract/salary and trade history). Every entity mentioned is clickable. Emergency goaltenders (EBUGs) are included with their own player profiles, clearly indicating EBUG status.
 
 **Why this priority**: Player profiles are the deepest individual content and serve as a hub connecting to teams, trades, and salary cap information.
 
@@ -177,15 +184,17 @@ A visitor navigates to a player's profile page and sees their headshot (with car
 **Acceptance Scenarios**:
 
 1. **Given** a player profile page, **When** the visitor hovers over the player's headshot (top left), **Then** all career headshots are displayed.
-2. **Given** a player profile, **When** biographical info is displayed, **Then** it shows age, birthplace, team, position(s), stick handedness, height, weight, draft year, draft selection number, and drafting team.
+2. **Given** a player profile, **When** biographical info is displayed, **Then** it shows age, birthplace (with the nation clickable to view all NHL players from that nation), team, position(s), stick handedness, height, weight, draft year, draft selection number, and drafting team.
 3. **Given** a player profile, **When** position is displayed, **Then** it shows any position played at least 5% of total 5-on-5 ice time in the past 5 years, ordered by most ice time in the last 2 years 5-on-5, with 5-year totals as tiebreaker.
-4. **Given** a player profile, **When** the career history section is displayed, **Then** it shows every team the player has played for, the jersey numbers worn on each team, and any awards won with those teams (displayed to the right of the biographical info).
-5. **Given** the stats section, **When** the "Other Leagues" tab is selected, **Then** the player's stats from all non-NHL leagues where data is available are displayed.
-6. **Given** the "Combined" tab, **When** selected, **Then** stats from both NHL and other leagues appear together.
+4. **Given** a player profile, **When** the career history section is displayed, **Then** it shows every team the player has played for, the jersey numbers worn on each team, and any awards won with those teams (displayed to the right of the biographical info). A multi-team player who won awards on different teams shows each award next to the corresponding team entry.
+5. **Given** the player profile, **When** displayed, **Then** two top-level tabs — "Overview & Stats" and "Contracts & Trades" — allow the user to switch between the player's statistics/playing style and their contract/trade history without scrolling.
+6. **Given** the stats section, **When** displayed, **Then** NHL / Other Leagues / Combined tabs are available, with sub-tabs beneath for "Regular Season" and "Playoffs". All stats tables include the P/PG (Points Per Game) column between PTS and +/-.
 7. **Given** the player style profile section, **When** displayed, **Then** it includes a brief description of the player's playing style and 2-4 supporting stats that are verified, legitimate, and relevant to that style (e.g., skating top speed for a speedster, hardest shot for a power forward).
-8. **Given** the contract section, **When** a trade is listed, **Then** it is clickable and navigates the visitor to the detailed trade page.
-9. **Given** the contract section, **When** the visitor clicks the player's salary cap information, **Then** they are navigated to a dedicated salary cap page showing complete contract history and a detailed current contract overview.
+8. **Given** the Contracts & Trades tab, **When** a trade is listed, **Then** it is clickable and navigates the visitor to the detailed trade page.
+9. **Given** the Contracts & Trades tab, **When** the visitor clicks the player's salary cap information, **Then** they are navigated to a dedicated salary cap page showing complete contract history and a detailed current contract overview.
 10. **Given** an EBUG player profile, **When** displayed, **Then** the profile clearly indicates the player's EBUG status and includes any available stats.
+11. **Given** a player's birth nation is clicked, **When** the nation page loads, **Then** all current NHL players from that nation are listed in alphabetical order by last name. A filter allows including past players or showing only past players. A search bar allows searching by player name, with results filtered appropriately. Other nations with NHL players are browsable from the same page.
+12. **Given** the Players default page (most searched players), **When** the search bar is used, **Then** it searches for both players and nations, returning matching results for either.
 
 ---
 
@@ -261,16 +270,19 @@ A visitor navigates to the Personnel page and browses staff members for each tea
 
 ### User Story 11 - View Season Schedule (Priority: P11)
 
-A visitor navigates to the Schedule page (located between Teams and Players in the navigation) and sees the season schedule with important dates prominently marked, including the trade deadline, free agent deadline, offer sheet deadline, arbitration deadline, All-Star break, and bye weeks.
+A visitor navigates to the Schedule page (located between Teams and Players in the navigation) and sees the season schedule with important dates prominently marked, including the trade deadline, free agent deadline, offer sheet deadline, arbitration deadline, All-Star break, and bye weeks. Three view options are available: Detailed (with team color dots and scores), Clean (same layout without color dots), and Compact (game count only with hover info box). A Strength of Schedule tab provides remaining schedule analysis.
 
 **Why this priority**: A dedicated schedule view with key dates provides fans a comprehensive calendar of the season's important milestones.
 
-**Independent Test**: Can be tested by loading the Schedule page and verifying the calendar displays all games and important dates correctly.
+**Independent Test**: Can be tested by loading the Schedule page, switching between views, and verifying the calendar displays all games and important dates correctly.
 
 **Acceptance Scenarios**:
 
-1. **Given** the Schedule page, **When** displayed, **Then** all season games appear in a calendar format.
-2. **Given** the Schedule page, **When** important dates exist, **Then** they are visually signified and distinct from regular game dates (trade deadline, free agent deadline, offer sheet deadline, arbitration deadline, etc.).
+1. **Given** the Schedule page, **When** displayed, **Then** all season games appear in a calendar format with the "Detailed" view as default (showing team color dots and scores).
+2. **Given** the Schedule page, **When** the visitor selects the "Clean" view, **Then** the same calendar layout is shown but without colored dots next to team names.
+3. **Given** the Schedule page, **When** the visitor selects the "Compact" view, **Then** each day shows only the number of games, and hovering over a day displays the games in an info box.
+4. **Given** the Schedule page, **When** important dates exist, **Then** they are visually signified and distinct from regular game dates (trade deadline, free agent deadline, offer sheet deadline, arbitration deadline, etc.).
+5. **Given** the Schedule page, **When** the "Strength of Schedule" tab is selected, **Then** the strength of remaining schedule analysis is displayed. The methodology for calculating strength of schedule will be defined in a future update.
 
 ---
 

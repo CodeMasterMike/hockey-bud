@@ -971,9 +971,84 @@ body {
   font-style: italic;
   line-height: 1.5;
 }
+
+/* ===================================================================
+   STATS SUB-TABS (Regular Season / Playoffs)
+   =================================================================== */
+.stats-subtabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 0;
+  padding-left: 20px;
+}
+.stats-subtab {
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font-primary);
+}
+.stats-subtab:hover { color: var(--text-secondary); }
+.stats-subtab--active {
+  color: var(--text-primary);
+  border-bottom-color: var(--color-link);
+}
+
+/* ── Player Page Tabs ── */
+.player-page-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--bg-page);
+  padding: 0 48px;
+  border-bottom: 2px solid var(--border-strong);
+}
+.player-page-tab {
+  font-family: var(--font-primary);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 28px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.player-page-tab:hover { color: var(--text-secondary); }
+.player-page-tab.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}
+
+/* ===================================================================
+   BIO NATION LINK
+   =================================================================== */
+.bio__nation-link {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: 700;
+}
+.bio__nation-link:hover { color: var(--color-link-hover); text-decoration: underline; }
 </style>
 </head>
 <body>
+
+<!-- NOTE: This mockup shows a single-team player (D. Pastrnak / BOS).
+     A separate mockup for a multi-team player with awards won on different teams
+     is planned (e.g., Taylor Hall — EDM/NJD/ARI/BUF/BOS with Hart Trophy on NJD). -->
 
 <!-- ================================================================
      LIGHT MODE
@@ -1166,7 +1241,7 @@ body {
           </div>
           <div>
             <div class="bio__detail-label">Birthplace</div>
-            <div class="bio__detail-value">Hav&iacute;&rcaron;ov, Czech Republic</div>
+            <div class="bio__detail-value">Hav&iacute;&rcaron;ov, <a href="#" class="bio__nation-link" title="View all NHL players from Czech Republic">CZE</a></div>
           </div>
           <div>
             <div class="bio__detail-label">Height</div>
@@ -1219,6 +1294,12 @@ body {
       </div>
     </div>
 
+    <!-- Player Page Tabs -->
+    <div class="player-page-tabs">
+      <button class="player-page-tab active">Overview &amp; Stats</button>
+      <button class="player-page-tab">Contracts &amp; Trades</button>
+    </div>
+
     <!-- ============================================================
          2. SEASON-BY-SEASON STATS
          ============================================================ -->
@@ -1231,6 +1312,10 @@ body {
         <button class="stats-tab">Other Leagues</button>
         <button class="stats-tab">Combined</button>
       </div>
+      <div class="stats-subtabs">
+        <button class="stats-subtab stats-subtab--active">Regular Season</button>
+        <button class="stats-subtab">Playoffs</button>
+      </div>
       <div class="stats-table-wrap">
         <table class="stats-table">
           <thead>
@@ -1241,6 +1326,7 @@ body {
               <th>G</th>
               <th>A</th>
               <th>PTS</th>
+              <th>P/PG</th>
               <th>+/-</th>
               <th>PIM</th>
               <th>PPG</th>
@@ -1254,7 +1340,7 @@ body {
           <tbody>
             <!-- Era separator -->
             <tr class="era-separator">
-              <td colspan="14">Salary Cap Era (2005&ndash;present)</td>
+              <td colspan="15">Salary Cap Era (2005&ndash;present)</td>
             </tr>
             <!-- 2014-15 -->
             <tr class="era-salary-cap">
@@ -1264,6 +1350,7 @@ body {
               <td>10</td>
               <td>17</td>
               <td>27</td>
+              <td>0.59</td>
               <td>-1</td>
               <td>8</td>
               <td>3</td>
@@ -1281,6 +1368,7 @@ body {
               <td>15</td>
               <td>11</td>
               <td>26</td>
+              <td>0.51</td>
               <td>0</td>
               <td>16</td>
               <td>4</td>
@@ -1298,6 +1386,7 @@ body {
               <td>34</td>
               <td>36</td>
               <td>70</td>
+              <td>0.93</td>
               <td>+8</td>
               <td>28</td>
               <td>12</td>
@@ -1315,6 +1404,7 @@ body {
               <td>35</td>
               <td>45</td>
               <td>80</td>
+              <td>0.98</td>
               <td>+23</td>
               <td>22</td>
               <td>11</td>
@@ -1332,6 +1422,7 @@ body {
               <td>38</td>
               <td>43</td>
               <td>81</td>
+              <td>1.23</td>
               <td>+10</td>
               <td>18</td>
               <td>15</td>
@@ -1349,6 +1440,7 @@ body {
               <td>48</td>
               <td>47</td>
               <td>95</td>
+              <td>1.36</td>
               <td>+21</td>
               <td>24</td>
               <td>16</td>
@@ -1366,6 +1458,7 @@ body {
               <td>20</td>
               <td>28</td>
               <td>48</td>
+              <td>1.00</td>
               <td>+3</td>
               <td>12</td>
               <td>6</td>
@@ -1383,6 +1476,7 @@ body {
               <td>40</td>
               <td>37</td>
               <td>77</td>
+              <td>1.07</td>
               <td>+11</td>
               <td>26</td>
               <td>17</td>
@@ -1400,6 +1494,7 @@ body {
               <td>61</td>
               <td>52</td>
               <td>113</td>
+              <td>1.38</td>
               <td>+32</td>
               <td>30</td>
               <td>22</td>
@@ -1417,6 +1512,7 @@ body {
               <td>47</td>
               <td>63</td>
               <td>110</td>
+              <td>1.34</td>
               <td>+28</td>
               <td>20</td>
               <td>18</td>
@@ -1434,6 +1530,7 @@ body {
               <td>42</td>
               <td>50</td>
               <td>92</td>
+              <td>1.18</td>
               <td>+14</td>
               <td>22</td>
               <td>15</td>
@@ -1451,6 +1548,7 @@ body {
               <td>35</td>
               <td>41</td>
               <td>76</td>
+              <td>1.19</td>
               <td>+10</td>
               <td>16</td>
               <td>12</td>
@@ -1468,6 +1566,7 @@ body {
               <td>425</td>
               <td>470</td>
               <td>895</td>
+              <td>1.10</td>
               <td>+159</td>
               <td>242</td>
               <td>151</td>
@@ -1509,6 +1608,8 @@ body {
         </div>
       </div>
     </div>
+
+    <!-- ═══ CONTRACTS & TRADES TAB CONTENT (shown when Contracts & Trades tab is active) ═══ -->
 
     <!-- ============================================================
          4. CONTRACT SECTION
@@ -1861,7 +1962,7 @@ body {
           </div>
           <div>
             <div class="bio__detail-label">Birthplace</div>
-            <div class="bio__detail-value">Hav&iacute;&rcaron;ov, Czech Republic</div>
+            <div class="bio__detail-value">Hav&iacute;&rcaron;ov, <a href="#" class="bio__nation-link" title="View all NHL players from Czech Republic">CZE</a></div>
           </div>
           <div>
             <div class="bio__detail-label">Height</div>
@@ -1914,6 +2015,12 @@ body {
       </div>
     </div>
 
+    <!-- Player Page Tabs -->
+    <div class="player-page-tabs">
+      <button class="player-page-tab active">Overview &amp; Stats</button>
+      <button class="player-page-tab">Contracts &amp; Trades</button>
+    </div>
+
     <!-- SEASON-BY-SEASON STATS -->
     <div class="stats-section">
       <div class="stats-section__header">
@@ -1923,6 +2030,10 @@ body {
         <button class="stats-tab stats-tab--active">NHL</button>
         <button class="stats-tab">Other Leagues</button>
         <button class="stats-tab">Combined</button>
+      </div>
+      <div class="stats-subtabs">
+        <button class="stats-subtab stats-subtab--active">Regular Season</button>
+        <button class="stats-subtab">Playoffs</button>
       </div>
       <div class="stats-table-wrap">
         <table class="stats-table">
@@ -1934,6 +2045,7 @@ body {
               <th>G</th>
               <th>A</th>
               <th>PTS</th>
+              <th>P/PG</th>
               <th>+/-</th>
               <th>PIM</th>
               <th>PPG</th>
@@ -1946,7 +2058,7 @@ body {
           </thead>
           <tbody>
             <tr class="era-separator">
-              <td colspan="14">Salary Cap Era (2005&ndash;present)</td>
+              <td colspan="15">Salary Cap Era (2005&ndash;present)</td>
             </tr>
             <tr class="era-salary-cap">
               <td>2014-15</td>
@@ -1955,6 +2067,7 @@ body {
               <td>10</td>
               <td>17</td>
               <td>27</td>
+              <td>0.59</td>
               <td>-1</td>
               <td>8</td>
               <td>3</td>
@@ -1971,6 +2084,7 @@ body {
               <td>15</td>
               <td>11</td>
               <td>26</td>
+              <td>0.51</td>
               <td>0</td>
               <td>16</td>
               <td>4</td>
@@ -1987,6 +2101,7 @@ body {
               <td>34</td>
               <td>36</td>
               <td>70</td>
+              <td>0.93</td>
               <td>+8</td>
               <td>28</td>
               <td>12</td>
@@ -2003,6 +2118,7 @@ body {
               <td>35</td>
               <td>45</td>
               <td>80</td>
+              <td>0.98</td>
               <td>+23</td>
               <td>22</td>
               <td>11</td>
@@ -2019,6 +2135,7 @@ body {
               <td>38</td>
               <td>43</td>
               <td>81</td>
+              <td>1.23</td>
               <td>+10</td>
               <td>18</td>
               <td>15</td>
@@ -2035,6 +2152,7 @@ body {
               <td>48</td>
               <td>47</td>
               <td>95</td>
+              <td>1.36</td>
               <td>+21</td>
               <td>24</td>
               <td>16</td>
@@ -2051,6 +2169,7 @@ body {
               <td>20</td>
               <td>28</td>
               <td>48</td>
+              <td>1.00</td>
               <td>+3</td>
               <td>12</td>
               <td>6</td>
@@ -2067,6 +2186,7 @@ body {
               <td>40</td>
               <td>37</td>
               <td>77</td>
+              <td>1.07</td>
               <td>+11</td>
               <td>26</td>
               <td>17</td>
@@ -2083,6 +2203,7 @@ body {
               <td>61</td>
               <td>52</td>
               <td>113</td>
+              <td>1.38</td>
               <td>+32</td>
               <td>30</td>
               <td>22</td>
@@ -2099,6 +2220,7 @@ body {
               <td>47</td>
               <td>63</td>
               <td>110</td>
+              <td>1.34</td>
               <td>+28</td>
               <td>20</td>
               <td>18</td>
@@ -2115,6 +2237,7 @@ body {
               <td>42</td>
               <td>50</td>
               <td>92</td>
+              <td>1.18</td>
               <td>+14</td>
               <td>22</td>
               <td>15</td>
@@ -2131,6 +2254,7 @@ body {
               <td>35</td>
               <td>41</td>
               <td>76</td>
+              <td>1.19</td>
               <td>+10</td>
               <td>16</td>
               <td>12</td>
@@ -2147,6 +2271,7 @@ body {
               <td>425</td>
               <td>470</td>
               <td>895</td>
+              <td>1.10</td>
               <td>+159</td>
               <td>242</td>
               <td>151</td>
@@ -2186,6 +2311,8 @@ body {
         </div>
       </div>
     </div>
+
+    <!-- ═══ CONTRACTS & TRADES TAB CONTENT (shown when Contracts & Trades tab is active) ═══ -->
 
     <!-- CONTRACT SECTION -->
     <div class="contract-section">
