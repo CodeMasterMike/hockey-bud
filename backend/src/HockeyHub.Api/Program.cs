@@ -52,10 +52,14 @@ builder.Services.AddSingleton<IScoreBroadcaster, SignalRScoreBroadcaster>();
 
 // Controllers & CORS
 builder.Services.AddControllers();
+
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:4200", "https://localhost:4200"];
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("DevCors", policy => policy
-        .WithOrigins("http://localhost:4200", "https://localhost:4200")
+    options.AddPolicy("AppCors", policy => policy
+        .WithOrigins(allowedOrigins)
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials());
@@ -63,7 +67,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Apply pending EF migrations on startup
+// Apply pending EF migrations on startup (local dev only — CI/CD handles this in deployed environments)
+if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<HockeyHubDbContext>();
@@ -72,7 +77,7 @@ var app = builder.Build();
 
 // Middleware pipeline
 app.UseMiddleware<ErrorHandlingMiddleware>();
-app.UseCors("DevCors");
+app.UseCors("AppCors");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
