@@ -5,8 +5,8 @@ import { Component, input, output, ChangeDetectionStrategy } from '@angular/core
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (videoUrl()) {
-      <div class="modal-overlay" (click)="closed.emit()" (keydown.escape)="closed.emit()" tabindex="-1">
-        <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-overlay" role="button" tabindex="0" (click)="closed.emit()" (keydown.enter)="closed.emit()">
+        <div class="modal-content" role="dialog" (click)="$event.stopPropagation()" (keydown.escape)="closed.emit()">
           <button class="modal-close" (click)="closed.emit()" aria-label="Close">&times;</button>
           <iframe [src]="videoUrl()!" allowfullscreen class="modal-video"></iframe>
         </div>

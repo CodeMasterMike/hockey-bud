@@ -1,4 +1,4 @@
-import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 export interface StatColumn {
   key: string;
@@ -81,7 +81,7 @@ export interface SortEvent {
 })
 export class StatTable {
   columns = input<StatColumn[]>([]);
-  rows = input<Record<string, any>[]>([]);
+  rows = input<Record<string, string | number | null | undefined>[]>([]);
   sortKey = input('');
   sortDir = input<'asc' | 'desc'>('desc');
   sortChange = output<SortEvent>();
