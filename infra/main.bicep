@@ -258,13 +258,13 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
           allowCredentials: true
         }
       }
-      registries: [
+      registries: !empty(backendImage) ? [
         {
           server: acr.properties.loginServer
           identity: 'system'
         }
-      ]
-      secrets: [
+      ] : []
+      secrets: !empty(backendImage) ? [
         {
           name: 'postgres-connection'
           keyVaultUrl: secretPostgres.properties.secretUri
@@ -280,7 +280,7 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
           keyVaultUrl: secretAppInsights.properties.secretUri
           identity: 'system'
         }
-      ]
+      ] : []
     }
     template: {
       containers: [
@@ -291,13 +291,15 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
             cpu: json('0.5')
             memory: '1Gi'
           }
-          env: [
+          env: !empty(backendImage) ? [
             { name: 'ConnectionStrings__PostgreSQL', secretRef: 'postgres-connection' }
             { name: 'ConnectionStrings__Redis', secretRef: 'redis-connection' }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', secretRef: 'appinsights-connection' }
             { name: 'ASPNETCORE_ENVIRONMENT', value: isDev ? 'Development' : 'Production' }
+          ] : [
+            { name: 'ASPNETCORE_ENVIRONMENT', value: isDev ? 'Development' : 'Production' }
           ]
-          probes: [
+          probes: !empty(backendImage) ? [
             {
               type: 'Liveness'
               httpGet: {
@@ -317,7 +319,7 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
               periodSeconds: 15
               failureThreshold: 3
             }
-          ]
+          ] : []
         }
       ]
       scale: {
@@ -397,7 +399,7 @@ resource alertHighErrorRate 'Microsoft.Insights/metricAlerts@2018-03-01' = {
           metricNamespace: 'microsoft.insights/components'
           operator: 'GreaterThan'
           threshold: 1
-          timeAggregation: 'Average'
+          timeAggregation: 'Count'
           criterionType: 'StaticThresholdCriterion'
         }
       ]

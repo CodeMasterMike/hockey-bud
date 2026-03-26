@@ -124,4 +124,8 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - Phase 1 complete: Project scaffolding, Docker services, design tokens, Courier Prime font
 
 <!-- MANUAL ADDITIONS START -->
+
+## TODO
+- **Frontend unit tests**: Only a placeholder test exists (`app.spec.ts`). Real unit tests needed for components (ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker, etc.) and services (ScoresApiService, GameClockService, SignalRService, ThemeService). Test infrastructure is set up: Vitest + jsdom via `@angular/build:unit-test`.
+
 <!-- MANUAL ADDITIONS END -->

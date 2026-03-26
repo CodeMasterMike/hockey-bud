@@ -6,7 +6,7 @@ import { ThemeService } from '../../../services/theme.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (isOpen()) {
-      <div class="flyout-overlay" (click)="closed.emit()"></div>
+      <div class="flyout-overlay" role="button" tabindex="0" (click)="closed.emit()" (keydown.enter)="closed.emit()"></div>
       <div class="flyout flyout--open">
         <div class="flyout__header">
           <span class="flyout__title">Menu</span>

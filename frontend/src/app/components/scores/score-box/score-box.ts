@@ -10,7 +10,7 @@ import { DEFAULT_LEAGUE_ID, CLOSE_GAME_PERIOD_THRESHOLD, CLOSE_GAME_TIME_THRESHO
   imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="box" [class.box--live]="game().status === 'Live'" (click)="expand.emit()">
+    <div class="box" role="button" tabindex="0" [class.box--live]="game().status === 'Live'" (click)="expand.emit()" (keydown.enter)="expand.emit()">
       <!-- Away team (top) -->
       <div class="box__team">
         <span class="box__team-info">
