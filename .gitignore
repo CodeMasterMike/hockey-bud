@@ -40,6 +40,7 @@ ScaffoldingReadMe.txt
 ~$*
 *~
 CodeCoverage/
+secrets/
 
 # MSBuild Binary and Structured Log
 *.binlog
@@ -62,3 +63,4 @@ nunit-*.xml
 # Claude Code / Speckit
 .claude/
 .specify/
+misc.md
