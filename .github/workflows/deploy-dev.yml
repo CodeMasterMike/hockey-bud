@@ -76,14 +76,15 @@ jobs:
           echo "::add-mask::$connstr"
           echo "db_connection=$connstr" >> "$GITHUB_OUTPUT"
 
+      - name: Restore packages
+        working-directory: backend
+        run: dotnet restore
+
       - name: Apply migrations
         working-directory: backend/src/HockeyHub.Api
         env:
           ConnectionStrings__PostgreSQL: ${{ steps.kv.outputs.db_connection }}
-        run: |
-          dotnet ef database update \
-            --project ../HockeyHub.Data \
-            --no-build || dotnet ef database update --project ../HockeyHub.Data
+        run: dotnet ef database update --project ../HockeyHub.Data
 
   deploy-backend:
     name: Deploy Backend Container App
