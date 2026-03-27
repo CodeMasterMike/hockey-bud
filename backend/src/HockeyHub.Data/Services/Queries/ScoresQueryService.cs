@@ -122,14 +122,14 @@ public class ScoresQueryService(
             return await db.Games
                 .Where(g => g.Status == "Live")
                 .Select(g => new LiveGameDto(
-                    Id: g.Id,
-                    Status: g.Status,
-                    Period: g.CurrentPeriod ?? 0,
-                    PeriodTimeRemaining: g.PeriodTimeRemaining ?? "00:00",
-                    HomeScore: g.HomeScore ?? 0,
-                    AwayScore: g.AwayScore ?? 0,
-                    HomeShotsOnGoal: g.HomeShotsOnGoal ?? 0,
-                    AwayShotsOnGoal: g.AwayShotsOnGoal ?? 0
+                    g.Id,
+                    g.Status,
+                    g.CurrentPeriod ?? 0,
+                    g.PeriodTimeRemaining ?? "00:00",
+                    g.HomeScore ?? 0,
+                    g.AwayScore ?? 0,
+                    g.HomeShotsOnGoal ?? 0,
+                    g.AwayShotsOnGoal ?? 0
                 ))
                 .ToListAsync(ct);
         }, RedisCacheService.LiveScoresTtl, ct);
@@ -154,16 +154,16 @@ public class ScoresQueryService(
                 .ThenByDescending(g => g.CurrentPeriod)
                 .ThenBy(g => g.ScheduledStart)
                 .Select(g => new TickerGameDto(
-                    Id: g.Id,
-                    Status: g.Status,
-                    Period: g.CurrentPeriod,
-                    PeriodTimeRemaining: g.PeriodTimeRemaining,
-                    PeriodTimeRemainingSeconds: g.PeriodTimeRemainingSeconds,
-                    HomeTeam: new TickerTeamDto(g.HomeTeam.Id, g.HomeTeam.Abbreviation, g.HomeTeam.LogoUrl),
-                    AwayTeam: new TickerTeamDto(g.AwayTeam.Id, g.AwayTeam.Abbreviation, g.AwayTeam.LogoUrl),
-                    HomeScore: g.HomeScore,
-                    AwayScore: g.AwayScore,
-                    ScheduledStartLocal: HockeyHub.Core.NhlDateHelper.FormatStartTimeEastern(g.ScheduledStart)
+                    g.Id,
+                    g.Status,
+                    g.CurrentPeriod,
+                    g.PeriodTimeRemaining,
+                    g.PeriodTimeRemainingSeconds,
+                    new TickerTeamDto(g.HomeTeam.Id, g.HomeTeam.Abbreviation, g.HomeTeam.LogoUrl),
+                    new TickerTeamDto(g.AwayTeam.Id, g.AwayTeam.Abbreviation, g.AwayTeam.LogoUrl),
+                    g.HomeScore,
+                    g.AwayScore,
+                    HockeyHub.Core.NhlDateHelper.FormatStartTimeEastern(g.ScheduledStart)
                 ))
                 .ToListAsync(ct);
         }, RedisCacheService.LiveScoresTtl, ct);
