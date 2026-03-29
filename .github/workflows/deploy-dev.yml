@@ -45,50 +45,9 @@ jobs:
           docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
           docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
 
-  migrate-database:
-    name: Apply EF Core Migrations
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-          dotnet-quality: 'preview'
-
-      - name: Install EF Core tools
-        run: dotnet tool install --global dotnet-ef
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Get connection string from Key Vault
-        id: kv
-        run: |
-          connstr=$(az keyvault secret show \
-            --vault-name hockeyhub-dev-kv \
-            --name PostgresConnectionString \
-            --query value -o tsv)
-          echo "::add-mask::$connstr"
-          echo "db_connection=$connstr" >> "$GITHUB_OUTPUT"
-
-      - name: Restore packages
-        working-directory: backend
-        run: dotnet restore
-
-      - name: Apply migrations
-        working-directory: backend/src/HockeyHub.Api
-        env:
-          ConnectionStrings__PostgreSQL: ${{ steps.kv.outputs.db_connection }}
-        run: dotnet ef database update --project ../HockeyHub.Data
-
   deploy-backend:
     name: Deploy Backend Container App
-    needs: [build-and-push, migrate-database]
+    needs: build-and-push
     runs-on: ubuntu-latest
     outputs:
       backend-url: ${{ steps.deploy.outputs.url }}
