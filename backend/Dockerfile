@@ -23,7 +23,4 @@ ENV ASPNETCORE_URLS=http://+:8080
 
 COPY --from=build /app/publish .
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8080/api/health/live || exit 1
-
 ENTRYPOINT ["dotnet", "HockeyHub.Api.dll"]

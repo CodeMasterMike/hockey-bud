@@ -28,6 +28,8 @@ builder.Services.AddSignalR()
     .AddStackExchangeRedis(builder.Configuration.GetConnectionString("Redis")!, options =>
     {
         options.Configuration.ChannelPrefix = new StackExchange.Redis.RedisChannel("HockeyHub", StackExchange.Redis.RedisChannel.PatternMode.Literal);
+        options.Configuration.AbortOnConnectFail = false;
+        options.Configuration.ConnectRetry = 5;
     });
 
 // Hangfire
@@ -72,7 +74,21 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<HockeyHubDbContext>();
-    db.Database.Migrate();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    for (var attempt = 1; attempt <= 10; attempt++)
+    {
+        try
+        {
+            db.Database.Migrate();
+            logger.LogInformation("Database migration completed on attempt {Attempt}", attempt);
+            break;
+        }
+        catch (Exception ex) when (attempt < 10)
+        {
+            logger.LogWarning(ex, "Database migration attempt {Attempt} failed, retrying in 5s...", attempt);
+            Thread.Sleep(5000);
+        }
+    }
 }
 
 // Middleware pipeline
