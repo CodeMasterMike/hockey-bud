@@ -191,6 +191,7 @@ resource postgresApp 'Microsoft.App/containerApps@2024-03-01' = if (isDev) {
             { name: 'POSTGRES_DB', value: 'hockeyhub' }
             { name: 'POSTGRES_USER', value: 'postgres' }
             { name: 'POSTGRES_PASSWORD', value: postgresPassword }
+            { name: 'PGDATA', value: '/var/lib/postgresql/data/pgdata' }
           ]
           volumeMounts: [
             { volumeName: 'pgdata', mountPath: '/var/lib/postgresql/data' }
