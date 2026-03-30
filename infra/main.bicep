@@ -94,7 +94,7 @@ resource secretPostgres 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   name: 'PostgresConnectionString'
   properties: {
     value: isDev
-      ? 'Host=${postgresAppName};Port=5432;Database=hockeyhub;Username=postgres;Password=${postgresPassword}'
+      ? 'Host=${postgresAppName}.internal.${containerEnv.properties.defaultDomain};Port=5432;Database=hockeyhub;Username=postgres;Password=${postgresPassword}'
       : postgresConnectionString
   }
 }
@@ -103,7 +103,7 @@ resource secretRedis 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: keyVault
   name: 'RedisConnectionString'
   properties: {
-    value: isDev ? '${redisAppName}:6379' : redisConnectionString
+    value: isDev ? '${redisAppName}.internal.${containerEnv.properties.defaultDomain}:6379' : redisConnectionString
   }
 }
 
