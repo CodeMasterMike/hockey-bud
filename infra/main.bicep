@@ -259,13 +259,13 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
           allowCredentials: true
         }
       }
-      registries: !empty(backendImage) ? [
+      registries: [
         {
           server: acr.properties.loginServer
           identity: 'system'
         }
-      ] : []
-      secrets: !empty(backendImage) ? [
+      ]
+      secrets: [
         {
           name: 'postgres-connection'
           keyVaultUrl: secretPostgres.properties.secretUri
@@ -281,7 +281,7 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
           keyVaultUrl: secretAppInsights.properties.secretUri
           identity: 'system'
         }
-      ] : []
+      ]
     }
     template: {
       containers: [
@@ -292,15 +292,13 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
             cpu: json('0.5')
             memory: '1Gi'
           }
-          env: !empty(backendImage) ? [
+          env: [
             { name: 'ConnectionStrings__PostgreSQL', secretRef: 'postgres-connection' }
             { name: 'ConnectionStrings__Redis', secretRef: 'redis-connection' }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', secretRef: 'appinsights-connection' }
             { name: 'ASPNETCORE_ENVIRONMENT', value: isDev ? 'Development' : 'Production' }
-          ] : [
-            { name: 'ASPNETCORE_ENVIRONMENT', value: isDev ? 'Development' : 'Production' }
           ]
-          probes: !empty(backendImage) ? [
+          probes: [
             {
               type: 'Liveness'
               httpGet: {
@@ -320,7 +318,7 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
               periodSeconds: 15
               failureThreshold: 3
             }
-          ] : []
+          ]
         }
       ]
       scale: {
