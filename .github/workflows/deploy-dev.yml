@@ -108,7 +108,7 @@ jobs:
     steps:
       - name: Health check — liveness
         run: |
-          for i in 1 2 3 4 5; do
+          for i in $(seq 1 10); do
             status=$(curl -s -o /dev/null -w '%{http_code}' \
               "${{ needs.deploy-backend.outputs.backend-url }}/api/health/live" || true)
             if [ "$status" = "200" ]; then
@@ -122,7 +122,7 @@ jobs:
 
       - name: Health check — readiness
         run: |
-          for i in 1 2 3 4 5; do
+          for i in $(seq 1 10); do
             status=$(curl -s -o /dev/null -w '%{http_code}' \
               "${{ needs.deploy-backend.outputs.backend-url }}/api/health/ready" || true)
             if [ "$status" = "200" ]; then
