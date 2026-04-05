@@ -129,10 +129,12 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 
 ## TODO
 
-### Security (High — see docs/audit-2026-04-05.md)
-- **CSP header**: Add `Content-Security-Policy` to `staticwebapp.config.json`
+### Security (Remaining — see docs/audit-2026-04-05.md)
 - **Rate limiting**: Add `Microsoft.AspNetCore.RateLimiting` middleware to API
-- **CI security scanning**: Add `npm audit` and `dotnet audit` to `ci.yml`
+- **Redis auth**: Add `--requirepass` to dev Redis container; use Azure Cache for Redis in prod
+- **Migration rollback**: Add validation/rollback step to deploy workflows
+- **ACR SKU**: Upgrade to Standard for prod (enables image vulnerability scanning)
+- **SQL threat protection**: Add `securityAlertPolicies` and `auditingSettings` to Bicep
 
 ### Missing Implementation (~79% of spec remaining)
 - **Database entities (14 missing)**: PlayerPosition, PlayerHeadshot, PlayerStyle, PlayerSeason, PlayerTeamHistory, PlayerAward, Contract, ContractYear, GameEvent, GamePlayerStat, Trade, TradeAsset, ImportantDate, RuleBook
