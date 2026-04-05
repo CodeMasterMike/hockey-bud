@@ -76,9 +76,9 @@ public class RedisCacheService(IDistributedCache cache, ILogger<RedisCacheServic
             var wrapper = JsonSerializer.Deserialize<CachedWrapper<T>>(data, JsonOptions);
             return (wrapper?.Value, wrapper?.CachedAt);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
-            // Try deserializing as raw value (for backward compatibility)
+            logger.LogWarning(ex, "Failed to deserialize cached wrapper for key {Key}, falling back to raw value", key);
             var value = JsonSerializer.Deserialize<T>(data, JsonOptions);
             return (value, null);
         }

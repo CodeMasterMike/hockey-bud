@@ -75,6 +75,7 @@ export class SignalRService implements OnDestroy {
   }
 
   private scheduleReconnect(): void {
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
     this.reconnectTimer = setTimeout(() => this.connect(), SIGNALR_INITIAL_RETRY_DELAY_MS);
   }
 

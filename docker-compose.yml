@@ -1,6 +1,6 @@
 services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2022-CU16-ubuntu-22.04
     container_name: hockeyhub-sqlserver
     restart: unless-stopped
     ports:
@@ -19,7 +19,7 @@ services:
       start_period: 30s
 
   redis:
-    image: redis:7-alpine
+    image: redis:7.4-alpine
     container_name: hockeyhub-redis
     restart: unless-stopped
     ports:

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using HockeyHub.Data.Data;
+using StackExchange.Redis;
 
 namespace HockeyHub.Api.Controllers;
 
@@ -9,12 +9,14 @@ namespace HockeyHub.Api.Controllers;
 public class HealthController : ControllerBase
 {
     private readonly HockeyHubDbContext _db;
-    private readonly IConfiguration _config;
+    private readonly IConnectionMultiplexer? _redis;
+    private readonly ILogger<HealthController> _logger;
 
-    public HealthController(HockeyHubDbContext db, IConfiguration config)
+    public HealthController(HockeyHubDbContext db, ILogger<HealthController> logger, IConnectionMultiplexer? redis = null)
     {
         _db = db;
-        _config = config;
+        _redis = redis;
+        _logger = logger;
     }
 
     /// <summary>
@@ -38,18 +40,17 @@ public class HealthController : ControllerBase
             await _db.Database.CanConnectAsync(ct);
             checks["database"] = "ok";
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Database readiness check failed");
             checks["database"] = "unavailable";
         }
 
         try
         {
-            var redisConnString = _config.GetConnectionString("Redis");
-            if (!string.IsNullOrEmpty(redisConnString))
+            if (_redis is not null)
             {
-                using var redis = await StackExchange.Redis.ConnectionMultiplexer.ConnectAsync(redisConnString);
-                await redis.GetDatabase().PingAsync();
+                await _redis.GetDatabase().PingAsync();
                 checks["redis"] = "ok";
             }
             else
@@ -57,8 +58,9 @@ public class HealthController : ControllerBase
                 checks["redis"] = "not configured";
             }
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Redis readiness check failed");
             checks["redis"] = "unavailable";
         }
 

@@ -177,17 +177,18 @@ public class ScoresQueryService(
         var game = await db.Games
             .Include(g => g.HomeTeam)
             .Include(g => g.AwayTeam)
+            .Include(g => g.Season)
             .FirstOrDefaultAsync(g => g.Id == gameId, ct);
 
         if (game is null || game.Status != "Scheduled") return null;
 
-        var season = await db.Seasons
-            .FirstOrDefaultAsync(s => s.Id == game.SeasonId, ct);
+        var teamIds = new[] { game.HomeTeamId, game.AwayTeamId };
+        var standings = await db.StandingsSnapshots
+            .Where(s => teamIds.Contains(s.TeamId) && s.SeasonId == game.SeasonId)
+            .ToDictionaryAsync(s => s.TeamId, ct);
 
-        var homeStandings = await db.StandingsSnapshots
-            .FirstOrDefaultAsync(s => s.TeamId == game.HomeTeamId && s.SeasonId == game.SeasonId, ct);
-        var awayStandings = await db.StandingsSnapshots
-            .FirstOrDefaultAsync(s => s.TeamId == game.AwayTeamId && s.SeasonId == game.SeasonId, ct);
+        var homeStandings = standings.GetValueOrDefault(game.HomeTeamId);
+        var awayStandings = standings.GetValueOrDefault(game.AwayTeamId);
 
         return new PregameDto(
             GameId: game.Id,

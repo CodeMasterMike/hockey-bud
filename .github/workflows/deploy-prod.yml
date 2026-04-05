@@ -14,6 +14,10 @@ concurrency:
   group: deploy-prod
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  id-token: write
+
 env:
   AZURE_RESOURCE_GROUP: hockeyhub-prod-rg
   ACR_NAME: hockeyhubprodacr
@@ -71,7 +75,7 @@ jobs:
           dotnet-quality: 'preview'
 
       - name: Install EF Core tools
-        run: dotnet tool install --global dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 10.0.0
 
       - name: Azure Login
         uses: azure/login@v2

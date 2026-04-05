@@ -16,10 +16,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<HockeyHubDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Redis distributed cache
+// Redis shared connection + distributed cache
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+if (!string.IsNullOrEmpty(redisConnectionString))
+{
+    builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(
+        StackExchange.Redis.ConnectionMultiplexer.Connect(new StackExchange.Redis.ConfigurationOptions
+        {
+            EndPoints = { redisConnectionString },
+            AbortOnConnectFail = false,
+            ConnectRetry = 5,
+        }));
+}
+
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.Configuration = redisConnectionString;
     options.InstanceName = "HockeyHub:";
 });
 
@@ -51,6 +63,12 @@ builder.Services.AddScoped<ScoresSyncJob>();
 builder.Services.AddScoped<StandingsSyncJob>();
 builder.Services.AddSingleton<IScoreBroadcaster, SignalRScoreBroadcaster>();
 
+// Response compression
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
+
 // Controllers & CORS
 builder.Services.AddControllers();
 
@@ -78,19 +96,20 @@ if (app.Environment.IsDevelopment())
     {
         try
         {
-            db.Database.Migrate();
+            await db.Database.MigrateAsync();
             logger.LogInformation("Database migration completed on attempt {Attempt}", attempt);
             break;
         }
         catch (Exception ex) when (attempt < 10)
         {
             logger.LogWarning(ex, "Database migration attempt {Attempt} failed, retrying in 5s...", attempt);
-            Thread.Sleep(5000);
+            await Task.Delay(5000);
         }
     }
 }
 
 // Middleware pipeline
+app.UseResponseCompression();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseCors("AppCors");
 app.UseHttpsRedirection();

@@ -28,6 +28,9 @@ param sqlConnectionString string = ''
 @description('Redis connection string override (for prod managed Redis)')
 param redisConnectionString string = ''
 
+@description('Allowed CORS origins for the backend API (prod only, dev defaults to localhost)')
+param allowedOrigins array = []
+
 // ─── Variables ────────────────────────────────────────────────────────────────
 
 var suffix = '${appName}-${environmentName}'
@@ -41,12 +44,18 @@ var sqlServerName = '${suffix}-sql'
 var sqlDbName = 'hockeyhub'
 var redisAppName = '${suffix}-redis'
 var isDev = environmentName == 'dev'
+var tags = {
+  environment: environmentName
+  project: appName
+  managedBy: 'Bicep'
+}
 
 // ─── Log Analytics Workspace ──────────────────────────────────────────────────
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: logAnalyticsName
   location: location
+  tags: tags
   properties: {
     sku: { name: 'PerGB2018' }
     retentionInDays: 30
@@ -59,6 +68,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: appInsightsName
   location: location
   kind: 'web'
+  tags: tags
   properties: {
     Application_Type: 'web'
     WorkspaceResourceId: logAnalytics.id
@@ -70,6 +80,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
 resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: acrName
   location: location
+  tags: tags
   sku: { name: 'Basic' }
   properties: {
     adminUserEnabled: false
@@ -81,6 +92,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
   location: location
+  tags: tags
   properties: {
     sku: { family: 'A', name: 'standard' }
     tenantId: subscription().tenantId
@@ -121,6 +133,7 @@ resource secretAppInsights 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
 resource containerEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: containerEnvName
   location: location
+  tags: tags
   properties: {
     appLogsConfiguration: {
       destination: 'log-analytics'
@@ -137,6 +150,7 @@ resource containerEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
 resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = if (isDev) {
   name: sqlServerName
   location: location
+  tags: tags
   properties: {
     administratorLogin: 'sqladmin'
     administratorLoginPassword: sqlAdminPassword
@@ -159,6 +173,7 @@ resource sqlDb 'Microsoft.Sql/servers/databases@2023-08-01-preview' = if (isDev)
   parent: sqlServer
   name: sqlDbName
   location: location
+  tags: tags
   sku: {
     name: 'GP_S_Gen5_1'
     tier: 'GeneralPurpose'
@@ -180,6 +195,7 @@ resource sqlDb 'Microsoft.Sql/servers/databases@2023-08-01-preview' = if (isDev)
 resource redisApp 'Microsoft.App/containerApps@2024-03-01' = if (isDev) {
   name: redisAppName
   location: location
+  tags: tags
   properties: {
     managedEnvironmentId: containerEnv.id
     configuration: {
@@ -210,6 +226,7 @@ resource redisApp 'Microsoft.App/containerApps@2024-03-01' = if (isDev) {
 resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
   name: backendAppName
   location: location
+  tags: tags
   identity: {
     type: 'SystemAssigned'
   }
@@ -222,9 +239,9 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
         targetPort: 8080
         transport: 'http'
         corsPolicy: {
-          allowedOrigins: ['*']
-          allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-          allowedHeaders: ['*']
+          allowedOrigins: isDev ? ['http://localhost:4200', 'https://localhost:4200'] : allowedOrigins
+          allowedMethods: ['GET', 'POST', 'OPTIONS']
+          allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
           allowCredentials: true
         }
       }
