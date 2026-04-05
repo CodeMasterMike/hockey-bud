@@ -7,7 +7,7 @@
 | C# | 14 | Language |
 | .NET | 10 | Runtime |
 | ASP.NET Core | 10 | Web API framework |
-| Entity Framework Core | 10 | ORM / data access (PostgreSQL via Npgsql) |
+| Entity Framework Core | 10 | ORM / data access (SQL Server via Microsoft.EntityFrameworkCore.SqlServer) |
 | Hangfire | Latest | Background job scheduling (60s/1h/3h sync cadences) |
 
 ## Frontend
@@ -26,9 +26,9 @@
 
 | Technology | Version | Purpose |
 |-----------|---------|---------|
-| PostgreSQL | 16 | Persistent data store (source of truth) |
+| SQL Server | 2022 (local Docker) / Azure SQL Database Serverless (deployed) | Persistent data store (source of truth) |
 | Redis | 7 | Application cache (live scores 30s TTL, API response caching) |
-| Docker | Latest | Local dev (Postgres, Redis containers) |
+| Docker | Latest | Local dev (SQL Server, Redis containers) |
 | CDN | — | Edge caching via Cache-Control headers |
 
 ## Testing

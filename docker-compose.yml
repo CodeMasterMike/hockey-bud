@@ -1,21 +1,22 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: hockeyhub-postgres
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hockeyhub-sqlserver
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "1433:1433"
     environment:
-      POSTGRES_DB: hockeyhub
-      POSTGRES_USER: hockeyhub
-      POSTGRES_PASSWORD: hockeyhub_dev
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "HockeyHub_Dev1!"
+      MSSQL_PID: "Developer"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - sqlserver_data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U hockeyhub"]
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "HockeyHub_Dev1!" -C -Q "SELECT 1" -b
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
 
   redis:
     image: redis:7-alpine
@@ -32,5 +33,5 @@ services:
       retries: 5
 
 volumes:
-  postgres_data:
+  sqlserver_data:
   redis_data:

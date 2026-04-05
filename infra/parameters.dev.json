@@ -4,7 +4,7 @@
   "parameters": {
     "environmentName": { "value": "dev" },
     "appName": { "value": "hockeyhub" },
-    "postgresPassword": { "value": "" },
+    "sqlAdminPassword": { "value": "" },
     "backendImage": { "value": "" }
   }
 }

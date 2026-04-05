@@ -47,7 +47,7 @@ Returns search results grouped by entity type, scoped to the selected league. Po
 - Search is performed across: Player names, Team names/locations/abbreviations, Trade descriptions, Personnel names
 - Results are grouped by entity type, favoring most-searched categories first, then alphabetical (FR-005a)
 - Results are grouped by entity type with up to `limit` results per group
-- Search uses PostgreSQL full-text search with trigram indexing for fuzzy matching
+- Search uses SQL Server full-text search for fuzzy matching
 - The frontend renders results in a dropdown grouped by type, each result clickable to its entity page
 - Minimum query length of 2 characters prevents overly broad searches
 - Response time target: < 200ms (fast enough for as-you-type results)

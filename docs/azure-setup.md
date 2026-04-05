@@ -57,12 +57,12 @@ az deployment group create \
   --resource-group hockeyhub-dev-rg \
   --template-file infra/main.bicep \
   --parameters infra/parameters.dev.json \
-  --parameters postgresPassword="<CHOOSE_A_SECURE_PASSWORD>"
+  --parameters sqlAdminPassword="<CHOOSE_A_SECURE_PASSWORD>"
 ```
 
 This creates:
 - Container Apps Environment + backend API Container App
-- Dev PostgreSQL and Redis containers (with persistent storage)
+- Azure SQL Database Serverless (GP_S_Gen5_1, auto-pause after 60min idle) and dev Redis container
 - Azure Container Registry (admin disabled)
 - Key Vault (with connection string secrets)
 - Application Insights + Log Analytics Workspace
@@ -136,13 +136,13 @@ az role assignment create --assignee $SP_APP_ID --role "Key Vault Secrets Office
 az role assignment create --assignee $SP_APP_ID --role "User Access Administrator" \
   --scope /subscriptions/<YOUR_SUBSCRIPTION_ID>/resourceGroups/hockeyhub-prod-rg
 
-# Deploy prod infra (uses managed PostgreSQL + Redis instead of containers)
+# Deploy prod infra (uses managed Azure SQL + Redis instead of containers)
 az deployment group create \
   --resource-group hockeyhub-prod-rg \
   --template-file infra/main.bicep \
   --parameters infra/parameters.prod.json \
-  --parameters postgresPassword="<PROD_PASSWORD>" \
-  --parameters postgresConnectionString="<MANAGED_PG_CONN_STRING>" \
+  --parameters sqlAdminPassword="<PROD_PASSWORD>" \
+  --parameters sqlConnectionString="<MANAGED_SQL_CONN_STRING>" \
   --parameters redisConnectionString="<MANAGED_REDIS_CONN_STRING>"
 
 # Prod Static Web App
@@ -160,11 +160,11 @@ Then in GitHub → **Settings → Environments → New environment** → name it
 |---|---|
 | Azure Static Web Apps (Free tier) | $0 |
 | Azure Container Apps (backend API — consumption) | $5–15 |
-| Azure Container Apps (PostgreSQL container) | $3–8 |
+| Azure SQL Database Serverless (GP_S_Gen5_1, auto-pause) | $5–15 |
 | Azure Container Apps (Redis container) | $2–5 |
 | Azure Container Registry (Basic tier) | $5 |
 | Azure Monitor / Application Insights (free tier) | $0 |
 | Azure Key Vault (standard) | < $1 |
-| **Total** | **$15–35/mo** |
+| **Total** | **$17–42/mo** |
 
 Container Apps consumption pricing charges only for active CPU/memory seconds — services scale to zero when idle.

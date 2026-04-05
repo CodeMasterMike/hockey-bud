@@ -1,5 +1,5 @@
 using Hangfire;
-using Hangfire.PostgreSql;
+using Hangfire.SqlServer;
 using HockeyHub.Api.Hubs;
 using HockeyHub.Api.Middleware;
 using HockeyHub.Core.Providers;
@@ -14,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Database
 builder.Services.AddDbContext<HockeyHubDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Redis distributed cache
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -37,8 +37,7 @@ builder.Services.AddHangfire(config => config
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
-    .UsePostgreSqlStorage(options =>
-        options.UseNpgsqlConnection(builder.Configuration.GetConnectionString("PostgreSQL")!)));
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddHangfireServer();
 
 // NHL data provider

@@ -29,9 +29,9 @@
 **Purpose**: Project initialization, tooling, and containerized services
 
 - [x] T001 Create repository structure with `backend/` and `frontend/` top-level directories per plan.md
-- [x] T002 Initialize .NET 10 Web API project at `backend/src/HockeyHub.Api/` with ASP.NET Core, EF Core 10 (Npgsql), Hangfire, SignalR, and Redis packages
+- [x] T002 Initialize .NET 10 Web API project at `backend/src/HockeyHub.Api/` with ASP.NET Core, EF Core 10 (Microsoft.EntityFrameworkCore.SqlServer), Hangfire, SignalR, and Redis packages
 - [x] T003 Initialize Angular 19 project at `frontend/` with SSR, Angular CDK, RxJS, and Tailwind CSS v3
-- [x] T004 [P] Create `docker-compose.yml` at repository root with PostgreSQL 16 and Redis 7 services
+- [x] T004 [P] Create `docker-compose.yml` at repository root with SQL Server 2022 and Redis 7 services
 - [x] T005 [P] Configure Tailwind CSS with antique-book design tokens (light/dark mode CSS custom properties, era tints) in `frontend/src/styles/`
 - [x] T006 [P] Self-host Courier Prime font files (Latin subset, WOFF2) in `frontend/src/assets/fonts/` and configure as `--font-primary` CSS custom property
 
@@ -79,7 +79,7 @@
 - [x] T015 Create `INhlDataProvider` interface in `backend/src/HockeyHub.Core/Providers/INhlDataProvider.cs` with methods for scores, standings, rosters, players, games, trades, schedule
 - [x] T016 Implement `NhlWebApiProvider` (api-web.nhle.com) in `backend/src/HockeyHub.Data/Providers/NhlWebApiProvider.cs` with HttpClient, rate limiting (3-5 req/s), and exponential backoff
 - [x] T017 Create Redis caching service with configurable TTLs per data type in `backend/src/HockeyHub.Data/Services/Cache/RedisCacheService.cs`
-- [x] T018 [P] Configure Hangfire with PostgreSQL storage and dashboard in `backend/src/HockeyHub.Api/Program.cs`
+- [x] T018 [P] Configure Hangfire with SQL Server storage and dashboard in `backend/src/HockeyHub.Api/Program.cs`
 - [x] T019 [P] Configure SignalR with Redis backplane in `backend/src/HockeyHub.Api/Program.cs`
 - [x] T020 Create `GameHub` SignalR hub with JoinGameGroup, LeaveGameGroup, JoinAllLiveGames methods in `backend/src/HockeyHub.Api/Hubs/GameHub.cs`
 - [x] T021 Create base API error handling middleware and `DataAsOf` response wrapper in `backend/src/HockeyHub.Api/Middleware/`
@@ -119,7 +119,7 @@
 - [x] T039 [US1] Add Game, GamePeriodScore, StandingsSnapshot to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
 - [x] T040 [US1] Create ScoresQueryService (get scores by date, expanded details, live scores, ticker data, pregame matchup) in `backend/src/HockeyHub.Data/Services/Queries/ScoresQueryService.cs`
 - [x] T041 [US1] Create ScoresController with GET scores, GET expanded, GET live, GET ticker, GET pregame endpoints per scores-api contract in `backend/src/HockeyHub.Api/Controllers/ScoresController.cs`
-- [x] T042 [US1] Create ScoresSyncJob (Hangfire recurring: 10-15s during live games, 5min idle) that polls NHL API, updates Redis + PostgreSQL, broadcasts via SignalR in `backend/src/HockeyHub.Data/Services/Sync/ScoresSyncJob.cs`
+- [x] T042 [US1] Create ScoresSyncJob (Hangfire recurring: 10-15s during live games, 5min idle) that polls NHL API, updates Redis + SQL Server, broadcasts via SignalR in `backend/src/HockeyHub.Data/Services/Sync/ScoresSyncJob.cs`
 - [x] T043 [US1] Create StandingsSyncJob (triggered by game status transitions Scheduled→Live, Live→Final) in `backend/src/HockeyHub.Data/Services/Sync/StandingsSyncJob.cs`
 
 ### Frontend — US1
@@ -401,7 +401,7 @@
 
 ### Global Search
 
-- [ ] T150 Create SearchQueryService (PostgreSQL full-text search with trigram indexing, scoped to league, grouped by entity type, favor most-searched categories) in `backend/src/HockeyHub.Data/Services/Queries/SearchQueryService.cs`
+- [ ] T150 Create SearchQueryService (SQL Server full-text search, scoped to league, grouped by entity type, favor most-searched categories) in `backend/src/HockeyHub.Data/Services/Queries/SearchQueryService.cs`
 - [ ] T151 Create SearchController with GET leagues/{leagueId}/search endpoint per search-api contract in `backend/src/HockeyHub.Api/Controllers/SearchController.cs`
 - [ ] T152 Create global search dropdown component (as-you-type, grouped results by entity type, clickable links, <200ms response, no search on main page) in `frontend/src/app/components/search/search-dropdown/`
 

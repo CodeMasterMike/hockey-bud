@@ -50,7 +50,11 @@ public class HockeyHubDbContext(DbContextOptions<HockeyHubDbContext> options) : 
         {
             entity.Property(e => e.IceWidthFeet).HasPrecision(5, 1);
             entity.Property(e => e.IceLengthFeet).HasPrecision(5, 1);
-            entity.Property(e => e.LayoutJson).HasColumnType("jsonb");
+            entity.Property(e => e.LayoutJson)
+                .HasColumnType("nvarchar(max)")
+                .HasConversion(
+                    v => v == null ? null : v.RootElement.GetRawText(),
+                    v => v == null ? null : JsonDocument.Parse(v, default));
 
             entity.HasOne(e => e.HomeTeam)
                 .WithMany()

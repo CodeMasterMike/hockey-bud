@@ -4,8 +4,8 @@
   "parameters": {
     "environmentName": { "value": "prod" },
     "appName": { "value": "hockeyhub" },
-    "postgresPassword": { "value": "" },
-    "postgresConnectionString": { "value": "" },
+    "sqlAdminPassword": { "value": "" },
+    "sqlConnectionString": { "value": "" },
     "redisConnectionString": { "value": "" },
     "backendImage": { "value": "" }
   }

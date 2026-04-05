@@ -18,12 +18,12 @@ param appName string = 'hockeyhub'
 @description('Backend container image (full ACR path with tag)')
 param backendImage string = ''
 
-@description('PostgreSQL admin password')
+@description('SQL Server admin password')
 @secure()
-param postgresPassword string
+param sqlAdminPassword string
 
-@description('PostgreSQL connection string override (for prod managed DB)')
-param postgresConnectionString string = ''
+@description('SQL Server connection string override (for prod managed DB)')
+param sqlConnectionString string = ''
 
 @description('Redis connection string override (for prod managed Redis)')
 param redisConnectionString string = ''
@@ -37,7 +37,8 @@ var logAnalyticsName = '${suffix}-logs'
 var appInsightsName = '${suffix}-ai'
 var containerEnvName = '${suffix}-env'
 var backendAppName = '${suffix}-api'
-var postgresAppName = '${suffix}-pg'
+var sqlServerName = '${suffix}-sql'
+var sqlDbName = 'hockeyhub'
 var redisAppName = '${suffix}-redis'
 var isDev = environmentName == 'dev'
 
@@ -89,13 +90,13 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   }
 }
 
-resource secretPostgres 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+resource secretDatabase 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: keyVault
-  name: 'PostgresConnectionString'
+  name: 'DatabaseConnectionString'
   properties: {
     value: isDev
-      ? 'Host=${postgresAppName}.internal.${containerEnv.properties.defaultDomain};Port=5432;Database=hockeyhub;Username=postgres;Password=${postgresPassword}'
-      : postgresConnectionString
+      ? 'Server=tcp:${sqlServerName}.database.windows.net,1433;Initial Catalog=${sqlDbName};User ID=sqladmin;Password=${sqlAdminPassword};Encrypt=True;TrustServerCertificate=False;'
+      : sqlConnectionString
   }
 }
 
@@ -131,78 +132,46 @@ resource containerEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
   }
 }
 
-// ─── Dev-only: PostgreSQL Container App ───────────────────────────────────────
+// ─── Dev-only: Azure SQL Database (Serverless) ────────────────────────────────────
 
-resource postgresStorage 'Microsoft.App/managedEnvironments/storages@2024-03-01' = if (isDev) {
-  parent: containerEnv
-  name: 'pgdata'
+resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = if (isDev) {
+  name: sqlServerName
+  location: location
   properties: {
-    azureFile: {
-      accountName: storageAccount.name
-      accountKey: storageAccount.listKeys().keys[0].value
-      shareName: fileSharePostgres.name
-      accessMode: 'ReadWrite'
-    }
+    administratorLogin: 'sqladmin'
+    administratorLoginPassword: sqlAdminPassword
+    version: '12.0'
+    minimalTlsVersion: '1.2'
+    publicNetworkAccess: 'Enabled'
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = if (isDev) {
-  name: replace('${appName}${environmentName}st', '-', '')
-  location: location
-  sku: { name: 'Standard_LRS' }
-  kind: 'StorageV2'
-}
-
-resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2023-05-01' = if (isDev) {
-  parent: storageAccount
-  name: 'default'
-}
-
-resource fileSharePostgres 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-05-01' = if (isDev) {
-  parent: fileService
-  name: 'pgdata'
+resource sqlFirewall 'Microsoft.Sql/servers/firewallRules@2023-08-01-preview' = if (isDev) {
+  parent: sqlServer
+  name: 'AllowAzureServices'
   properties: {
-    shareQuota: 5
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '0.0.0.0'
   }
 }
 
-resource postgresApp 'Microsoft.App/containerApps@2024-03-01' = if (isDev) {
-  name: postgresAppName
+resource sqlDb 'Microsoft.Sql/servers/databases@2023-08-01-preview' = if (isDev) {
+  parent: sqlServer
+  name: sqlDbName
   location: location
+  sku: {
+    name: 'GP_S_Gen5_1'
+    tier: 'GeneralPurpose'
+    family: 'Gen5'
+    capacity: 1
+  }
   properties: {
-    managedEnvironmentId: containerEnv.id
-    configuration: {
-      ingress: {
-        external: false
-        targetPort: 5432
-        transport: 'tcp'
-      }
-    }
-    template: {
-      containers: [
-        {
-          name: 'postgres'
-          image: 'postgres:16-alpine'
-          resources: {
-            cpu: json('0.25')
-            memory: '0.5Gi'
-          }
-          env: [
-            { name: 'POSTGRES_DB', value: 'hockeyhub' }
-            { name: 'POSTGRES_USER', value: 'postgres' }
-            { name: 'POSTGRES_PASSWORD', value: postgresPassword }
-            { name: 'PGDATA', value: '/var/lib/postgresql/data/pgdata' }
-          ]
-          volumeMounts: [
-            { volumeName: 'pgdata', mountPath: '/var/lib/postgresql/data' }
-          ]
-        }
-      ]
-      scale: { minReplicas: 1, maxReplicas: 1 }
-      volumes: [
-        { name: 'pgdata', storageName: postgresStorage.name, storageType: 'AzureFile' }
-      ]
-    }
+    collation: 'SQL_Latin1_General_CP1_CI_AS'
+    maxSizeBytes: 34359738368 // 32 GB
+    autoPauseDelay: 60 // Auto-pause after 60 minutes of inactivity
+    minCapacity: json('0.5') // Minimum 0.5 vCores when active
+    zoneRedundant: false
+    requestedBackupStorageRedundancy: 'Local'
   }
 }
 
@@ -267,8 +236,8 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
       ]
       secrets: [
         {
-          name: 'postgres-connection'
-          keyVaultUrl: secretPostgres.properties.secretUri
+          name: 'db-connection'
+          keyVaultUrl: secretDatabase.properties.secretUri
           identity: 'system'
         }
         {
@@ -293,10 +262,10 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
             memory: '1Gi'
           }
           env: [
-            { name: 'ConnectionStrings__PostgreSQL', secretRef: 'postgres-connection' }
+            { name: 'ConnectionStrings__DefaultConnection', secretRef: 'db-connection' }
             { name: 'ConnectionStrings__Redis', secretRef: 'redis-connection' }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', secretRef: 'appinsights-connection' }
-            { name: 'ASPNETCORE_ENVIRONMENT', value: isDev ? 'Development' : 'Production' }
+            { name: 'ASPNETCORE_ENVIRONMENT', value: isDev ? 'Staging' : 'Production' }
           ]
           probes: [
             {

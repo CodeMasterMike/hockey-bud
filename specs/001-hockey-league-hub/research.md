@@ -37,7 +37,7 @@
 
 **Decision**: ASP.NET Core 10 Web API with Entity Framework Core 10 for data access, Hangfire for background job scheduling, and SignalR for real-time push updates.
 
-**Rationale**: Aligns with user's .NET preference. ASP.NET Core provides high-performance REST APIs, built-in DI, and mature middleware. EF Core 10 offers excellent PostgreSQL support via Npgsql. .NET 10 brings improved performance, better AOT support, and enhanced minimal APIs. Hangfire provides persistent, dashboard-visible scheduled jobs for multi-cadence data sync. SignalR provides WebSocket-based real-time push for the live score ticker and near-instant event updates.
+**Rationale**: Aligns with user's .NET preference. ASP.NET Core provides high-performance REST APIs, built-in DI, and mature middleware. EF Core 10 offers excellent SQL Server support via Microsoft.EntityFrameworkCore.SqlServer. .NET 10 brings improved performance, better AOT support, and enhanced minimal APIs. Hangfire provides persistent, dashboard-visible scheduled jobs for multi-cadence data sync. SignalR provides WebSocket-based real-time push for the live score ticker and near-instant event updates.
 
 **Alternatives considered**:
 - **Hangfire vs. IHostedService**: IHostedService is simpler but lacks job persistence, retry logic, and a monitoring dashboard. Hangfire's dashboard helps debug sync failures.
@@ -113,7 +113,7 @@
 **Rationale**: The spec now requires trade trees to show "all prior and subsequent transactions" (FR-069). This is a DAG, not a tree — a trade can have multiple ancestor trades (assets from different prior trades converging) and multiple descendant branches (assets re-traded separately). D3's force-directed layout or custom DAG layout handles variable-depth, variable-width graphs well.
 
 **Implementation**:
-- **Database traversal**: Two recursive CTEs in PostgreSQL:
+- **Database traversal**: Two recursive CTEs in SQL Server:
   1. **Descendants**: Starting from the focus trade, follow `TradeAsset.SubsequentTradeId` chains forward
   2. **Ancestors**: Starting from the focus trade's assets, follow `TradeAsset.PriorTradeAssetId` chains backward, plus `Trade.OriginTradeId`
 - **Server-side graph building**: A `TradeTreeService` executes both CTEs and assembles the full DAG. The response separates `ancestors`, `focusTrade`, and `descendants`.
@@ -188,7 +188,7 @@ The modal uses Angular CDK's `Dialog` overlay for accessibility (focus trap, ESC
 |------|-----------|-----|---------|
 | Edge (CDN) | CDN cache | 10s–3h | SSR pages via Cache-Control headers |
 | Application | Redis 7 | 10s–3h | API responses, live scores, aggregated stats |
-| Database | PostgreSQL | Persistent | All historical data, source of truth |
+| Database | SQL Server | Persistent | All historical data, source of truth |
 
 **Updated refresh cadences** (per spec Clarification on data refresh):
 

@@ -4,7 +4,7 @@
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Node.js 20+](https://nodejs.org/) and npm
-- [PostgreSQL 16](https://www.postgresql.org/download/)
+- [SQL Server 2022 Developer](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (or Docker)
 - [Redis 7](https://redis.io/download/) (or Docker)
 - [Docker](https://www.docker.com/) (optional, for containerized services)
 
@@ -21,8 +21,8 @@ git checkout 001-hockey-league-hub
 ### 2. Start infrastructure (Docker)
 
 ```bash
-# Start PostgreSQL and Redis
-docker compose up -d postgres redis
+# Start SQL Server and Redis
+docker compose up -d sqlserver redis
 ```
 
 Or use local installations — update connection strings accordingly.
@@ -36,7 +36,7 @@ cd backend/src/HockeyHub.Api
 dotnet restore
 
 # Set up user secrets for local development
-dotnet user-secrets set "ConnectionStrings:Database" "Host=localhost;Port=5432;Database=hockeyhub;Username=postgres;Password=postgres"
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost,1433;Database=HockeyHub;User Id=sa;Password=HockeyHub_Dev1!;TrustServerCertificate=True"
 dotnet user-secrets set "ConnectionStrings:Redis" "localhost:6379"
 dotnet user-secrets set "NhlApi:BaseUrl" "https://api-web.nhle.com"
 
@@ -160,7 +160,7 @@ curl -X POST https://localhost:5001/api/admin/sync/schedule
        │
        ├──▶ Redis (live cache + SignalR backplane)
        │
-       └──▶ PostgreSQL (persistent store, full history)
+       └──▶ SQL Server (persistent store, full history)
                 ▲
                 │ Data sync
        ┌────────┴────────┐
