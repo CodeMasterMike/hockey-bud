@@ -129,10 +129,7 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 
 ## TODO
 
-### Security (Critical — see docs/audit-2026-04-05.md)
-- **Secrets in repo**: Rotate Azure SP credentials, SWA API key, SQL password; scrub `secrets/` from git history
-- **Hangfire dashboard**: Add authorization filter (currently public at `/hangfire`)
-- **SQL Server public access**: Disable `publicNetworkAccess` in Bicep, restrict firewall rules
+### Security (High — see docs/audit-2026-04-05.md)
 - **CSP header**: Add `Content-Security-Policy` to `staticwebapp.config.json`
 - **Rate limiting**: Add `Microsoft.AspNetCore.RateLimiting` middleware to API
 - **CI security scanning**: Add `npm audit` and `dotnet audit` to `ci.yml`
