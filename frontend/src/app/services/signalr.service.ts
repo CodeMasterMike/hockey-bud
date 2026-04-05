@@ -80,15 +80,27 @@ export class SignalRService implements OnDestroy {
   }
 
   async joinGameGroup(gameId: number): Promise<void> {
-    await this.connection?.invoke('JoinGameGroup', gameId);
+    try {
+      await this.connection?.invoke('JoinGameGroup', gameId);
+    } catch (err) {
+      console.error('SignalR: failed to join game group', gameId, err);
+    }
   }
 
   async leaveGameGroup(gameId: number): Promise<void> {
-    await this.connection?.invoke('LeaveGameGroup', gameId);
+    try {
+      await this.connection?.invoke('LeaveGameGroup', gameId);
+    } catch (err) {
+      console.error('SignalR: failed to leave game group', gameId, err);
+    }
   }
 
   async joinAllLiveGames(): Promise<void> {
-    await this.connection?.invoke('JoinAllLiveGames');
+    try {
+      await this.connection?.invoke('JoinAllLiveGames');
+    } catch (err) {
+      console.error('SignalR: failed to join all live games', err);
+    }
   }
 
   ngOnDestroy(): void {
