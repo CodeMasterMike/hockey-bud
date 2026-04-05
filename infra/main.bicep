@@ -156,10 +156,14 @@ resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = if (isDev) {
     administratorLoginPassword: sqlAdminPassword
     version: '12.0'
     minimalTlsVersion: '1.2'
+    // Dev uses public access with restricted firewall rules (Azure services only).
+    // Prod should use Private Endpoints via the sqlConnectionString parameter.
     publicNetworkAccess: 'Enabled'
   }
 }
 
+// Allow only Azure-internal services (Container Apps) to reach dev SQL Server.
+// Prod environments should use Private Endpoints instead of firewall rules.
 resource sqlFirewall 'Microsoft.Sql/servers/firewallRules@2023-08-01-preview' = if (isDev) {
   parent: sqlServer
   name: 'AllowAzureServices'

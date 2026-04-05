@@ -128,6 +128,22 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 <!-- MANUAL ADDITIONS START -->
 
 ## TODO
+
+### Security (Critical — see docs/audit-2026-04-05.md)
+- **Secrets in repo**: Rotate Azure SP credentials, SWA API key, SQL password; scrub `secrets/` from git history
+- **Hangfire dashboard**: Add authorization filter (currently public at `/hangfire`)
+- **SQL Server public access**: Disable `publicNetworkAccess` in Bicep, restrict firewall rules
+- **CSP header**: Add `Content-Security-Policy` to `staticwebapp.config.json`
+- **Rate limiting**: Add `Microsoft.AspNetCore.RateLimiting` middleware to API
+- **CI security scanning**: Add `npm audit` and `dotnet audit` to `ci.yml`
+
+### Missing Implementation (~79% of spec remaining)
+- **Database entities (14 missing)**: PlayerPosition, PlayerHeadshot, PlayerStyle, PlayerSeason, PlayerTeamHistory, PlayerAward, Contract, ContractYear, GameEvent, GamePlayerStat, Trade, TradeAsset, ImportantDate, RuleBook
+- **API endpoints (20 missing)**: Game Hub (3), Standings (1), Stats (1), Teams (4), Players (2), Salary Cap (5), Trades (2), Free Agents (1), Schedule (1), Personnel (1), Search (1)
+- **Frontend pages (11 placeholders)**: Standings, Stats, Players, Teams, Schedule, Salary Cap, Trades, Free Agents, Personnel, Game Hub — all currently render placeholder text
+
+### Testing
 - **Frontend unit tests**: Only a placeholder test exists (`app.spec.ts`). Real unit tests needed for components (ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker, etc.) and services (ScoresApiService, GameClockService, SignalRService, ThemeService). Test infrastructure is set up: Vitest + jsdom via `@angular/build:unit-test`.
+- **Backend tests**: Expand coverage for ScoresQueryService, sync jobs, NhlWebApiProvider, HealthController
 
 <!-- MANUAL ADDITIONS END -->

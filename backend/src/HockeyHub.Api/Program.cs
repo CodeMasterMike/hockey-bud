@@ -117,7 +117,13 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<GameHub>("/hubs/scores");
-app.MapHangfireDashboard("/hangfire");
+
+// Hangfire dashboard only accessible in Development (no auth required locally).
+// Deployed environments (Staging/Production) do not expose the dashboard.
+if (app.Environment.IsDevelopment())
+{
+    app.MapHangfireDashboard("/hangfire");
+}
 
 // Hangfire recurring jobs
 app.Services.GetRequiredService<IRecurringJobManager>().AddOrUpdate<ScoresSyncJob>(

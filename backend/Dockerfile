@@ -23,5 +23,5 @@ ENV ASPNETCORE_URLS=http://+:8080
 
 COPY --from=build /app/publish .
 
-USER $APP_UID
+USER app
 ENTRYPOINT ["dotnet", "HockeyHub.Api.dll"]
