@@ -36,6 +36,9 @@ jobs:
       - name: Test
         run: dotnet test --no-build --configuration Release --verbosity normal
 
+      - name: Check for vulnerable packages
+        run: dotnet list package --vulnerable --include-transitive 2>&1 | tee vulnerable.txt && ! grep -q 'has the following vulnerable packages' vulnerable.txt
+
   frontend:
     name: Frontend Build, Lint & Test
     runs-on: ubuntu-latest
@@ -60,6 +63,9 @@ jobs:
 
       - name: Test
         run: npx ng test --watch=false
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
 
       - name: Build
         run: npx ng build --configuration production

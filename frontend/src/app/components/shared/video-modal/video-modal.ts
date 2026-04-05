@@ -58,6 +58,13 @@ export class VideoModal {
 
   safeUrl = computed((): SafeResourceUrl | null => {
     const url = this.videoUrl();
-    return url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
+    if (!url) return null;
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'https:') return null;
+    } catch {
+      return null;
+    }
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   });
 }

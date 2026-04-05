@@ -112,6 +112,17 @@ if (app.Environment.IsDevelopment())
 app.UseResponseCompression();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseCors("AppCors");
+
+// Security headers for API responses (frontend has its own via Static Web Apps config)
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    await next();
+});
+
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
