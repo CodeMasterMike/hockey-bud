@@ -5,13 +5,13 @@
 
 ## Summary
 
-Build a comprehensive hockey league information website starting with the NHL, featuring near-real-time scores with a persistent live ticker, standings, league-wide stats, team profiles with depth charts, player profiles with career data, salary cap tools (including buyout calculator), bidirectional trade trees, free agent tracking, personnel database, and a season schedule with important dates. The site uses an antique-book visual theme (Courier Prime typewriter font, beige/dark-blue color scheme) with deep cross-linking between all entities. Historical data extends as far back as reliable data allows, with era differentiation (Original 6–1972, 1973–2005, 2006–present). The backend is ASP.NET Core 10 with PostgreSQL and Redis; the frontend is Angular 19 with SSR, RxJS, and Tailwind CSS. Rink diagrams and trade trees use plain SVG with Angular bindings (D3.js/d3-dag deferred — add if needed).
+Build a comprehensive hockey league information website starting with the NHL, featuring near-real-time scores with a persistent live ticker, standings, league-wide stats, team profiles with depth charts, player profiles with career data, salary cap tools (including buyout calculator), bidirectional trade trees, free agent tracking, personnel database, and a season schedule with important dates. The site uses an antique-book visual theme (Courier Prime typewriter font, beige/dark-blue color scheme) with deep cross-linking between all entities. Historical data extends as far back as reliable data allows, with era differentiation (Original 6–1972, 1973–2005, 2006–present). The backend is ASP.NET Core 10 with SQL Server and Redis; the frontend is Angular 19 with SSR, RxJS, and Tailwind CSS. Rink diagrams and trade trees use plain SVG with Angular bindings (D3.js/d3-dag deferred — add if needed).
 
 ## Technical Context
 
 **Language/Version**: C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend)
 **Primary Dependencies**: ASP.NET Core 10, Entity Framework Core 10, Hangfire, SignalR, Angular SSR, RxJS, Tailwind CSS v3, Angular CDK
-**Storage**: PostgreSQL 16 (persistent), Redis 7 (cache + pub/sub for real-time)
+**Storage**: SQL Server (Azure SQL Database Serverless for deployed, SQL Server 2022 Developer for local Docker), Redis 7 (cache + pub/sub for real-time)
 **Testing**: xUnit (backend), Karma + Jasmine (frontend unit), Playwright + axe-core (E2E + WCAG)
 **Target Platform**: Web (CDN-served, SSR for SEO), all modern browsers + mobile responsive
 **Project Type**: Full-stack web application (REST API + SPA with SSR)
@@ -115,7 +115,7 @@ frontend/
 └── angular.json
 ```
 
-**Structure Decision**: Web application with `backend/` and `frontend/` top-level directories. The backend uses a 3-project split: **Core** (entities, interfaces — no dependencies), **Data** (DbContext, providers, services — depends on Core), and **Api** (HTTP host, hubs, middleware — depends on Data + Core). This enables isolated testing and potential future worker process extraction. The frontend is an Angular 19 SPA with SSR. Infrastructure (PostgreSQL, Redis) is containerized via docker-compose.
+**Structure Decision**: Web application with `backend/` and `frontend/` top-level directories. The backend uses a 3-project split: **Core** (entities, interfaces — no dependencies), **Data** (DbContext, providers, services — depends on Core), and **Api** (HTTP host, hubs, middleware — depends on Data + Core). This enables isolated testing and potential future worker process extraction. The frontend is an Angular 19 SPA with SSR. Infrastructure (SQL Server, Redis) is containerized via docker-compose.
 
 ## Complexity Tracking
 

@@ -20,14 +20,26 @@ public class ScoresSyncJob(
         logger.LogInformation("Syncing scores for {Date}", today);
 
         var nhlGames = await nhlProvider.GetScoresAsync(today, ct);
-        if (nhlGames.Count == 0) return;
+        if (nhlGames.Count == 0)
+        {
+            logger.LogInformation("No games found for {Date}, skipping sync", today);
+            return;
+        }
 
         var league = await db.Leagues.FirstOrDefaultAsync(l => l.Abbreviation == "NHL", ct);
-        if (league is null) return;
+        if (league is null)
+        {
+            logger.LogError("NHL league not found in database — has DataSeed been run?");
+            return;
+        }
 
         var season = await db.Seasons
             .FirstOrDefaultAsync(s => s.LeagueId == league.Id && s.IsCurrent, ct);
-        if (season is null) return;
+        if (season is null)
+        {
+            logger.LogError("No current season found for NHL — has DataSeed been run?");
+            return;
+        }
 
         var teams = await db.Teams
             .Where(t => t.LeagueId == league.Id)

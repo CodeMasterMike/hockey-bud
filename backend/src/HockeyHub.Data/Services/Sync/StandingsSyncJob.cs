@@ -18,14 +18,26 @@ public class StandingsSyncJob(
         logger.LogInformation("Syncing standings");
 
         var league = await db.Leagues.FirstOrDefaultAsync(l => l.Abbreviation == "NHL", ct);
-        if (league is null) return;
+        if (league is null)
+        {
+            logger.LogError("NHL league not found in database — has DataSeed been run?");
+            return;
+        }
 
         var season = await db.Seasons
             .FirstOrDefaultAsync(s => s.LeagueId == league.Id && s.IsCurrent, ct);
-        if (season is null) return;
+        if (season is null)
+        {
+            logger.LogError("No current season found for NHL — has DataSeed been run?");
+            return;
+        }
 
         var entries = await nhlProvider.GetStandingsAsync("now", ct);
-        if (entries.Count == 0) return;
+        if (entries.Count == 0)
+        {
+            logger.LogWarning("NHL API returned no standings entries");
+            return;
+        }
 
         var teams = await db.Teams
             .Where(t => t.LeagueId == league.Id)

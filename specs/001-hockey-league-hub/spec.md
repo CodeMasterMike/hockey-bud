@@ -335,7 +335,7 @@ A developer setting up a new environment (or recovering from data loss in dev) r
 **Acceptance Scenarios**:
 
 1. **Given** a fresh dev environment with an empty database, **When** the developer runs `dotnet run -- --seed`, **Then** all NHL teams, players, games, standings, and related data are populated from the NHL API and the site is fully functional.
-2. **Given** the dev PostgreSQL container restarts or loses data, **When** the developer re-runs `--seed`, **Then** the database is repopulated and the site recovers without manual intervention beyond running the seed command.
+2. **Given** the dev SQL Server container restarts or loses data, **When** the developer re-runs `--seed`, **Then** the database is repopulated and the site recovers without manual intervention beyond running the seed command.
 3. **Given** the prod database, **When** daily backup runs, **Then** a full backup is stored with point-in-time restore capability covering the last 35 days.
 4. **Given** a production data issue, **When** an operator initiates a point-in-time restore, **Then** the database is restored to the specified timestamp and the application reconnects without code changes.
 5. **Given** a deployment pipeline runs, **When** EF Core migrations are applied, **Then** the database schema matches the deployed code version and no manual migration steps are required.
@@ -383,7 +383,7 @@ When a new version is deployed, the Azure Container App creates a new revision a
 - **CI pipeline failure on PR**: When the CI pipeline fails on a pull request, the PR is blocked from merging. The developer must fix the failure and push again; no manual override is permitted.
 - **Database migration failure during deployment**: If an EF Core migration fails during the deploy pipeline, the deployment is halted before the new container image is activated. The previous revision remains live and the developer is alerted.
 - **Container App crash loop**: If the backend Container App enters a crash loop (repeated restarts), Azure Container Apps stops scheduling the failing revision and an alert fires. The previous stable revision continues serving traffic.
-- **Dev database data loss**: If the dev PostgreSQL container loses its data (volume failure, accidental deletion), the developer re-runs `--seed` to repopulate. No backup restore is required for dev.
+- **Dev database data loss**: If the dev SQL Server container loses its data (volume failure, accidental deletion), the developer re-runs `--seed` to repopulate. No backup restore is required for dev.
 - **Redis unavailability**: If Redis becomes unavailable, the backend MUST degrade gracefully — cached data is fetched from the database directly, and SignalR falls back to in-memory backplane (single-instance only). A "Data as of [timestamp]" indicator appears if cached data is stale.
 - **Deployment during live games**: Deployments during active NHL games MUST use zero-downtime revision swaps. Active SignalR connections MUST reconnect gracefully. If smoke tests fail, the deployment is rolled back automatically.
 - **Azure region outage**: In the event of an Azure region outage, the site is unavailable until the region recovers. Multi-region failover is deferred to a future phase. The 99.9% uptime target accounts for this risk.
@@ -533,7 +533,7 @@ When a new version is deployed, the Azure Container App creates a new revision a
 - **FR-089**: All service logs MUST be aggregated in a centralized Log Analytics Workspace and be queryable within 5 minutes of emission.
 
 #### Data Recovery
-- **FR-090**: The production PostgreSQL database MUST have automated daily backups with point-in-time restore capability covering the last 35 days.
+- **FR-090**: The production SQL Server database MUST have automated daily backups with point-in-time restore capability covering the last 35 days.
 - **FR-091**: The dev environment MUST support full data recovery via the `--seed` CLI command without requiring database backups.
 - **FR-092**: The backend API MUST degrade gracefully when Redis is unavailable — serving data directly from the database with a "Data as of [timestamp]" indicator, and falling back to an in-memory SignalR backplane for single-instance operation.
 
@@ -636,7 +636,7 @@ When a new version is deployed, the Azure Container App creates a new revision a
 - Historical data extending as far back as reliable data allows, with era differentiation
 - FO% added to standings stats
 - GitHub Actions CI/CD pipelines (CI on PR, deploy-dev on merge, deploy-prod on manual/tag)
-- Azure Container Apps hosting for backend API, Hangfire, and dev-only PostgreSQL/Redis
+- Azure Container Apps hosting for backend API, Hangfire, and dev-only Redis; Azure SQL Database Serverless for database
 - Azure Static Web Apps hosting for Angular frontend with built-in CDN and SSL
 - Infrastructure as Code via Bicep templates
 - Azure Key Vault for secret management
@@ -680,7 +680,7 @@ When a new version is deployed, the Azure Container App creates a new revision a
 | **Budget target** | Under $50/mo (lower is better) | TBD — scaled to traffic |
 | **Frontend** | Azure Static Web Apps (Free tier) | Azure Static Web Apps (Standard tier) |
 | **Backend API** | Azure Container Apps (consumption plan) | Azure Container Apps (consumption plan) |
-| **PostgreSQL** | Containerized in Azure Container Apps (data can be re-seeded from NHL API) | Azure Database for PostgreSQL Flexible Server (Burstable B1ms or higher) |
+| **SQL Server** | Azure SQL Database Serverless (GP_S_Gen5_1, auto-pause after 60min idle) | Azure SQL Database (General Purpose or higher) |
 | **Redis** | Containerized in Azure Container Apps | Azure Cache for Redis (Basic C0 or higher) |
 | **Hangfire worker** | Runs in the backend Container App | Runs in the backend Container App (separate revision if scaling needed) |
 
@@ -691,14 +691,14 @@ When a new version is deployed, the Azure Container App creates a new revision a
 - Preview environments auto-generated for pull requests
 
 ### Backend Hosting — Azure Container Apps
-- ASP.NET Core API, Redis (dev only), and PostgreSQL (dev only) run as Container Apps in a shared Container Apps Environment
+- ASP.NET Core API and Redis (dev only) run as Container Apps in a shared Container Apps Environment
 - Consumption-based pricing — scales to zero when idle, scales up under load
 - SignalR connections maintained via Azure Container Apps' built-in support for WebSockets
 - Hangfire dashboard exposed at `/hangfire` (restricted to authorized IPs/roles in prod)
 
 ### Database Strategy
-- **Dev**: PostgreSQL runs as a container in Azure Container Apps with a persistent Azure Files volume. Data loss is acceptable — the `--seed` CLI command re-populates from the NHL API
-- **Prod**: Azure Database for PostgreSQL Flexible Server with automated daily backups, point-in-time restore (up to 35 days), and geo-redundant backup storage
+- **Dev**: Azure SQL Database Serverless (GP_S_Gen5_1, auto-pause after 60min idle). Data loss is acceptable — the `--seed` CLI command re-populates from the NHL API
+- **Prod**: Azure SQL Database (General Purpose or higher) with automated daily backups, point-in-time restore (up to 35 days), and geo-redundant backup storage
 - EF Core migrations applied via CI/CD pipeline before deployment (see below)
 
 ### Redis Strategy
@@ -770,11 +770,11 @@ When a new version is deployed, the Azure Container App creates a new revision a
 |---------|---------------|
 | Azure Static Web Apps (Free tier) | $0 |
 | Azure Container Apps (backend API — consumption) | $5–15 |
-| Azure Container Apps (PostgreSQL container) | $3–8 |
+| Azure SQL Database Serverless (GP_S_Gen5_1, auto-pause) | $5–15 |
 | Azure Container Apps (Redis container) | $2–5 |
 | Azure Container Registry (Basic tier) | $5 |
 | Azure Monitor / Application Insights (free tier) | $0 |
 | Azure Key Vault (standard) | < $1 |
-| **Total estimate** | **$15–35/mo** |
+| **Total estimate** | **$17–42/mo** |
 
 *Costs assume low traffic dev usage. Container Apps consumption pricing charges only for active CPU/memory seconds — services scale to zero when idle.*

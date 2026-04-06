@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.RateLimiting;
 using HockeyHub.Core.Providers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace HockeyHub.Data.Providers;
@@ -17,10 +18,10 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public NhlWebApiProvider(HttpClient http, ILogger<NhlWebApiProvider> logger)
+    public NhlWebApiProvider(HttpClient http, ILogger<NhlWebApiProvider> logger, IConfiguration config)
     {
         _http = http;
-        _http.BaseAddress = new Uri("https://api-web.nhle.com/");
+        _http.BaseAddress = new Uri(config["ExternalApis:NhlBaseUrl"] ?? "https://api-web.nhle.com/");
         _http.DefaultRequestHeaders.Add("User-Agent", "HockeyHub/1.0");
         _logger = logger;
         _rateLimiter = new SlidingWindowRateLimiter(new SlidingWindowRateLimiterOptions
@@ -42,19 +43,26 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         {
             foreach (var entry in standings.EnumerateArray())
             {
-                var abbrev = entry.GetProperty("teamAbbrev").GetProperty("default").GetString()!;
-                var name = entry.GetProperty("teamName").GetProperty("default").GetString()!;
-                var logo = entry.GetProperty("teamLogo").GetString()!;
-                var locationName = ExtractLocationName(name, abbrev);
+                try
+                {
+                    var abbrev = entry.GetProperty("teamAbbrev").GetProperty("default").GetString()!;
+                    var name = entry.GetProperty("teamName").GetProperty("default").GetString()!;
+                    var logo = entry.GetProperty("teamLogo").GetString()!;
+                    var locationName = ExtractLocationName(name, abbrev);
 
-                teams.Add(new NhlTeamData(
-                    Id: 0,
-                    Abbreviation: abbrev,
-                    LocationName: locationName,
-                    Name: ExtractTeamName(name, locationName),
-                    LogoUrl: logo,
-                    PrimaryColor: "#000000"
-                ));
+                    teams.Add(new NhlTeamData(
+                        Id: 0,
+                        Abbreviation: abbrev,
+                        LocationName: locationName,
+                        Name: ExtractTeamName(name, locationName),
+                        LogoUrl: logo,
+                        PrimaryColor: "#000000"
+                    ));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to parse team entry from NHL API, skipping");
+                }
             }
         }
 
@@ -86,7 +94,7 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
             ? ta.GetString() ?? ""
             : "";
 
-        return ParsePlayerLanding(json, teamAbbrev);
+        return ParsePlayer(json, teamAbbrev);
     }
 
     public async Task<IReadOnlyList<NhlGameData>> GetScoresAsync(DateOnly date, CancellationToken ct = default)
@@ -99,7 +107,14 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         {
             foreach (var g in gamesArr.EnumerateArray())
             {
-                games.Add(ParseGame(g));
+                try
+                {
+                    games.Add(ParseGame(g));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to parse game entry from NHL API, skipping");
+                }
             }
         }
 
@@ -124,7 +139,14 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         {
             foreach (var entry in standings.EnumerateArray())
             {
-                entries.Add(ParseStandingsEntry(entry));
+                try
+                {
+                    entries.Add(ParseStandingsEntry(entry));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to parse standings entry from NHL API, skipping");
+                }
             }
         }
 
@@ -306,10 +328,24 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
 
     private static NhlPlayerData ParsePlayer(JsonElement p, string teamAbbreviation)
     {
-        var position = p.TryGetProperty("positionCode", out var pos) ? pos.GetString()! : "F";
+        // Roster endpoint uses "id", landing uses "playerId"
+        var id = p.TryGetProperty("playerId", out var pid) ? pid.GetInt32() : p.GetProperty("id").GetInt32();
+        var position = p.TryGetProperty("positionCode", out var pos) ? pos.GetString()!
+            : p.TryGetProperty("position", out var pos2) ? pos2.GetString()! : "F";
+
+        int? draftYear = null, draftRound = null, draftPick = null;
+        string? draftTeam = null;
+
+        if (p.TryGetProperty("draftDetails", out var draft))
+        {
+            draftYear = draft.TryGetProperty("year", out var y) ? y.GetInt32() : null;
+            draftRound = draft.TryGetProperty("round", out var r) ? r.GetInt32() : null;
+            draftPick = draft.TryGetProperty("pickInRound", out var pk) ? pk.GetInt32() : null;
+            draftTeam = draft.TryGetProperty("teamAbbrev", out var dt) ? dt.GetString() : null;
+        }
 
         return new NhlPlayerData(
-            Id: p.GetProperty("id").GetInt32(),
+            Id: id,
             FirstName: p.GetProperty("firstName").GetProperty("default").GetString()!,
             LastName: p.GetProperty("lastName").GetProperty("default").GetString()!,
             DateOfBirth: DateOnly.Parse(p.GetProperty("birthDate").GetString()!),
@@ -325,53 +361,13 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
             ShootsCatches: p.TryGetProperty("shootsCatches", out var sc) ? sc.GetString()! : "L",
             Position: position,
             JerseyNumber: p.TryGetProperty("sweaterNumber", out var jn) ? jn.GetInt32() : null,
-            DraftYear: null,
-            DraftRound: null,
-            DraftPick: null,
-            DraftTeamAbbreviation: null,
-            TeamAbbreviation: teamAbbreviation,
-            HeadshotUrl: p.TryGetProperty("headshot", out var hs) ? hs.GetString() : null,
-            IsActive: true
-        );
-    }
-
-    private static NhlPlayerData ParsePlayerLanding(JsonElement p, string teamAbbreviation)
-    {
-        int? draftYear = null, draftRound = null, draftPick = null;
-        string? draftTeam = null;
-
-        if (p.TryGetProperty("draftDetails", out var draft))
-        {
-            draftYear = draft.TryGetProperty("year", out var y) ? y.GetInt32() : null;
-            draftRound = draft.TryGetProperty("round", out var r) ? r.GetInt32() : null;
-            draftPick = draft.TryGetProperty("pickInRound", out var pk) ? pk.GetInt32() : null;
-            draftTeam = draft.TryGetProperty("teamAbbrev", out var dt) ? dt.GetString() : null;
-        }
-
-        return new NhlPlayerData(
-            Id: p.GetProperty("playerId").GetInt32(),
-            FirstName: p.GetProperty("firstName").GetProperty("default").GetString()!,
-            LastName: p.GetProperty("lastName").GetProperty("default").GetString()!,
-            DateOfBirth: DateOnly.Parse(p.GetProperty("birthDate").GetString()!),
-            BirthCity: p.TryGetProperty("birthCity", out var bc)
-                ? bc.GetProperty("default").GetString()!
-                : "",
-            BirthStateProvince: p.TryGetProperty("birthStateProvince", out var bsp)
-                ? bsp.GetProperty("default").GetString()
-                : null,
-            BirthCountry: p.TryGetProperty("birthCountry", out var bco) ? bco.GetString()! : "",
-            HeightInches: p.TryGetProperty("heightInInches", out var h) ? h.GetInt32() : 0,
-            WeightPounds: p.TryGetProperty("weightInPounds", out var w) ? w.GetInt32() : 0,
-            ShootsCatches: p.TryGetProperty("shootsCatches", out var sc) ? sc.GetString()! : "L",
-            Position: p.TryGetProperty("position", out var pos) ? pos.GetString()! : "F",
-            JerseyNumber: p.TryGetProperty("sweaterNumber", out var jn) ? jn.GetInt32() : null,
             DraftYear: draftYear,
             DraftRound: draftRound,
             DraftPick: draftPick,
             DraftTeamAbbreviation: draftTeam,
             TeamAbbreviation: teamAbbreviation,
             HeadshotUrl: p.TryGetProperty("headshot", out var hs) ? hs.GetString() : null,
-            IsActive: p.TryGetProperty("isActive", out var ia) && ia.GetBoolean()
+            IsActive: p.TryGetProperty("isActive", out var ia) ? ia.GetBoolean() : true
         );
     }
 
@@ -573,23 +569,22 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         );
     }
 
+    private static readonly Dictionary<string, string> LocationMap = new()
+    {
+        ["ANA"] = "Anaheim", ["ARI"] = "Arizona", ["BOS"] = "Boston", ["BUF"] = "Buffalo",
+        ["CGY"] = "Calgary", ["CAR"] = "Carolina", ["CHI"] = "Chicago", ["COL"] = "Colorado",
+        ["CBJ"] = "Columbus", ["DAL"] = "Dallas", ["DET"] = "Detroit", ["EDM"] = "Edmonton",
+        ["FLA"] = "Florida", ["LAK"] = "Los Angeles", ["MIN"] = "Minnesota", ["MTL"] = "Montréal",
+        ["NSH"] = "Nashville", ["NJD"] = "New Jersey", ["NYI"] = "New York", ["NYR"] = "New York",
+        ["OTT"] = "Ottawa", ["PHI"] = "Philadelphia", ["PIT"] = "Pittsburgh", ["SJS"] = "San Jose",
+        ["SEA"] = "Seattle", ["STL"] = "St. Louis", ["TBL"] = "Tampa Bay", ["TOR"] = "Toronto",
+        ["UTA"] = "Utah", ["VAN"] = "Vancouver", ["VGK"] = "Vegas", ["WSH"] = "Washington",
+        ["WPG"] = "Winnipeg"
+    };
+
     private static string ExtractLocationName(string fullName, string abbreviation)
     {
-        // Map well-known team abbreviations to their location names
-        var locationMap = new Dictionary<string, string>
-        {
-            ["ANA"] = "Anaheim", ["ARI"] = "Arizona", ["BOS"] = "Boston", ["BUF"] = "Buffalo",
-            ["CGY"] = "Calgary", ["CAR"] = "Carolina", ["CHI"] = "Chicago", ["COL"] = "Colorado",
-            ["CBJ"] = "Columbus", ["DAL"] = "Dallas", ["DET"] = "Detroit", ["EDM"] = "Edmonton",
-            ["FLA"] = "Florida", ["LAK"] = "Los Angeles", ["MIN"] = "Minnesota", ["MTL"] = "Montréal",
-            ["NSH"] = "Nashville", ["NJD"] = "New Jersey", ["NYI"] = "New York", ["NYR"] = "New York",
-            ["OTT"] = "Ottawa", ["PHI"] = "Philadelphia", ["PIT"] = "Pittsburgh", ["SJS"] = "San Jose",
-            ["SEA"] = "Seattle", ["STL"] = "St. Louis", ["TBL"] = "Tampa Bay", ["TOR"] = "Toronto",
-            ["UTA"] = "Utah", ["VAN"] = "Vancouver", ["VGK"] = "Vegas", ["WSH"] = "Washington",
-            ["WPG"] = "Winnipeg"
-        };
-
-        return locationMap.GetValueOrDefault(abbreviation, fullName.Split(' ')[0]);
+        return LocationMap.GetValueOrDefault(abbreviation, fullName.Split(' ')[0]);
     }
 
     private static string ExtractTeamName(string fullName, string locationName)

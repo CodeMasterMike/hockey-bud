@@ -8,6 +8,10 @@ concurrency:
   group: deploy-dev
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  id-token: write
+
 env:
   AZURE_RESOURCE_GROUP: hockeyhub-dev-rg
   ACR_NAME: hockeyhubdevacr

@@ -21,11 +21,11 @@ public class RedisCacheService(IDistributedCache cache, ILogger<RedisCacheServic
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken ct = default) where T : class
     {
-        var data = await cache.GetStringAsync(key, ct);
-        if (data is null) return null;
-
         try
         {
+            var data = await cache.GetStringAsync(key, ct);
+            if (data is null) return null;
+
             return JsonSerializer.Deserialize<T>(data, JsonOptions);
         }
         catch (JsonException ex)
@@ -33,21 +33,40 @@ public class RedisCacheService(IDistributedCache cache, ILogger<RedisCacheServic
             logger.LogWarning(ex, "Failed to deserialize cached value for key {Key}", key);
             return null;
         }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Redis unavailable for GET {Key}, falling through to source", key);
+            return null;
+        }
     }
 
     public async Task SetAsync<T>(string key, T value, TimeSpan ttl, CancellationToken ct = default) where T : class
     {
-        var json = JsonSerializer.Serialize(value, JsonOptions);
-        var options = new DistributedCacheEntryOptions
+        try
         {
-            AbsoluteExpirationRelativeToNow = ttl
-        };
-        await cache.SetStringAsync(key, json, options, ct);
+            var json = JsonSerializer.Serialize(value, JsonOptions);
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = ttl
+            };
+            await cache.SetStringAsync(key, json, options, ct);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Redis unavailable for SET {Key}, skipping cache write", key);
+        }
     }
 
     public async Task RemoveAsync(string key, CancellationToken ct = default)
     {
-        await cache.RemoveAsync(key, ct);
+        try
+        {
+            await cache.RemoveAsync(key, ct);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Redis unavailable for DEL {Key}, skipping cache invalidation", key);
+        }
     }
 
     public async Task<T> GetOrSetAsync<T>(
@@ -76,9 +95,9 @@ public class RedisCacheService(IDistributedCache cache, ILogger<RedisCacheServic
             var wrapper = JsonSerializer.Deserialize<CachedWrapper<T>>(data, JsonOptions);
             return (wrapper?.Value, wrapper?.CachedAt);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
-            // Try deserializing as raw value (for backward compatibility)
+            logger.LogWarning(ex, "Failed to deserialize cached wrapper for key {Key}, falling back to raw value", key);
             var value = JsonSerializer.Deserialize<T>(data, JsonOptions);
             return (value, null);
         }

@@ -18,9 +18,10 @@ public static class NhlDateHelper
 
     /// <summary>
     /// Returns the current NHL game day, accounting for the 3 AM ET boundary.
+    /// Uses the provided TimeProvider for testability, defaults to system clock.
     /// </summary>
-    public static DateOnly GetCurrentGameDay() =>
-        DateOnly.FromDateTime(GetEasternNow().AddHours(-GameDayBoundaryHours));
+    public static DateOnly GetCurrentGameDay(TimeProvider? timeProvider = null) =>
+        DateOnly.FromDateTime(GetEasternNow(timeProvider).AddHours(-GameDayBoundaryHours));
 
     /// <summary>
     /// Converts a UTC DateTimeOffset to Eastern time for display purposes.
@@ -34,6 +35,6 @@ public static class NhlDateHelper
     public static string FormatStartTimeEastern(DateTimeOffset scheduledStart) =>
         TimeZoneInfo.ConvertTime(scheduledStart, EasternTz).ToString("h:mm tt");
 
-    private static DateTime GetEasternNow() =>
-        TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, EasternTz);
+    private static DateTime GetEasternNow(TimeProvider? timeProvider = null) =>
+        TimeZoneInfo.ConvertTimeFromUtc((timeProvider ?? TimeProvider.System).GetUtcNow().UtcDateTime, EasternTz);
 }

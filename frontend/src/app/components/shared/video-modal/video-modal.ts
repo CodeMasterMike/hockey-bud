@@ -1,14 +1,15 @@
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-video-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (videoUrl()) {
+    @if (safeUrl()) {
       <div class="modal-overlay" role="button" tabindex="0" (click)="closed.emit()" (keydown.enter)="closed.emit()">
         <div class="modal-content" role="dialog" (click)="$event.stopPropagation()" (keydown.escape)="closed.emit()">
           <button class="modal-close" (click)="closed.emit()" aria-label="Close">&times;</button>
-          <iframe [src]="videoUrl()!" allowfullscreen class="modal-video"></iframe>
+          <iframe [src]="safeUrl()!" allowfullscreen class="modal-video"></iframe>
         </div>
       </div>
     }
@@ -50,6 +51,20 @@ import { Component, input, output, ChangeDetectionStrategy } from '@angular/core
   `]
 })
 export class VideoModal {
+  private sanitizer = inject(DomSanitizer);
+
   videoUrl = input<string | null>(null);
   closed = output();
+
+  safeUrl = computed((): SafeResourceUrl | null => {
+    const url = this.videoUrl();
+    if (!url) return null;
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'https:') return null;
+    } catch {
+      return null;
+    }
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  });
 }

@@ -6,7 +6,7 @@ Comprehensive hockey league information website starting with NHL — scores, st
 
 - **Backend**: C# 14 / .NET 10, ASP.NET Core 10, Entity Framework Core 10, Hangfire, SignalR
 - **Frontend**: TypeScript 5.x / Angular 19, Angular SSR, RxJS, Tailwind CSS v3, Angular CDK
-- **Database**: PostgreSQL 16 (persistent), Redis 7 (cache + pub/sub)
+- **Database**: SQL Server (Azure SQL Database Serverless for deployed, SQL Server 2022 Developer for local Docker), Redis 7 (cache + pub/sub)
 
 ## Project Structure
 
@@ -57,7 +57,7 @@ specs/
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Node.js 20+](https://nodejs.org/) and npm
-- [Docker](https://www.docker.com/) (for PostgreSQL 16 and Redis 7)
+- [Docker](https://www.docker.com/) (for SQL Server 2022 and Redis 7)
 - [EF Core CLI](https://learn.microsoft.com/en-us/ef/core/cli/dotnet): `dotnet tool install --global dotnet-ef`
 
 ## Getting Started
@@ -68,7 +68,7 @@ specs/
 docker compose up -d
 ```
 
-This starts PostgreSQL 16 (port 5432, db: `hockeyhub`, user: `hockeyhub`, password: `hockeyhub_dev`) and Redis 7 (port 6379).
+This starts SQL Server 2022 Developer (port 1433, user: `sa`, password: `HockeyHub_Dev1!`) and Redis 7 (port 6379).
 
 ### 2. Backend setup
 
@@ -159,8 +159,8 @@ ng serve    # Dev server with hot reload at http://localhost:4200
 ### Verifying services are running
 
 ```bash
-# PostgreSQL
-docker exec hockeyhub-postgres pg_isready -U hockeyhub
+# SQL Server
+docker exec hockeyhub-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "HockeyHub_Dev1!" -C -Q "SELECT 1"
 
 # Redis
 docker exec hockeyhub-redis redis-cli ping

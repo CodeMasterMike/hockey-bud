@@ -1,5 +1,5 @@
 using Hangfire;
-using Hangfire.PostgreSql;
+using Hangfire.SqlServer;
 using HockeyHub.Api.Hubs;
 using HockeyHub.Api.Middleware;
 using HockeyHub.Core.Providers;
@@ -14,12 +14,24 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Database
 builder.Services.AddDbContext<HockeyHubDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Redis distributed cache
+// Redis shared connection + distributed cache
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+if (!string.IsNullOrEmpty(redisConnectionString))
+{
+    builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(
+        StackExchange.Redis.ConnectionMultiplexer.Connect(new StackExchange.Redis.ConfigurationOptions
+        {
+            EndPoints = { redisConnectionString },
+            AbortOnConnectFail = false,
+            ConnectRetry = 5,
+        }));
+}
+
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.Configuration = redisConnectionString;
     options.InstanceName = "HockeyHub:";
 });
 
@@ -37,8 +49,7 @@ builder.Services.AddHangfire(config => config
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
-    .UsePostgreSqlStorage(options =>
-        options.UseNpgsqlConnection(builder.Configuration.GetConnectionString("PostgreSQL")!)));
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddHangfireServer();
 
 // NHL data provider
@@ -51,6 +62,12 @@ builder.Services.AddScoped<ScoresQueryService>();
 builder.Services.AddScoped<ScoresSyncJob>();
 builder.Services.AddScoped<StandingsSyncJob>();
 builder.Services.AddSingleton<IScoreBroadcaster, SignalRScoreBroadcaster>();
+
+// Response compression
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
 
 // Controllers & CORS
 builder.Services.AddControllers();
@@ -79,27 +96,45 @@ if (app.Environment.IsDevelopment())
     {
         try
         {
-            db.Database.Migrate();
+            await db.Database.MigrateAsync();
             logger.LogInformation("Database migration completed on attempt {Attempt}", attempt);
             break;
         }
         catch (Exception ex) when (attempt < 10)
         {
             logger.LogWarning(ex, "Database migration attempt {Attempt} failed, retrying in 5s...", attempt);
-            Thread.Sleep(5000);
+            await Task.Delay(5000);
         }
     }
 }
 
 // Middleware pipeline
+app.UseResponseCompression();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseCors("AppCors");
+
+// Security headers for API responses (frontend has its own via Static Web Apps config)
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    await next();
+});
+
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<GameHub>("/hubs/scores");
-app.MapHangfireDashboard("/hangfire");
+
+// Hangfire dashboard only accessible in Development (no auth required locally).
+// Deployed environments (Staging/Production) do not expose the dashboard.
+if (app.Environment.IsDevelopment())
+{
+    app.MapHangfireDashboard("/hangfire");
+}
 
 // Hangfire recurring jobs
 app.Services.GetRequiredService<IRecurringJobManager>().AddOrUpdate<ScoresSyncJob>(

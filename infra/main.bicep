@@ -18,15 +18,21 @@ param appName string = 'hockeyhub'
 @description('Backend container image (full ACR path with tag)')
 param backendImage string = ''
 
-@description('PostgreSQL admin password')
+@description('SQL Server admin password')
 @secure()
-param postgresPassword string
+param sqlAdminPassword string
 
-@description('PostgreSQL connection string override (for prod managed DB)')
-param postgresConnectionString string = ''
+@description('Azure region for SQL Server (if different from primary location due to quota)')
+param sqlLocation string = location
+
+@description('SQL Server connection string override (for prod managed DB)')
+param sqlConnectionString string = ''
 
 @description('Redis connection string override (for prod managed Redis)')
 param redisConnectionString string = ''
+
+@description('Allowed CORS origins for the backend API (prod only, dev defaults to localhost)')
+param allowedOrigins array = []
 
 // ─── Variables ────────────────────────────────────────────────────────────────
 
@@ -37,15 +43,22 @@ var logAnalyticsName = '${suffix}-logs'
 var appInsightsName = '${suffix}-ai'
 var containerEnvName = '${suffix}-env'
 var backendAppName = '${suffix}-api'
-var postgresAppName = '${suffix}-pg'
+var sqlServerName = '${suffix}-sql'
+var sqlDbName = 'hockeyhub'
 var redisAppName = '${suffix}-redis'
 var isDev = environmentName == 'dev'
+var tags = {
+  environment: environmentName
+  project: appName
+  managedBy: 'Bicep'
+}
 
 // ─── Log Analytics Workspace ──────────────────────────────────────────────────
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: logAnalyticsName
   location: location
+  tags: tags
   properties: {
     sku: { name: 'PerGB2018' }
     retentionInDays: 30
@@ -58,6 +71,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: appInsightsName
   location: location
   kind: 'web'
+  tags: tags
   properties: {
     Application_Type: 'web'
     WorkspaceResourceId: logAnalytics.id
@@ -69,6 +83,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
 resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: acrName
   location: location
+  tags: tags
   sku: { name: 'Basic' }
   properties: {
     adminUserEnabled: false
@@ -80,6 +95,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
   location: location
+  tags: tags
   properties: {
     sku: { family: 'A', name: 'standard' }
     tenantId: subscription().tenantId
@@ -89,13 +105,13 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   }
 }
 
-resource secretPostgres 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+resource secretDatabase 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: keyVault
-  name: 'PostgresConnectionString'
+  name: 'DatabaseConnectionString'
   properties: {
     value: isDev
-      ? 'Host=${postgresAppName}.internal.${containerEnv.properties.defaultDomain};Port=5432;Database=hockeyhub;Username=postgres;Password=${postgresPassword}'
-      : postgresConnectionString
+      ? 'Server=tcp:${sqlServerName}.database.windows.net,1433;Initial Catalog=${sqlDbName};User ID=sqladmin;Password=${sqlAdminPassword};Encrypt=True;TrustServerCertificate=False;'
+      : sqlConnectionString
   }
 }
 
@@ -120,6 +136,7 @@ resource secretAppInsights 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
 resource containerEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: containerEnvName
   location: location
+  tags: tags
   properties: {
     appLogsConfiguration: {
       destination: 'log-analytics'
@@ -131,78 +148,52 @@ resource containerEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
   }
 }
 
-// ─── Dev-only: PostgreSQL Container App ───────────────────────────────────────
+// ─── Dev-only: Azure SQL Database (Serverless) ────────────────────────────────────
 
-resource postgresStorage 'Microsoft.App/managedEnvironments/storages@2024-03-01' = if (isDev) {
-  parent: containerEnv
-  name: 'pgdata'
+resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = if (isDev) {
+  name: sqlServerName
+  location: sqlLocation
+  tags: tags
   properties: {
-    azureFile: {
-      accountName: storageAccount.name
-      accountKey: storageAccount.listKeys().keys[0].value
-      shareName: fileSharePostgres.name
-      accessMode: 'ReadWrite'
-    }
+    administratorLogin: 'sqladmin'
+    administratorLoginPassword: sqlAdminPassword
+    version: '12.0'
+    minimalTlsVersion: '1.2'
+    // Dev uses public access with restricted firewall rules (Azure services only).
+    // Prod should use Private Endpoints via the sqlConnectionString parameter.
+    publicNetworkAccess: 'Enabled'
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = if (isDev) {
-  name: replace('${appName}${environmentName}st', '-', '')
-  location: location
-  sku: { name: 'Standard_LRS' }
-  kind: 'StorageV2'
-}
-
-resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2023-05-01' = if (isDev) {
-  parent: storageAccount
-  name: 'default'
-}
-
-resource fileSharePostgres 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-05-01' = if (isDev) {
-  parent: fileService
-  name: 'pgdata'
+// Allow only Azure-internal services (Container Apps) to reach dev SQL Server.
+// Prod environments should use Private Endpoints instead of firewall rules.
+resource sqlFirewall 'Microsoft.Sql/servers/firewallRules@2023-08-01-preview' = if (isDev) {
+  parent: sqlServer
+  name: 'AllowAzureServices'
   properties: {
-    shareQuota: 5
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '0.0.0.0'
   }
 }
 
-resource postgresApp 'Microsoft.App/containerApps@2024-03-01' = if (isDev) {
-  name: postgresAppName
-  location: location
+resource sqlDb 'Microsoft.Sql/servers/databases@2023-08-01-preview' = if (isDev) {
+  parent: sqlServer
+  name: sqlDbName
+  location: sqlLocation
+  tags: tags
+  sku: {
+    name: 'GP_S_Gen5_1'
+    tier: 'GeneralPurpose'
+    family: 'Gen5'
+    capacity: 1
+  }
   properties: {
-    managedEnvironmentId: containerEnv.id
-    configuration: {
-      ingress: {
-        external: false
-        targetPort: 5432
-        transport: 'tcp'
-      }
-    }
-    template: {
-      containers: [
-        {
-          name: 'postgres'
-          image: 'postgres:16-alpine'
-          resources: {
-            cpu: json('0.25')
-            memory: '0.5Gi'
-          }
-          env: [
-            { name: 'POSTGRES_DB', value: 'hockeyhub' }
-            { name: 'POSTGRES_USER', value: 'postgres' }
-            { name: 'POSTGRES_PASSWORD', value: postgresPassword }
-            { name: 'PGDATA', value: '/var/lib/postgresql/data/pgdata' }
-          ]
-          volumeMounts: [
-            { volumeName: 'pgdata', mountPath: '/var/lib/postgresql/data' }
-          ]
-        }
-      ]
-      scale: { minReplicas: 1, maxReplicas: 1 }
-      volumes: [
-        { name: 'pgdata', storageName: postgresStorage.name, storageType: 'AzureFile' }
-      ]
-    }
+    collation: 'SQL_Latin1_General_CP1_CI_AS'
+    maxSizeBytes: 34359738368 // 32 GB
+    autoPauseDelay: 60 // Auto-pause after 60 minutes of inactivity
+    minCapacity: json('0.5') // Minimum 0.5 vCores when active
+    zoneRedundant: false
+    requestedBackupStorageRedundancy: 'Local'
   }
 }
 
@@ -211,6 +202,7 @@ resource postgresApp 'Microsoft.App/containerApps@2024-03-01' = if (isDev) {
 resource redisApp 'Microsoft.App/containerApps@2024-03-01' = if (isDev) {
   name: redisAppName
   location: location
+  tags: tags
   properties: {
     managedEnvironmentId: containerEnv.id
     configuration: {
@@ -241,6 +233,7 @@ resource redisApp 'Microsoft.App/containerApps@2024-03-01' = if (isDev) {
 resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
   name: backendAppName
   location: location
+  tags: tags
   identity: {
     type: 'SystemAssigned'
   }
@@ -253,9 +246,9 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
         targetPort: 8080
         transport: 'http'
         corsPolicy: {
-          allowedOrigins: ['*']
-          allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-          allowedHeaders: ['*']
+          allowedOrigins: isDev ? ['http://localhost:4200', 'https://localhost:4200', 'https://yellow-pond-0bd57f50f.1.azurestaticapps.net'] : allowedOrigins
+          allowedMethods: ['GET', 'POST', 'OPTIONS']
+          allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
           allowCredentials: true
         }
       }
@@ -267,8 +260,8 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
       ]
       secrets: [
         {
-          name: 'postgres-connection'
-          keyVaultUrl: secretPostgres.properties.secretUri
+          name: 'db-connection'
+          keyVaultUrl: secretDatabase.properties.secretUri
           identity: 'system'
         }
         {
@@ -293,10 +286,10 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
             memory: '1Gi'
           }
           env: [
-            { name: 'ConnectionStrings__PostgreSQL', secretRef: 'postgres-connection' }
+            { name: 'ConnectionStrings__DefaultConnection', secretRef: 'db-connection' }
             { name: 'ConnectionStrings__Redis', secretRef: 'redis-connection' }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', secretRef: 'appinsights-connection' }
-            { name: 'ASPNETCORE_ENVIRONMENT', value: isDev ? 'Development' : 'Production' }
+            { name: 'ASPNETCORE_ENVIRONMENT', value: isDev ? 'Staging' : 'Production' }
           ]
           probes: [
             {

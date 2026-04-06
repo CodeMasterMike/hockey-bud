@@ -29,12 +29,12 @@ Researched: 2026-03-17
 
 ---
 
-## Free Data Downloads (CSV — ETL into PostgreSQL)
+## Free Data Downloads (CSV — ETL into SQL Server)
 
 ### MoneyPuck (`moneypuck.com/data.htm`)
 - **Data:** 1.7M+ shots (2007-08 to present, 124 attributes per shot), xG models, advanced player/goalie/team stats, playoff probabilities
 - **Cost:** Free (attribution requested)
-- **Format:** CSV files — ideal for nightly Hangfire ETL job into PostgreSQL
+- **Format:** CSV files — ideal for nightly Hangfire ETL job into SQL Server
 - **Freshness:** Updated nightly during season
 
 ### Natural Stat Trick (`naturalstattrick.com`)

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject, merge, timer, switchMap, startWith, shareReplay } from 'rxjs';
 import { SignalRService, ScoreUpdate } from './signalr.service';
-import { TICKER_POLL_INTERVAL_MS } from '../constants';
+import { API_BASE_URL, TICKER_POLL_INTERVAL_MS } from '../constants';
 
 export interface ScoresResponse {
   date: string;
@@ -159,11 +159,11 @@ export class ScoresApiService {
   getScores(leagueId: string, date?: string): Observable<ScoresResponse> {
     const params: Record<string, string> = {};
     if (date) params['date'] = date;
-    return this.http.get<ScoresResponse>(`/api/leagues/${leagueId}/scores`, { params });
+    return this.http.get<ScoresResponse>(`${API_BASE_URL}/api/leagues/${leagueId}/scores`, { params });
   }
 
   getExpandedScore(leagueId: string, gameId: number): Observable<ExpandedScore> {
-    return this.http.get<ExpandedScore>(`/api/leagues/${leagueId}/scores/${gameId}/expanded`);
+    return this.http.get<ExpandedScore>(`${API_BASE_URL}/api/leagues/${leagueId}/scores/${gameId}/expanded`);
   }
 
   getTicker(leagueId: string): Observable<TickerResponse> {
@@ -173,13 +173,13 @@ export class ScoresApiService {
       timer(0, TICKER_POLL_INTERVAL_MS)
     ).pipe(
       startWith(null),
-      switchMap(() => this.http.get<TickerResponse>(`/api/leagues/${leagueId}/scores/ticker`)),
+      switchMap(() => this.http.get<TickerResponse>(`${API_BASE_URL}/api/leagues/${leagueId}/scores/ticker`)),
       shareReplay(1)
     );
   }
 
   getPregame(leagueId: string, gameId: number): Observable<PregameMatchup> {
-    return this.http.get<PregameMatchup>(`/api/leagues/${leagueId}/scores/${gameId}/pregame`);
+    return this.http.get<PregameMatchup>(`${API_BASE_URL}/api/leagues/${leagueId}/scores/${gameId}/pregame`);
   }
 
   get scoreUpdates$(): Observable<ScoreUpdate> {

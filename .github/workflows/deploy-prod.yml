@@ -14,6 +14,10 @@ concurrency:
   group: deploy-prod
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  id-token: write
+
 env:
   AZURE_RESOURCE_GROUP: hockeyhub-prod-rg
   ACR_NAME: hockeyhubprodacr
@@ -71,7 +75,7 @@ jobs:
           dotnet-quality: 'preview'
 
       - name: Install EF Core tools
-        run: dotnet tool install --global dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 10.0.0
 
       - name: Azure Login
         uses: azure/login@v2
@@ -83,7 +87,7 @@ jobs:
         run: |
           connstr=$(az keyvault secret show \
             --vault-name hockeyhub-prod-kv \
-            --name PostgresConnectionString \
+            --name DatabaseConnectionString \
             --query value -o tsv)
           echo "::add-mask::$connstr"
           echo "db_connection=$connstr" >> "$GITHUB_OUTPUT"
@@ -91,7 +95,7 @@ jobs:
       - name: Apply migrations
         working-directory: backend/src/HockeyHub.Api
         env:
-          ConnectionStrings__PostgreSQL: ${{ steps.kv.outputs.db_connection }}
+          ConnectionStrings__DefaultConnection: ${{ steps.kv.outputs.db_connection }}
         run: |
           dotnet ef database update \
             --project ../HockeyHub.Data \

@@ -118,10 +118,10 @@ export class CalendarPicker {
   isSelected(day: number): boolean {
     const sel = this.selectedDate();
     if (!sel) return false;
-    const d = new Date(sel + 'T00:00:00');
-    return d.getFullYear() === this.viewYear()
-      && d.getMonth() === this.viewMonth()
-      && d.getDate() === day;
+    const parts = sel.split('-');
+    return parseInt(parts[0]) === this.viewYear()
+      && parseInt(parts[1]) === this.viewMonth() + 1
+      && parseInt(parts[2]) === day;
   }
 
   isToday(day: number): boolean {
