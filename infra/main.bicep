@@ -22,6 +22,9 @@ param backendImage string = ''
 @secure()
 param sqlAdminPassword string
 
+@description('Azure region for SQL Server (if different from primary location due to quota)')
+param sqlLocation string = location
+
 @description('SQL Server connection string override (for prod managed DB)')
 param sqlConnectionString string = ''
 
@@ -149,7 +152,7 @@ resource containerEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
 
 resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = if (isDev) {
   name: sqlServerName
-  location: location
+  location: sqlLocation
   tags: tags
   properties: {
     administratorLogin: 'sqladmin'
@@ -176,7 +179,7 @@ resource sqlFirewall 'Microsoft.Sql/servers/firewallRules@2023-08-01-preview' = 
 resource sqlDb 'Microsoft.Sql/servers/databases@2023-08-01-preview' = if (isDev) {
   parent: sqlServer
   name: sqlDbName
-  location: location
+  location: sqlLocation
   tags: tags
   sku: {
     name: 'GP_S_Gen5_1'

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HockeyHub.Data.Migrations
 {
     [DbContext(typeof(HockeyHubDbContext))]
-    [Migration("20260405184318_InitialCreate")]
+    [Migration("20260406022026_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -730,13 +730,13 @@ namespace HockeyHub.Data.Migrations
                     b.HasOne("HockeyHub.Core.Models.Entities.Season", "Season")
                         .WithMany()
                         .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("HockeyHub.Core.Models.Entities.Team", "Team")
                         .WithMany()
                         .HasForeignKey("TeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Season");

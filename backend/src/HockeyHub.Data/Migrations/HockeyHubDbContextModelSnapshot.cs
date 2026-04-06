@@ -727,13 +727,13 @@ namespace HockeyHub.Data.Migrations
                     b.HasOne("HockeyHub.Core.Models.Entities.Season", "Season")
                         .WithMany()
                         .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("HockeyHub.Core.Models.Entities.Team", "Team")
                         .WithMany()
                         .HasForeignKey("TeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Season");

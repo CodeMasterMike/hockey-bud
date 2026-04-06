@@ -151,11 +151,13 @@ public class HockeyHubDbContext(DbContextOptions<HockeyHubDbContext> options) : 
 
             entity.HasOne(e => e.Team)
                 .WithMany()
-                .HasForeignKey(e => e.TeamId);
+                .HasForeignKey(e => e.TeamId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.Season)
                 .WithMany()
-                .HasForeignKey(e => e.SeasonId);
+                .HasForeignKey(e => e.SeasonId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
