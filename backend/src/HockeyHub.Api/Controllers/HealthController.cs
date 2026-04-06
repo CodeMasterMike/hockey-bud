@@ -48,14 +48,14 @@ public class HealthController : ControllerBase
 
         try
         {
-            if (_redis is not null)
+            if (_redis is not null && _redis.IsConnected)
             {
                 await _redis.GetDatabase().PingAsync();
                 checks["redis"] = "ok";
             }
             else
             {
-                checks["redis"] = "not configured";
+                checks["redis"] = _redis is null ? "not configured" : "connecting";
             }
         }
         catch (Exception ex)
@@ -64,8 +64,11 @@ public class HealthController : ControllerBase
             checks["redis"] = "unavailable";
         }
 
-        var healthy = checks.Values.All(v => v == "ok");
-        var result = new { status = healthy ? "healthy" : "degraded", checks };
-        return healthy ? Ok(result) : StatusCode(503, result);
+        // Database is required — if it's down the app can't serve requests.
+        // Redis is optional — the app works without it (cache misses only).
+        var dbOk = checks.GetValueOrDefault("database") == "ok";
+        var status = dbOk ? (checks.Values.All(v => v is "ok" or "not configured") ? "healthy" : "degraded") : "unhealthy";
+        var result = new { status, checks };
+        return dbOk ? Ok(result) : StatusCode(503, result);
     }
 }
