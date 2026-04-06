@@ -1,3 +1,8 @@
+import { environment } from '../environments/environment';
+
+/** Base URL for API requests (empty for local dev proxy, full URL for deployed). */
+export const API_BASE_URL = environment.apiBaseUrl;
+
 /** Default league ID used across the application. */
 export const DEFAULT_LEAGUE_ID = 'nhl';
 
@@ -10,8 +15,8 @@ export const SIGNALR_RECONNECT_DELAYS = [0, 2000, 5000, 10000, 30000];
 /** Delay before retrying a failed initial SignalR connection (ms). */
 export const SIGNALR_INITIAL_RETRY_DELAY_MS = 30_000;
 
-/** SignalR hub endpoint path. */
-export const SIGNALR_HUB_URL = '/hubs/scores';
+/** SignalR hub endpoint URL. */
+export const SIGNALR_HUB_URL = `${API_BASE_URL}/hubs/scores`;
 
 /** SignalR event names — must match the server-side hub method names. */
 export const SIGNALR_EVENTS = {

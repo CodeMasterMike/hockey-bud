@@ -246,7 +246,7 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
         targetPort: 8080
         transport: 'http'
         corsPolicy: {
-          allowedOrigins: isDev ? ['http://localhost:4200', 'https://localhost:4200'] : allowedOrigins
+          allowedOrigins: isDev ? ['http://localhost:4200', 'https://localhost:4200', 'https://yellow-pond-0bd57f50f.1.azurestaticapps.net'] : allowedOrigins
           allowedMethods: ['GET', 'POST', 'OPTIONS']
           allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
           allowCredentials: true
