@@ -129,12 +129,16 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 
 ## TODO
 
+### Active Blockers (Azure dev)
+- **Redis connectivity**: Backend cannot reach `hockeyhub-dev-redis.internal.purplewave-82f5d767.eastus.azurecontainerapps.io:6379` (TCP timeout). Redis container is running. App degrades gracefully (cache misses, readiness reports `degraded` not `unhealthy`). Likely Container Apps internal DNS/transport issue.
+
 ### Security (Remaining — see docs/audit-2026-04-05.md)
 - **Rate limiting**: Add `Microsoft.AspNetCore.RateLimiting` middleware to API
 - **Redis auth**: Add `--requirepass` to dev Redis container; use Azure Cache for Redis in prod
 - **Migration rollback**: Add validation/rollback step to deploy workflows
 - **ACR SKU**: Upgrade to Standard for prod (enables image vulnerability scanning)
 - **SQL threat protection**: Add `securityAlertPolicies` and `auditingSettings` to Bicep
+- **SQL admin password rotation**: Initial deploy password is in shell history
 
 ### Missing Implementation (~79% of spec remaining)
 - **Database entities (14 missing)**: PlayerPosition, PlayerHeadshot, PlayerStyle, PlayerSeason, PlayerTeamHistory, PlayerAward, Contract, ContractYear, GameEvent, GamePlayerStat, Trade, TradeAsset, ImportantDate, RuleBook
