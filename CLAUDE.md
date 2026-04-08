@@ -112,6 +112,7 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - Subscription cleanup uses `takeUntilDestroyed(destroyRef)` — do not use manual `Subscription[]` + `ngOnDestroy` patterns
 
 ## Recent Changes
+- Redis connectivity fix (Azure dev): Backend was using HTTP-style FQDN `<app>.internal.<defaultDomain>:6379` for the Redis connection string, which resolves to the Container Apps Envoy ingress IP (HTTP-only, can't proxy raw Redis protocol). Switched to bare app name `<app>:6379` which resolves to the k8s service ClusterIP and reaches the Redis pod directly. For TCP ingress between Container Apps in the same env, always use the bare app name. Also added `sqlLocation: centralus` to `parameters.dev.json` (the SQL Server lives in Central US due to East US quota; missing param caused redeploys to attempt re-creation in East US and fail with `InvalidResourceLocation`).
 - Database migration: Switched from PostgreSQL 16 to SQL Server (Azure SQL Database Serverless for dev with auto-pause, SQL Server 2022 Developer for local Docker); replaced Npgsql with Microsoft.EntityFrameworkCore.SqlServer, Hangfire.PostgreSql with Hangfire.SqlServer; added JsonDocument value converter for SQL Server compatibility; regenerated EF migrations; renamed connection string key to DefaultConnection; updated Bicep, Docker Compose, CI/CD workflows, and all documentation
 - Deploy pipeline fixes: Replaced dev PostgreSQL Container App (Azure File permission failures) with Azure SQL Database Serverless (GP_S_Gen5_1, auto-pause after 60min idle); fixed Bicep conditionals that skipped secrets/env vars/probes when `backendImage` was empty; changed deployed dev environment from `Development` to `Staging` to prevent EF migration crash loop on startup; increased smoke test retries from 5 to 10 for cold-start tolerance
 - Azure hosting & CI/CD: Dockerfile (multi-stage .NET build), HealthController (liveness + readiness probes), Bicep IaC templates (Container Apps, ACR, Key Vault, App Insights, alert rules, dev Redis container, Azure SQL Database), GitHub Actions workflows (ci.yml PR gate, deploy-dev.yml auto-deploy, deploy-prod.yml manual with approval), Static Web App config, configurable CORS origins, auto-migration restricted to Development environment
@@ -130,7 +131,7 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 ## TODO
 
 ### Active Blockers (Azure dev)
-- **Redis connectivity**: Backend cannot reach `hockeyhub-dev-redis.internal.purplewave-82f5d767.eastus.azurecontainerapps.io:6379` (TCP timeout). Redis container is running. App degrades gracefully (cache misses, readiness reports `degraded` not `unhealthy`). Likely Container Apps internal DNS/transport issue.
+- _None — Redis connectivity fixed 2026-04-08 by switching connection string from `<app>.internal.<defaultDomain>:6379` (Envoy ingress IP, HTTP-only) to bare `<app>:6379` (k8s service ClusterIP, direct to pod). For TCP ingress between Container Apps in the same env, always use the bare app name._
 
 ### Security (Remaining — see docs/audit-2026-04-05.md)
 - **Rate limiting**: Add `Microsoft.AspNetCore.RateLimiting` middleware to API

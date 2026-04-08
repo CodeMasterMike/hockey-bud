@@ -15,8 +15,9 @@ param location string = resourceGroup().location
 @description('Base name for all resources')
 param appName string = 'hockeyhub'
 
-@description('Backend container image (full ACR path with tag)')
-param backendImage string = ''
+@description('Backend container image (full ACR path with tag). REQUIRED — must be passed explicitly to prevent the previous footgun where an empty value silently fell back to the mcr.microsoft.com/dotnet/samples:aspnetapp placeholder, replacing the running .NET app and breaking probes. CI/CD does not run this template (deploy-dev.yml uses `az containerapp update --image` directly), so the only callers are manual `az deployment group create` runs — those should pass the SHA tag of the currently-running revision (`az containerapp revision show ... --query properties.template.containers[0].image`). For initial bootstrap, pass the placeholder explicitly.')
+@minLength(1)
+param backendImage string
 
 @description('SQL Server admin password')
 @secure()
@@ -119,7 +120,10 @@ resource secretRedis 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: keyVault
   name: 'RedisConnectionString'
   properties: {
-    value: isDev ? '${redisAppName}.internal.${containerEnv.properties.defaultDomain}:6379' : redisConnectionString
+    // For TCP ingress between apps in the same Container Apps environment, use the bare
+    // app name (not the .internal.<defaultDomain> FQDN, which is HTTP-style addressing).
+    // See https://learn.microsoft.com/en-us/azure/container-apps/ingress-overview#tcp
+    value: isDev ? '${redisAppName}:6379' : redisConnectionString
   }
 }
 
@@ -280,7 +284,7 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: 'api'
-          image: !empty(backendImage) ? backendImage : 'mcr.microsoft.com/dotnet/samples:aspnetapp'
+          image: backendImage
           resources: {
             cpu: json('0.5')
             memory: '1Gi'

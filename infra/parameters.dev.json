@@ -5,6 +5,6 @@
     "environmentName": { "value": "dev" },
     "appName": { "value": "hockeyhub" },
     "sqlAdminPassword": { "value": "" },
-    "backendImage": { "value": "" }
+    "sqlLocation": { "value": "centralus" }
   }
 }
