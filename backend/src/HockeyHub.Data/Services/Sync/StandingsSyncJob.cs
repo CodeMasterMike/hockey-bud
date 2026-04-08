@@ -47,15 +47,10 @@ public class StandingsSyncJob(
             .Where(s => s.SeasonId == season.Id)
             .ToDictionaryAsync(s => s.TeamId, ct);
 
-        // Calculate league ranks by points (descending), then points pct
-        var ranked = entries
-            .OrderByDescending(e => e.Points)
-            .ThenByDescending(e => e.PointsPct)
-            .ThenByDescending(e => e.RegulationWins)
-            .Select((e, i) => (Entry: e, Rank: i + 1))
-            .ToList();
+        // Compute ranks. Tie-breakers throughout: Points → PointsPct → RegulationWins.
+        var ranks = ComputeRanks(entries);
 
-        foreach (var (entry, rank) in ranked)
+        foreach (var (entry, computed) in ranks)
         {
             if (!teams.TryGetValue(entry.TeamAbbreviation, out var team))
             {
@@ -77,10 +72,14 @@ public class StandingsSyncJob(
                 snapshot.RegulationPlusOTWins = entry.RegulationPlusOTWins;
                 snapshot.GoalsFor = entry.GoalsFor;
                 snapshot.GoalsAgainst = entry.GoalsAgainst;
+                snapshot.GoalDifferential = entry.GoalsFor - entry.GoalsAgainst;
                 snapshot.PowerPlayPct = entry.PowerPlayPct;
                 snapshot.PenaltyKillPct = entry.PenaltyKillPct;
                 snapshot.FaceoffPct = entry.FaceoffPct;
-                snapshot.LeagueRank = rank;
+                snapshot.DivisionRank = computed.DivisionRank;
+                snapshot.ConferenceRank = computed.ConferenceRank;
+                snapshot.LeagueRank = computed.LeagueRank;
+                snapshot.WildCardRank = computed.WildCardRank;
                 snapshot.LastUpdated = DateTimeOffset.UtcNow;
             }
             else
@@ -101,10 +100,14 @@ public class StandingsSyncJob(
                     RegulationPlusOTWins = entry.RegulationPlusOTWins,
                     GoalsFor = entry.GoalsFor,
                     GoalsAgainst = entry.GoalsAgainst,
+                    GoalDifferential = entry.GoalsFor - entry.GoalsAgainst,
                     PowerPlayPct = entry.PowerPlayPct,
                     PenaltyKillPct = entry.PenaltyKillPct,
                     FaceoffPct = entry.FaceoffPct,
-                    LeagueRank = rank,
+                    DivisionRank = computed.DivisionRank,
+                    ConferenceRank = computed.ConferenceRank,
+                    LeagueRank = computed.LeagueRank,
+                    WildCardRank = computed.WildCardRank,
                     LastUpdated = DateTimeOffset.UtcNow
                 });
             }
@@ -113,10 +116,72 @@ public class StandingsSyncJob(
         await db.SaveChangesAsync(ct);
 
         // Invalidate scores caches that embed standings data (record, rank, pointsPct)
+        // and standings caches (one per view).
         var today = HockeyHub.Core.NhlDateHelper.GetCurrentGameDay();
         await cache.RemoveAsync($"scores:{league.Id}:{today:yyyy-MM-dd}", ct);
         await cache.RemoveAsync($"scores:ticker:{league.Id}", ct);
+        foreach (var view in new[] { "wildcard", "division", "conference", "league" })
+            await cache.RemoveAsync($"standings:{league.Id}:{view}:{season.Id}", ct);
 
-        logger.LogInformation("Synced standings for {Count} teams", ranked.Count);
+        logger.LogInformation("Synced standings for {Count} teams", ranks.Count);
+    }
+
+    private record ComputedRanks(int DivisionRank, int ConferenceRank, int LeagueRank, int? WildCardRank);
+
+    /// <summary>
+    /// Computes division, conference, league, and wild card ranks for every team.
+    /// Wild card rules (NHL): top 3 in each division qualify automatically; remaining
+    /// teams in each conference are ranked by points% — the top 2 are wild card 1 and 2,
+    /// the rest are out of playoff position (WildCardRank = null).
+    /// Tie-breakers throughout: Points → PointsPct → RegulationWins.
+    /// </summary>
+    private static List<(NhlStandingsEntry Entry, ComputedRanks Ranks)> ComputeRanks(
+        IReadOnlyList<NhlStandingsEntry> entries)
+    {
+        static IOrderedEnumerable<NhlStandingsEntry> OrderForRank(IEnumerable<NhlStandingsEntry> source) =>
+            source
+                .OrderByDescending(e => e.Points)
+                .ThenByDescending(e => e.PointsPct)
+                .ThenByDescending(e => e.RegulationWins);
+
+        var leagueRank = OrderForRank(entries)
+            .Select((e, i) => (e.TeamAbbreviation, Rank: i + 1))
+            .ToDictionary(x => x.TeamAbbreviation, x => x.Rank);
+
+        var divisionRank = entries
+            .GroupBy(e => e.Division)
+            .SelectMany(g => OrderForRank(g).Select((e, i) => (e.TeamAbbreviation, Rank: i + 1)))
+            .ToDictionary(x => x.TeamAbbreviation, x => x.Rank);
+
+        var conferenceRank = entries
+            .GroupBy(e => e.Conference)
+            .SelectMany(g => OrderForRank(g).Select((e, i) => (e.TeamAbbreviation, Rank: i + 1)))
+            .ToDictionary(x => x.TeamAbbreviation, x => x.Rank);
+
+        // Wild card: within each conference, exclude the top 3 of each division, then
+        // rank the remaining teams. Top 2 get WC1/WC2; the rest get null.
+        var wildCardRank = new Dictionary<string, int?>();
+        foreach (var conf in entries.GroupBy(e => e.Conference))
+        {
+            var divisionLeaders = conf
+                .GroupBy(e => e.Division)
+                .SelectMany(g => OrderForRank(g).Take(3))
+                .Select(e => e.TeamAbbreviation)
+                .ToHashSet();
+
+            var contenders = OrderForRank(conf.Where(e => !divisionLeaders.Contains(e.TeamAbbreviation)))
+                .ToList();
+
+            for (var i = 0; i < contenders.Count; i++)
+                wildCardRank[contenders[i].TeamAbbreviation] = i < 2 ? i + 1 : null;
+        }
+
+        return entries
+            .Select(e => (e, new ComputedRanks(
+                DivisionRank: divisionRank[e.TeamAbbreviation],
+                ConferenceRank: conferenceRank[e.TeamAbbreviation],
+                LeagueRank: leagueRank[e.TeamAbbreviation],
+                WildCardRank: wildCardRank.GetValueOrDefault(e.TeamAbbreviation))))
+            .ToList();
     }
 }
