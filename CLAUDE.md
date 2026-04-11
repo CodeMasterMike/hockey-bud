@@ -112,6 +112,7 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - Subscription cleanup uses `takeUntilDestroyed(destroyRef)` — do not use manual `Subscription[]` + `ngOnDestroy` patterns
 
 ## Recent Changes
+- Standings page (US3): Added `GoalDifferential`, `DivisionRank`, `ConferenceRank`, and nullable `WildCardRank` to `StandingsSnapshot` (closes the data-model.md gap) with EF migration `AddStandingsRanks`; `StandingsSyncJob` now computes all four during the sync loop with NHL wild-card rules (top 3 per division qualify, top 2 of remaining per conference get WC1/WC2, rest are eliminated) and busts `standings:*` cache keys after save; new `StandingsQueryService` shapes 4 view modes (wildcard / division / conference / league) with 1h Redis TTL; new `StandingsController` exposes `GET /api/leagues/{leagueId}/standings?view=...` with view validation; frontend placeholder replaced with full responsive page (side-by-side conferences ≥1200px, tabbed below) using OnPush + signals + `takeUntilDestroyed`; sortable column headers with WC1/WC2 labels, dashed cut line, and muted styling for eliminated teams in default sort order
 - Redis connectivity fix (Azure dev): Backend was using HTTP-style FQDN `<app>.internal.<defaultDomain>:6379` for the Redis connection string, which resolves to the Container Apps Envoy ingress IP (HTTP-only, can't proxy raw Redis protocol). Switched to bare app name `<app>:6379` which resolves to the k8s service ClusterIP and reaches the Redis pod directly. For TCP ingress between Container Apps in the same env, always use the bare app name. Also added `sqlLocation: centralus` to `parameters.dev.json` (the SQL Server lives in Central US due to East US quota; missing param caused redeploys to attempt re-creation in East US and fail with `InvalidResourceLocation`).
 - Database migration: Switched from PostgreSQL 16 to SQL Server (Azure SQL Database Serverless for dev with auto-pause, SQL Server 2022 Developer for local Docker); replaced Npgsql with Microsoft.EntityFrameworkCore.SqlServer, Hangfire.PostgreSql with Hangfire.SqlServer; added JsonDocument value converter for SQL Server compatibility; regenerated EF migrations; renamed connection string key to DefaultConnection; updated Bicep, Docker Compose, CI/CD workflows, and all documentation
 - Deploy pipeline fixes: Replaced dev PostgreSQL Container App (Azure File permission failures) with Azure SQL Database Serverless (GP_S_Gen5_1, auto-pause after 60min idle); fixed Bicep conditionals that skipped secrets/env vars/probes when `backendImage` was empty; changed deployed dev environment from `Development` to `Staging` to prevent EF migration crash loop on startup; increased smoke test retries from 5 to 10 for cold-start tolerance
@@ -141,10 +142,13 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - **SQL threat protection**: Add `securityAlertPolicies` and `auditingSettings` to Bicep
 - **SQL admin password rotation**: Initial deploy password is in shell history
 
-### Missing Implementation (~79% of spec remaining)
+### Missing Implementation
 - **Database entities (14 missing)**: PlayerPosition, PlayerHeadshot, PlayerStyle, PlayerSeason, PlayerTeamHistory, PlayerAward, Contract, ContractYear, GameEvent, GamePlayerStat, Trade, TradeAsset, ImportantDate, RuleBook
-- **API endpoints (20 missing)**: Game Hub (3), Standings (1), Stats (1), Teams (4), Players (2), Salary Cap (5), Trades (2), Free Agents (1), Schedule (1), Personnel (1), Search (1)
-- **Frontend pages (11 placeholders)**: Standings, Stats, Players, Teams, Schedule, Salary Cap, Trades, Free Agents, Personnel, Game Hub — all currently render placeholder text
+- **API endpoints (19 missing)**: Game Hub (3), Stats (1), Teams (4), Players (2), Salary Cap (5), Trades (2), Free Agents (1), Schedule (1), Personnel (1), Search (1)
+- **Frontend pages (10 placeholders)**: Stats, Players, Teams, Schedule, Salary Cap, Trades, Free Agents, Personnel, Game Hub — all currently render placeholder text
+
+### Data Quality Bugs in NhlWebApiProvider
+- **`GetStandingsAsync` doesn't populate `PowerPlayPct`, `PenaltyKillPct`, `FaceoffPct`** — they come back as `0.0` / `null` for every team. Surfaced 2026-04-08 during standings smoke test. The standings page renders "0.0" / "—" until the provider extracts those fields from the NHL API response.
 
 ### Testing
 - **Frontend unit tests**: Only a placeholder test exists (`app.spec.ts`). Real unit tests needed for components (ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker, etc.) and services (ScoresApiService, GameClockService, SignalRService, ThemeService). Test infrastructure is set up: Vitest + jsdom via `@angular/build:unit-test`.

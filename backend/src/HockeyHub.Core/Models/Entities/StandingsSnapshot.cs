@@ -18,10 +18,14 @@ public class StandingsSnapshot
     public int RegulationPlusOTWins { get; set; }
     public int GoalsFor { get; set; }
     public int GoalsAgainst { get; set; }
+    public int GoalDifferential { get; set; }
     public decimal PowerPlayPct { get; set; }
     public decimal PenaltyKillPct { get; set; }
     public decimal? FaceoffPct { get; set; }
+    public int DivisionRank { get; set; }
+    public int ConferenceRank { get; set; }
     public int LeagueRank { get; set; }
+    public int? WildCardRank { get; set; }
 
     public DateTimeOffset LastUpdated { get; set; }
 

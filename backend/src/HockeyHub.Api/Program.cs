@@ -59,6 +59,7 @@ builder.Services.AddHttpClient<INhlDataProvider, NhlWebApiProvider>();
 builder.Services.AddSingleton<RedisCacheService>();
 builder.Services.AddScoped<DataSeedService>();
 builder.Services.AddScoped<ScoresQueryService>();
+builder.Services.AddScoped<StandingsQueryService>();
 builder.Services.AddScoped<ScoresSyncJob>();
 builder.Services.AddScoped<StandingsSyncJob>();
 builder.Services.AddSingleton<IScoreBroadcaster, SignalRScoreBroadcaster>();
