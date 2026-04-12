@@ -1,6 +1,6 @@
 # hockey-site Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-04
+Auto-generated from all feature plans. Last updated: 2026-04-11
 
 ## Active Technologies
 - C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend) + ASP.NET Core 10, Entity Framework Core 10, Hangfire, SignalR, Angular SSR, RxJS, Tailwind CSS v3, Angular CDK (001-hockey-league-hub)
@@ -20,10 +20,10 @@ backend/
 │   │   ├── Providers/NhlWebApiProvider.cs
 │   │   └── Services/
 │   │       ├── Cache/               # Redis cache service
-│   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync jobs
-│   │       └── Queries/             # ScoresQueryService
+│   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync, ScheduleSync jobs
+│   │       └── Queries/             # ScoresQueryService, StandingsQueryService, ScheduleQueryService
 │   └── HockeyHub.Api/              # HTTP host (depends on Data + Core)
-│       ├── Controllers/             # ScoresController (5 endpoints), HealthController (live/ready probes)
+│       ├── Controllers/             # ScoresController (5), StandingsController, ScheduleController, SearchController, HealthController
 │       ├── Hubs/                    # GameHub, SignalRScoreBroadcaster
 │       ├── Middleware/              # Error handling, DataAsOf wrapper
 │       ├── Program.cs              # App startup + DI wiring
@@ -49,9 +49,11 @@ frontend/
 │   │   ├── shared/                # StatTable, VideoModal, Pagination
 │   │   ├── main-page/             # League selection grid
 │   │   ├── scores/                # ScoresPage, ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker
-│   │   └── [standings,...]/       # Placeholder route components (11 remaining)
+│   │   ├── standings/             # StandingsPage (4 views: wildcard/division/conference/league)
+│   │   ├── schedule/              # SchedulePage (monthly game list with navigation)
+│   │   └── [stats,...]/           # Placeholder route components (8 remaining)
 │   ├── constants.ts               # Shared constants (league ID, polling intervals, SignalR config, close-game thresholds, getPeriodLabel)
-│   ├── services/                  # ThemeService, SignalRService, ScoresApiService, GameClockService
+│   ├── services/                  # ThemeService, SignalRService, ScoresApiService, GameClockService, StandingsApiService, ScheduleApiService, SearchApiService
 │   ├── directives/                # TooltipDirective
 │   ├── pipes/                     # EraPipe, TimezonePipe
 │   ├── app.routes.ts              # 14 lazy-loaded routes (incl. game-hub/:gameId)
@@ -101,7 +103,7 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - NHL data sourced via `INhlDataProvider` interface (Core) — implemented by `NhlWebApiProvider` (Data), swappable to licensed provider later
 - `IScoreBroadcaster` interface (Core) abstracts SignalR broadcasting — implemented by `SignalRScoreBroadcaster` (Api) to maintain dependency flow
 - SignalR `GameHub` at `/hubs/scores` for live score push, Redis backplane for multi-server
-- Hangfire recurring jobs: `ScoresSyncJob` (every 15s), `StandingsSyncJob` (every 5min), dashboard at `/hangfire`
+- Hangfire recurring jobs: `ScoresSyncJob` (every 15s), `StandingsSyncJob` (every 5min), `ScheduleSyncJob` (daily 6 AM UTC), dashboard at `/hangfire`
 - Response wrappers: `DataAsOfResponse<T>` and `PaginatedResponse<T>` in Api/Middleware/
 - Connection strings in appsettings.json for local dev (DefaultConnection: SQL Server on port 1433, Redis: `localhost:6379`); deployed environments inject via Key Vault secret refs → Container App env vars (`ConnectionStrings__DefaultConnection`, `ConnectionStrings__Redis`)
 - EF migrations live in HockeyHub.Data; run `dotnet ef` from Api project with `--project ../HockeyHub.Data`
@@ -112,6 +114,8 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - Subscription cleanup uses `takeUntilDestroyed(destroyRef)` — do not use manual `Subscription[]` + `ngOnDestroy` patterns
 
 ## Recent Changes
+- Search: `GET /api/search?q=...&limit=10` queries Players (name) and Teams (location/name/abbreviation) with grouped results; banner search input wired with 300ms debounce and live dropdown showing Teams/Players sections with navigation links
+- Schedule page: `ScheduleSyncJob` (daily 6 AM UTC Hangfire job) calls `GetScheduleAsync` to populate the full season of games into the Games table; `ScheduleQueryService` groups games by month/day with optional month + team filters (6h Redis cache); `ScheduleController` exposes `GET /api/leagues/{leagueId}/schedule`; frontend page with month navigation, day cards showing matchups/times/scores
 - Standings page (US3): Added `GoalDifferential`, `DivisionRank`, `ConferenceRank`, and nullable `WildCardRank` to `StandingsSnapshot` (closes the data-model.md gap) with EF migration `AddStandingsRanks`; `StandingsSyncJob` now computes all four during the sync loop with NHL wild-card rules (top 3 per division qualify, top 2 of remaining per conference get WC1/WC2, rest are eliminated) and busts `standings:*` cache keys after save; new `StandingsQueryService` shapes 4 view modes (wildcard / division / conference / league) with 1h Redis TTL; new `StandingsController` exposes `GET /api/leagues/{leagueId}/standings?view=...` with view validation; frontend placeholder replaced with full responsive page (side-by-side conferences ≥1200px, tabbed below) using OnPush + signals + `takeUntilDestroyed`; sortable column headers with WC1/WC2 labels, dashed cut line, and muted styling for eliminated teams in default sort order
 - Redis connectivity fix (Azure dev): Backend was using HTTP-style FQDN `<app>.internal.<defaultDomain>:6379` for the Redis connection string, which resolves to the Container Apps Envoy ingress IP (HTTP-only, can't proxy raw Redis protocol). Switched to bare app name `<app>:6379` which resolves to the k8s service ClusterIP and reaches the Redis pod directly. For TCP ingress between Container Apps in the same env, always use the bare app name. Also added `sqlLocation: centralus` to `parameters.dev.json` (the SQL Server lives in Central US due to East US quota; missing param caused redeploys to attempt re-creation in East US and fail with `InvalidResourceLocation`).
 - Database migration: Switched from PostgreSQL 16 to SQL Server (Azure SQL Database Serverless for dev with auto-pause, SQL Server 2022 Developer for local Docker); replaced Npgsql with Microsoft.EntityFrameworkCore.SqlServer, Hangfire.PostgreSql with Hangfire.SqlServer; added JsonDocument value converter for SQL Server compatibility; regenerated EF migrations; renamed connection string key to DefaultConnection; updated Bicep, Docker Compose, CI/CD workflows, and all documentation
@@ -144,8 +148,8 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 
 ### Missing Implementation
 - **Database entities (14 missing)**: PlayerPosition, PlayerHeadshot, PlayerStyle, PlayerSeason, PlayerTeamHistory, PlayerAward, Contract, ContractYear, GameEvent, GamePlayerStat, Trade, TradeAsset, ImportantDate, RuleBook
-- **API endpoints (19 missing)**: Game Hub (3), Stats (1), Teams (4), Players (2), Salary Cap (5), Trades (2), Free Agents (1), Schedule (1), Personnel (1), Search (1)
-- **Frontend pages (10 placeholders)**: Stats, Players, Teams, Schedule, Salary Cap, Trades, Free Agents, Personnel, Game Hub — all currently render placeholder text
+- **API endpoints (17 missing)**: Game Hub (3), Stats (1), Teams (4), Players (2), Salary Cap (5), Trades (2), Free Agents (1), Personnel (1)
+- **Frontend pages (8 placeholders)**: Stats, Players, Teams, Salary Cap, Trades, Free Agents, Personnel, Game Hub — all currently render placeholder text
 
 ### Data Quality Bugs in NhlWebApiProvider
 - **`GetStandingsAsync` doesn't populate `PowerPlayPct`, `PenaltyKillPct`, `FaceoffPct`** — they come back as `0.0` / `null` for every team. Surfaced 2026-04-08 during standings smoke test. The standings page renders "0.0" / "—" until the provider extracts those fields from the NHL API response.
