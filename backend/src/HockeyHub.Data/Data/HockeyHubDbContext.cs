@@ -16,6 +16,8 @@ public class HockeyHubDbContext(DbContextOptions<HockeyHubDbContext> options) : 
     public DbSet<Game> Games => Set<Game>();
     public DbSet<GamePeriodScore> GamePeriodScores => Set<GamePeriodScore>();
     public DbSet<StandingsSnapshot> StandingsSnapshots => Set<StandingsSnapshot>();
+    public DbSet<Trade> Trades => Set<Trade>();
+    public DbSet<TradeAsset> TradeAssets => Set<TradeAsset>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -157,6 +159,30 @@ public class HockeyHubDbContext(DbContextOptions<HockeyHubDbContext> options) : 
             entity.HasOne(e => e.Season)
                 .WithMany()
                 .HasForeignKey(e => e.SeasonId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Trade>(entity =>
+        {
+            entity.HasIndex(e => new { e.SeasonId, e.TradeDate });
+
+            entity.HasOne(e => e.Season)
+                .WithMany()
+                .HasForeignKey(e => e.SeasonId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<TradeAsset>(entity =>
+        {
+            entity.HasIndex(e => e.TradeId);
+
+            entity.HasOne(e => e.Trade)
+                .WithMany(t => t.Assets)
+                .HasForeignKey(e => e.TradeId);
+
+            entity.HasOne(e => e.Team)
+                .WithMany()
+                .HasForeignKey(e => e.TeamId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
