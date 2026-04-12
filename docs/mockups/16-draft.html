@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hockey League Hub — Draft (Replaces Scores in Off-Season)</title>
+<style>
+/* ── Font Faces ─────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2');
+}
+
+/* ── Design Tokens ──────────────────────────────────────────────── */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1;
+  --bg-banner: #000000;
+  --bg-nav: #1A1A1A;
+  --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04);
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A;
+  --text-on-banner: #F5F0E1;
+  --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25);
+  --color-link: #2C5F8A;
+  --color-link-hover: #1A3D5C;
+  --color-live: #C0392B;
+  --color-accent: #D4A017;
+  --bg-ticker: #111111;
+  --text-ticker: #F5F0E1;
+  --banner-input-bg: rgba(255,255,255,0.08);
+  --banner-input-border: rgba(255,255,255,0.2);
+  --banner-placeholder: rgba(245,240,225,0.5);
+  --banner-hover-bg: rgba(255,255,255,0.1);
+}
+[data-theme="dark"] {
+  --bg-page: #0A1628;
+  --bg-banner: #F5F0E1;
+  --bg-nav: #0D1B2A;
+  --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06);
+  --text-primary: #F5F0E1;
+  --text-secondary: #B8B0A0;
+  --text-muted: #807868;
+  --text-on-banner: #0A1628;
+  --border-default: rgba(255,255,255,0.1);
+  --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6;
+  --color-link-hover: #8DC0F0;
+  --color-live: #E74C3C;
+  --color-accent: #F1C40F;
+  --bg-ticker: #050D1A;
+  --banner-input-bg: rgba(0,0,0,0.06);
+  --banner-input-border: rgba(0,0,0,0.15);
+  --banner-placeholder: rgba(10,22,40,0.4);
+  --banner-hover-bg: rgba(0,0,0,0.06);
+}
+
+/* ── Reset & Base ──────────────���────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-primary);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--color-link); text-decoration: none; }
+a:hover { color: var(--color-link-hover); text-decoration: underline; }
+
+/* ── Global Shell: Banner ──────���────────────────────────────────── */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-banner);
+  color: var(--text-on-banner);
+  padding: 0 24px;
+  height: 56px;
+}
+.banner__brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.banner__brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--text-on-banner);
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+}
+.banner__search {
+  flex: 0 1 420px;
+  margin: 0 24px;
+}
+.banner__search input {
+  width: 100%;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid var(--banner-input-border);
+  border-radius: 4px;
+  background: var(--banner-input-bg);
+  color: var(--text-on-banner);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  outline: none;
+}
+.banner__search input::placeholder { color: var(--banner-placeholder); }
+.banner__search-wrap { position: relative; }
+.banner__search-wrap::before {
+  content: "\1F50D";
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.banner__hamburger {
+  background: none;
+  border: 1px solid var(--banner-input-border);
+  border-radius: 4px;
+  color: var(--text-on-banner);
+  font-size: 22px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.banner__hamburger:hover { background: var(--banner-hover-bg); }
+
+/* ── Global Shell: Score Bar (draft day — live pick ticker) ─────── */
+.ticker {
+  background: var(--bg-ticker);
+  color: var(--text-ticker);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.ticker__arrow {
+  background: none;
+  border: none;
+  color: var(--text-ticker);
+  font-size: 18px;
+  cursor: pointer;
+  width: 36px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+.ticker__arrow:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+.ticker__track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 8px;
+  overflow: hidden;
+  flex: 1;
+  padding: 0 4px;
+}
+.ticker__pick {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  gap: 8px;
+  color: var(--text-ticker);
+}
+.ticker__pick-num {
+  font-size: 10px;
+  color: rgba(245,240,225,0.5);
+  font-weight: 700;
+}
+.ticker__pick-team {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.ticker__pick-player {
+  color: #F5F0E1;
+}
+.ticker__pick--live {
+  border-color: var(--color-live);
+  background: rgba(231, 76, 60, 0.1);
+}
+.ticker__live-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-live);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ticker__live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-live);
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+.team-logo { display: inline-block; vertical-align: middle; object-fit: contain; }
+.team-logo--sm { width: 18px; height: 18px; }
+.team-logo--xs { width: 14px; height: 14px; }
+.team-logo--md { width: 22px; height: 22px; }
+.team-logo--lg { width: 32px; height: 32px; }
+
+/* ── Global Shell: Nav ──────────────────────────────────────────── */
+.nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 16px;
+  gap: 0;
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+.nav__link {
+  color: rgba(245,240,225,0.65);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.nav__link:hover { color: rgba(245,240,225,0.9); text-decoration: none; }
+.nav__link--active { color: #F5F0E1; border-bottom-color: #F5F0E1; }
+
+/* ── Theme Toggle ─────���─────────────────────────────────────────── */
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+/* ── Page Container ─────────────────────────────────────────────── */
+.page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+.page-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.page-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+/* ── Section Labels ────────────────────────────────────────────── */
+.section-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 48px 0 6px;
+  padding: 10px 16px;
+  background: var(--text-primary);
+  color: var(--bg-page);
+  border-radius: 4px;
+  display: inline-block;
+}
+.section-label:first-of-type { margin-top: 0; }
+.section-desc {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  margin-top: 4px;
+}
+
+/* ── Round Tabs ─────────���──────────────────────────────────────── */
+.round-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+}
+.round-tabs button {
+  font-family: var(--font-primary);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 8px 18px;
+  background: var(--bg-row-alt);
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  margin-right: -1px;
+  transition: background 0.15s, color 0.15s;
+}
+.round-tabs button:hover { color: var(--text-primary); }
+.round-tabs button.tab-active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--bg-card);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Draft Card ─────────���──────────────────────────────────────── */
+.draft-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 0 4px 4px 4px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.draft-card-header {
+  padding: 12px 16px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.draft-card-header .round-info {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ── Draft Table ─────��─────────────────────────────────────────── */
+.draft-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.74rem;
+}
+.draft-table thead th {
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border-strong);
+  white-space: nowrap;
+}
+.draft-table thead th.col-center { text-align: center; }
+.draft-table tbody td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+}
+.draft-table tbody td.col-center { text-align: center; }
+.draft-table tbody td.col-pick {
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  text-align: center;
+  width: 44px;
+}
+.draft-table tbody td.col-team {
+  font-weight: 700;
+}
+.draft-table tbody td.col-team .team-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.draft-table tbody td.col-player {
+  font-weight: 700;
+}
+.draft-table tbody td.col-player a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.draft-table tbody td.col-player a:hover {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+.draft-table tbody td.col-pos {
+  text-align: center;
+  width: 44px;
+}
+.draft-table tbody td.col-prev {
+  color: var(--text-secondary);
+}
+.draft-table tbody td.col-nation {
+  text-align: center;
+  width: 44px;
+}
+.draft-table tbody tr.row-alt td {
+  background: var(--bg-row-alt);
+}
+
+/* Live pick row */
+.draft-table tbody tr.row-live td {
+  background: rgba(231, 76, 60, 0.06);
+  border-bottom-color: rgba(231, 76, 60, 0.2);
+}
+.draft-table tbody tr.row-live td.col-pick {
+  color: var(--color-live);
+}
+.on-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-live);
+}
+.on-clock__dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-live);
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+/* Pending pick row */
+.draft-table tbody tr.row-pending td {
+  opacity: 0.45;
+}
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()">Toggle Dark/Light</button>
+
+<!-- ═��═════════════════════════════════════════════════════════════
+     GLOBAL SHELL
+     ════════════���══════════════��═══════════════════════════════════ -->
+
+<!-- Banner -->
+<header class="banner">
+  <div class="banner__brand">
+    <span class="banner__brand-icon">H</span>
+    Hockey League Hub
+  </div>
+  <div class="banner__search">
+    <div class="banner__search-wrap">
+      <input type="text" placeholder="Search players, teams, trades...">
+    </div>
+  </div>
+  <button class="banner__hamburger" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- Score Bar (draft day — live pick updates in ticker) -->
+<div class="ticker">
+  <button class="ticker__arrow" aria-label="Scroll left">&#9664;</button>
+  <div class="ticker__track">
+    <div class="ticker__pick">
+      <span class="ticker__pick-num">#1</span>
+      <span class="ticker__pick-team"><img src="https://assets.nhle.com/logos/nhl/svg/CBJ_dark.svg" alt="CBJ" class="team-logo team-logo--xs">CBJ</span>
+      <span class="ticker__pick-player">I. Fink</span>
+    </div>
+    <div class="ticker__pick">
+      <span class="ticker__pick-num">#2</span>
+      <span class="ticker__pick-team"><img src="https://assets.nhle.com/logos/nhl/svg/PIT_dark.svg" alt="PIT" class="team-logo team-logo--xs">PIT</span>
+      <span class="ticker__pick-player">J. Martone</span>
+    </div>
+    <div class="ticker__pick">
+      <span class="ticker__pick-num">#3</span>
+      <span class="ticker__pick-team"><img src="https://assets.nhle.com/logos/nhl/svg/ANA_dark.svg" alt="ANA" class="team-logo team-logo--xs">ANA</span>
+      <span class="ticker__pick-player">A. Krivokrasov</span>
+    </div>
+    <div class="ticker__pick">
+      <span class="ticker__pick-num">#4</span>
+      <span class="ticker__pick-team"><img src="https://assets.nhle.com/logos/nhl/svg/CHI_dark.svg" alt="CHI" class="team-logo team-logo--xs">CHI</span>
+      <span class="ticker__pick-player">V. Bjork</span>
+    </div>
+    <div class="ticker__pick">
+      <span class="ticker__pick-num">#5</span>
+      <span class="ticker__pick-team"><img src="https://assets.nhle.com/logos/nhl/svg/SJS_dark.svg" alt="SJS" class="team-logo team-logo--xs">SJS</span>
+      <span class="ticker__pick-player">D. Hagens</span>
+    </div>
+    <div class="ticker__pick">
+      <span class="ticker__pick-num">#6</span>
+      <span class="ticker__pick-team"><img src="https://assets.nhle.com/logos/nhl/svg/BUF_dark.svg" alt="BUF" class="team-logo team-logo--xs">BUF</span>
+      <span class="ticker__pick-player">L. Nylen</span>
+    </div>
+    <div class="ticker__pick">
+      <span class="ticker__pick-num">#7</span>
+      <span class="ticker__pick-team"><img src="https://assets.nhle.com/logos/nhl/svg/MTL_dark.svg" alt="MTL" class="team-logo team-logo--xs">MTL</span>
+      <span class="ticker__pick-player">C. Beaudoin</span>
+    </div>
+    <div class="ticker__pick ticker__pick--live">
+      <span class="ticker__live-label"><span class="ticker__live-dot"></span>On Clock</span>
+      <span class="ticker__pick-num">#8</span>
+      <span class="ticker__pick-team"><img src="https://assets.nhle.com/logos/nhl/svg/SEA_dark.svg" alt="SEA" class="team-logo team-logo--xs">SEA</span>
+    </div>
+  </div>
+  <button class="ticker__arrow" aria-label="Scroll right">&#9654;</button>
+</div>
+
+<!-- Nav (Draft replaces Scores during off-season) -->
+<nav class="nav">
+  <a href="#" class="nav__link">Home</a>
+  <a href="#" class="nav__link">Standings</a>
+  <a href="#" class="nav__link">Teams</a>
+  <a href="#" class="nav__link">Players</a>
+  <a href="#" class="nav__link nav__link--active">Draft</a>
+  <a href="#" class="nav__link">Stats</a>
+  <a href="#" class="nav__link">Trades</a>
+  <a href="#" class="nav__link">Schedule</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE CONTENT
+     ══════════════════��════════════════════════════��═══════════════ -->
+
+<main class="page-container">
+
+  <h2 class="page-title">2026 NHL Draft</h2>
+  <p class="page-subtitle">Round 1 &mdash; Live from Bridgestone Arena, Nashville &mdash; June 26, 2026</p>
+
+  <div class="section-label">Draft Day (Live)</div>
+  <p class="section-desc">The Draft tab replaces the Scores tab during the off-season. On draft days, selections update live. Every player name is clickable and links to their player profile. The score bar ticker shows completed picks scrolling and highlights the current "on the clock" team.</p>
+
+  <!-- Round Tabs -->
+  <div class="round-tabs">
+    <button class="tab-active" onclick="switchRoundTab(this)">Round 1</button>
+    <button onclick="switchRoundTab(this)">Round 2</button>
+    <button onclick="switchRoundTab(this)">Round 3</button>
+    <button onclick="switchRoundTab(this)">Round 4</button>
+    <button onclick="switchRoundTab(this)">Round 5</button>
+    <button onclick="switchRoundTab(this)">Round 6</button>
+    <button onclick="switchRoundTab(this)">Round 7</button>
+  </div>
+
+  <div class="draft-card">
+    <div class="draft-card-header">
+      Round 1
+      <span class="round-info">Picks 1&ndash;32 &mdash; 7 of 32 selected</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+    <table class="draft-table">
+      <thead>
+        <tr>
+          <th class="col-center">Pick</th>
+          <th>Team</th>
+          <th>Player</th>
+          <th class="col-center">Pos</th>
+          <th>Previous Club</th>
+          <th class="col-center">Nation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-pick">1</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/CBJ_dark.svg" alt="CBJ" class="team-logo team-logo--sm">Columbus Blue Jackets</div></td>
+          <td class="col-player"><a href="#player-fink">Ivan Fink</a></td>
+          <td class="col-pos">C</td>
+          <td class="col-prev">Sudbury Wolves (OHL)</td>
+          <td class="col-nation">CAN</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-pick">2</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/PIT_dark.svg" alt="PIT" class="team-logo team-logo--sm">Pittsburgh Penguins</div></td>
+          <td class="col-player"><a href="#player-martone">James Martone</a></td>
+          <td class="col-pos">C</td>
+          <td class="col-prev">Brampton Steelheads (OHL)</td>
+          <td class="col-nation">CAN</td>
+        </tr>
+        <tr>
+          <td class="col-pick">3</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/ANA_dark.svg" alt="ANA" class="team-logo team-logo--sm">Anaheim Ducks</div></td>
+          <td class="col-player"><a href="#player-krivokrasov">Alexei Krivokrasov</a></td>
+          <td class="col-pos">LW</td>
+          <td class="col-prev">Magnitogorsk (KHL)</td>
+          <td class="col-nation">RUS</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-pick">4</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/CHI_dark.svg" alt="CHI" class="team-logo team-logo--sm">Chicago Blackhawks</div></td>
+          <td class="col-player"><a href="#player-bjork">Viktor Bjork</a></td>
+          <td class="col-pos">D</td>
+          <td class="col-prev">Djurg&aring;rdens IF (SHL)</td>
+          <td class="col-nation">SWE</td>
+        </tr>
+        <tr>
+          <td class="col-pick">5</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/SJS_dark.svg" alt="SJS" class="team-logo team-logo--sm">San Jose Sharks</div></td>
+          <td class="col-player"><a href="#player-hagens">Daniel Hagens</a></td>
+          <td class="col-pos">RW</td>
+          <td class="col-prev">U.S. National U18 (NTDP)</td>
+          <td class="col-nation">USA</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-pick">6</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/BUF_dark.svg" alt="BUF" class="team-logo team-logo--sm">Buffalo Sabres</div></td>
+          <td class="col-player"><a href="#player-nylen">Linus Nyl&eacute;n</a></td>
+          <td class="col-pos">C</td>
+          <td class="col-prev">R&ouml;gle BK (SHL)</td>
+          <td class="col-nation">SWE</td>
+        </tr>
+        <tr>
+          <td class="col-pick">7</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/MTL_dark.svg" alt="MTL" class="team-logo team-logo--sm">Montr&eacute;al Canadiens</div></td>
+          <td class="col-player"><a href="#player-beaudoin">C&eacute;dric Beaudoin</a></td>
+          <td class="col-pos">LW</td>
+          <td class="col-prev">Sherbrooke Phoenix (QMJHL)</td>
+          <td class="col-nation">CAN</td>
+        </tr>
+
+        <!-- ON THE CLOCK -->
+        <tr class="row-live">
+          <td class="col-pick">8</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/SEA_dark.svg" alt="SEA" class="team-logo team-logo--sm">Seattle Kraken</div></td>
+          <td class="col-player"><span class="on-clock"><span class="on-clock__dot"></span>On the Clock</span></td>
+          <td class="col-pos">&mdash;</td>
+          <td class="col-prev">&mdash;</td>
+          <td class="col-nation">&mdash;</td>
+        </tr>
+
+        <!-- PENDING PICKS -->
+        <tr class="row-pending row-alt">
+          <td class="col-pick">9</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/UTA_dark.svg" alt="UTA" class="team-logo team-logo--sm">Utah Hockey Club</div></td>
+          <td class="col-player">&mdash;</td>
+          <td class="col-pos">&mdash;</td>
+          <td class="col-prev">&mdash;</td>
+          <td class="col-nation">&mdash;</td>
+        </tr>
+        <tr class="row-pending">
+          <td class="col-pick">10</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/OTT_dark.svg" alt="OTT" class="team-logo team-logo--sm">Ottawa Senators</div></td>
+          <td class="col-player">&mdash;</td>
+          <td class="col-pos">&mdash;</td>
+          <td class="col-prev">&mdash;</td>
+          <td class="col-nation">&mdash;</td>
+        </tr>
+        <tr class="row-pending row-alt">
+          <td class="col-pick">11</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/DET_dark.svg" alt="DET" class="team-logo team-logo--sm">Detroit Red Wings</div></td>
+          <td class="col-player">&mdash;</td>
+          <td class="col-pos">&mdash;</td>
+          <td class="col-prev">&mdash;</td>
+          <td class="col-nation">&mdash;</td>
+        </tr>
+        <tr class="row-pending">
+          <td class="col-pick">12</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/PHI_dark.svg" alt="PHI" class="team-logo team-logo--sm">Philadelphia Flyers</div></td>
+          <td class="col-player">&mdash;</td>
+          <td class="col-pos">&mdash;</td>
+          <td class="col-prev">&mdash;</td>
+          <td class="col-nation">&mdash;</td>
+        </tr>
+        <tr class="row-pending row-alt">
+          <td class="col-pick">13</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/CGY_dark.svg" alt="CGY" class="team-logo team-logo--sm">Calgary Flames</div></td>
+          <td class="col-player">&mdash;</td>
+          <td class="col-pos">&mdash;</td>
+          <td class="col-prev">&mdash;</td>
+          <td class="col-nation">&mdash;</td>
+        </tr>
+        <tr class="row-pending">
+          <td class="col-pick">14</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/NSH_dark.svg" alt="NSH" class="team-logo team-logo--sm">Nashville Predators</div></td>
+          <td class="col-player">&mdash;</td>
+          <td class="col-pos">&mdash;</td>
+          <td class="col-prev">&mdash;</td>
+          <td class="col-nation">&mdash;</td>
+        </tr>
+        <tr class="row-pending row-alt">
+          <td class="col-pick">15</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/NYI_dark.svg" alt="NYI" class="team-logo team-logo--sm">New York Islanders</div></td>
+          <td class="col-player">&mdash;</td>
+          <td class="col-pos">&mdash;</td>
+          <td class="col-prev">&mdash;</td>
+          <td class="col-nation">&mdash;</td>
+        </tr>
+        <tr class="row-pending">
+          <td class="col-pick">16</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/STL_dark.svg" alt="STL" class="team-logo team-logo--sm">St. Louis Blues</div></td>
+          <td class="col-player">&mdash;</td>
+          <td class="col-pos">&mdash;</td>
+          <td class="col-prev">&mdash;</td>
+          <td class="col-nation">&mdash;</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SECTION 2: COMPLETED DRAFT (POST-DRAFT VIEW)
+       ═══════════════════════════════════════════════════════════ -->
+
+  <div class="section-label">Post-Draft View</div>
+  <p class="section-desc">After the draft concludes, the full results remain browsable by round. All player names link to their profiles. This view persists throughout the off-season until the regular season begins and the Scores tab returns.</p>
+
+  <!-- Round Tabs -->
+  <div class="round-tabs">
+    <button class="tab-active" onclick="switchRoundTab(this)">Round 1</button>
+    <button onclick="switchRoundTab(this)">Round 2</button>
+    <button onclick="switchRoundTab(this)">Round 3</button>
+    <button onclick="switchRoundTab(this)">Round 4</button>
+    <button onclick="switchRoundTab(this)">Round 5</button>
+    <button onclick="switchRoundTab(this)">Round 6</button>
+    <button onclick="switchRoundTab(this)">Round 7</button>
+  </div>
+
+  <div class="draft-card">
+    <div class="draft-card-header">
+      Round 1 &mdash; Complete
+      <span class="round-info">32 of 32 picks selected</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+    <table class="draft-table">
+      <thead>
+        <tr>
+          <th class="col-center">Pick</th>
+          <th>Team</th>
+          <th>Player</th>
+          <th class="col-center">Pos</th>
+          <th>Previous Club</th>
+          <th class="col-center">Nation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-pick">1</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/CBJ_dark.svg" alt="CBJ" class="team-logo team-logo--sm">Columbus Blue Jackets</div></td>
+          <td class="col-player"><a href="#player-fink">Ivan Fink</a></td>
+          <td class="col-pos">C</td>
+          <td class="col-prev">Sudbury Wolves (OHL)</td>
+          <td class="col-nation">CAN</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-pick">2</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/PIT_dark.svg" alt="PIT" class="team-logo team-logo--sm">Pittsburgh Penguins</div></td>
+          <td class="col-player"><a href="#player-martone">James Martone</a></td>
+          <td class="col-pos">C</td>
+          <td class="col-prev">Brampton Steelheads (OHL)</td>
+          <td class="col-nation">CAN</td>
+        </tr>
+        <tr>
+          <td class="col-pick">3</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/ANA_dark.svg" alt="ANA" class="team-logo team-logo--sm">Anaheim Ducks</div></td>
+          <td class="col-player"><a href="#player-krivokrasov">Alexei Krivokrasov</a></td>
+          <td class="col-pos">LW</td>
+          <td class="col-prev">Magnitogorsk (KHL)</td>
+          <td class="col-nation">RUS</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-pick">4</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/CHI_dark.svg" alt="CHI" class="team-logo team-logo--sm">Chicago Blackhawks</div></td>
+          <td class="col-player"><a href="#player-bjork">Viktor Bjork</a></td>
+          <td class="col-pos">D</td>
+          <td class="col-prev">Djurg&aring;rdens IF (SHL)</td>
+          <td class="col-nation">SWE</td>
+        </tr>
+        <tr>
+          <td class="col-pick">5</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/SJS_dark.svg" alt="SJS" class="team-logo team-logo--sm">San Jose Sharks</div></td>
+          <td class="col-player"><a href="#player-hagens">Daniel Hagens</a></td>
+          <td class="col-pos">RW</td>
+          <td class="col-prev">U.S. National U18 (NTDP)</td>
+          <td class="col-nation">USA</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-pick">6</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/BUF_dark.svg" alt="BUF" class="team-logo team-logo--sm">Buffalo Sabres</div></td>
+          <td class="col-player"><a href="#player-nylen">Linus Nyl&eacute;n</a></td>
+          <td class="col-pos">C</td>
+          <td class="col-prev">R&ouml;gle BK (SHL)</td>
+          <td class="col-nation">SWE</td>
+        </tr>
+        <tr>
+          <td class="col-pick">7</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/MTL_dark.svg" alt="MTL" class="team-logo team-logo--sm">Montr&eacute;al Canadiens</div></td>
+          <td class="col-player"><a href="#player-beaudoin">C&eacute;dric Beaudoin</a></td>
+          <td class="col-pos">LW</td>
+          <td class="col-prev">Sherbrooke Phoenix (QMJHL)</td>
+          <td class="col-nation">CAN</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-pick">8</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/SEA_dark.svg" alt="SEA" class="team-logo team-logo--sm">Seattle Kraken</div></td>
+          <td class="col-player"><a href="#player-korhonen">Eetu Korhonen</a></td>
+          <td class="col-pos">D</td>
+          <td class="col-prev">TPS Turku (Liiga)</td>
+          <td class="col-nation">FIN</td>
+        </tr>
+        <tr>
+          <td class="col-pick">9</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/UTA_dark.svg" alt="UTA" class="team-logo team-logo--sm">Utah Hockey Club</div></td>
+          <td class="col-player"><a href="#player-schmidt">Marcus Schmidt</a></td>
+          <td class="col-pos">C</td>
+          <td class="col-prev">Red Bull Salzburg (ICEHL)</td>
+          <td class="col-nation">AUT</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-pick">10</td>
+          <td class="col-team"><div class="team-cell"><img src="https://assets.nhle.com/logos/nhl/svg/OTT_dark.svg" alt="OTT" class="team-logo team-logo--sm">Ottawa Senators</div></td>
+          <td class="col-player"><a href="#player-volkov">Dmitri Volkov</a></td>
+          <td class="col-pos">RW</td>
+          <td class="col-prev">SKA Saint Petersburg (KHL)</td>
+          <td class="col-nation">RUS</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+function switchRoundTab(btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('tab-active'));
+  btn.classList.add('tab-active');
+}
+</script>
+</body>
+</html>

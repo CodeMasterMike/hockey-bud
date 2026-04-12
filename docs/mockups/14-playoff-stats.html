@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hockey League Hub — Playoff Stats</title>
+<style>
+/* ── Font Faces ─────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2');
+}
+
+/* ── Design Tokens ──────────────────────────────────────────────── */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1;
+  --bg-banner: #000000;
+  --bg-nav: #1A1A1A;
+  --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04);
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A;
+  --text-on-banner: #F5F0E1;
+  --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25);
+  --color-link: #2C5F8A;
+  --color-link-hover: #1A3D5C;
+  --color-live: #C0392B;
+  --bg-ticker: #111111;
+  --text-ticker: #F5F0E1;
+  --banner-input-bg: rgba(255,255,255,0.08);
+  --banner-input-border: rgba(255,255,255,0.2);
+  --banner-placeholder: rgba(245,240,225,0.5);
+  --banner-hover-bg: rgba(255,255,255,0.1);
+}
+[data-theme="dark"] {
+  --bg-page: #0A1628;
+  --bg-banner: #F5F0E1;
+  --bg-nav: #0D1B2A;
+  --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06);
+  --text-primary: #F5F0E1;
+  --text-secondary: #B8B0A0;
+  --text-muted: #807868;
+  --text-on-banner: #0A1628;
+  --border-default: rgba(255,255,255,0.1);
+  --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6;
+  --color-link-hover: #8DC0F0;
+  --color-live: #E74C3C;
+  --bg-ticker: #050D1A;
+  --banner-input-bg: rgba(0,0,0,0.06);
+  --banner-input-border: rgba(0,0,0,0.15);
+  --banner-placeholder: rgba(10,22,40,0.4);
+  --banner-hover-bg: rgba(0,0,0,0.06);
+}
+
+/* ── Reset & Base ───────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-primary);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--color-link); text-decoration: none; }
+a:hover { color: var(--color-link-hover); text-decoration: underline; }
+
+/* ── Global Shell: Banner ───────────────────────────────────────── */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-banner);
+  color: var(--text-on-banner);
+  padding: 0 24px;
+  height: 56px;
+}
+.banner__brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.banner__brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--text-on-banner);
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+}
+.banner__search {
+  flex: 0 1 420px;
+  margin: 0 24px;
+}
+.banner__search input {
+  width: 100%;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid var(--banner-input-border);
+  border-radius: 4px;
+  background: var(--banner-input-bg);
+  color: var(--text-on-banner);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  outline: none;
+}
+.banner__search input::placeholder { color: var(--banner-placeholder); }
+.banner__search-wrap { position: relative; }
+.banner__search-wrap::before {
+  content: "\1F50D";
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.banner__hamburger {
+  background: none;
+  border: 1px solid var(--banner-input-border);
+  border-radius: 4px;
+  color: var(--text-on-banner);
+  font-size: 22px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.banner__hamburger:hover { background: var(--banner-hover-bg); }
+
+/* ── Global Shell: Score Bar ───────────────────────────────────── */
+.ticker {
+  background: var(--bg-ticker);
+  color: var(--text-ticker);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.ticker__arrow {
+  background: none;
+  border: none;
+  color: var(--text-ticker);
+  font-size: 18px;
+  cursor: pointer;
+  width: 36px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+.ticker__arrow:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+.ticker__track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 8px;
+  overflow: hidden;
+  flex: 1;
+  padding: 0 4px;
+}
+.ticker__game {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  text-decoration: none;
+  color: var(--text-ticker);
+}
+.ticker__game:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); text-decoration: none; }
+.ticker__teams { display: flex; align-items: center; gap: 6px; }
+.ticker__team { display: inline-flex; align-items: center; gap: 3px; color: var(--text-ticker); }
+.ticker__score { color: var(--text-ticker); margin: 0 4px; }
+.ticker__dash { color: rgba(245,240,225,0.4); margin: 0 2px; }
+.ticker__status { margin-left: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #FFFFFF; }
+.ticker__status--close-game { color: var(--color-live) !important; }
+.ticker__live-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--color-live); margin-right: 5px;
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+@keyframes live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.team-logo { display: inline-block; vertical-align: middle; object-fit: contain; }
+.team-logo--sm { width: 18px; height: 18px; }
+
+/* ── Global Shell: Nav ──────────────────────────────────────────── */
+.nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 16px;
+  gap: 0;
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+.nav__link {
+  color: rgba(245,240,225,0.65);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.nav__link:hover { color: rgba(245,240,225,0.9); text-decoration: none; }
+.nav__link--active { color: #F5F0E1; border-bottom-color: #F5F0E1; }
+
+/* ── Theme Toggle ───────────────────────────────────────────────── */
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+/* ── Page Container ─────────────────────────────────────────────── */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+.page-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.page-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* ── Season Tabs (Playoffs / Regular Season) ───────────────────── */
+.season-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+}
+.season-tabs button {
+  font-family: var(--font-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 10px 24px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+  border-bottom: 2px solid var(--border-default);
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  margin-right: -1px;
+  transition: background 0.15s, color 0.15s;
+}
+.season-tabs button:hover { color: var(--text-primary); }
+.season-tabs button.tab-active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-bottom-color: var(--bg-card);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Stats Sub-Tabs (Team Stats / Player Stats) ────────────────── */
+.stats-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+}
+.stats-tabs button {
+  font-family: var(--font-primary);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 8px 20px;
+  background: var(--bg-row-alt);
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  margin-right: -1px;
+  transition: background 0.15s, color 0.15s;
+}
+.stats-tabs button:hover { color: var(--text-primary); }
+.stats-tabs button.tab-active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--bg-card);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Stats Table Card ──────────────────────────────────────────── */
+.stats-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 0 4px 4px 4px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.stats-card-header {
+  padding: 12px 16px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.stats-card-header .filter-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Stats Table ───────────────────────────────────────────────── */
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.74rem;
+  table-layout: auto;
+}
+.stats-table thead th {
+  padding: 8px 8px;
+  text-align: right;
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border-strong);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+.stats-table thead th:hover {
+  background: var(--bg-row-alt);
+  color: var(--text-primary);
+}
+.stats-table thead th.col-left { text-align: left; }
+.stats-table thead th.sorted { color: var(--text-primary); }
+.stats-table thead th .sort-indicator {
+  font-size: 0.62rem;
+  margin-left: 2px;
+  opacity: 0.7;
+}
+.stats-table tbody td {
+  padding: 6px 8px;
+  text-align: right;
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.stats-table tbody td.col-left { text-align: left; }
+.stats-table tbody td.col-rank {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+.stats-table tbody td.col-team {
+  font-weight: 700;
+}
+.stats-table tbody td.col-team a {
+  color: var(--text-primary);
+}
+.stats-table tbody td.col-team a:hover {
+  color: var(--color-link);
+}
+.stats-table tbody td.col-player {
+  font-weight: 700;
+}
+.stats-table tbody td.col-player a {
+  color: var(--text-primary);
+}
+.stats-table tbody td.col-player a:hover {
+  color: var(--color-link);
+}
+.stats-table tbody td.col-highlight {
+  font-weight: 700;
+}
+.stats-table tbody tr.row-alt td {
+  background: var(--bg-row-alt);
+}
+
+/* ── Section Labels ────────────────────────────────────────────── */
+.section-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 48px 0 6px;
+  padding: 10px 16px;
+  background: var(--text-primary);
+  color: var(--bg-page);
+  border-radius: 4px;
+  display: inline-block;
+}
+.section-desc {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()">Toggle Dark/Light</button>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     GLOBAL SHELL
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- Banner -->
+<header class="banner">
+  <div class="banner__brand">
+    <span class="banner__brand-icon">H</span>
+    Hockey League Hub
+  </div>
+  <div class="banner__search">
+    <div class="banner__search-wrap">
+      <input type="text" placeholder="Search players, teams, trades...">
+    </div>
+  </div>
+  <button class="banner__hamburger" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- Score Bar -->
+<div class="ticker">
+  <button class="ticker__arrow" aria-label="Scroll left">&#9664;</button>
+  <div class="ticker__track">
+    <a href="#" class="ticker__game">
+      <div class="ticker__teams">
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/CAR_dark.svg" alt="CAR" class="team-logo team-logo--sm">CAR</span>
+        <span class="ticker__score">3</span>
+        <span class="ticker__dash">&ndash;</span>
+        <span class="ticker__score">1</span>
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/NYR_dark.svg" alt="NYR" class="team-logo team-logo--sm">NYR</span>
+      </div>
+      <span class="ticker__status">Final</span>
+    </a>
+    <a href="#" class="ticker__game">
+      <div class="ticker__teams">
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/FLA_dark.svg" alt="FLA" class="team-logo team-logo--sm">FLA</span>
+        <span class="ticker__score">2</span>
+        <span class="ticker__dash">&ndash;</span>
+        <span class="ticker__score">2</span>
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/TBL_dark.svg" alt="TBL" class="team-logo team-logo--sm">TBL</span>
+      </div>
+      <span class="ticker__status ticker__status--close-game"><span class="ticker__live-dot"></span>3rd 03:12</span>
+    </a>
+    <a href="#" class="ticker__game">
+      <div class="ticker__teams">
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/WPG_dark.svg" alt="WPG" class="team-logo team-logo--sm">WPG</span>
+        <span class="ticker__score">4</span>
+        <span class="ticker__dash">&ndash;</span>
+        <span class="ticker__score">2</span>
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/VAN_dark.svg" alt="VAN" class="team-logo team-logo--sm">VAN</span>
+      </div>
+      <span class="ticker__status">Final</span>
+    </a>
+    <a href="#" class="ticker__game">
+      <div class="ticker__teams">
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/DAL_dark.svg" alt="DAL" class="team-logo team-logo--sm">DAL</span>
+        <span class="ticker__score">1</span>
+        <span class="ticker__dash">&ndash;</span>
+        <span class="ticker__score">0</span>
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/LAK_dark.svg" alt="LAK" class="team-logo team-logo--sm">LAK</span>
+      </div>
+      <span class="ticker__status"><span class="ticker__live-dot"></span>2nd 11:45</span>
+    </a>
+    <a href="#" class="ticker__game">
+      <div class="ticker__teams">
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/COL_dark.svg" alt="COL" class="team-logo team-logo--sm">COL</span>
+        <span class="ticker__dash">vs</span>
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/MIN_dark.svg" alt="MIN" class="team-logo team-logo--sm">MIN</span>
+      </div>
+      <span class="ticker__status">8:00 PM</span>
+    </a>
+  </div>
+  <button class="ticker__arrow" aria-label="Scroll right">&#9654;</button>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a href="#" class="nav__link">Home</a>
+  <a href="#" class="nav__link">Standings</a>
+  <a href="#" class="nav__link">Teams</a>
+  <a href="#" class="nav__link">Players</a>
+  <a href="#" class="nav__link">Scores</a>
+  <a href="#" class="nav__link nav__link--active">Stats</a>
+  <a href="#" class="nav__link">Trades</a>
+  <a href="#" class="nav__link">Schedule</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE CONTENT
+     ═══════════════════════════════════════════════════════════════ -->
+
+<main class="page-container">
+
+  <h2 class="page-title">2025&ndash;26 NHL Stats</h2>
+  <p class="page-subtitle">Playoff statistics &mdash; First Round</p>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SECTION 1: TEAM STATS (PLAYOFFS)
+       ═══════════════════════════════════════════════════════════ -->
+
+  <div class="section-label">Playoff Team Stats</div>
+  <p class="section-desc">The Playoffs tab becomes the default two days after the regular season ends. The Regular Season tab preserves the full season data. Same table structure, different data source.</p>
+
+  <!-- Season Tabs -->
+  <div class="season-tabs">
+    <button class="tab-active" onclick="switchSeasonTab(this)">Playoffs</button>
+    <button onclick="switchSeasonTab(this)">Regular Season</button>
+  </div>
+
+  <!-- Stats Sub-Tabs -->
+  <div class="stats-tabs">
+    <button class="tab-active" onclick="switchStatsTab(this)">Team Stats</button>
+    <button onclick="switchStatsTab(this)">Player Stats</button>
+  </div>
+
+  <div class="stats-card">
+    <div class="stats-card-header">
+      Playoff Team Stats
+      <span class="filter-label">2026 Playoffs &mdash; Through First Round</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+    <table class="stats-table">
+      <thead>
+        <tr>
+          <th class="col-left" title="Rank">#</th>
+          <th class="col-left" title="Team">Team</th>
+          <th title="Games Played">GP</th>
+          <th title="Wins">W</th>
+          <th title="Losses">L</th>
+          <th class="sorted" title="Win %">WIN%<span class="sort-indicator">&#9660;</span></th>
+          <th title="Goals For">GF</th>
+          <th title="Goals Against">GA</th>
+          <th title="Goal Differential">DIFF</th>
+          <th title="Goals For per Game">GF/G</th>
+          <th title="Goals Against per Game">GA/G</th>
+          <th title="Save Percentage">Sv%</th>
+          <th title="Power Play %">PP%</th>
+          <th title="Penalty Kill %">PK%</th>
+          <th title="Shots per Game">S/G</th>
+          <th title="Shots Against per Game">SA/G</th>
+          <th title="Faceoff Win %">FO%</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-rank">1</td>
+          <td class="col-left col-team"><a href="#">Carolina Hurricanes</a></td>
+          <td>6</td><td>4</td><td>2</td>
+          <td class="col-highlight">.667</td>
+          <td>19</td><td>14</td><td style="color:#2E7D32;">+5</td>
+          <td>3.17</td><td>2.33</td>
+          <td>.926</td><td>30.0</td><td>84.6</td>
+          <td>35.2</td><td>26.8</td><td>54.2</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">2</td>
+          <td class="col-left col-team"><a href="#">Winnipeg Jets</a></td>
+          <td>5</td><td>4</td><td>1</td>
+          <td class="col-highlight">.800</td>
+          <td>18</td><td>10</td><td style="color:#2E7D32;">+8</td>
+          <td>3.60</td><td>2.00</td>
+          <td>.932</td><td>26.7</td><td>86.7</td>
+          <td>33.8</td><td>27.4</td><td>52.0</td>
+        </tr>
+        <tr>
+          <td class="col-rank">3</td>
+          <td class="col-left col-team"><a href="#">Dallas Stars</a></td>
+          <td>6</td><td>4</td><td>2</td>
+          <td class="col-highlight">.667</td>
+          <td>17</td><td>13</td><td style="color:#2E7D32;">+4</td>
+          <td>2.83</td><td>2.17</td>
+          <td>.921</td><td>24.0</td><td>82.4</td>
+          <td>31.5</td><td>28.2</td><td>51.6</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">4</td>
+          <td class="col-left col-team"><a href="#">Toronto Maple Leafs</a></td>
+          <td>7</td><td>4</td><td>3</td>
+          <td class="col-highlight">.571</td>
+          <td>20</td><td>18</td><td style="color:#2E7D32;">+2</td>
+          <td>2.86</td><td>2.57</td>
+          <td>.919</td><td>22.7</td><td>80.0</td>
+          <td>32.4</td><td>29.1</td><td>48.8</td>
+        </tr>
+        <tr>
+          <td class="col-rank">5</td>
+          <td class="col-left col-team"><a href="#">Colorado Avalanche</a></td>
+          <td>7</td><td>4</td><td>3</td>
+          <td class="col-highlight">.571</td>
+          <td>22</td><td>19</td><td style="color:#2E7D32;">+3</td>
+          <td>3.14</td><td>2.71</td>
+          <td>.914</td><td>28.6</td><td>78.6</td>
+          <td>34.0</td><td>30.1</td><td>49.4</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">6</td>
+          <td class="col-left col-team"><a href="#">New Jersey Devils</a></td>
+          <td>4</td><td>3</td><td>1</td>
+          <td class="col-highlight">.750</td>
+          <td>14</td><td>9</td><td style="color:#2E7D32;">+5</td>
+          <td>3.50</td><td>2.25</td>
+          <td>.924</td><td>33.3</td><td>83.3</td>
+          <td>34.8</td><td>27.0</td><td>50.2</td>
+        </tr>
+        <tr>
+          <td class="col-rank">7</td>
+          <td class="col-left col-team"><a href="#">Florida Panthers</a></td>
+          <td>5</td><td>3</td><td>2</td>
+          <td class="col-highlight">.600</td>
+          <td>15</td><td>13</td><td style="color:#2E7D32;">+2</td>
+          <td>3.00</td><td>2.60</td>
+          <td>.918</td><td>25.0</td><td>81.2</td>
+          <td>32.6</td><td>29.8</td><td>51.4</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">8</td>
+          <td class="col-left col-team"><a href="#">Vegas Golden Knights</a></td>
+          <td>5</td><td>3</td><td>2</td>
+          <td class="col-highlight">.600</td>
+          <td>14</td><td>12</td><td style="color:#2E7D32;">+2</td>
+          <td>2.80</td><td>2.40</td>
+          <td>.920</td><td>21.4</td><td>85.7</td>
+          <td>30.8</td><td>28.6</td><td>50.8</td>
+        </tr>
+        <tr>
+          <td class="col-rank">9</td>
+          <td class="col-left col-team"><a href="#">Edmonton Oilers</a></td>
+          <td>5</td><td>2</td><td>3</td>
+          <td class="col-highlight">.400</td>
+          <td>13</td><td>15</td><td style="color:#C62828;">&minus;2</td>
+          <td>2.60</td><td>3.00</td>
+          <td>.908</td><td>20.0</td><td>76.9</td>
+          <td>33.2</td><td>30.4</td><td>49.0</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">10</td>
+          <td class="col-left col-team"><a href="#">Tampa Bay Lightning</a></td>
+          <td>5</td><td>2</td><td>3</td>
+          <td class="col-highlight">.400</td>
+          <td>12</td><td>14</td><td style="color:#C62828;">&minus;2</td>
+          <td>2.40</td><td>2.80</td>
+          <td>.912</td><td>18.8</td><td>78.6</td>
+          <td>29.8</td><td>30.0</td><td>48.2</td>
+        </tr>
+        <tr>
+          <td class="col-rank">11</td>
+          <td class="col-left col-team"><a href="#">Washington Capitals</a></td>
+          <td>7</td><td>3</td><td>4</td>
+          <td class="col-highlight">.429</td>
+          <td>18</td><td>20</td><td style="color:#C62828;">&minus;2</td>
+          <td>2.57</td><td>2.86</td>
+          <td>.910</td><td>19.2</td><td>77.3</td>
+          <td>30.4</td><td>31.2</td><td>49.6</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">12</td>
+          <td class="col-left col-team"><a href="#">Minnesota Wild</a></td>
+          <td>7</td><td>3</td><td>4</td>
+          <td class="col-highlight">.429</td>
+          <td>16</td><td>19</td><td style="color:#C62828;">&minus;3</td>
+          <td>2.29</td><td>2.71</td>
+          <td>.911</td><td>17.4</td><td>79.2</td>
+          <td>28.6</td><td>29.4</td><td>51.8</td>
+        </tr>
+        <tr>
+          <td class="col-rank">13</td>
+          <td class="col-left col-team"><a href="#">New York Rangers</a></td>
+          <td>6</td><td>2</td><td>4</td>
+          <td class="col-highlight">.333</td>
+          <td>12</td><td>17</td><td style="color:#C62828;">&minus;5</td>
+          <td>2.00</td><td>2.83</td>
+          <td>.906</td><td>16.7</td><td>75.0</td>
+          <td>28.2</td><td>31.8</td><td>47.4</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">14</td>
+          <td class="col-left col-team"><a href="#">Boston Bruins</a></td>
+          <td>4</td><td>1</td><td>3</td>
+          <td class="col-highlight">.250</td>
+          <td>7</td><td>12</td><td style="color:#C62828;">&minus;5</td>
+          <td>1.75</td><td>3.00</td>
+          <td>.898</td><td>14.3</td><td>72.7</td>
+          <td>27.5</td><td>30.8</td><td>48.0</td>
+        </tr>
+        <tr>
+          <td class="col-rank">15</td>
+          <td class="col-left col-team"><a href="#">Los Angeles Kings</a></td>
+          <td>6</td><td>2</td><td>4</td>
+          <td class="col-highlight">.333</td>
+          <td>10</td><td>15</td><td style="color:#C62828;">&minus;5</td>
+          <td>1.67</td><td>2.50</td>
+          <td>.904</td><td>15.4</td><td>76.5</td>
+          <td>26.8</td><td>29.2</td><td>47.8</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">16</td>
+          <td class="col-left col-team"><a href="#">Vancouver Canucks</a></td>
+          <td>5</td><td>1</td><td>4</td>
+          <td class="col-highlight">.200</td>
+          <td>8</td><td>16</td><td style="color:#C62828;">&minus;8</td>
+          <td>1.60</td><td>3.20</td>
+          <td>.891</td><td>12.5</td><td>73.3</td>
+          <td>25.4</td><td>32.0</td><td>46.2</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SECTION 2: PLAYER STATS (PLAYOFFS)
+       ═══════════════════════════════════════════════════════════ -->
+
+  <div class="section-label">Playoff Player Stats &mdash; Skaters</div>
+  <p class="section-desc">Same Playoffs / Regular Season tab structure. Player stats table uses playoff data when the Playoffs tab is active.</p>
+
+  <!-- Season Tabs -->
+  <div class="season-tabs">
+    <button class="tab-active" onclick="switchSeasonTab(this)">Playoffs</button>
+    <button onclick="switchSeasonTab(this)">Regular Season</button>
+  </div>
+
+  <!-- Stats Sub-Tabs -->
+  <div class="stats-tabs">
+    <button onclick="switchStatsTab(this)">Team Stats</button>
+    <button class="tab-active" onclick="switchStatsTab(this)">Player Stats</button>
+  </div>
+
+  <div class="stats-card">
+    <div class="stats-card-header">
+      Playoff Skater Stats
+      <span class="filter-label">2026 Playoffs &mdash; Sorted by Points</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+    <table class="stats-table">
+      <thead>
+        <tr>
+          <th class="col-left" title="Rank">#</th>
+          <th class="col-left" title="Player">Player</th>
+          <th class="col-left" title="Team">Team</th>
+          <th title="Position">Pos</th>
+          <th title="Games Played">GP</th>
+          <th title="Goals">G</th>
+          <th title="Assists">A</th>
+          <th class="sorted" title="Points">PTS<span class="sort-indicator">&#9660;</span></th>
+          <th title="Points per Game">P/G</th>
+          <th title="Plus/Minus">+/&minus;</th>
+          <th title="Penalty Minutes">PIM</th>
+          <th title="Power Play Goals">PPG</th>
+          <th title="Power Play Points">PPP</th>
+          <th title="Shots on Goal">SOG</th>
+          <th title="Shooting %">S%</th>
+          <th title="Game-Winning Goals">GWG</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-rank">1</td>
+          <td class="col-left col-player"><a href="#">Auston Matthews</a></td>
+          <td class="col-left">TOR</td>
+          <td>C</td>
+          <td>7</td><td>6</td><td>4</td>
+          <td class="col-highlight">10</td><td>1.43</td>
+          <td style="color:#2E7D32;">+3</td>
+          <td>2</td><td>2</td><td>4</td>
+          <td>34</td><td>17.6</td><td>2</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">2</td>
+          <td class="col-left col-player"><a href="#">Andrei Svechnikov</a></td>
+          <td class="col-left">CAR</td>
+          <td>RW</td>
+          <td>6</td><td>5</td><td>3</td>
+          <td class="col-highlight">8</td><td>1.33</td>
+          <td style="color:#2E7D32;">+4</td>
+          <td>4</td><td>2</td><td>3</td>
+          <td>28</td><td>17.9</td><td>1</td>
+        </tr>
+        <tr>
+          <td class="col-rank">3</td>
+          <td class="col-left col-player"><a href="#">Nathan MacKinnon</a></td>
+          <td class="col-left">COL</td>
+          <td>C</td>
+          <td>7</td><td>3</td><td>5</td>
+          <td class="col-highlight">8</td><td>1.14</td>
+          <td style="color:#2E7D32;">+2</td>
+          <td>0</td><td>1</td><td>3</td>
+          <td>31</td><td>9.7</td><td>1</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">4</td>
+          <td class="col-left col-player"><a href="#">Kyle Connor</a></td>
+          <td class="col-left">WPG</td>
+          <td>LW</td>
+          <td>5</td><td>4</td><td>3</td>
+          <td class="col-highlight">7</td><td>1.40</td>
+          <td style="color:#2E7D32;">+5</td>
+          <td>0</td><td>1</td><td>2</td>
+          <td>22</td><td>18.2</td><td>2</td>
+        </tr>
+        <tr>
+          <td class="col-rank">5</td>
+          <td class="col-left col-player"><a href="#">Sebastian Aho</a></td>
+          <td class="col-left">CAR</td>
+          <td>C</td>
+          <td>6</td><td>2</td><td>5</td>
+          <td class="col-highlight">7</td><td>1.17</td>
+          <td style="color:#2E7D32;">+3</td>
+          <td>2</td><td>1</td><td>3</td>
+          <td>24</td><td>8.3</td><td>0</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">6</td>
+          <td class="col-left col-player"><a href="#">Jason Robertson</a></td>
+          <td class="col-left">DAL</td>
+          <td>LW</td>
+          <td>6</td><td>4</td><td>2</td>
+          <td class="col-highlight">6</td><td>1.00</td>
+          <td style="color:#2E7D32;">+2</td>
+          <td>0</td><td>2</td><td>3</td>
+          <td>26</td><td>15.4</td><td>1</td>
+        </tr>
+        <tr>
+          <td class="col-rank">7</td>
+          <td class="col-left col-player"><a href="#">Jack Hughes</a></td>
+          <td class="col-left">NJD</td>
+          <td>C</td>
+          <td>4</td><td>3</td><td>3</td>
+          <td class="col-highlight">6</td><td>1.50</td>
+          <td style="color:#2E7D32;">+4</td>
+          <td>2</td><td>1</td><td>2</td>
+          <td>18</td><td>16.7</td><td>1</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">8</td>
+          <td class="col-left col-player"><a href="#">Matthew Tkachuk</a></td>
+          <td class="col-left">FLA</td>
+          <td>LW</td>
+          <td>5</td><td>2</td><td>4</td>
+          <td class="col-highlight">6</td><td>1.20</td>
+          <td style="color:#2E7D32;">+1</td>
+          <td>6</td><td>0</td><td>1</td>
+          <td>20</td><td>10.0</td><td>0</td>
+        </tr>
+        <tr>
+          <td class="col-rank">9</td>
+          <td class="col-left col-player"><a href="#">Mark Scheifele</a></td>
+          <td class="col-left">WPG</td>
+          <td>C</td>
+          <td>5</td><td>3</td><td>2</td>
+          <td class="col-highlight">5</td><td>1.00</td>
+          <td style="color:#2E7D32;">+4</td>
+          <td>4</td><td>2</td><td>3</td>
+          <td>19</td><td>15.8</td><td>1</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">10</td>
+          <td class="col-left col-player"><a href="#">Mitch Marner</a></td>
+          <td class="col-left">TOR</td>
+          <td>RW</td>
+          <td>7</td><td>1</td><td>4</td>
+          <td class="col-highlight">5</td><td>0.71</td>
+          <td style="color:#2E7D32;">+1</td>
+          <td>0</td><td>0</td><td>2</td>
+          <td>16</td><td>6.3</td><td>0</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SECTION 3: GOALIE STATS (PLAYOFFS)
+       ═══════════════════════════════════════════════════════════ -->
+
+  <div class="section-label">Playoff Player Stats &mdash; Goalies</div>
+  <p class="section-desc">Goalie stats follow the same tab structure. Sorted by save percentage by default.</p>
+
+  <div class="stats-card" style="border-radius: 4px;">
+    <div class="stats-card-header">
+      Playoff Goalie Stats
+      <span class="filter-label">2026 Playoffs &mdash; Sorted by Sv%</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+    <table class="stats-table">
+      <thead>
+        <tr>
+          <th class="col-left" title="Rank">#</th>
+          <th class="col-left" title="Player">Player</th>
+          <th class="col-left" title="Team">Team</th>
+          <th title="Games Played">GP</th>
+          <th title="Wins">W</th>
+          <th title="Losses">L</th>
+          <th class="sorted" title="Save Percentage">Sv%<span class="sort-indicator">&#9660;</span></th>
+          <th title="Goals Against Average">GAA</th>
+          <th title="Shots Against">SA</th>
+          <th title="Saves">SV</th>
+          <th title="Goals Against">GA</th>
+          <th title="Shutouts">SO</th>
+          <th title="Time on Ice">TOI</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-rank">1</td>
+          <td class="col-left col-player"><a href="#">Connor Hellebuyck</a></td>
+          <td class="col-left">WPG</td>
+          <td>5</td><td>4</td><td>1</td>
+          <td class="col-highlight">.932</td>
+          <td>2.00</td>
+          <td>147</td><td>137</td><td>10</td>
+          <td>1</td><td>300:00</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">2</td>
+          <td class="col-left col-player"><a href="#">Frederik Andersen</a></td>
+          <td class="col-left">CAR</td>
+          <td>6</td><td>4</td><td>2</td>
+          <td class="col-highlight">.926</td>
+          <td>2.33</td>
+          <td>189</td><td>175</td><td>14</td>
+          <td>0</td><td>360:00</td>
+        </tr>
+        <tr>
+          <td class="col-rank">3</td>
+          <td class="col-left col-player"><a href="#">Jake Oettinger</a></td>
+          <td class="col-left">DAL</td>
+          <td>6</td><td>4</td><td>2</td>
+          <td class="col-highlight">.921</td>
+          <td>2.17</td>
+          <td>165</td><td>152</td><td>13</td>
+          <td>1</td><td>360:00</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">4</td>
+          <td class="col-left col-player"><a href="#">Adin Hill</a></td>
+          <td class="col-left">VGK</td>
+          <td>5</td><td>3</td><td>2</td>
+          <td class="col-highlight">.920</td>
+          <td>2.40</td>
+          <td>150</td><td>138</td><td>12</td>
+          <td>0</td><td>300:00</td>
+        </tr>
+        <tr>
+          <td class="col-rank">5</td>
+          <td class="col-left col-player"><a href="#">Joseph Woll</a></td>
+          <td class="col-left">TOR</td>
+          <td>7</td><td>4</td><td>3</td>
+          <td class="col-highlight">.919</td>
+          <td>2.57</td>
+          <td>222</td><td>204</td><td>18</td>
+          <td>0</td><td>420:00</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">6</td>
+          <td class="col-left col-player"><a href="#">Sergei Bobrovsky</a></td>
+          <td class="col-left">FLA</td>
+          <td>5</td><td>3</td><td>2</td>
+          <td class="col-highlight">.918</td>
+          <td>2.60</td>
+          <td>159</td><td>146</td><td>13</td>
+          <td>0</td><td>300:00</td>
+        </tr>
+        <tr>
+          <td class="col-rank">7</td>
+          <td class="col-left col-player"><a href="#">Alexandar Georgiev</a></td>
+          <td class="col-left">COL</td>
+          <td>7</td><td>4</td><td>3</td>
+          <td class="col-highlight">.914</td>
+          <td>2.71</td>
+          <td>221</td><td>202</td><td>19</td>
+          <td>0</td><td>420:00</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">8</td>
+          <td class="col-left col-player"><a href="#">Andrei Vasilevskiy</a></td>
+          <td class="col-left">TBL</td>
+          <td>5</td><td>2</td><td>3</td>
+          <td class="col-highlight">.912</td>
+          <td>2.80</td>
+          <td>159</td><td>145</td><td>14</td>
+          <td>0</td><td>300:00</td>
+        </tr>
+        <tr>
+          <td class="col-rank">9</td>
+          <td class="col-left col-player"><a href="#">Charlie Lindgren</a></td>
+          <td class="col-left">WSH</td>
+          <td>7</td><td>3</td><td>4</td>
+          <td class="col-highlight">.910</td>
+          <td>2.86</td>
+          <td>222</td><td>202</td><td>20</td>
+          <td>0</td><td>420:00</td>
+        </tr>
+        <tr class="row-alt">
+          <td class="col-rank">10</td>
+          <td class="col-left col-player"><a href="#">Stuart Skinner</a></td>
+          <td class="col-left">EDM</td>
+          <td>5</td><td>2</td><td>3</td>
+          <td class="col-highlight">.908</td>
+          <td>3.00</td>
+          <td>163</td><td>148</td><td>15</td>
+          <td>0</td><td>300:00</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+function switchSeasonTab(btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('tab-active'));
+  btn.classList.add('tab-active');
+}
+function switchStatsTab(btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('tab-active'));
+  btn.classList.add('tab-active');
+}
+</script>
+</body>
+</html>

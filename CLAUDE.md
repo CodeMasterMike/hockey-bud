@@ -123,6 +123,10 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - Subscription cleanup uses `takeUntilDestroyed(destroyRef)` — do not use manual `Subscription[]` + `ngOnDestroy` patterns
 
 ## Recent Changes
+- Playoff brackets mockup (13): Standings gets Playoffs/Regular Season top tabs, bracket views (Eastern/Western/Full League sub-tabs), matchup boxes with seed + record, clickable to matchup detail page. Detail page has H2H regular season stats + matchup summary (left) and all-time playoff stats + all-time H2H (right). Round 2+ adds "Current Playoff Stats" section.
+- Playoff stats mockup (14): Stats section gets Playoffs/Regular Season top tabs. Same table structure with playoff data for team stats (16 teams by WIN%), skater stats (top 10 by points), and goalie stats (top 10 by Sv%).
+- Off-season schedule mockup (15): Schedule becomes default landing page during off-season. Score bar shows next major event. Countdown cards for draft/free agency/season opener. Chronological timeline of all off-season dates (buyout windows, QO deadline, expansion draft, NHL draft, free agency, arbitration, training camp, preseason, roster deadline, season opener). Important events highlighted.
+- Draft mockup (16): Draft tab replaces Scores during off-season. Live draft day view with pick ticker in score bar, round tabs (1-7), draft table with pick/team/player/position/previous club/nationality. Players clickable to profiles. Live "on the clock" indicator, dimmed pending picks. Post-draft results remain browsable all off-season.
 - Playwright e2e test suite: 87 tests across desktop (1440px) and mobile (375px) viewports covering navigation (deep links, SPA routing, 404 redirect), standings (view modes, sorting, responsive tabs), teams (32-team grid, profile + roster), search (debounce, dropdown, escape/click-away), schedule (month nav), trades (trade cards), and game hub (tab switching). Page Object Models for standings, teams, and search. Runs against deployed SWA or auto-starts ng serve locally.
 - Trades page: Trade + TradeAsset entities (simplified — TradeSide flattened into TradeAsset), `TradeSyncJob` (daily 7 AM UTC Hangfire) calls `GetTradesAsync` to populate trades for current season, `TradesController` exposes `GET /api/leagues/{leagueId}/trades` with optional team filter, frontend shows chronological trade cards with team logos and acquired/traded asset lists
 - Game Hub page: `GameHubController` exposes `GET /api/games/{gameId}/hub` — combined response with period box scores, team stats comparison, game events (goals/penalties), and per-player box scores (skaters + goalies). Sources from DB game record + live NHL API via `GetGameDetailAsync` with Redis cache (10s live, 1h final). Frontend has Team Stats + Player Stats tabs with responsive layout
@@ -160,9 +164,9 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - **SQL admin password rotation**: Initial deploy password is in shell history
 
 ### Missing Implementation
-- **Database entities (12 missing)**: PlayerPosition, PlayerHeadshot, PlayerStyle, PlayerSeason, PlayerTeamHistory, PlayerAward, Contract, ContractYear, GameEvent, GamePlayerStat, ImportantDate, RuleBook
-- **API endpoints (12 missing)**: Stats (1), Players (2), Salary Cap (5), Free Agents (1), Personnel (1), Teams roster (1), Teams depth chart (1)
-- **Frontend pages (5 placeholders)**: Stats, Players, Salary Cap, Free Agents, Personnel — all currently render placeholder text
+- **Database entities (18 missing)**: PlayerPosition, PlayerHeadshot, PlayerStyle, PlayerSeason, PlayerTeamHistory, PlayerAward, Contract, ContractYear, GameEvent, GamePlayerStat, ImportantDate, RuleBook, PlayoffSeries, PlayoffRound, DraftPick, DraftProspect, OffSeasonEvent, PlayoffTeamStats
+- **API endpoints (20 missing)**: Stats (1), Players (2), Salary Cap (5), Free Agents (1), Personnel (1), Teams roster (1), Teams depth chart (1), Playoff brackets (2), Playoff stats (2), Draft (2), Off-season schedule (1), Season mode (1)
+- **Frontend pages (5 placeholders + 4 new)**: Stats, Players, Salary Cap, Free Agents, Personnel — all currently render placeholder text. New pages not yet started: Playoff Brackets (Standings sub-page), Matchup Detail, Draft, Off-Season Schedule
 
 ### Data Quality Bugs in NhlWebApiProvider
 - **`GetStandingsAsync` doesn't populate `PowerPlayPct`, `PenaltyKillPct`, `FaceoffPct`** — they come back as `0.0` / `null` for every team. Surfaced 2026-04-08 during standings smoke test. The standings page renders "0.0" / "—" until the provider extracts those fields from the NHL API response.

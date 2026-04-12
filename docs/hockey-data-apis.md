@@ -149,11 +149,32 @@ Researched: 2026-03-17
 
 ---
 
+## Data Sources for New Features (Playoffs, Draft, Off-Season)
+
+### Playoff Brackets & Stats
+- **NHL Web API** (`api-web.nhle.com/v1/`) — provides playoff schedule, series matchups, and game results. Endpoint patterns: `/v1/playoff-bracket/{season}` for bracket data, `/v1/standings/{date}` with playoff filtering for team stats. Player playoff stats available via `/v1/player/{id}/game-log/{season}/3` (gameType 3 = playoffs).
+- **NHL Stats REST API** (`api.nhle.com/stats/rest/`) — historical playoff stats, all-time records, head-to-head comparisons. Supports `gameType=3` filter for playoff data across all stat endpoints.
+- **Matchup summaries** (strengths/weaknesses, predictions) — no direct API. Will need editorial content or AI-generated analysis based on statistical profiles. Could source from ESPN API for pre-series previews.
+
+### Draft Picks & Prospects
+- **NHL Web API** — `/v1/draft/{year}` returns all draft picks with player names, positions, previous clubs, nationalities. `/v1/draft/rankings/{year}/{category}` for prospect rankings. Live draft data updates as picks are made.
+- **Elite Prospects** — strongest source for prospect profiles, international league stats, draft history, and scouting reports. Free for non-commercial use.
+- **APIFactory NHL (RapidAPI)** — includes draft data in free tier; useful as a fallback.
+
+### Off-Season Events & Important Dates
+- No API provides a structured off-season calendar. Important dates (buyout windows, QO deadlines, free agency opening, arbitration, training camp) are published by the NHL in press releases. Options:
+  1. **Seed manually** via an `OffSeasonEvent` / `ImportantDate` entity at the start of each off-season
+  2. **Scrape NHL.com/news** for official date announcements
+  3. **Use Sportradar** (if licensed) — their calendar endpoint includes league events beyond games
+
+---
+
 ## Recommended Strategy
 
-1. **Start with `Nhl.Api` NuGet package** — free, C#-native, covers scores/stats/schedules/EDGE data
+1. **Start with `Nhl.Api` NuGet package** — free, C#-native, covers scores/stats/schedules/EDGE data, playoffs, and draft
 2. **Add MoneyPuck CSVs** via nightly Hangfire job for advanced analytics (xG, shot maps)
 3. **ESPN API** for quick news/scoreboard widgets on Angular side
 4. **Elite Prospects** for prospect/draft/international coverage
 5. **Upgrade to API-Sports or BALLDONTLIE** (~$10–40/mo) if a supported SLA is needed
 6. **Sportradar** only if going commercial and needing guaranteed uptime
+7. **Off-season dates** — seed manually each off-season; consider scraping NHL.com press releases for automation
