@@ -1,4 +1,4 @@
-import { Component, inject, signal, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, DestroyRef, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlayoffsApiService, PlayoffMatchupDetailResponse } from '../../../services/playoffs-api.service';
@@ -120,7 +120,7 @@ import { PlayoffsApiService, PlayoffMatchupDetailResponse } from '../../../servi
     .back-link:hover { text-decoration: underline; }
   `]
 })
-export class MatchupDetailPage {
+export class MatchupDetailPage implements OnInit {
   private route = inject(ActivatedRoute);
   private playoffsApi = inject(PlayoffsApiService);
   private destroyRef = inject(DestroyRef);

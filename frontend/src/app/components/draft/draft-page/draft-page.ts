@@ -1,7 +1,7 @@
-import { Component, inject, signal, computed, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, DestroyRef, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DraftApiService, DraftResponse, DraftRoundDto } from '../../../services/draft-api.service';
+import { DraftApiService, DraftResponse } from '../../../services/draft-api.service';
 
 @Component({
   selector: 'app-draft-page',
@@ -152,7 +152,7 @@ import { DraftApiService, DraftResponse, DraftRoundDto } from '../../../services
     .col-prev { color: var(--text-secondary); }
   `]
 })
-export class DraftPage {
+export class DraftPage implements OnInit {
   private route = inject(ActivatedRoute);
   private draftApi = inject(DraftApiService);
   private destroyRef = inject(DestroyRef);

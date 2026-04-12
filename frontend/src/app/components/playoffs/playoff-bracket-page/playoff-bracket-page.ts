@@ -1,7 +1,7 @@
-import { Component, inject, signal, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, DestroyRef, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PlayoffsApiService, PlayoffBracketResponse, PlayoffSeriesDto } from '../../../services/playoffs-api.service';
+import { PlayoffsApiService, PlayoffBracketResponse } from '../../../services/playoffs-api.service';
 
 @Component({
   selector: 'app-playoff-bracket-page',
@@ -133,7 +133,7 @@ import { PlayoffsApiService, PlayoffBracketResponse, PlayoffSeriesDto } from '..
     .matchup__status--final { color: var(--text-muted); }
   `]
 })
-export class PlayoffBracketPage {
+export class PlayoffBracketPage implements OnInit {
   private route = inject(ActivatedRoute);
   private playoffsApi = inject(PlayoffsApiService);
   private destroyRef = inject(DestroyRef);

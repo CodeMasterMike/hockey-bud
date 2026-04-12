@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, shareReplay, timer, switchMap, startWith } from 'rxjs';
+import { Observable, shareReplay, timer, switchMap } from 'rxjs';
 import { API_BASE_URL } from '../constants';
 
 export interface SeasonMode {
