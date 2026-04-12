@@ -14,17 +14,17 @@ Comprehensive hockey league information website starting with NHL — scores, st
 backend/
 ├── src/
 │   ├── HockeyHub.Core/             # Entities + interfaces (no dependencies)
-│   │   ├── Models/Entities/         # EF Core entities (10: League through StandingsSnapshot)
+│   │   ├── Models/Entities/         # EF Core entities (12: League through TradeAsset)
 │   │   └── Providers/               # INhlDataProvider, IScoreBroadcaster + DTOs
 │   ├── HockeyHub.Data/             # Data access layer (depends on Core)
 │   │   ├── Data/                    # DbContext, EF Core migrations
 │   │   ├── Providers/               # NhlWebApiProvider (api-web.nhle.com)
 │   │   └── Services/
 │   │       ├── Cache/               # Redis caching service
-│   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync, ScheduleSync jobs
-│   │       └── Queries/             # ScoresQuery, StandingsQuery, ScheduleQuery services
+│   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync, ScheduleSync, TradeSync jobs
+│   │       └── Queries/             # Scores, Standings, Schedule, Teams, GameHub, Trades query services
 │   └── HockeyHub.Api/              # HTTP host (depends on Data + Core)
-│       ├── Controllers/             # Scores (5), Standings, Schedule, Search, Health controllers
+│       ├── Controllers/             # Scores (5), Standings, Teams (2), GameHub, Schedule, Trades, Search, Health
 │       ├── Hubs/                    # GameHub, SignalRScoreBroadcaster
 │       ├── Middleware/              # Error handling, response wrappers
 │       └── Program.cs              # App startup, DI, Hangfire jobs
@@ -39,11 +39,14 @@ frontend/
 │   │   ├── scores/                  # ScoresPage, ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker
 │   │   ├── standings/               # StandingsPage (4 views, sortable, responsive side-by-side/tabbed)
 │   │   ├── schedule/                # SchedulePage (monthly game list with navigation)
-│   │   └── [8 placeholders]/        # Stats, Teams, Players, Salary Cap, Trades, Free Agents, Personnel, Game Hub
-│   ├── services/                    # Theme, SignalR, ScoresApi, StandingsApi, ScheduleApi, SearchApi, GameClock
+│   │   ├── teams/                   # TeamsIndex (card grid) + TeamProfile (roster table)
+│   │   ├── game-hub/                # GameHubPage (team stats, player stats, goals/penalties)
+│   │   ├── trades/                  # TradesList (chronological trade cards)
+│   │   └── [5 placeholders]/        # Stats, Players, Salary Cap, Free Agents, Personnel
+│   ├── services/                    # Theme, SignalR, ScoresApi, StandingsApi, ScheduleApi, TeamsApi, GameHubApi, TradesApi, SearchApi, GameClock
 │   ├── directives/                  # TooltipDirective
 │   ├── pipes/                       # EraPipe, TimezonePipe
-│   └── app.routes.ts                # 14 lazy-loaded routes (incl. game-hub/:gameId)
+│   └── app.routes.ts                # 15 lazy-loaded routes (incl. game-hub/:gameId, teams/:teamId)
 ├── src/assets/fonts/                # Self-hosted Courier Prime (WOFF2)
 ├── src/styles/                      # Design tokens (light/dark mode)
 └── tests/                           # Frontend tests
@@ -229,6 +232,10 @@ Standalone HTML/CSS mockups for design review, viewable in any browser from `doc
 | GET | `/api/leagues/{id}/scores/{gameId}/pregame` | Pregame matchup (goalies, PP/PK, H2H) |
 | GET | `/api/leagues/{id}/standings?view=wildcard` | Standings in 4 views: wildcard, division, conference, league |
 | GET | `/api/leagues/{id}/schedule?month=&team=` | Season schedule grouped by month/day, optional filters |
+| GET | `/api/leagues/{id}/teams` | All active teams with standings summary |
+| GET | `/api/teams/{teamId}` | Team profile with record, Stanley Cups, roster |
+| GET | `/api/games/{gameId}/hub` | Game Hub: period scores, team stats, events, player stats |
+| GET | `/api/leagues/{id}/trades?team=` | Season trades list, optional team filter |
 | GET | `/api/search?q=...&limit=10` | Cross-entity search (players by name, teams by name/abbreviation) |
 | GET | `/api/health/live` | Liveness probe (always 200) |
 | GET | `/api/health/ready` | Readiness probe (checks DB + Redis) |
@@ -242,4 +249,5 @@ Standalone HTML/CSS mockups for design review, viewable in any browser from `doc
 - **Phase 3 (US1: Scores MVP)**: Complete — Game/GamePeriodScore/StandingsSnapshot entities, ScoresController (5 endpoints), ScoresSyncJob + StandingsSyncJob, live score bar, scores page with 4-column grid, score box, expanded score box, pregame matchup, calendar picker, GameClockService (rAF countdown), tooltip directive
 - **Phase 4 (Standings)**: Complete — StandingsSnapshot extended with GoalDifferential + division/conference/wild card ranks; StandingsController (1 endpoint, 4 views); responsive frontend (side-by-side wide, tabbed narrow); sortable columns with WC cut-line semantics
 - **Phase 5 (Quick Wins)**: Complete — Global search (SearchController + banner dropdown with debounce); Schedule page (ScheduleSyncJob populates full season, ScheduleController with month/team filters, monthly game list frontend)
-- **Remaining**: Game Hub (3 endpoints, 2 entities), Stats (1), Teams (4), Players (2), Salary Cap (5), Trades (2), Free Agents (1), Personnel (1) — 8 placeholder frontend pages
+- **Phase 6 (Teams + Game Hub + Trades)**: Complete — Teams list + profile pages (card grid, roster table); Game Hub page (team stats + player stats tabs, goals/penalties timeline, sources from NHL API with Redis cache); Trades page (Trade + TradeAsset entities, TradeSyncJob daily sync, chronological trade cards with team logos)
+- **Remaining (~56% complete)**: Stats (1 endpoint), Players (2), Salary Cap (5), Free Agents (1), Personnel (1) — 5 placeholder frontend pages, all blocked on missing entities or data sources
