@@ -7,6 +7,7 @@ export const routes: Routes = [
   { path: ':leagueId/stats', loadComponent: () => import('./components/stats/stats-page/stats-page').then(m => m.StatsPage) },
   { path: ':leagueId/players', loadComponent: () => import('./components/players/players-page/players-page').then(m => m.PlayersPage) },
   { path: ':leagueId/teams', loadComponent: () => import('./components/teams/teams-index/teams-index').then(m => m.TeamsIndex) },
+  { path: ':leagueId/teams/:teamId', loadComponent: () => import('./components/teams/team-profile/team-profile').then(m => m.TeamProfilePage) },
   { path: ':leagueId/schedule', loadComponent: () => import('./components/schedule/schedule-page/schedule-page').then(m => m.SchedulePage) },
   { path: ':leagueId/salary-cap', loadComponent: () => import('./components/salary-cap/cap-overview/cap-overview').then(m => m.CapOverview) },
   { path: ':leagueId/trades', loadComponent: () => import('./components/trades/trades-list/trades-list').then(m => m.TradesList) },
