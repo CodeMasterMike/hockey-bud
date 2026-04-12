@@ -13,6 +13,9 @@ export const routes: Routes = [
   { path: ':leagueId/trades', loadComponent: () => import('./components/trades/trades-list/trades-list').then(m => m.TradesList) },
   { path: ':leagueId/free-agents', loadComponent: () => import('./components/free-agents/free-agents-page/free-agents-page').then(m => m.FreeAgentsPage) },
   { path: ':leagueId/personnel', loadComponent: () => import('./components/personnel/personnel-page/personnel-page').then(m => m.PersonnelPage) },
+  { path: ':leagueId/playoffs', loadComponent: () => import('./components/playoffs/playoff-bracket-page/playoff-bracket-page').then(m => m.PlayoffBracketPage) },
+  { path: ':leagueId/playoffs/matchup/:seriesLetter', loadComponent: () => import('./components/playoffs/matchup-detail-page/matchup-detail-page').then(m => m.MatchupDetailPage) },
+  { path: ':leagueId/draft', loadComponent: () => import('./components/draft/draft-page/draft-page').then(m => m.DraftPage) },
   { path: ':leagueId/game-hub/:gameId', loadComponent: () => import('./components/game-hub/game-hub-page/game-hub-page').then(m => m.GameHubPage) },
   { path: ':leagueId/game/:gameId', redirectTo: ':leagueId/game-hub/:gameId' },
   { path: '**', redirectTo: '' }

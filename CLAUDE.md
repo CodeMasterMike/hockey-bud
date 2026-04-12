@@ -21,9 +21,9 @@ backend/
 │   │   └── Services/
 │   │       ├── Cache/               # Redis cache service
 │   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync, ScheduleSync, TradeSync jobs
-│   │       └── Queries/             # Scores, Standings, Schedule, Teams, GameHub, Trades query services
+│   │       └── Queries/             # Scores, Standings, Schedule, Teams, GameHub, Trades, SeasonMode, PlayoffBracket, Draft query services
 │   └── HockeyHub.Api/              # HTTP host (depends on Data + Core)
-│       ├── Controllers/             # Scores (5), Standings, Schedule, Teams (2), GameHub, Trades, Search, Health
+│       ├── Controllers/             # Scores (5), Standings, Schedule, Teams (2), GameHub, Trades, Search, Health, SeasonMode, PlayoffBracket, Draft
 │       ├── Hubs/                    # GameHub, SignalRScoreBroadcaster
 │       ├── Middleware/              # Error handling, DataAsOf wrapper
 │       ├── Program.cs              # App startup + DI wiring
@@ -54,12 +54,14 @@ frontend/
 │   │   ├── teams/                 # TeamsIndex (card grid) + TeamProfile (roster table)
 │   │   ├── game-hub/              # GameHubPage (team stats, player stats, goals/penalties)
 │   │   ├── trades/                # TradesList (chronological trade cards)
+│   │   ├── playoffs/              # PlayoffBracketPage (conference tabs, matchup cards), MatchupDetailPage
+│   │   ├── draft/                 # DraftPage (round tabs, pick table with clickable player links)
 │   │   └── [stats,...]/           # Placeholder route components (5 remaining)
 │   ├── constants.ts               # Shared constants (league ID, polling intervals, SignalR config, close-game thresholds, getPeriodLabel)
-│   ├── services/                  # Theme, SignalR, ScoresApi, StandingsApi, ScheduleApi, SearchApi, TeamsApi, GameHubApi, TradesApi, GameClock
+│   ├── services/                  # Theme, SignalR, ScoresApi, StandingsApi, ScheduleApi, SearchApi, TeamsApi, GameHubApi, TradesApi, GameClock, SeasonMode, PlayoffsApi, DraftApi
 │   ├── directives/                # TooltipDirective
 │   ├── pipes/                     # EraPipe, TimezonePipe
-│   ├── app.routes.ts              # 15 lazy-loaded routes (incl. game-hub/:gameId, teams/:teamId)
+│   ├── app.routes.ts              # 18 lazy-loaded routes (incl. game-hub/:gameId, teams/:teamId, playoffs, playoffs/matchup/:seriesLetter, draft)
 │   └── app.ts                     # Shell: banner + score bar + nav + router-outlet
 ├── src/assets/fonts/              # Courier Prime (WOFF2)
 ├── src/styles/                    # Design tokens (light/dark)
@@ -121,8 +123,11 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - Frontend constants: `constants.ts` holds all magic numbers (polling intervals, SignalR config, close-game thresholds, default league ID) and shared utilities (`getPeriodLabel`) — never hardcode these in components
 - All Angular components use `ChangeDetectionStrategy.OnPush` — required for performance given 60fps clock updates during live games
 - Subscription cleanup uses `takeUntilDestroyed(destroyRef)` — do not use manual `Subscription[]` + `ngOnDestroy` patterns
+- **Season mode**: `SeasonModeService` computes current mode (regular-season/playoffs/off-season) from game data in DB, cached 1h in Redis. Nav bar dynamically swaps links based on mode. No external API call needed — derived from existing `Game` table state
+- **Playoffs/Draft data strategy**: No new database entities — playoff bracket and draft data served via Redis-cached NHL API calls (same pattern as Game Hub). Avoids migration complexity for read-only, single-season data. Provider methods: `GetPlayoffBracketAsync` (`/v1/playoff-bracket/{season}`), `GetDraftAsync` (`/v1/draft/{year}`)
 
 ## Recent Changes
+- Playoffs, draft, and season mode implementation: `SeasonModeService` determines regular-season/playoffs/off-season from game data (1h Redis cache), `PlayoffBracketQueryService` serves bracket + matchup detail from NHL API `/v1/playoff-bracket/{season}` (5min cache), `DraftQueryService` serves draft picks from `/v1/draft/{year}` (10s on draft day, 24h otherwise) with player ID resolution from DB. Three controllers: `SeasonModeController` (`GET /api/leagues/{id}/season-mode`), `PlayoffBracketController` (`GET .../playoffs/bracket?conference=` + `GET .../playoffs/matchup/{seriesLetter}`), `DraftController` (`GET .../draft?year=`). Zero new entities/migrations — all data via Redis-cached NHL API calls. Frontend: `PlayoffBracketPage` (conference tabs, round grouping, clickable matchup cards), `MatchupDetailPage` (series game results), `DraftPage` (round tabs, pick table with clickable player links). Nav bar now season-mode-aware (adds Playoffs link during playoffs, replaces Scores with Draft during off-season). Three new Angular services: `SeasonModeService`, `PlayoffsApiService`, `DraftApiService`. Three new routes: `:leagueId/playoffs`, `:leagueId/playoffs/matchup/:seriesLetter`, `:leagueId/draft`.
 - Playoff brackets mockup (13): Standings gets Playoffs/Regular Season top tabs, bracket views (Eastern/Western/Full League sub-tabs), matchup boxes with seed + record, clickable to matchup detail page. Detail page has H2H regular season stats + matchup summary (left) and all-time playoff stats + all-time H2H (right). Round 2+ adds "Current Playoff Stats" section.
 - Playoff stats mockup (14): Stats section gets Playoffs/Regular Season top tabs. Same table structure with playoff data for team stats (16 teams by WIN%), skater stats (top 10 by points), and goalie stats (top 10 by Sv%).
 - Off-season schedule mockup (15): Schedule becomes default landing page during off-season. Score bar shows next major event. Countdown cards for draft/free agency/season opener. Chronological timeline of all off-season dates (buyout windows, QO deadline, expansion draft, NHL draft, free agency, arbitration, training camp, preseason, roster deadline, season opener). Important events highlighted.
@@ -164,9 +169,9 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - **SQL admin password rotation**: Initial deploy password is in shell history
 
 ### Missing Implementation
-- **Database entities (18 missing)**: PlayerPosition, PlayerHeadshot, PlayerStyle, PlayerSeason, PlayerTeamHistory, PlayerAward, Contract, ContractYear, GameEvent, GamePlayerStat, ImportantDate, RuleBook, PlayoffSeries, PlayoffRound, DraftPick, DraftProspect, OffSeasonEvent, PlayoffTeamStats
-- **API endpoints (20 missing)**: Stats (1), Players (2), Salary Cap (5), Free Agents (1), Personnel (1), Teams roster (1), Teams depth chart (1), Playoff brackets (2), Playoff stats (2), Draft (2), Off-season schedule (1), Season mode (1)
-- **Frontend pages (5 placeholders + 4 new)**: Stats, Players, Salary Cap, Free Agents, Personnel — all currently render placeholder text. New pages not yet started: Playoff Brackets (Standings sub-page), Matchup Detail, Draft, Off-Season Schedule
+- **Database entities (12 missing)**: PlayerPosition, PlayerHeadshot, PlayerStyle, PlayerSeason, PlayerTeamHistory, PlayerAward, Contract, ContractYear, GameEvent, GamePlayerStat, ImportantDate, RuleBook _(PlayoffSeries, PlayoffRound, DraftPick, DraftProspect, OffSeasonEvent, PlayoffTeamStats were planned but not needed — playoffs/draft served via cached NHL API calls with no new entities)_
+- **API endpoints (12 missing)**: Stats (1), Players (2), Salary Cap (5), Free Agents (1), Personnel (1), Teams roster (1), Teams depth chart (1) _(Playoff brackets (2), Draft (1), Season mode (1) are now implemented; Playoff stats (2) and Off-season schedule (1) still pending)_
+- **Frontend pages (5 placeholders + 1 new)**: Stats, Players, Salary Cap, Free Agents, Personnel — all currently render placeholder text. Off-Season Schedule not yet started. _(Playoff Brackets, Matchup Detail, and Draft pages are now implemented)_
 
 ### Data Quality Bugs in NhlWebApiProvider
 - **`GetStandingsAsync` doesn't populate `PowerPlayPct`, `PenaltyKillPct`, `FaceoffPct`** — they come back as `0.0` / `null` for every team. Surfaced 2026-04-08 during standings smoke test. The standings page renders "0.0" / "—" until the provider extracts those fields from the NHL API response.
