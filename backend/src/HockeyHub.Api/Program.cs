@@ -63,6 +63,8 @@ builder.Services.AddScoped<StandingsQueryService>();
 builder.Services.AddScoped<ScheduleQueryService>();
 builder.Services.AddScoped<TeamsQueryService>();
 builder.Services.AddScoped<GameHubQueryService>();
+builder.Services.AddScoped<TradesQueryService>();
+builder.Services.AddScoped<TradeSyncJob>();
 builder.Services.AddScoped<ScoresSyncJob>();
 builder.Services.AddScoped<StandingsSyncJob>();
 builder.Services.AddScoped<ScheduleSyncJob>();
@@ -156,6 +158,11 @@ app.Services.GetRequiredService<IRecurringJobManager>().AddOrUpdate<ScheduleSync
     "schedule-sync",
     job => job.SyncAsync(CancellationToken.None),
     "0 6 * * *"); // Daily at 6 AM UTC
+
+app.Services.GetRequiredService<IRecurringJobManager>().AddOrUpdate<TradeSyncJob>(
+    "trade-sync",
+    job => job.SyncAsync(CancellationToken.None),
+    "0 7 * * *"); // Daily at 7 AM UTC
 
 // Data seed command: dotnet run -- --seed [--current-only]
 if (args.Contains("--seed"))
