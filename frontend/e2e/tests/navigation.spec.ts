@@ -30,6 +30,18 @@ test.describe('SPA Navigation & Routing', () => {
     await expect(page.locator('.trades-page')).toBeVisible();
   });
 
+  test('deep link to playoffs works on refresh', async ({ page }) => {
+    await page.goto('/nhl/playoffs');
+    await page.reload();
+    await expect(page.locator('app-playoff-bracket-page')).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('deep link to draft works on refresh', async ({ page }) => {
+    await page.goto('/nhl/draft');
+    await page.reload();
+    await expect(page.locator('app-draft-page')).toBeVisible({ timeout: 15_000 });
+  });
+
   test('unknown route redirects to home', async ({ page }) => {
     await page.goto('/nhl/nonexistent-page');
     await expect(page).toHaveURL('/');
