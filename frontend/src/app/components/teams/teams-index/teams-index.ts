@@ -3,14 +3,16 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TeamsApiService, TeamListItem } from '../../../services/teams-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
+import { DataAsOf } from '../../shared/data-as-of/data-as-of';
 
 @Component({
   selector: 'app-teams-index',
-  imports: [RouterLink],
+  imports: [RouterLink, DataAsOf],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="teams-page">
       <h1 class="page-title">NHL Teams</h1>
+      <p class="page-subtitle"><app-data-as-of [timestamp]="dataAsOf()" /></p>
 
       @if (errorMessage()) {
         <div class="state-msg state-error">{{ errorMessage() }}</div>
@@ -75,6 +77,7 @@ export class TeamsIndex implements OnInit {
 
   leagueId = signal(DEFAULT_LEAGUE_ID);
   teams = signal<TeamListItem[]>([]);
+  dataAsOf = signal<string | null>(null);
   loading = signal(true);
   errorMessage = signal<string | null>(null);
 
@@ -90,7 +93,7 @@ export class TeamsIndex implements OnInit {
     this.api.getTeams(this.leagueId()).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: res => { this.teams.set(res.teams); this.loading.set(false); },
+      next: res => { this.teams.set(res.teams); this.dataAsOf.set(res.dataAsOf); this.loading.set(false); },
       error: () => { this.loading.set(false); this.errorMessage.set('Unable to load teams.'); }
     });
   }

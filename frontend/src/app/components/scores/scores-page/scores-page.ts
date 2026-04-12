@@ -8,15 +8,16 @@ import { ExpandedScoreBox } from '../expanded-score-box/expanded-score-box';
 import { PregameMatchup } from '../pregame-matchup/pregame-matchup';
 import { CalendarPicker } from '../calendar-picker/calendar-picker';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
+import { DataAsOf } from '../../shared/data-as-of/data-as-of';
 
 @Component({
   selector: 'app-scores-page',
-  imports: [ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker],
+  imports: [ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker, DataAsOf],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="scores-page">
       <div class="scores-header">
-        <h1 class="scores-title">Scores</h1>
+        <h1 class="scores-title">Scores <app-data-as-of [timestamp]="scoresData()?.dataAsOf ?? null" /></h1>
         <div class="scores-date-controls">
           <button class="date-nav" (click)="navigateDate(-1)" aria-label="Previous day">&laquo;</button>
           <button class="date-display" (click)="showCalendar.set(!showCalendar())">

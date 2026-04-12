@@ -76,7 +76,7 @@ public class GameHubQueryService(
                 e.VideoUrl
             )).ToList() ?? [],
             PlayerStats: BuildPlayerStats(detail),
-            DataAsOf: DateTimeOffset.UtcNow
+            DataAsOf: game.LastUpdated
         );
     }
 

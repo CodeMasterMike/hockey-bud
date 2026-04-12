@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../constants';
 
 export interface TeamsListResponse {
   teams: TeamListItem[];
+  dataAsOf: string;
 }
 
 export interface TeamListItem {

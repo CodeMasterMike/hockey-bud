@@ -6,15 +6,17 @@ import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TradesApiService, TradeItem } from '../../../services/trades-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
+import { DataAsOf } from '../../shared/data-as-of/data-as-of';
 
 @Component({
   selector: 'app-trades-list',
+  imports: [DataAsOf],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="trades-page">
       <h1 class="page-title">{{ data()?.season ?? '...' }} NHL Trades</h1>
       <p class="page-subtitle">
-        @if (data()) { {{ data()!.trades.length }} trades this season } @else { &nbsp; }
+        @if (data()) { {{ data()!.trades.length }} trades this season &mdash; <app-data-as-of [timestamp]="data()!.dataAsOf" /> } @else { &nbsp; }
       </p>
 
       @if (errorMessage()) {
@@ -94,7 +96,7 @@ export class TradesList implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   leagueId = signal(DEFAULT_LEAGUE_ID);
-  data = signal<{ season: string; trades: TradeItem[] } | null>(null);
+  data = signal<{ season: string; trades: TradeItem[]; dataAsOf: string } | null>(null);
   trades = signal<TradeItem[]>([]);
   loading = signal(true);
   errorMessage = signal<string | null>(null);

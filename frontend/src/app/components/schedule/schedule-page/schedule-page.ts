@@ -15,19 +15,18 @@ import {
   ScheduleMonth,
 } from '../../../services/schedule-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
+import { DataAsOf } from '../../shared/data-as-of/data-as-of';
 
 @Component({
   selector: 'app-schedule-page',
-  imports: [RouterLink],
+  imports: [RouterLink, DataAsOf],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="schedule-page">
       <header class="page-header">
         <h1 class="page-title">{{ data()?.season ?? '...' }} NHL Schedule</h1>
         <p class="page-subtitle">
-          @if (data()) {
-            Updated {{ formatDate(data()!.dataAsOf) }}
-          } @else { &nbsp; }
+          <app-data-as-of [timestamp]="data()?.dataAsOf ?? null" />
         </p>
       </header>
 
@@ -150,11 +149,6 @@ export class SchedulePage implements OnInit {
 
   prevMonth(): void { this.monthIndex.update(i => Math.max(0, i - 1)); }
   nextMonth(): void { this.monthIndex.update(i => Math.min(this.allMonths().length - 1, i + 1)); }
-
-  formatDate(iso: string): string {
-    try { return new Date(iso).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }); }
-    catch { return ''; }
-  }
 
   formatDayHeader(dateStr: string): string {
     try {

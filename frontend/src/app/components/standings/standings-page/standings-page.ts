@@ -18,6 +18,7 @@ import {
   StandingsView,
 } from '../../../services/standings-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
+import { DataAsOf } from '../../shared/data-as-of/data-as-of';
 
 type SortColumn =
   | 'gamesPlayed'
@@ -61,18 +62,14 @@ const COLUMNS: readonly ColumnDef[] = [
 
 @Component({
   selector: 'app-standings-page',
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, DataAsOf],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="standings-page">
       <header class="page-header">
         <h1 class="page-title">{{ data()?.season ?? '...' }} NHL Standings</h1>
         <p class="page-subtitle">
-          @if (data()) {
-            Updated {{ formatDate(data()!.dataAsOf) }}
-          } @else {
-            &nbsp;
-          }
+          <app-data-as-of [timestamp]="data()?.dataAsOf ?? null" />
         </p>
       </header>
 
@@ -405,12 +402,4 @@ export class StandingsPage implements OnInit {
     return '0';
   }
 
-  formatDate(iso: string): string {
-    try {
-      const d = new Date(iso);
-      return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-    } catch {
-      return '';
-    }
-  }
 }

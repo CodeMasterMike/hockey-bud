@@ -3,10 +3,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TeamsApiService, TeamProfile } from '../../../services/teams-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
+import { DataAsOf } from '../../shared/data-as-of/data-as-of';
 
 @Component({
   selector: 'app-team-profile',
-  imports: [RouterLink],
+  imports: [RouterLink, DataAsOf],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="profile-page">
@@ -32,6 +33,7 @@ import { DEFAULT_LEAGUE_ID } from '../../../constants';
                 @if (t.divisionRank) { &middot; {{ ordinal(t.divisionRank) }} in division }
               </div>
             }
+            <app-data-as-of [timestamp]="t.dataAsOf" />
           </div>
         </header>
 

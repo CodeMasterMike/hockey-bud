@@ -46,7 +46,10 @@ public class TeamsQueryService(HockeyHubDbContext db, RedisCacheService cache)
             }).ToList();
         }, RedisCacheService.TeamsTtl, ct);
 
-        return new TeamsListResponse(teams ?? []);
+        var lastUpdated = await db.StandingsSnapshots
+            .MaxAsync(s => (DateTimeOffset?)s.LastUpdated, ct) ?? DateTimeOffset.UtcNow;
+
+        return new TeamsListResponse(teams ?? [], lastUpdated);
     }
 
     public async Task<TeamProfileResponse?> GetTeamProfileAsync(int teamId, CancellationToken ct = default)
@@ -111,7 +114,7 @@ public class TeamsQueryService(HockeyHubDbContext db, RedisCacheService cache)
                 )).ToList(),
                 Season: season?.Label,
                 Roster: roster,
-                DataAsOf: DateTimeOffset.UtcNow
+                DataAsOf: standings?.LastUpdated ?? DateTimeOffset.UtcNow
             );
         }, RedisCacheService.RosterTtl, ct);
     }
@@ -119,7 +122,7 @@ public class TeamsQueryService(HockeyHubDbContext db, RedisCacheService cache)
 
 // ── List DTOs ──────────────────────────────────────────────────────────────────
 
-public record TeamsListResponse(IReadOnlyList<TeamsListItemDto> Teams);
+public record TeamsListResponse(IReadOnlyList<TeamsListItemDto> Teams, DateTimeOffset DataAsOf);
 
 public record TeamsListItemDto(
     int Id,
