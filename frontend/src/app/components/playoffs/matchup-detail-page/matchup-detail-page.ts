@@ -2,10 +2,11 @@ import { Component, inject, signal, DestroyRef, ChangeDetectionStrategy, OnInit 
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlayoffsApiService, PlayoffMatchupDetailResponse } from '../../../services/playoffs-api.service';
+import { DataAsOf } from '../../shared/data-as-of/data-as-of';
 
 @Component({
   selector: 'app-matchup-detail-page',
-  imports: [RouterLink],
+  imports: [RouterLink, DataAsOf],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page">
@@ -31,7 +32,7 @@ import { PlayoffsApiService, PlayoffMatchupDetailResponse } from '../../../servi
             <span class="header__abbrev">{{ data()!.bottomSeed.abbreviation }}</span>
           </div>
         </div>
-        <p class="series-info">{{ data()!.conference }} &mdash; {{ data()!.seriesScore }}</p>
+        <p class="series-info">{{ data()!.conference }} &mdash; {{ data()!.seriesScore }} &mdash; <app-data-as-of [timestamp]="data()!.dataAsOf" /></p>
 
         <div class="games-card">
           <div class="games-card__header">Games</div>

@@ -2,10 +2,11 @@ import { Component, inject, signal, computed, DestroyRef, ChangeDetectionStrateg
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DraftApiService, DraftResponse } from '../../../services/draft-api.service';
+import { DataAsOf } from '../../shared/data-as-of/data-as-of';
 
 @Component({
   selector: 'app-draft-page',
-  imports: [RouterLink],
+  imports: [RouterLink, DataAsOf],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page">
@@ -16,6 +17,7 @@ import { DraftApiService, DraftResponse } from '../../../services/draft-api.serv
         } @else {
           Draft results
         }
+        &mdash; <app-data-as-of [timestamp]="data()?.dataAsOf ?? null" />
       </p>
 
       @if (loading()) {
