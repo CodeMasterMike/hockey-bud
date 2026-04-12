@@ -49,7 +49,9 @@ frontend/
 │   └── app.routes.ts                # 15 lazy-loaded routes (incl. game-hub/:gameId, teams/:teamId)
 ├── src/assets/fonts/                # Self-hosted Courier Prime (WOFF2)
 ├── src/styles/                      # Design tokens (light/dark mode)
-└── tests/                           # Frontend tests
+├── e2e/                             # Playwright e2e tests (7 specs, 3 page objects)
+├── playwright.config.ts             # Desktop (1440px) + mobile (375px) projects
+└── tests/                           # Vitest unit tests
 
 docs/
 └── mockups/                       # Static HTML/CSS design mockups
@@ -115,6 +117,25 @@ ng serve
 ```
 
 The frontend starts at **http://localhost:4200**.
+
+### 5. Run e2e tests (optional)
+
+```bash
+cd frontend
+
+# Against local dev server (auto-starts ng serve)
+npm run test:e2e
+
+# Against deployed site
+PLAYWRIGHT_TEST_BASE_URL=https://yellow-pond-0bd57f50f.1.azurestaticapps.net \
+PLAYWRIGHT_API_URL=https://hockeyhub-dev-api.purplewave-82f5d767.eastus.azurecontainerapps.io \
+npm run test:e2e
+
+# Headed mode (see the browser)
+npm run test:e2e:headed
+```
+
+87 tests across desktop (1440px) and mobile (375px) viewports covering navigation, standings, teams, search, schedule, trades, and game hub.
 
 ## Debugging
 

@@ -64,6 +64,10 @@ frontend/
 ├── src/assets/fonts/              # Courier Prime (WOFF2)
 ├── src/styles/                    # Design tokens (light/dark)
 ├── staticwebapp.config.json         # Azure Static Web Apps routing + headers
+├── e2e/                             # Playwright e2e tests
+│   ├── tests/                       # 7 spec files (navigation, standings, teams, search, schedule, trades, game-hub)
+│   └── pages/                       # Page Object Models (standings, teams, search)
+├── playwright.config.ts             # Playwright config (desktop + mobile projects, auto-start ng serve)
 └── tests/
 ```
 
@@ -77,8 +81,10 @@ cd backend/src/HockeyHub.Api && dotnet run            # Run API (http://localhos
 cd backend/src/HockeyHub.Api && dotnet run -- --seed  # Seed data from NHL API
 
 # Frontend
-cd frontend && npm test && npm run lint               # Tests + lint
+cd frontend && npm test && npm run lint               # Unit tests + lint
 cd frontend && ng serve                               # Dev server (http://localhost:4200)
+cd frontend && npm run test:e2e                       # Playwright e2e (auto-starts ng serve)
+cd frontend && PLAYWRIGHT_TEST_BASE_URL=https://... npm run test:e2e  # E2e against deployed site
 
 # Infrastructure (local)
 docker compose up -d                                  # SQL Server + Redis
@@ -117,6 +123,7 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - Subscription cleanup uses `takeUntilDestroyed(destroyRef)` — do not use manual `Subscription[]` + `ngOnDestroy` patterns
 
 ## Recent Changes
+- Playwright e2e test suite: 87 tests across desktop (1440px) and mobile (375px) viewports covering navigation (deep links, SPA routing, 404 redirect), standings (view modes, sorting, responsive tabs), teams (32-team grid, profile + roster), search (debounce, dropdown, escape/click-away), schedule (month nav), trades (trade cards), and game hub (tab switching). Page Object Models for standings, teams, and search. Runs against deployed SWA or auto-starts ng serve locally.
 - Trades page: Trade + TradeAsset entities (simplified — TradeSide flattened into TradeAsset), `TradeSyncJob` (daily 7 AM UTC Hangfire) calls `GetTradesAsync` to populate trades for current season, `TradesController` exposes `GET /api/leagues/{leagueId}/trades` with optional team filter, frontend shows chronological trade cards with team logos and acquired/traded asset lists
 - Game Hub page: `GameHubController` exposes `GET /api/games/{gameId}/hub` — combined response with period box scores, team stats comparison, game events (goals/penalties), and per-player box scores (skaters + goalies). Sources from DB game record + live NHL API via `GetGameDetailAsync` with Redis cache (10s live, 1h final). Frontend has Team Stats + Player Stats tabs with responsive layout
 - Teams pages: `TeamsController` with `GET /api/leagues/{id}/teams` (list with standings summary, 24h cache) and `GET /api/teams/{id}` (profile with record, Stanley Cups, franchise history, full roster, 1h cache). Frontend: teams index as 4-column card grid, team profile with header/detail cards/roster table. New route `:leagueId/teams/:teamId`. Search navigates directly to team profiles
@@ -161,6 +168,7 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - **`GetStandingsAsync` doesn't populate `PowerPlayPct`, `PenaltyKillPct`, `FaceoffPct`** — they come back as `0.0` / `null` for every team. Surfaced 2026-04-08 during standings smoke test. The standings page renders "0.0" / "—" until the provider extracts those fields from the NHL API response.
 
 ### Testing
+- **Playwright e2e tests**: 87 tests across desktop + mobile (7 spec files, 3 page objects). Run via `npm run test:e2e` locally or with `PLAYWRIGHT_TEST_BASE_URL` against deployed SWA. Game Hub tests use `PLAYWRIGHT_API_URL` to fetch game IDs.
 - **Frontend unit tests**: Only a placeholder test exists (`app.spec.ts`). Real unit tests needed for components (ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker, etc.) and services (ScoresApiService, GameClockService, SignalRService, ThemeService). Test infrastructure is set up: Vitest + jsdom via `@angular/build:unit-test`.
 - **Backend tests**: Expand coverage for ScoresQueryService, sync jobs, NhlWebApiProvider, HealthController
 
