@@ -74,16 +74,16 @@ public class TeamsQueryService(HockeyHubDbContext db, RedisCacheService cache)
                 .Where(p => p.CurrentTeamId == teamId && p.IsActive)
                 .OrderBy(p => p.LastName).ThenBy(p => p.FirstName)
                 .Select(p => new RosterPlayerDto(
-                    PlayerId: p.Id,
-                    FirstName: p.FirstName,
-                    LastName: p.LastName,
-                    JerseyNumber: p.JerseyNumber,
-                    ShootsCatches: p.ShootsCatches,
-                    BirthCity: p.BirthCity,
-                    BirthCountry: p.BirthCountry,
-                    DateOfBirth: p.DateOfBirth,
-                    DraftYear: p.DraftYear,
-                    IsEbug: p.IsEbug
+                    p.Id,
+                    p.FirstName,
+                    p.LastName,
+                    p.JerseyNumber,
+                    p.ShootsCatches,
+                    p.BirthCity,
+                    p.BirthCountry,
+                    p.DateOfBirth,
+                    p.DraftYear,
+                    p.IsEbug
                 ))
                 .ToListAsync(ct);
 
