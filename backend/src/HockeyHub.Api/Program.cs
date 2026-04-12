@@ -61,6 +61,7 @@ builder.Services.AddScoped<DataSeedService>();
 builder.Services.AddScoped<ScoresQueryService>();
 builder.Services.AddScoped<StandingsQueryService>();
 builder.Services.AddScoped<ScheduleQueryService>();
+builder.Services.AddScoped<TeamsQueryService>();
 builder.Services.AddScoped<ScoresSyncJob>();
 builder.Services.AddScoped<StandingsSyncJob>();
 builder.Services.AddScoped<ScheduleSyncJob>();

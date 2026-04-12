@@ -138,7 +138,7 @@ export class Banner {
 
   goToTeam(teamId: number): void {
     this.close();
-    this.router.navigate(['/', DEFAULT_LEAGUE_ID, 'teams'], { queryParams: { team: teamId } });
+    this.router.navigate(['/', DEFAULT_LEAGUE_ID, 'teams', teamId]);
   }
 
   goToPlayer(playerId: number): void {
