@@ -21,10 +21,10 @@ backend/
 │   │   ├── Providers/               # NhlWebApiProvider (api-web.nhle.com)
 │   │   └── Services/
 │   │       ├── Cache/               # Redis caching service
-│   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync jobs
-│   │       └── Queries/             # ScoresQueryService (scores, expanded, live, ticker, pregame)
+│   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync, ScheduleSync jobs
+│   │       └── Queries/             # ScoresQuery, StandingsQuery, ScheduleQuery services
 │   └── HockeyHub.Api/              # HTTP host (depends on Data + Core)
-│       ├── Controllers/             # ScoresController (5 REST endpoints)
+│       ├── Controllers/             # Scores (5), Standings, Schedule, Search, Health controllers
 │       ├── Hubs/                    # GameHub, SignalRScoreBroadcaster
 │       ├── Middleware/              # Error handling, response wrappers
 │       └── Program.cs              # App startup, DI, Hangfire jobs
@@ -37,8 +37,10 @@ frontend/
 │   │   ├── shared/                  # StatTable, VideoModal, Pagination
 │   │   ├── main-page/               # League selection grid
 │   │   ├── scores/                  # ScoresPage, ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker
-│   │   └── [11 placeholders]/       # Standings, Stats, Teams, etc.
-│   ├── services/                    # Theme, SignalR, ScoresApi, GameClock services
+│   │   ├── standings/               # StandingsPage (4 views, sortable, responsive side-by-side/tabbed)
+│   │   ├── schedule/                # SchedulePage (monthly game list with navigation)
+│   │   └── [8 placeholders]/        # Stats, Teams, Players, Salary Cap, Trades, Free Agents, Personnel, Game Hub
+│   ├── services/                    # Theme, SignalR, ScoresApi, StandingsApi, ScheduleApi, SearchApi, GameClock
 │   ├── directives/                  # TooltipDirective
 │   ├── pipes/                       # EraPipe, TimezonePipe
 │   └── app.routes.ts                # 14 lazy-loaded routes (incl. game-hub/:gameId)
@@ -220,11 +222,16 @@ Standalone HTML/CSS mockups for design review, viewable in any browser from `doc
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/api/leagues/{id}/scores?date=yyyy-MM-dd` | Games for a date (default: today UTC-8) |
+| GET | `/api/leagues/{id}/scores?date=yyyy-MM-dd` | Games for a date (default: today's NHL game day) |
 | GET | `/api/leagues/{id}/scores/{gameId}/expanded` | Expanded score box (periods, stats, summaries) |
 | GET | `/api/scores/live` | Currently live games (lightweight) |
 | GET | `/api/leagues/{id}/scores/ticker` | Minimal ticker data for score bar |
 | GET | `/api/leagues/{id}/scores/{gameId}/pregame` | Pregame matchup (goalies, PP/PK, H2H) |
+| GET | `/api/leagues/{id}/standings?view=wildcard` | Standings in 4 views: wildcard, division, conference, league |
+| GET | `/api/leagues/{id}/schedule?month=&team=` | Season schedule grouped by month/day, optional filters |
+| GET | `/api/search?q=...&limit=10` | Cross-entity search (players by name, teams by name/abbreviation) |
+| GET | `/api/health/live` | Liveness probe (always 200) |
+| GET | `/api/health/ready` | Readiness probe (checks DB + Redis) |
 
 ## Development Status
 
@@ -233,4 +240,6 @@ Standalone HTML/CSS mockups for design review, viewable in any browser from `doc
 - **Phase 2 (Foundation) — Backend**: Complete — 7 entities, DbContext, EF migration, NHL API provider, Redis cache, SignalR hub, Hangfire, error middleware, data seed CLI
 - **Phase 2 (Foundation) — Frontend**: Complete — 13 lazy-loaded routes, layout shell, dark mode, SignalR, shared components, pipes, main page, placeholder routes
 - **Phase 3 (US1: Scores MVP)**: Complete — Game/GamePeriodScore/StandingsSnapshot entities, ScoresController (5 endpoints), ScoresSyncJob + StandingsSyncJob, live score bar, scores page with 4-column grid, score box, expanded score box, pregame matchup, calendar picker, GameClockService (rAF countdown), tooltip directive
-- **Phases 4–14**: Not started — Game Hub, Standings, Stats, Teams, Players, Salary Cap, Trades, Free Agents, Personnel, Schedule, Polish
+- **Phase 4 (Standings)**: Complete — StandingsSnapshot extended with GoalDifferential + division/conference/wild card ranks; StandingsController (1 endpoint, 4 views); responsive frontend (side-by-side wide, tabbed narrow); sortable columns with WC cut-line semantics
+- **Phase 5 (Quick Wins)**: Complete — Global search (SearchController + banner dropdown with debounce); Schedule page (ScheduleSyncJob populates full season, ScheduleController with month/team filters, monthly game list frontend)
+- **Remaining**: Game Hub (3 endpoints, 2 entities), Stats (1), Teams (4), Players (2), Salary Cap (5), Trades (2), Free Agents (1), Personnel (1) — 8 placeholder frontend pages

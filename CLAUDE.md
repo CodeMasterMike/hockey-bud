@@ -1,6 +1,6 @@
 # hockey-site Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-04
+Auto-generated from all feature plans. Last updated: 2026-04-11
 
 ## Active Technologies
 - C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend) + ASP.NET Core 10, Entity Framework Core 10, Hangfire, SignalR, Angular SSR, RxJS, Tailwind CSS v3, Angular CDK (001-hockey-league-hub)
@@ -20,10 +20,10 @@ backend/
 │   │   ├── Providers/NhlWebApiProvider.cs
 │   │   └── Services/
 │   │       ├── Cache/               # Redis cache service
-│   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync jobs
-│   │       └── Queries/             # ScoresQueryService
+│   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync, ScheduleSync jobs
+│   │       └── Queries/             # ScoresQueryService, StandingsQueryService, ScheduleQueryService
 │   └── HockeyHub.Api/              # HTTP host (depends on Data + Core)
-│       ├── Controllers/             # ScoresController (5 endpoints), HealthController (live/ready probes)
+│       ├── Controllers/             # ScoresController (5), StandingsController, ScheduleController, SearchController, HealthController
 │       ├── Hubs/                    # GameHub, SignalRScoreBroadcaster
 │       ├── Middleware/              # Error handling, DataAsOf wrapper
 │       ├── Program.cs              # App startup + DI wiring
@@ -49,9 +49,11 @@ frontend/
 │   │   ├── shared/                # StatTable, VideoModal, Pagination
 │   │   ├── main-page/             # League selection grid
 │   │   ├── scores/                # ScoresPage, ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker
-│   │   └── [standings,...]/       # Placeholder route components (11 remaining)
+│   │   ├── standings/             # StandingsPage (4 views: wildcard/division/conference/league)
+│   │   ├── schedule/              # SchedulePage (monthly game list with navigation)
+│   │   └── [stats,...]/           # Placeholder route components (8 remaining)
 │   ├── constants.ts               # Shared constants (league ID, polling intervals, SignalR config, close-game thresholds, getPeriodLabel)
-│   ├── services/                  # ThemeService, SignalRService, ScoresApiService, GameClockService
+│   ├── services/                  # ThemeService, SignalRService, ScoresApiService, GameClockService, StandingsApiService, ScheduleApiService, SearchApiService
 │   ├── directives/                # TooltipDirective
 │   ├── pipes/                     # EraPipe, TimezonePipe
 │   ├── app.routes.ts              # 14 lazy-loaded routes (incl. game-hub/:gameId)
@@ -101,7 +103,7 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - NHL data sourced via `INhlDataProvider` interface (Core) — implemented by `NhlWebApiProvider` (Data), swappable to licensed provider later
 - `IScoreBroadcaster` interface (Core) abstracts SignalR broadcasting — implemented by `SignalRScoreBroadcaster` (Api) to maintain dependency flow
 - SignalR `GameHub` at `/hubs/scores` for live score push, Redis backplane for multi-server
-- Hangfire recurring jobs: `ScoresSyncJob` (every 15s), `StandingsSyncJob` (every 5min), dashboard at `/hangfire`
+- Hangfire recurring jobs: `ScoresSyncJob` (every 15s), `StandingsSyncJob` (every 5min), `ScheduleSyncJob` (daily 6 AM UTC), dashboard at `/hangfire`
 - Response wrappers: `DataAsOfResponse<T>` and `PaginatedResponse<T>` in Api/Middleware/
 - Connection strings in appsettings.json for local dev (DefaultConnection: SQL Server on port 1433, Redis: `localhost:6379`); deployed environments inject via Key Vault secret refs → Container App env vars (`ConnectionStrings__DefaultConnection`, `ConnectionStrings__Redis`)
 - EF migrations live in HockeyHub.Data; run `dotnet ef` from Api project with `--project ../HockeyHub.Data`
