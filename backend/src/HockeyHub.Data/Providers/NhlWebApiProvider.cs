@@ -229,6 +229,289 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         return seasons;
     }
 
+    public async Task<NhlPlayoffBracketData?> GetPlayoffBracketAsync(string season, CancellationToken ct = default)
+    {
+        if (await GetJsonAsync($"v1/playoff-bracket/{season}", ct) is not { } json) return null;
+
+        var rounds = new List<NhlPlayoffRound>();
+
+        // NHL API returns rounds as numbered properties or an array
+        if (json.TryGetProperty("rounds", out var roundsArr))
+        {
+            foreach (var round in roundsArr.EnumerateArray())
+            {
+                try
+                {
+                    var roundNum = round.GetProperty("roundNumber").GetInt32();
+                    var roundLabel = roundNum switch
+                    {
+                        1 => "First Round",
+                        2 => "Second Round",
+                        3 => "Conference Finals",
+                        4 => "Stanley Cup Final",
+                        _ => $"Round {roundNum}"
+                    };
+
+                    var seriesList = new List<NhlPlayoffSeries>();
+                    if (round.TryGetProperty("series", out var seriesArr))
+                    {
+                        foreach (var s in seriesArr.EnumerateArray())
+                        {
+                            seriesList.Add(ParsePlayoffSeries(s));
+                        }
+                    }
+
+                    rounds.Add(new NhlPlayoffRound(roundNum, roundLabel, seriesList));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to parse playoff round, skipping");
+                }
+            }
+        }
+        // Some API versions use a flat series array with roundNumber on each series
+        else if (json.TryGetProperty("series", out var flatSeries))
+        {
+            var grouped = new Dictionary<int, List<NhlPlayoffSeries>>();
+            foreach (var s in flatSeries.EnumerateArray())
+            {
+                try
+                {
+                    var roundNum = s.TryGetProperty("roundNumber", out var rn) ? rn.GetInt32()
+                        : s.TryGetProperty("round", out var r) ? r.GetInt32() : 1;
+
+                    if (!grouped.ContainsKey(roundNum))
+                        grouped[roundNum] = [];
+
+                    grouped[roundNum].Add(ParsePlayoffSeries(s));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to parse playoff series, skipping");
+                }
+            }
+
+            foreach (var (roundNum, seriesList) in grouped.OrderBy(g => g.Key))
+            {
+                var roundLabel = roundNum switch
+                {
+                    1 => "First Round",
+                    2 => "Second Round",
+                    3 => "Conference Finals",
+                    4 => "Stanley Cup Final",
+                    _ => $"Round {roundNum}"
+                };
+                rounds.Add(new NhlPlayoffRound(roundNum, roundLabel, seriesList));
+            }
+        }
+
+        return rounds.Count > 0 ? new NhlPlayoffBracketData(season, rounds) : null;
+    }
+
+    public async Task<NhlDraftData?> GetDraftAsync(int year, CancellationToken ct = default)
+    {
+        if (await GetJsonAsync($"v1/draft/{year}", ct) is not { } json) return null;
+
+        var rounds = new List<NhlDraftRound>();
+
+        // NHL API: { drafts: [ { draftYear: ..., rounds: [ { round: N, picks: [...] } ] } ] }
+        var draftsArr = json.TryGetProperty("drafts", out var d) ? d : json;
+        JsonElement? draftObj = null;
+
+        if (draftsArr.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var draft in draftsArr.EnumerateArray())
+            {
+                draftObj = draft;
+                break; // Take the first (and usually only) entry
+            }
+        }
+
+        if (draftObj is not { } obj) return null;
+
+        if (obj.TryGetProperty("rounds", out var roundsArr))
+        {
+            foreach (var round in roundsArr.EnumerateArray())
+            {
+                try
+                {
+                    var roundNum = round.TryGetProperty("round", out var rn) ? rn.GetInt32()
+                        : round.TryGetProperty("roundNumber", out var rn2) ? rn2.GetInt32() : 1;
+
+                    var picks = new List<NhlDraftPick>();
+                    if (round.TryGetProperty("picks", out var picksArr))
+                    {
+                        foreach (var p in picksArr.EnumerateArray())
+                        {
+                            try
+                            {
+                                var teamAbbrev = p.TryGetProperty("teamAbbrev", out var ta)
+                                    ? ta.GetString() ?? ""
+                                    : "";
+                                var teamLogo = p.TryGetProperty("teamLogo", out var tl)
+                                    ? tl.GetString() : null;
+
+                                var firstName = p.TryGetProperty("firstName", out var fn)
+                                    ? (fn.ValueKind == JsonValueKind.Object
+                                        ? fn.GetProperty("default").GetString() ?? ""
+                                        : fn.GetString() ?? "")
+                                    : "";
+
+                                var lastName = p.TryGetProperty("lastName", out var ln)
+                                    ? (ln.ValueKind == JsonValueKind.Object
+                                        ? ln.GetProperty("default").GetString() ?? ""
+                                        : ln.GetString() ?? "")
+                                    : "";
+
+                                var position = p.TryGetProperty("position", out var pos)
+                                    ? pos.GetString() : null;
+                                var country = p.TryGetProperty("birthCountry", out var bc)
+                                    ? bc.GetString() : null;
+                                var prevClub = p.TryGetProperty("amateurClubName", out var ac)
+                                    ? ac.GetString() : null;
+                                var prevLeague = p.TryGetProperty("amateurLeague", out var al)
+                                    ? al.GetString() : null;
+                                var playerId = p.TryGetProperty("playerId", out var pid) && pid.ValueKind == JsonValueKind.Number
+                                    ? (int?)pid.GetInt32() : null;
+
+                                picks.Add(new NhlDraftPick(
+                                    OverallPick: p.TryGetProperty("overallPickNumber", out var op) ? op.GetInt32()
+                                        : p.TryGetProperty("pickInDraft", out var pd2) ? pd2.GetInt32() : 0,
+                                    PickInRound: p.TryGetProperty("pickInRound", out var pir) ? pir.GetInt32() : 0,
+                                    TeamAbbreviation: teamAbbrev,
+                                    TeamLogoUrl: teamLogo,
+                                    FirstName: firstName,
+                                    LastName: lastName,
+                                    Position: position,
+                                    BirthCountry: country,
+                                    PreviousClub: prevClub,
+                                    PreviousLeague: prevLeague,
+                                    PlayerId: playerId
+                                ));
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning(ex, "Failed to parse draft pick, skipping");
+                            }
+                        }
+                    }
+
+                    rounds.Add(new NhlDraftRound(roundNum, picks));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to parse draft round, skipping");
+                }
+            }
+        }
+
+        return rounds.Count > 0 ? new NhlDraftData(year, rounds) : null;
+    }
+
+    private static NhlPlayoffSeries ParsePlayoffSeries(JsonElement s)
+    {
+        string GetTeamAbbrev(JsonElement team) =>
+            team.TryGetProperty("abbrev", out var a) ? a.GetString() ?? ""
+            : team.TryGetProperty("teamAbbrev", out var ta)
+                ? (ta.ValueKind == JsonValueKind.Object ? ta.GetProperty("default").GetString() ?? "" : ta.GetString() ?? "")
+            : "";
+
+        string? GetLogo(JsonElement team) =>
+            team.TryGetProperty("logo", out var l) ? l.GetString()
+            : team.TryGetProperty("teamLogo", out var tl) ? tl.GetString()
+            : null;
+
+        var topSeed = s.TryGetProperty("topSeedTeam", out var ts) ? ts
+            : s.TryGetProperty("matchupTeams", out var mt)
+                ? mt.EnumerateArray().FirstOrDefault()
+                : default;
+
+        var bottomSeed = s.TryGetProperty("bottomSeedTeam", out var bs) ? bs
+            : s.TryGetProperty("matchupTeams", out var mt2)
+                ? mt2.EnumerateArray().Skip(1).FirstOrDefault()
+                : default;
+
+        var topAbbrev = topSeed.ValueKind != JsonValueKind.Undefined ? GetTeamAbbrev(topSeed) : "";
+        var bottomAbbrev = bottomSeed.ValueKind != JsonValueKind.Undefined ? GetTeamAbbrev(bottomSeed) : "";
+
+        int GetWins(JsonElement team) =>
+            team.TryGetProperty("wins", out var w) ? w.GetInt32()
+            : team.TryGetProperty("seriesWins", out var sw) ? sw.GetInt32() : 0;
+
+        string GetRecord(JsonElement team)
+        {
+            var w = team.TryGetProperty("regularSeasonWins", out var rw) ? rw.GetInt32() : 0;
+            var l = team.TryGetProperty("regularSeasonLosses", out var rl) ? rl.GetInt32() : 0;
+            var otl = team.TryGetProperty("regularSeasonOtLosses", out var ro) ? ro.GetInt32() : 0;
+            if (w == 0 && l == 0 && otl == 0) return "";
+            return $"{w}-{l}-{otl}";
+        }
+
+        int GetSeed(JsonElement team) =>
+            team.TryGetProperty("seed", out var seed) ? seed.GetInt32()
+            : team.TryGetProperty("conferenceSeed", out var cs) ? cs.GetInt32()
+            : team.TryGetProperty("seriesSeed", out var ss) ? ss.GetInt32() : 0;
+
+        var conference = s.TryGetProperty("conference", out var conf)
+            ? (conf.ValueKind == JsonValueKind.Object ? conf.GetProperty("name").GetString() ?? "" : conf.GetString() ?? "")
+            : s.TryGetProperty("conferenceName", out var cn) ? cn.GetString() ?? "" : "";
+
+        var seriesLetter = s.TryGetProperty("seriesLetter", out var sl) ? sl.GetString() ?? ""
+            : s.TryGetProperty("seriesCode", out var sc) ? sc.GetString() ?? "" : "";
+
+        var seriesStatus = "Preview";
+        var topWins = topSeed.ValueKind != JsonValueKind.Undefined ? GetWins(topSeed) : 0;
+        var bottomWins = bottomSeed.ValueKind != JsonValueKind.Undefined ? GetWins(bottomSeed) : 0;
+        if (topWins == 4 || bottomWins == 4) seriesStatus = "Complete";
+        else if (topWins > 0 || bottomWins > 0) seriesStatus = "In Progress";
+
+        var games = new List<NhlPlayoffSeriesGame>();
+        if (s.TryGetProperty("games", out var gamesArr))
+        {
+            var gameNum = 1;
+            foreach (var g in gamesArr.EnumerateArray())
+            {
+                var gameId = g.TryGetProperty("id", out var gid) ? gid.GetInt32()
+                    : g.TryGetProperty("gameId", out var gid2) ? gid2.GetInt32() : 0;
+                var state = g.TryGetProperty("gameState", out var gs) ? gs.GetString() ?? "FUT"
+                    : g.TryGetProperty("status", out var st) ? st.GetString() ?? "FUT" : "FUT";
+                var status = state switch
+                {
+                    "FINAL" or "OFF" => "Final",
+                    "LIVE" or "CRIT" => "Live",
+                    _ => "Scheduled"
+                };
+
+                games.Add(new NhlPlayoffSeriesGame(
+                    GameId: gameId,
+                    GameNumber: gameNum++,
+                    Status: status,
+                    HomeScore: g.TryGetProperty("homeTeam", out var ht) && ht.TryGetProperty("score", out var hs) ? hs.GetInt32() : null,
+                    AwayScore: g.TryGetProperty("awayTeam", out var at) && at.TryGetProperty("score", out var aws) ? aws.GetInt32() : null,
+                    HomeTeamAbbreviation: g.TryGetProperty("homeTeam", out var ht2) ? GetTeamAbbrev(ht2) : "",
+                    AwayTeamAbbreviation: g.TryGetProperty("awayTeam", out var at2) ? GetTeamAbbrev(at2) : ""
+                ));
+            }
+        }
+
+        return new NhlPlayoffSeries(
+            SeriesLetter: seriesLetter,
+            TopSeedAbbreviation: topAbbrev,
+            BottomSeedAbbreviation: bottomAbbrev,
+            TopSeedLogoUrl: topSeed.ValueKind != JsonValueKind.Undefined ? GetLogo(topSeed) : null,
+            BottomSeedLogoUrl: bottomSeed.ValueKind != JsonValueKind.Undefined ? GetLogo(bottomSeed) : null,
+            TopSeedConferenceSeed: topSeed.ValueKind != JsonValueKind.Undefined ? GetSeed(topSeed) : 0,
+            BottomSeedConferenceSeed: bottomSeed.ValueKind != JsonValueKind.Undefined ? GetSeed(bottomSeed) : 0,
+            TopSeedWins: topWins,
+            BottomSeedWins: bottomWins,
+            TopSeedRegularRecord: topSeed.ValueKind != JsonValueKind.Undefined ? GetRecord(topSeed) : "",
+            BottomSeedRegularRecord: bottomSeed.ValueKind != JsonValueKind.Undefined ? GetRecord(bottomSeed) : "",
+            Conference: conference,
+            SeriesStatus: seriesStatus,
+            Games: games
+        );
+    }
+
     private async Task<JsonElement?> GetJsonAsync(string path, CancellationToken ct)
     {
         using var lease = await _rateLimiter.AcquireAsync(1, ct);

@@ -11,6 +11,8 @@ public interface INhlDataProvider
     Task<IReadOnlyList<NhlTradeData>> GetTradesAsync(string season, CancellationToken ct = default);
     Task<IReadOnlyList<NhlScheduleGame>> GetScheduleAsync(string season, CancellationToken ct = default);
     Task<IReadOnlyList<NhlSeasonData>> GetSeasonsAsync(CancellationToken ct = default);
+    Task<NhlPlayoffBracketData?> GetPlayoffBracketAsync(string season, CancellationToken ct = default);
+    Task<NhlDraftData?> GetDraftAsync(int year, CancellationToken ct = default);
 }
 
 public record NhlTeamData(
@@ -185,4 +187,70 @@ public record NhlSeasonData(
     int YearEnd,
     string Label,
     bool IsCurrent
+);
+
+// ── Playoff Bracket DTOs ──────────────────────────────────────────
+
+public record NhlPlayoffBracketData(
+    string Season,
+    IReadOnlyList<NhlPlayoffRound> Rounds
+);
+
+public record NhlPlayoffRound(
+    int RoundNumber,
+    string RoundLabel,
+    IReadOnlyList<NhlPlayoffSeries> Series
+);
+
+public record NhlPlayoffSeries(
+    string SeriesLetter,
+    string TopSeedAbbreviation,
+    string BottomSeedAbbreviation,
+    string? TopSeedLogoUrl,
+    string? BottomSeedLogoUrl,
+    int TopSeedConferenceSeed,
+    int BottomSeedConferenceSeed,
+    int TopSeedWins,
+    int BottomSeedWins,
+    string TopSeedRegularRecord,
+    string BottomSeedRegularRecord,
+    string Conference,
+    string SeriesStatus,
+    IReadOnlyList<NhlPlayoffSeriesGame> Games
+);
+
+public record NhlPlayoffSeriesGame(
+    int GameId,
+    int GameNumber,
+    string Status,
+    int? HomeScore,
+    int? AwayScore,
+    string HomeTeamAbbreviation,
+    string AwayTeamAbbreviation
+);
+
+// ── Draft DTOs ────────────────────────────────────────────────────
+
+public record NhlDraftData(
+    int Year,
+    IReadOnlyList<NhlDraftRound> Rounds
+);
+
+public record NhlDraftRound(
+    int RoundNumber,
+    IReadOnlyList<NhlDraftPick> Picks
+);
+
+public record NhlDraftPick(
+    int OverallPick,
+    int PickInRound,
+    string TeamAbbreviation,
+    string? TeamLogoUrl,
+    string FirstName,
+    string LastName,
+    string? Position,
+    string? BirthCountry,
+    string? PreviousClub,
+    string? PreviousLeague,
+    int? PlayerId
 );
