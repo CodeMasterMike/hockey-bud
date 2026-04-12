@@ -119,8 +119,41 @@ __________________________________________________________________________
 - **FR-069**: Clicking a trade MUST display all known details and a clean, navigable visual trade tree showing all subsequent transactions involving the original pieces, traced as deep as necessary. - All subsequent and prior transactions... This instruction is to be followed any time this directive appears.
 
 
+#### Playoffs (Standings)
+
+
+- **FR-090**: Two days after the regular season ends, the Standings section MUST default to a new "Playoffs" tab. The regular season standings MUST remain accessible in a second tab.
+- **FR-091**: The Playoffs tab MUST display bracket views with three sub-tabs: Eastern Conference (default), Western Conference, and Full League. Each matchup box MUST show the team's conference playoff seed and regular season record. Series scores MUST update live during games.
+- **FR-092**: Clicking a bracket matchup MUST navigate to a dedicated matchup detail page. The left section MUST display head-to-head regular season stats (record, GF, GA, Sv%, PP%, PK%, shots/G, SA/G, FO%) and a matchup summary (strengths/weaknesses, how the favorite wins, how the underdog upsets). The right section MUST display all-time playoff stats and all-time head-to-head playoff stats using the same stat categories.
+- **FR-093**: For all rounds after the first, the matchup detail page MUST include a "Current Playoff Stats" section between the regular season H2H and the matchup summary, showing each team's accumulated stats for the current playoffs only.
+
+
+#### Playoff Stats
+
+
+- **FR-094**: Two days after the regular season ends, the Stats section MUST default to a new "Playoffs" tab. The regular season stats MUST remain accessible in a second tab.
+- **FR-095**: The Playoffs stats tab MUST use the same table structure as regular season stats but populated with playoff data. This applies to both team stats and player stats.
+
+
+#### Off-Season Schedule
+
+
+- **FR-096**: During the off-season, the Schedule tab MUST become the default landing page for the entire site. The score bar MUST display the next major upcoming event instead of game scores.
+- **FR-097**: The off-season schedule MUST display a chronological timeline of all important dates and deadlines including: buyout windows, qualifying offer deadlines, expansion draft, NHL Entry Draft, free agency opening, salary arbitration deadlines/hearings, prospect tournaments, training camp, preseason, roster deadline, and season opening night. Important deadlines and events MUST be visually highlighted.
+- **FR-098**: Countdown cards MUST appear at the top of the page showing days remaining until the next major event, free agency, and the season opener.
+
+
+#### Draft
+
+
+- **FR-099**: During the off-season, a "Draft" tab MUST replace the "Scores" tab in the navigation. The Draft tab MUST display selections organized by round tabs (Rounds 1 through 7).
+- **FR-100**: On draft days, selections MUST update live as picks are made. The score bar ticker MUST show completed picks scrolling with the current "on the clock" team highlighted. The current pick row MUST show a live indicator and pending picks MUST appear dimmed.
+- **FR-101**: Each draft pick row MUST display the pick number, selecting team with logo, player name, position, previous club/league, and nationality. Every selected player's name MUST be clickable and navigate to their player profile.
+- **FR-102**: After the draft concludes, full results MUST remain browsable by round throughout the off-season until the regular season begins and the Scores tab returns.
+
+
 ### In Scope
-- All primary sections: Main Page, Scores, Game Hub, Standings, Stats, Teams, Players, Salary Cap, Trades, Free Agents, Personnel  - Game Hub is not a primary section, but rather only accessed through the scores section.
+- All primary sections: Main Page, Scores, Game Hub, Standings, Stats, Teams, Players, Salary Cap, Trades, Free Agents, Personnel, Schedule, Draft  - Game Hub is not a primary section, but rather only accessed through the scores section. Draft replaces Scores during the off-season. Schedule is the default landing page during the off-season.
 
 
 ### Out of Scope (Future Phases)

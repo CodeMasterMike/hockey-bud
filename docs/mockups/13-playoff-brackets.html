@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hockey League Hub — Playoff Brackets (Standings)</title>
+<style>
+/* ── Font Faces ─────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2');
+}
+
+/* ── Design Tokens ──────────────────────────────────────────────── */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1;
+  --bg-banner: #000000;
+  --bg-nav: #1A1A1A;
+  --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04);
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A;
+  --text-on-banner: #F5F0E1;
+  --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25);
+  --color-link: #2C5F8A;
+  --color-link-hover: #1A3D5C;
+  --color-live: #C0392B;
+  --bg-ticker: #111111;
+  --text-ticker: #F5F0E1;
+  --banner-input-bg: rgba(255,255,255,0.08);
+  --banner-input-border: rgba(255,255,255,0.2);
+  --banner-placeholder: rgba(245,240,225,0.5);
+  --banner-hover-bg: rgba(255,255,255,0.1);
+}
+[data-theme="dark"] {
+  --bg-page: #0A1628;
+  --bg-banner: #F5F0E1;
+  --bg-nav: #0D1B2A;
+  --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06);
+  --text-primary: #F5F0E1;
+  --text-secondary: #B8B0A0;
+  --text-muted: #807868;
+  --text-on-banner: #0A1628;
+  --border-default: rgba(255,255,255,0.1);
+  --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6;
+  --color-link-hover: #8DC0F0;
+  --color-live: #E74C3C;
+  --bg-ticker: #050D1A;
+  --banner-input-bg: rgba(0,0,0,0.06);
+  --banner-input-border: rgba(0,0,0,0.15);
+  --banner-placeholder: rgba(10,22,40,0.4);
+  --banner-hover-bg: rgba(0,0,0,0.06);
+}
+
+/* ── Reset & Base ───────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-primary);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--color-link); text-decoration: none; }
+a:hover { color: var(--color-link-hover); text-decoration: underline; }
+
+/* ── Global Shell: Banner ───────────────────────────────────────── */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-banner);
+  color: var(--text-on-banner);
+  padding: 0 24px;
+  height: 56px;
+}
+.banner__brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.banner__brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--text-on-banner);
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+}
+.banner__search {
+  flex: 0 1 420px;
+  margin: 0 24px;
+}
+.banner__search input {
+  width: 100%;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid var(--banner-input-border);
+  border-radius: 4px;
+  background: var(--banner-input-bg);
+  color: var(--text-on-banner);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  outline: none;
+}
+.banner__search input::placeholder { color: var(--banner-placeholder); }
+.banner__search-wrap { position: relative; }
+.banner__search-wrap::before {
+  content: "\1F50D";
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.banner__hamburger {
+  background: none;
+  border: 1px solid var(--banner-input-border);
+  border-radius: 4px;
+  color: var(--text-on-banner);
+  font-size: 22px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.banner__hamburger:hover { background: var(--banner-hover-bg); }
+
+/* ── Global Shell: Score Bar ───────────────────────────────────── */
+.ticker {
+  background: var(--bg-ticker);
+  color: var(--text-ticker);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.ticker__arrow {
+  background: none;
+  border: none;
+  color: var(--text-ticker);
+  font-size: 18px;
+  cursor: pointer;
+  width: 36px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+.ticker__arrow:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+.ticker__track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 8px;
+  overflow: hidden;
+  flex: 1;
+  padding: 0 4px;
+}
+.ticker__game {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  text-decoration: none;
+  color: var(--text-ticker);
+}
+.ticker__game:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); text-decoration: none; }
+.ticker__teams { display: flex; align-items: center; gap: 6px; }
+.ticker__team { display: inline-flex; align-items: center; gap: 3px; color: var(--text-ticker); }
+.ticker__score { color: var(--text-ticker); margin: 0 4px; }
+.ticker__dash { color: rgba(245,240,225,0.4); margin: 0 2px; }
+.ticker__status { margin-left: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #FFFFFF; }
+.ticker__status--close-game { color: var(--color-live) !important; }
+.ticker__live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-live);
+  margin-right: 5px;
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+.team-logo { display: inline-block; vertical-align: middle; object-fit: contain; }
+.team-logo--sm { width: 18px; height: 18px; }
+.team-logo--md { width: 22px; height: 22px; }
+
+/* ── Global Shell: Nav ──────────────────────────────────────────── */
+.nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 16px;
+  gap: 0;
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+.nav__link {
+  color: rgba(245,240,225,0.65);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.nav__link:hover { color: rgba(245,240,225,0.9); text-decoration: none; }
+.nav__link--active { color: #F5F0E1; border-bottom-color: #F5F0E1; }
+
+/* ── Theme Toggle ───────────────────────────────────────────────── */
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+/* ── Page Container ─────────────────────────────────────────────── */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+.page-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.page-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* ── Season Tabs (Playoffs / Regular Season) ───────────────────── */
+.season-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+}
+.season-tabs button {
+  font-family: var(--font-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 10px 24px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+  border-bottom: 2px solid var(--border-default);
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  margin-right: -1px;
+  transition: background 0.15s, color 0.15s;
+}
+.season-tabs button:hover { color: var(--text-primary); }
+.season-tabs button.tab-active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-bottom-color: var(--bg-card);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Conference Sub-Tabs ───────────────────────────────────────── */
+.conf-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+}
+.conf-tabs button {
+  font-family: var(--font-primary);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 8px 20px;
+  background: var(--bg-row-alt);
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  margin-right: -1px;
+  transition: background 0.15s, color 0.15s;
+}
+.conf-tabs button:hover { color: var(--text-primary); }
+.conf-tabs button.tab-active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--bg-card);
+  position: relative;
+  z-index: 1;
+}
+
+.bracket-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 0 4px 4px 4px;
+  padding: 32px 24px;
+  margin-bottom: 32px;
+}
+
+/* ── Bracket Layout ────────────────────────────────────────────── */
+.bracket {
+  display: grid;
+  grid-template-columns: 200px 40px 200px 40px 200px 40px 200px;
+  align-items: start;
+  gap: 0;
+  min-height: 560px;
+  position: relative;
+}
+.bracket-round {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+}
+.bracket-round-label {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-default);
+}
+.bracket-connectors {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+}
+
+/* ── Matchup Box ───────────────────────────────────────────────── */
+.matchup {
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 8px 0;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  text-decoration: none;
+  display: block;
+}
+.matchup:hover {
+  border-color: var(--color-link);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  text-decoration: none;
+}
+.matchup__team {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-default);
+}
+.matchup__team:last-child { border-bottom: none; }
+.matchup__team--winner { background: rgba(46, 125, 50, 0.08); }
+.matchup__team-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.matchup__seed {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  min-width: 18px;
+}
+.matchup__team-name {
+  color: var(--text-primary);
+}
+.matchup__record {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.matchup__wins {
+  font-size: 0.82rem;
+  font-weight: 700;
+  min-width: 14px;
+  text-align: center;
+}
+.matchup__wins--leading { color: var(--text-primary); }
+.matchup__wins--trailing { color: var(--text-muted); }
+.matchup__status {
+  text-align: center;
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  color: var(--text-muted);
+  background: var(--bg-row-alt);
+}
+.matchup__status--live {
+  color: var(--color-live);
+}
+.matchup__status--final {
+  color: var(--text-muted);
+}
+
+/* ── Connector Lines ───────────────────────────────────────────── */
+.connector {
+  width: 100%;
+  height: 50%;
+  position: relative;
+}
+.connector::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  width: 50%;
+  border: 1px solid var(--border-default);
+}
+.connector--top::after {
+  top: 50%;
+  height: 50%;
+  border-top: none;
+  border-left: none;
+  border-radius: 0 0 4px 0;
+}
+.connector--bottom::after {
+  bottom: 50%;
+  height: 50%;
+  border-bottom: none;
+  border-left: none;
+  border-radius: 0 4px 0 0;
+}
+.connector--right::after {
+  left: 0;
+  right: auto;
+  width: 50%;
+  border-right: none;
+  border-left: 1px solid var(--border-default);
+}
+.connector--right.connector--top::after {
+  border-radius: 0 0 0 4px;
+  border-right: none;
+  border-left: 1px solid var(--border-default);
+}
+.connector--right.connector--bottom::after {
+  border-radius: 4px 0 0 0;
+  border-right: none;
+  border-left: 1px solid var(--border-default);
+}
+
+/* ── Matchup Detail Page ───────────────────────────────────────── */
+.matchup-detail {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 2px solid var(--border-strong);
+}
+.matchup-detail__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 8px;
+}
+.matchup-detail__team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.matchup-detail__team img {
+  width: 48px;
+  height: 48px;
+}
+.matchup-detail__vs {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.matchup-detail__series {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+.matchup-detail__columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.detail-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.detail-section__title {
+  padding: 12px 16px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-row-alt);
+}
+
+/* ── Stats Comparison Table ────────────────────────────────────── */
+.stats-compare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.74rem;
+}
+.stats-compare th {
+  padding: 8px 12px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border-strong);
+}
+.stats-compare td {
+  padding: 6px 12px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-default);
+  font-variant-numeric: tabular-nums;
+}
+.stats-compare td:first-child,
+.stats-compare td:last-child {
+  font-weight: 700;
+}
+.stats-compare td.stat-label {
+  font-weight: 400;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.stats-compare .stat-better {
+  color: #2E7D32;
+}
+[data-theme="dark"] .stats-compare .stat-better {
+  color: #66BB6A;
+}
+.stats-compare tbody tr:nth-child(even) td {
+  background: var(--bg-row-alt);
+}
+
+/* ── Matchup Summary ───────────────────────────────────────────── */
+.matchup-summary {
+  padding: 16px;
+  font-size: 0.76rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.matchup-summary h4 {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  margin: 14px 0 4px;
+}
+.matchup-summary h4:first-child { margin-top: 0; }
+.matchup-summary p {
+  margin-bottom: 8px;
+}
+
+/* ── Playoff Stats Section (for rounds after R1) ───────────────── */
+.playoff-stats-divider {
+  padding: 10px 16px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  background: var(--bg-row-alt);
+  border-top: 1px solid var(--border-default);
+  border-bottom: 1px solid var(--border-default);
+}
+
+/* ── Section Labels ────────────────────────────────────────────── */
+.section-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 48px 0 6px;
+  padding: 10px 16px;
+  background: var(--text-primary);
+  color: var(--bg-page);
+  border-radius: 4px;
+  display: inline-block;
+}
+.section-desc {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()">Toggle Dark/Light</button>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     GLOBAL SHELL
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- Banner -->
+<header class="banner">
+  <div class="banner__brand">
+    <span class="banner__brand-icon">H</span>
+    Hockey League Hub
+  </div>
+  <div class="banner__search">
+    <div class="banner__search-wrap">
+      <input type="text" placeholder="Search players, teams, trades...">
+    </div>
+  </div>
+  <button class="banner__hamburger" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- Score Bar -->
+<div class="ticker">
+  <button class="ticker__arrow" aria-label="Scroll left">&#9664;</button>
+  <div class="ticker__track">
+    <a href="#" class="ticker__game">
+      <div class="ticker__teams">
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/CAR_dark.svg" alt="CAR" class="team-logo team-logo--sm">CAR</span>
+        <span class="ticker__score">3</span>
+        <span class="ticker__dash">&ndash;</span>
+        <span class="ticker__score">1</span>
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/NYR_dark.svg" alt="NYR" class="team-logo team-logo--sm">NYR</span>
+      </div>
+      <span class="ticker__status">Final</span>
+    </a>
+    <a href="#" class="ticker__game">
+      <div class="ticker__teams">
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/FLA_dark.svg" alt="FLA" class="team-logo team-logo--sm">FLA</span>
+        <span class="ticker__score">2</span>
+        <span class="ticker__dash">&ndash;</span>
+        <span class="ticker__score">2</span>
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/TBL_dark.svg" alt="TBL" class="team-logo team-logo--sm">TBL</span>
+      </div>
+      <span class="ticker__status ticker__status--close-game"><span class="ticker__live-dot"></span>3rd 03:12</span>
+    </a>
+    <a href="#" class="ticker__game">
+      <div class="ticker__teams">
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/WPG_dark.svg" alt="WPG" class="team-logo team-logo--sm">WPG</span>
+        <span class="ticker__score">4</span>
+        <span class="ticker__dash">&ndash;</span>
+        <span class="ticker__score">2</span>
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/VAN_dark.svg" alt="VAN" class="team-logo team-logo--sm">VAN</span>
+      </div>
+      <span class="ticker__status">Final</span>
+    </a>
+    <a href="#" class="ticker__game">
+      <div class="ticker__teams">
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/DAL_dark.svg" alt="DAL" class="team-logo team-logo--sm">DAL</span>
+        <span class="ticker__score">1</span>
+        <span class="ticker__dash">&ndash;</span>
+        <span class="ticker__score">0</span>
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/LAK_dark.svg" alt="LAK" class="team-logo team-logo--sm">LAK</span>
+      </div>
+      <span class="ticker__status"><span class="ticker__live-dot"></span>2nd 11:45</span>
+    </a>
+    <a href="#" class="ticker__game">
+      <div class="ticker__teams">
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/COL_dark.svg" alt="COL" class="team-logo team-logo--sm">COL</span>
+        <span class="ticker__dash">vs</span>
+        <span class="ticker__team"><img src="https://assets.nhle.com/logos/nhl/svg/MIN_dark.svg" alt="MIN" class="team-logo team-logo--sm">MIN</span>
+      </div>
+      <span class="ticker__status">8:00 PM</span>
+    </a>
+  </div>
+  <button class="ticker__arrow" aria-label="Scroll right">&#9654;</button>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a href="#" class="nav__link">Home</a>
+  <a href="#" class="nav__link nav__link--active">Standings</a>
+  <a href="#" class="nav__link">Teams</a>
+  <a href="#" class="nav__link">Players</a>
+  <a href="#" class="nav__link">Scores</a>
+  <a href="#" class="nav__link">Stats</a>
+  <a href="#" class="nav__link">Trades</a>
+  <a href="#" class="nav__link">Schedule</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE CONTENT
+     ═══════════════════════════════════════════════════════════════ -->
+
+<main class="page-container">
+
+  <h2 class="page-title">2025&ndash;26 NHL Standings</h2>
+  <p class="page-subtitle">Playoff brackets &mdash; First Round</p>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SECTION 1: BRACKET VIEW (EASTERN CONFERENCE)
+       ═══════════════════════════════════════════════════════════ -->
+
+  <div class="section-label">Playoff Brackets</div>
+  <p class="section-desc">The Playoffs tab becomes the default two days after the regular season ends. Brackets show conference seed and regular season record. Click any matchup for the detail page.</p>
+
+  <!-- Season Tabs -->
+  <div class="season-tabs">
+    <button class="tab-active" onclick="switchSeasonTab(this, 'playoffs')">Playoffs</button>
+    <button onclick="switchSeasonTab(this, 'regular')">Regular Season</button>
+  </div>
+
+  <!-- Conference Sub-Tabs -->
+  <div class="conf-tabs">
+    <button class="tab-active" onclick="switchConfTab(this, 'east')">Eastern Conference</button>
+    <button onclick="switchConfTab(this, 'west')">Western Conference</button>
+    <button onclick="switchConfTab(this, 'full')">Full League</button>
+  </div>
+
+  <!-- ─── EASTERN CONFERENCE BRACKET ─────────────────────────── -->
+  <div class="bracket-card" id="bracket-east">
+
+    <div class="bracket" style="min-height: 640px;">
+
+      <!-- ROUND 1 -->
+      <div class="bracket-round" style="justify-content: space-between; padding: 0 0;">
+        <div class="bracket-round-label">First Round</div>
+
+        <!-- E1 CAR vs E8 NYR -->
+        <a href="#matchup-car-nyr" class="matchup">
+          <div class="matchup__team matchup__team--winner">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">E1</span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/CAR_dark.svg" alt="CAR" class="team-logo team-logo--sm">
+              <span class="matchup__team-name">CAR</span>
+              <span class="matchup__record">43-17-8</span>
+            </div>
+            <span class="matchup__wins matchup__wins--leading">4</span>
+          </div>
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">E8</span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/NYR_dark.svg" alt="NYR" class="team-logo team-logo--sm">
+              <span class="matchup__team-name">NYR</span>
+              <span class="matchup__record">36-24-8</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">2</span>
+          </div>
+          <div class="matchup__status matchup__status--final">CAR wins 4&ndash;2</div>
+        </a>
+
+        <!-- E4 TOR vs E5 WSH -->
+        <a href="#matchup-tor-wsh" class="matchup">
+          <div class="matchup__team matchup__team--winner">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">E4</span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/TOR_dark.svg" alt="TOR" class="team-logo team-logo--sm">
+              <span class="matchup__team-name">TOR</span>
+              <span class="matchup__record">40-20-8</span>
+            </div>
+            <span class="matchup__wins matchup__wins--leading">4</span>
+          </div>
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">E5</span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/WSH_dark.svg" alt="WSH" class="team-logo team-logo--sm">
+              <span class="matchup__team-name">WSH</span>
+              <span class="matchup__record">39-21-8</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">3</span>
+          </div>
+          <div class="matchup__status matchup__status--final">TOR wins 4&ndash;3</div>
+        </a>
+
+        <!-- E2 FLA vs E7 TBL -->
+        <a href="#matchup-fla-tbl" class="matchup">
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">E2</span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/FLA_dark.svg" alt="FLA" class="team-logo team-logo--sm">
+              <span class="matchup__team-name">FLA</span>
+              <span class="matchup__record">42-18-8</span>
+            </div>
+            <span class="matchup__wins matchup__wins--leading">3</span>
+          </div>
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">E7</span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/TBL_dark.svg" alt="TBL" class="team-logo team-logo--sm">
+              <span class="matchup__team-name">TBL</span>
+              <span class="matchup__record">37-23-8</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">2</span>
+          </div>
+          <div class="matchup__status matchup__status--live">Game 6 &mdash; 3rd 03:12</div>
+        </a>
+
+        <!-- E3 NJD vs E6 BOS -->
+        <a href="#matchup-njd-bos" class="matchup">
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">E3</span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/NJD_dark.svg" alt="NJD" class="team-logo team-logo--sm">
+              <span class="matchup__team-name">NJD</span>
+              <span class="matchup__record">41-20-7</span>
+            </div>
+            <span class="matchup__wins matchup__wins--leading">3</span>
+          </div>
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">E6</span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/BOS_dark.svg" alt="BOS" class="team-logo team-logo--sm">
+              <span class="matchup__team-name">BOS</span>
+              <span class="matchup__record">38-22-8</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">1</span>
+          </div>
+          <div class="matchup__status">NJD leads 3&ndash;1</div>
+        </a>
+      </div>
+
+      <!-- Connectors R1 → R2 -->
+      <div class="bracket-connectors" style="padding-top: 36px;">
+        <div class="connector connector--top"></div>
+        <div class="connector connector--bottom"></div>
+        <div style="height: 32px;"></div>
+        <div class="connector connector--top"></div>
+        <div class="connector connector--bottom"></div>
+      </div>
+
+      <!-- ROUND 2 -->
+      <div class="bracket-round" style="justify-content: space-around; padding-top: 36px;">
+        <div class="bracket-round-label">Second Round</div>
+
+        <!-- CAR vs TOR -->
+        <a href="#matchup-r2" class="matchup">
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">E1</span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/CAR_dark.svg" alt="CAR" class="team-logo team-logo--sm">
+              <span class="matchup__team-name">CAR</span>
+              <span class="matchup__record">43-17-8</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">&mdash;</span>
+          </div>
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">E4</span>
+              <img src="https://assets.nhle.com/logos/nhl/svg/TOR_dark.svg" alt="TOR" class="team-logo team-logo--sm">
+              <span class="matchup__team-name">TOR</span>
+              <span class="matchup__record">40-20-8</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">&mdash;</span>
+          </div>
+          <div class="matchup__status">Awaiting Round 1</div>
+        </a>
+
+        <!-- FLA/TBL vs NJD/BOS -->
+        <div class="matchup" style="opacity: 0.5; cursor: default;">
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">&mdash;</span>
+              <span class="matchup__team-name" style="color: var(--text-muted);">TBD</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">&mdash;</span>
+          </div>
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">&mdash;</span>
+              <span class="matchup__team-name" style="color: var(--text-muted);">TBD</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">&mdash;</span>
+          </div>
+          <div class="matchup__status">Awaiting Round 1</div>
+        </div>
+      </div>
+
+      <!-- Connectors R2 → CF -->
+      <div class="bracket-connectors" style="padding-top: 36px;">
+        <div class="connector connector--top" style="height: 100%;"></div>
+        <div class="connector connector--bottom" style="height: 100%;"></div>
+      </div>
+
+      <!-- CONFERENCE FINALS -->
+      <div class="bracket-round" style="justify-content: center; padding-top: 36px;">
+        <div class="bracket-round-label">Conference Finals</div>
+
+        <div class="matchup" style="opacity: 0.35; cursor: default;">
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">&mdash;</span>
+              <span class="matchup__team-name" style="color: var(--text-muted);">TBD</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">&mdash;</span>
+          </div>
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">&mdash;</span>
+              <span class="matchup__team-name" style="color: var(--text-muted);">TBD</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">&mdash;</span>
+          </div>
+          <div class="matchup__status">Awaiting Round 2</div>
+        </div>
+      </div>
+
+      <!-- Connectors CF → SCF (empty spacer for single-conf view) -->
+      <div class="bracket-connectors" style="padding-top: 36px;">
+      </div>
+
+      <!-- STANLEY CUP FINAL (placeholder in single-conf view) -->
+      <div class="bracket-round" style="justify-content: center; padding-top: 36px;">
+        <div class="bracket-round-label">Stanley Cup Final</div>
+
+        <div class="matchup" style="opacity: 0.2; cursor: default;">
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">&mdash;</span>
+              <span class="matchup__team-name" style="color: var(--text-muted);">East Champion</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">&mdash;</span>
+          </div>
+          <div class="matchup__team">
+            <div class="matchup__team-info">
+              <span class="matchup__seed">&mdash;</span>
+              <span class="matchup__team-name" style="color: var(--text-muted);">West Champion</span>
+            </div>
+            <span class="matchup__wins matchup__wins--trailing">&mdash;</span>
+          </div>
+          <div class="matchup__status">Awaiting Conf. Finals</div>
+        </div>
+      </div>
+
+    </div><!-- /bracket -->
+  </div><!-- /bracket-card -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SECTION 2: MATCHUP DETAIL PAGE
+       ═══════════════════════════════════════════════════════════ -->
+
+  <div class="section-label">Matchup Detail Page</div>
+  <p class="section-desc">Clicking any bracket matchup navigates to this dedicated page. Shown here: a completed first-round series (E1 Carolina vs E8 New York Rangers).</p>
+
+  <div class="matchup-detail" id="matchup-car-nyr">
+
+    <!-- Header -->
+    <div class="matchup-detail__header">
+      <div class="matchup-detail__team">
+        <img src="https://assets.nhle.com/logos/nhl/svg/CAR_dark.svg" alt="CAR" class="team-logo">
+        Carolina Hurricanes
+      </div>
+      <span class="matchup-detail__vs">vs</span>
+      <div class="matchup-detail__team">
+        <img src="https://assets.nhle.com/logos/nhl/svg/NYR_dark.svg" alt="NYR" class="team-logo">
+        New York Rangers
+      </div>
+    </div>
+    <div class="matchup-detail__series">
+      Eastern Conference First Round &mdash; Carolina wins 4&ndash;2
+    </div>
+
+    <!-- Two-Column Layout -->
+    <div class="matchup-detail__columns">
+
+      <!-- LEFT: H2H Regular Season Stats + Summary -->
+      <div>
+        <div class="detail-section">
+          <div class="detail-section__title">Head-to-Head &mdash; 2025&ndash;26 Regular Season</div>
+          <table class="stats-compare">
+            <thead>
+              <tr>
+                <th>CAR</th>
+                <th>Stat</th>
+                <th>NYR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="stat-better">3&ndash;1&ndash;0</td>
+                <td class="stat-label">Record</td>
+                <td>1&ndash;3&ndash;0</td>
+              </tr>
+              <tr>
+                <td class="stat-better">14</td>
+                <td class="stat-label">GF</td>
+                <td>9</td>
+              </tr>
+              <tr>
+                <td class="stat-better">9</td>
+                <td class="stat-label">GA</td>
+                <td>14</td>
+              </tr>
+              <tr>
+                <td class="stat-better">.921</td>
+                <td class="stat-label">Sv%</td>
+                <td>.908</td>
+              </tr>
+              <tr>
+                <td class="stat-better">28.6</td>
+                <td class="stat-label">PP%</td>
+                <td>18.2</td>
+              </tr>
+              <tr>
+                <td class="stat-better">81.8</td>
+                <td class="stat-label">PK%</td>
+                <td>71.4</td>
+              </tr>
+              <tr>
+                <td class="stat-better">34.2</td>
+                <td class="stat-label">Shots/G</td>
+                <td>29.8</td>
+              </tr>
+              <tr>
+                <td class="stat-better">27.5</td>
+                <td class="stat-label">SA/G</td>
+                <td>32.0</td>
+              </tr>
+              <tr>
+                <td class="stat-better">53.1</td>
+                <td class="stat-label">FO%</td>
+                <td>46.9</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Matchup Summary -->
+        <div class="detail-section" style="margin-top: 16px;">
+          <div class="detail-section__title">Matchup Summary</div>
+          <div class="matchup-summary">
+            <h4>Carolina Hurricanes &mdash; Strengths &amp; Weaknesses</h4>
+            <p>Carolina's relentless forechecking and top-five penalty kill defined their regular season. Their defensive structure under Rod Brind'Amour limits quality chances, and Svechnikov's 38-goal campaign gives them a legitimate first-line finisher. Their weakness lies in inconsistent goaltending in high-event games and a power play that went cold down the stretch.</p>
+
+            <h4>New York Rangers &mdash; Strengths &amp; Weaknesses</h4>
+            <p>The Rangers lean heavily on Igor Shesterkin's ability to steal games. Their top six is skilled enough to compete with anyone when engaged, and their transition game off the rush is dangerous. However, their bottom six provides little secondary scoring, and their defensive zone coverage has been exploitable all season, particularly on the forecheck.</p>
+
+            <h4>How the Hurricanes Win</h4>
+            <p>Carolina's forechecking style is built for the playoffs. If they can sustain pressure, force turnovers, and keep the Rangers' top line cycling in the defensive zone, their depth advantage takes over. Winning the special teams battle &mdash; keeping their PK sharp while exploiting New York's shaky penalty kill &mdash; would be decisive.</p>
+
+            <h4>How the Rangers Create an Upset</h4>
+            <p>Shesterkin would need to be transcendent, and the Rangers would need to play a disciplined, low-event game that limits Carolina's transition opportunities. If Panarin and Zibanejad find their playoff gear and the Rangers can convert on the power play, they have the talent to make this a coin flip. Anything can happen in playoff hockey &mdash; the regular season matchups don't always carry forward when intensity escalates.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: All-Time Playoff Stats + All-Time H2H -->
+      <div>
+        <div class="detail-section">
+          <div class="detail-section__title">All-Time Playoff Stats</div>
+          <table class="stats-compare">
+            <thead>
+              <tr>
+                <th>CAR</th>
+                <th>Stat</th>
+                <th>NYR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>73&ndash;68</td>
+                <td class="stat-label">Playoff Record</td>
+                <td class="stat-better">196&ndash;190</td>
+              </tr>
+              <tr>
+                <td>2.78</td>
+                <td class="stat-label">GF/G</td>
+                <td class="stat-better">2.84</td>
+              </tr>
+              <tr>
+                <td class="stat-better">2.62</td>
+                <td class="stat-label">GA/G</td>
+                <td>2.71</td>
+              </tr>
+              <tr>
+                <td>.912</td>
+                <td class="stat-label">Sv%</td>
+                <td class="stat-better">.914</td>
+              </tr>
+              <tr>
+                <td class="stat-better">20.4</td>
+                <td class="stat-label">PP%</td>
+                <td>18.9</td>
+              </tr>
+              <tr>
+                <td class="stat-better">82.1</td>
+                <td class="stat-label">PK%</td>
+                <td>81.3</td>
+              </tr>
+              <tr>
+                <td>30.1</td>
+                <td class="stat-label">Shots/G</td>
+                <td class="stat-better">30.8</td>
+              </tr>
+              <tr>
+                <td class="stat-better">28.9</td>
+                <td class="stat-label">SA/G</td>
+                <td>29.4</td>
+              </tr>
+              <tr>
+                <td class="stat-better">51.2</td>
+                <td class="stat-label">FO%</td>
+                <td>49.8</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="detail-section" style="margin-top: 16px;">
+          <div class="detail-section__title">All-Time Playoff Head-to-Head</div>
+          <table class="stats-compare">
+            <thead>
+              <tr>
+                <th>CAR</th>
+                <th>Stat</th>
+                <th>NYR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>8&ndash;10</td>
+                <td class="stat-label">Playoff Record</td>
+                <td class="stat-better">10&ndash;8</td>
+              </tr>
+              <tr>
+                <td>2.61</td>
+                <td class="stat-label">GF/G</td>
+                <td class="stat-better">2.72</td>
+              </tr>
+              <tr>
+                <td class="stat-better">2.72</td>
+                <td class="stat-label">GA/G</td>
+                <td>2.61</td>
+              </tr>
+              <tr>
+                <td>.908</td>
+                <td class="stat-label">Sv%</td>
+                <td class="stat-better">.916</td>
+              </tr>
+              <tr>
+                <td>17.6</td>
+                <td class="stat-label">PP%</td>
+                <td class="stat-better">21.4</td>
+              </tr>
+              <tr>
+                <td class="stat-better">78.6</td>
+                <td class="stat-label">PK%</td>
+                <td>82.4</td>
+              </tr>
+              <tr>
+                <td>29.4</td>
+                <td class="stat-label">Shots/G</td>
+                <td class="stat-better">31.2</td>
+              </tr>
+              <tr>
+                <td class="stat-better">31.2</td>
+                <td class="stat-label">SA/G</td>
+                <td>29.4</td>
+              </tr>
+              <tr>
+                <td class="stat-better">51.8</td>
+                <td class="stat-label">FO%</td>
+                <td>48.2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /columns -->
+  </div><!-- /matchup-detail -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SECTION 3: ROUND 2+ MATCHUP DETAIL (with playoff stats)
+       ═══════════════════════════════════════════════════════════ -->
+
+  <div class="section-label">Round 2+ Matchup Detail</div>
+  <p class="section-desc">For rounds after the first, a "Current Playoff Stats" section appears between the regular season H2H and the matchup summary, showing each team's accumulated playoff performance.</p>
+
+  <div class="matchup-detail" id="matchup-r2-demo">
+
+    <!-- Header -->
+    <div class="matchup-detail__header">
+      <div class="matchup-detail__team">
+        <img src="https://assets.nhle.com/logos/nhl/svg/CAR_dark.svg" alt="CAR" class="team-logo">
+        Carolina Hurricanes
+      </div>
+      <span class="matchup-detail__vs">vs</span>
+      <div class="matchup-detail__team">
+        <img src="https://assets.nhle.com/logos/nhl/svg/TOR_dark.svg" alt="TOR" class="team-logo">
+        Toronto Maple Leafs
+      </div>
+    </div>
+    <div class="matchup-detail__series">
+      Eastern Conference Second Round &mdash; Series tied 1&ndash;1
+    </div>
+
+    <!-- Two-Column Layout -->
+    <div class="matchup-detail__columns">
+
+      <!-- LEFT: H2H Reg Season + Current Playoff Stats + Summary -->
+      <div>
+        <div class="detail-section">
+          <div class="detail-section__title">Head-to-Head &mdash; 2025&ndash;26 Regular Season</div>
+          <table class="stats-compare">
+            <thead>
+              <tr>
+                <th>CAR</th>
+                <th>Stat</th>
+                <th>TOR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2&ndash;1&ndash;1</td>
+                <td class="stat-label">Record</td>
+                <td class="stat-better">2&ndash;2&ndash;0</td>
+              </tr>
+              <tr>
+                <td class="stat-better">13</td>
+                <td class="stat-label">GF</td>
+                <td>11</td>
+              </tr>
+              <tr>
+                <td class="stat-better">11</td>
+                <td class="stat-label">GA</td>
+                <td>13</td>
+              </tr>
+              <tr>
+                <td class="stat-better">.918</td>
+                <td class="stat-label">Sv%</td>
+                <td>.912</td>
+              </tr>
+              <tr>
+                <td>22.2</td>
+                <td class="stat-label">PP%</td>
+                <td class="stat-better">25.0</td>
+              </tr>
+              <tr>
+                <td class="stat-better">75.0</td>
+                <td class="stat-label">PK%</td>
+                <td>77.8</td>
+              </tr>
+              <tr>
+                <td class="stat-better">33.5</td>
+                <td class="stat-label">Shots/G</td>
+                <td>31.0</td>
+              </tr>
+              <tr>
+                <td class="stat-better">28.8</td>
+                <td class="stat-label">SA/G</td>
+                <td>31.2</td>
+              </tr>
+              <tr>
+                <td class="stat-better">52.4</td>
+                <td class="stat-label">FO%</td>
+                <td>47.6</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- CURRENT PLAYOFF STATS (only shown for rounds after R1) -->
+        <div class="detail-section" style="margin-top: 16px;">
+          <div class="detail-section__title" style="color: var(--color-link);">2026 Playoff Stats (through Round 1)</div>
+          <table class="stats-compare">
+            <thead>
+              <tr>
+                <th>CAR</th>
+                <th>Stat</th>
+                <th>TOR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="stat-better">4&ndash;2</td>
+                <td class="stat-label">Playoff Record</td>
+                <td>4&ndash;3</td>
+              </tr>
+              <tr>
+                <td class="stat-better">3.17</td>
+                <td class="stat-label">GF/G</td>
+                <td>2.86</td>
+              </tr>
+              <tr>
+                <td class="stat-better">2.33</td>
+                <td class="stat-label">GA/G</td>
+                <td>2.57</td>
+              </tr>
+              <tr>
+                <td class="stat-better">.926</td>
+                <td class="stat-label">Sv%</td>
+                <td>.919</td>
+              </tr>
+              <tr>
+                <td class="stat-better">30.0</td>
+                <td class="stat-label">PP%</td>
+                <td>22.7</td>
+              </tr>
+              <tr>
+                <td class="stat-better">84.6</td>
+                <td class="stat-label">PK%</td>
+                <td>80.0</td>
+              </tr>
+              <tr>
+                <td class="stat-better">35.2</td>
+                <td class="stat-label">Shots/G</td>
+                <td>32.4</td>
+              </tr>
+              <tr>
+                <td class="stat-better">26.8</td>
+                <td class="stat-label">SA/G</td>
+                <td>29.1</td>
+              </tr>
+              <tr>
+                <td class="stat-better">54.2</td>
+                <td class="stat-label">FO%</td>
+                <td>48.8</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Matchup Summary -->
+        <div class="detail-section" style="margin-top: 16px;">
+          <div class="detail-section__title">Matchup Summary</div>
+          <div class="matchup-summary">
+            <h4>Carolina Hurricanes &mdash; Strengths &amp; Weaknesses</h4>
+            <p>Carolina's first-round dominance wasn't surprising &mdash; their forechecking system dismantled the Rangers' breakout completely. Svechnikov continued his hot streak (5G, 3A in 6 games) and their penalty kill was a fortress at 84.6%. The concern is fatigue management; they ran heavy minutes through their top four defensemen.</p>
+
+            <h4>Toronto Maple Leafs &mdash; Strengths &amp; Weaknesses</h4>
+            <p>Toronto finally broke through in a Game 7, and the confidence from overcoming Washington could be transformative. Matthews was dominant (6G, 4A in 7 games) and their power play clicked at 22.7%. The seven-game grind could leave them tired, but it also battle-tested their depth in ways the regular season couldn't.</p>
+
+            <h4>How the Hurricanes Win</h4>
+            <p>Same formula, amplified: suffocate Toronto's transition game, force turnovers in the neutral zone, and make Matthews work for every inch of ice. If Carolina's goaltending stays above .920 and they continue winning the special teams battle, their systemic advantage should prevail over a longer series.</p>
+
+            <h4>How the Maple Leafs Create an Upset</h4>
+            <p>Matthews vs. Carolina's top pair is the series. If he can generate enough five-on-five offense to ease the burden on the power play, Toronto's skill advantage at the top of the lineup could shine through. Nylander needs to be a factor &mdash; he was inconsistent against Washington. And this is playoff hockey: seven-game survivors carry a different kind of belief into the next round.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: All-Time Playoff Stats + All-Time H2H -->
+      <div>
+        <div class="detail-section">
+          <div class="detail-section__title">All-Time Playoff Stats</div>
+          <table class="stats-compare">
+            <thead>
+              <tr>
+                <th>CAR</th>
+                <th>Stat</th>
+                <th>TOR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>73&ndash;68</td>
+                <td class="stat-label">Playoff Record</td>
+                <td class="stat-better">199&ndash;196</td>
+              </tr>
+              <tr>
+                <td>2.78</td>
+                <td class="stat-label">GF/G</td>
+                <td class="stat-better">2.82</td>
+              </tr>
+              <tr>
+                <td class="stat-better">2.62</td>
+                <td class="stat-label">GA/G</td>
+                <td>2.74</td>
+              </tr>
+              <tr>
+                <td class="stat-better">.912</td>
+                <td class="stat-label">Sv%</td>
+                <td>.908</td>
+              </tr>
+              <tr>
+                <td class="stat-better">20.4</td>
+                <td class="stat-label">PP%</td>
+                <td>19.2</td>
+              </tr>
+              <tr>
+                <td class="stat-better">82.1</td>
+                <td class="stat-label">PK%</td>
+                <td>80.8</td>
+              </tr>
+              <tr>
+                <td>30.1</td>
+                <td class="stat-label">Shots/G</td>
+                <td class="stat-better">30.6</td>
+              </tr>
+              <tr>
+                <td class="stat-better">28.9</td>
+                <td class="stat-label">SA/G</td>
+                <td>29.8</td>
+              </tr>
+              <tr>
+                <td class="stat-better">51.2</td>
+                <td class="stat-label">FO%</td>
+                <td>50.4</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="detail-section" style="margin-top: 16px;">
+          <div class="detail-section__title">All-Time Playoff Head-to-Head</div>
+          <table class="stats-compare">
+            <thead>
+              <tr>
+                <th>CAR</th>
+                <th>Stat</th>
+                <th>TOR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="stat-better">4&ndash;3</td>
+                <td class="stat-label">Playoff Record</td>
+                <td>3&ndash;4</td>
+              </tr>
+              <tr>
+                <td class="stat-better">2.86</td>
+                <td class="stat-label">GF/G</td>
+                <td>2.43</td>
+              </tr>
+              <tr>
+                <td class="stat-better">2.43</td>
+                <td class="stat-label">GA/G</td>
+                <td>2.86</td>
+              </tr>
+              <tr>
+                <td class="stat-better">.915</td>
+                <td class="stat-label">Sv%</td>
+                <td>.901</td>
+              </tr>
+              <tr>
+                <td class="stat-better">25.0</td>
+                <td class="stat-label">PP%</td>
+                <td>16.7</td>
+              </tr>
+              <tr>
+                <td class="stat-better">83.3</td>
+                <td class="stat-label">PK%</td>
+                <td>75.0</td>
+              </tr>
+              <tr>
+                <td class="stat-better">32.1</td>
+                <td class="stat-label">Shots/G</td>
+                <td>28.6</td>
+              </tr>
+              <tr>
+                <td class="stat-better">28.6</td>
+                <td class="stat-label">SA/G</td>
+                <td>32.1</td>
+              </tr>
+              <tr>
+                <td class="stat-better">53.8</td>
+                <td class="stat-label">FO%</td>
+                <td>46.2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /columns -->
+  </div><!-- /matchup-detail R2 -->
+
+</main>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+function switchSeasonTab(btn, tab) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('tab-active'));
+  btn.classList.add('tab-active');
+}
+function switchConfTab(btn, conf) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('tab-active'));
+  btn.classList.add('tab-active');
+}
+</script>
+</body>
+</html>

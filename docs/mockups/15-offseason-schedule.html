@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hockey League Hub — Off-Season Schedule (Default Page)</title>
+<style>
+/* ── Font Faces ─────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../frontend/src/assets/fonts/courier-prime-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../frontend/src/assets/fonts/courier-prime-bold.woff2') format('woff2');
+}
+
+/* ── Design Tokens ──────────────────────────────────────────────── */
+:root {
+  --font-primary: 'Courier Prime', 'Courier New', monospace;
+  --bg-page: #F5F0E1;
+  --bg-banner: #000000;
+  --bg-nav: #1A1A1A;
+  --bg-card: #FFFDF5;
+  --bg-row-alt: rgba(0,0,0,0.04);
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #7A7A7A;
+  --text-on-banner: #F5F0E1;
+  --border-default: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.25);
+  --color-link: #2C5F8A;
+  --color-link-hover: #1A3D5C;
+  --color-live: #C0392B;
+  --color-accent: #D4A017;
+  --bg-ticker: #111111;
+  --text-ticker: #F5F0E1;
+  --banner-input-bg: rgba(255,255,255,0.08);
+  --banner-input-border: rgba(255,255,255,0.2);
+  --banner-placeholder: rgba(245,240,225,0.5);
+  --banner-hover-bg: rgba(255,255,255,0.1);
+}
+[data-theme="dark"] {
+  --bg-page: #0A1628;
+  --bg-banner: #F5F0E1;
+  --bg-nav: #0D1B2A;
+  --bg-card: #112240;
+  --bg-row-alt: rgba(255,255,255,0.06);
+  --text-primary: #F5F0E1;
+  --text-secondary: #B8B0A0;
+  --text-muted: #807868;
+  --text-on-banner: #0A1628;
+  --border-default: rgba(255,255,255,0.1);
+  --border-strong: rgba(255,255,255,0.2);
+  --color-link: #6BA3D6;
+  --color-link-hover: #8DC0F0;
+  --color-live: #E74C3C;
+  --color-accent: #F1C40F;
+  --bg-ticker: #050D1A;
+  --banner-input-bg: rgba(0,0,0,0.06);
+  --banner-input-border: rgba(0,0,0,0.15);
+  --banner-placeholder: rgba(10,22,40,0.4);
+  --banner-hover-bg: rgba(0,0,0,0.06);
+}
+
+/* ── Reset & Base ───────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-primary);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--color-link); text-decoration: none; }
+a:hover { color: var(--color-link-hover); text-decoration: underline; }
+
+/* ── Global Shell: Banner ───────────────────────────────────────── */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-banner);
+  color: var(--text-on-banner);
+  padding: 0 24px;
+  height: 56px;
+}
+.banner__brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.banner__brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--text-on-banner);
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+}
+.banner__search {
+  flex: 0 1 420px;
+  margin: 0 24px;
+}
+.banner__search input {
+  width: 100%;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid var(--banner-input-border);
+  border-radius: 4px;
+  background: var(--banner-input-bg);
+  color: var(--text-on-banner);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  outline: none;
+}
+.banner__search input::placeholder { color: var(--banner-placeholder); }
+.banner__search-wrap { position: relative; }
+.banner__search-wrap::before {
+  content: "\1F50D";
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.banner__hamburger {
+  background: none;
+  border: 1px solid var(--banner-input-border);
+  border-radius: 4px;
+  color: var(--text-on-banner);
+  font-size: 22px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.banner__hamburger:hover { background: var(--banner-hover-bg); }
+
+/* ── Global Shell: Score Bar (off-season — no games) ───────────── */
+.ticker {
+  background: var(--bg-ticker);
+  color: var(--text-ticker);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.ticker__offseason {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(245,240,225,0.45);
+}
+
+/* ── Global Shell: Nav ──────────────────────────────────────────── */
+.nav {
+  background: var(--bg-nav);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 16px;
+  gap: 0;
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+.nav__link {
+  color: rgba(245,240,225,0.65);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.nav__link:hover { color: rgba(245,240,225,0.9); text-decoration: none; }
+.nav__link--active { color: #F5F0E1; border-bottom-color: #F5F0E1; }
+
+/* ── Theme Toggle ───────────────────────────────────────────────── */
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+/* ── Page Container ─────────────────────────────────────────────── */
+.page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+.page-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.page-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+/* ── Section Labels ────────────────────────────────────────────── */
+.section-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 48px 0 6px;
+  padding: 10px 16px;
+  background: var(--text-primary);
+  color: var(--bg-page);
+  border-radius: 4px;
+  display: inline-block;
+}
+.section-desc {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  margin-top: 4px;
+}
+
+/* ── Off-Season Timeline ───────────────────────────────────────── */
+.timeline {
+  position: relative;
+  padding-left: 28px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border-strong);
+}
+
+.timeline-month {
+  margin-bottom: 32px;
+}
+.timeline-month__label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  position: relative;
+}
+.timeline-month__label::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--border-strong);
+}
+
+.timeline-event {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+  transition: border-color 0.15s;
+}
+.timeline-event:hover {
+  border-color: var(--border-strong);
+}
+.timeline-event::before {
+  content: '';
+  position: absolute;
+  left: -22px;
+  top: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  border: 2px solid var(--bg-page);
+}
+
+/* Highlighted (important) events */
+.timeline-event--highlight {
+  border-left: 3px solid var(--color-accent);
+}
+.timeline-event--highlight::before {
+  background: var(--color-accent);
+}
+
+/* Past events */
+.timeline-event--past {
+  opacity: 0.55;
+}
+.timeline-event--past::before {
+  background: var(--text-muted);
+}
+
+/* Active/today event */
+.timeline-event--active {
+  border-left: 3px solid var(--color-live);
+  border-color: var(--color-live);
+}
+.timeline-event--active::before {
+  background: var(--color-live);
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.25);
+}
+
+.event__date {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 72px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding-top: 1px;
+}
+.event__content {
+  flex: 1;
+}
+.event__title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.event__desc {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.event__badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.event__badge--deadline {
+  background: rgba(212, 160, 23, 0.15);
+  color: var(--color-accent);
+  border: 1px solid rgba(212, 160, 23, 0.3);
+}
+.event__badge--event {
+  background: rgba(107, 163, 214, 0.15);
+  color: var(--color-link);
+  border: 1px solid rgba(107, 163, 214, 0.3);
+}
+.event__badge--season {
+  background: rgba(46, 125, 50, 0.15);
+  color: #66BB6A;
+  border: 1px solid rgba(46, 125, 50, 0.3);
+}
+.event__badge--today {
+  background: rgba(231, 76, 60, 0.15);
+  color: var(--color-live);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+/* ── Upcoming Countdown Card ───────────────────────────────────── */
+.countdown-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.countdown-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  padding: 20px 16px;
+  text-align: center;
+}
+.countdown-card__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.countdown-card__days {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.countdown-card__unit {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.countdown-card__event {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--color-link);
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()">Toggle Dark/Light</button>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     GLOBAL SHELL
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- Banner -->
+<header class="banner">
+  <div class="banner__brand">
+    <span class="banner__brand-icon">H</span>
+    Hockey League Hub
+  </div>
+  <div class="banner__search">
+    <div class="banner__search-wrap">
+      <input type="text" placeholder="Search players, teams, trades...">
+    </div>
+  </div>
+  <button class="banner__hamburger" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- Score Bar (off-season — no active games) -->
+<div class="ticker">
+  <span class="ticker__offseason">Off-Season &mdash; 2026 NHL Draft: June 26&ndash;27</span>
+</div>
+
+<!-- Nav (note: "Draft" replaces "Scores" during off-season) -->
+<nav class="nav">
+  <a href="#" class="nav__link">Home</a>
+  <a href="#" class="nav__link">Standings</a>
+  <a href="#" class="nav__link">Teams</a>
+  <a href="#" class="nav__link">Players</a>
+  <a href="#" class="nav__link">Draft</a>
+  <a href="#" class="nav__link">Stats</a>
+  <a href="#" class="nav__link">Trades</a>
+  <a href="#" class="nav__link nav__link--active">Schedule</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE CONTENT
+     ═══════════════════════════════════════════════════════════════ -->
+
+<main class="page-container">
+
+  <h2 class="page-title">2026 Off-Season Schedule</h2>
+  <p class="page-subtitle">Key dates &amp; deadlines &mdash; NHL off-season calendar</p>
+
+  <div class="section-label">Off-Season Schedule</div>
+  <p class="section-desc">During the off-season the Schedule tab becomes the default landing page. Important dates and deadlines are highlighted. The score bar shows the next major event instead of game scores.</p>
+
+  <!-- ── Countdown Cards ──────────────────────────────────────── -->
+  <div class="countdown-row">
+    <div class="countdown-card">
+      <div class="countdown-card__label">Next Event</div>
+      <div class="countdown-card__days">14</div>
+      <div class="countdown-card__unit">days</div>
+      <div class="countdown-card__event">NHL Draft &mdash; Round 1</div>
+    </div>
+    <div class="countdown-card">
+      <div class="countdown-card__label">Free Agency Opens</div>
+      <div class="countdown-card__days">19</div>
+      <div class="countdown-card__unit">days</div>
+      <div class="countdown-card__event">July 1, 2026</div>
+    </div>
+    <div class="countdown-card">
+      <div class="countdown-card__label">Season Opener</div>
+      <div class="countdown-card__days">119</div>
+      <div class="countdown-card__unit">days</div>
+      <div class="countdown-card__event">October 7, 2026</div>
+    </div>
+  </div>
+
+  <!-- ── Timeline ─────────────────────────────────────────────── -->
+  <div class="timeline">
+
+    <!-- ── JUNE ──────────────────────────────────────────────── -->
+    <div class="timeline-month">
+      <div class="timeline-month__label">June 2026</div>
+
+      <div class="timeline-event timeline-event--past">
+        <div class="event__date">Jun 1</div>
+        <div class="event__content">
+          <div class="event__title">Stanley Cup Final Concludes</div>
+          <div class="event__desc">Off-season officially begins for all 32 teams.</div>
+        </div>
+      </div>
+
+      <div class="timeline-event timeline-event--past timeline-event--highlight">
+        <div class="event__date">Jun 8</div>
+        <div class="event__content">
+          <div class="event__title">Buyout Window Opens</div>
+          <div class="event__desc">Teams may buy out player contracts at two-thirds of remaining value, spread over double the remaining term. Window closes 48 hours after the draft.</div>
+        </div>
+        <span class="event__badge event__badge--deadline">Deadline</span>
+      </div>
+
+      <div class="timeline-event timeline-event--active">
+        <div class="event__date">Jun 12</div>
+        <div class="event__content">
+          <div class="event__title">Today</div>
+          <div class="event__desc">14 days until the NHL Draft.</div>
+        </div>
+        <span class="event__badge event__badge--today">Today</span>
+      </div>
+
+      <div class="timeline-event timeline-event--highlight">
+        <div class="event__date">Jun 15</div>
+        <div class="event__content">
+          <div class="event__title">Qualifying Offers Deadline</div>
+          <div class="event__desc">Teams must extend qualifying offers to restricted free agents by 5:00 PM ET. Players not receiving a QO become unrestricted free agents on July 1.</div>
+        </div>
+        <span class="event__badge event__badge--deadline">Deadline</span>
+      </div>
+
+      <div class="timeline-event timeline-event--highlight">
+        <div class="event__date">Jun 21</div>
+        <div class="event__content">
+          <div class="event__title">Expansion Draft Protection Lists Due</div>
+          <div class="event__desc">Teams submit protected player lists (7F/3D/1G or 8 skaters + 1G). Unprotected players are eligible for selection by Utah HC.</div>
+        </div>
+        <span class="event__badge event__badge--deadline">Deadline</span>
+      </div>
+
+      <div class="timeline-event timeline-event--highlight">
+        <div class="event__date">Jun 23</div>
+        <div class="event__content">
+          <div class="event__title">Expansion Draft</div>
+          <div class="event__desc">Utah HC selects one player from each eligible team. Selections announced live on ESPN.</div>
+        </div>
+        <span class="event__badge event__badge--event">Event</span>
+      </div>
+
+      <div class="timeline-event timeline-event--highlight">
+        <div class="event__date">Jun 26</div>
+        <div class="event__content">
+          <div class="event__title">2026 NHL Draft &mdash; Round 1</div>
+          <div class="event__desc">First round (32 picks). Live coverage begins at 7:00 PM ET. Held at Bridgestone Arena, Nashville.</div>
+        </div>
+        <span class="event__badge event__badge--event">Event</span>
+      </div>
+
+      <div class="timeline-event timeline-event--highlight">
+        <div class="event__date">Jun 27</div>
+        <div class="event__content">
+          <div class="event__title">2026 NHL Draft &mdash; Rounds 2&ndash;7</div>
+          <div class="event__desc">Rounds 2 through 7 (~192 picks). Coverage begins at 11:00 AM ET.</div>
+        </div>
+        <span class="event__badge event__badge--event">Event</span>
+      </div>
+
+      <div class="timeline-event timeline-event--highlight">
+        <div class="event__date">Jun 29</div>
+        <div class="event__content">
+          <div class="event__title">Buyout Window Closes</div>
+          <div class="event__desc">48 hours after the conclusion of the entry draft. Final opportunity for compliance buyouts this summer.</div>
+        </div>
+        <span class="event__badge event__badge--deadline">Deadline</span>
+      </div>
+    </div>
+
+    <!-- ── JULY ──────────────────────────────────────────────── -->
+    <div class="timeline-month">
+      <div class="timeline-month__label">July 2026</div>
+
+      <div class="timeline-event timeline-event--highlight">
+        <div class="event__date">Jul 1</div>
+        <div class="event__content">
+          <div class="event__title">Free Agency Opens</div>
+          <div class="event__desc">Unrestricted free agents may sign with any team beginning at 12:00 PM ET. Restricted free agents may receive offer sheets.</div>
+        </div>
+        <span class="event__badge event__badge--event">Event</span>
+      </div>
+
+      <div class="timeline-event">
+        <div class="event__date">Jul 1&ndash;15</div>
+        <div class="event__content">
+          <div class="event__title">Second Buyout Window</div>
+          <div class="event__desc">Brief second buyout window opens following free agency. Teams can buy out one additional contract.</div>
+        </div>
+        <span class="event__badge event__badge--deadline">Deadline</span>
+      </div>
+
+      <div class="timeline-event">
+        <div class="event__date">Jul 6</div>
+        <div class="event__content">
+          <div class="event__title">Salary Arbitration Filing Deadline</div>
+          <div class="event__desc">RFAs and teams must file for salary arbitration by 5:00 PM ET.</div>
+        </div>
+        <span class="event__badge event__badge--deadline">Deadline</span>
+      </div>
+
+      <div class="timeline-event">
+        <div class="event__date">Jul 20&ndash;Aug 4</div>
+        <div class="event__content">
+          <div class="event__title">Salary Arbitration Hearings</div>
+          <div class="event__desc">Scheduled hearings for players and teams who filed. Decisions rendered within 48 hours of each hearing.</div>
+        </div>
+        <span class="event__badge event__badge--event">Event</span>
+      </div>
+    </div>
+
+    <!-- ── AUGUST ────────────────────────────────────────────── -->
+    <div class="timeline-month">
+      <div class="timeline-month__label">August 2026</div>
+
+      <div class="timeline-event">
+        <div class="event__date">Aug 4</div>
+        <div class="event__content">
+          <div class="event__title">Salary Arbitration Hearings Conclude</div>
+          <div class="event__desc">Final arbitration decisions issued. All RFA situations resolved.</div>
+        </div>
+      </div>
+
+      <div class="timeline-event">
+        <div class="event__date">Aug 15</div>
+        <div class="event__content">
+          <div class="event__title">Prospect Tournaments Begin</div>
+          <div class="event__desc">Teams host rookie and prospect tournaments showcasing newly drafted and developing players.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SEPTEMBER ─────────────────────────────────────────── -->
+    <div class="timeline-month">
+      <div class="timeline-month__label">September 2026</div>
+
+      <div class="timeline-event timeline-event--highlight">
+        <div class="event__date">Sep 17</div>
+        <div class="event__content">
+          <div class="event__title">Training Camps Open</div>
+          <div class="event__desc">All 32 teams open training camps. Roster battles begin for final spots.</div>
+        </div>
+        <span class="event__badge event__badge--event">Event</span>
+      </div>
+
+      <div class="timeline-event">
+        <div class="event__date">Sep 21</div>
+        <div class="event__content">
+          <div class="event__title">Preseason Begins</div>
+          <div class="event__desc">Exhibition games begin. Approximately 6&ndash;8 preseason games per team through early October.</div>
+        </div>
+        <span class="event__badge event__badge--event">Event</span>
+      </div>
+    </div>
+
+    <!-- ── OCTOBER ───────────────────────────────────────────── -->
+    <div class="timeline-month">
+      <div class="timeline-month__label">October 2026</div>
+
+      <div class="timeline-event timeline-event--highlight">
+        <div class="event__date">Oct 5</div>
+        <div class="event__content">
+          <div class="event__title">Roster Deadline</div>
+          <div class="event__desc">Teams must submit opening night rosters (23 players) by 5:00 PM ET. Remaining players assigned to AHL affiliates.</div>
+        </div>
+        <span class="event__badge event__badge--deadline">Deadline</span>
+      </div>
+
+      <div class="timeline-event timeline-event--highlight">
+        <div class="event__date">Oct 7</div>
+        <div class="event__content">
+          <div class="event__title">2026&ndash;27 Regular Season Opens</div>
+          <div class="event__desc">Opening night. Schedule page returns to monthly game view and Scores tab replaces Draft in navigation.</div>
+        </div>
+        <span class="event__badge event__badge--season">Season Start</span>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+
+</main>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>
