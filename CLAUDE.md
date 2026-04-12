@@ -12,7 +12,7 @@ Auto-generated from all feature plans. Last updated: 2026-04-11
 backend/
 ├── src/
 │   ├── HockeyHub.Core/             # Entities + interfaces (no dependencies)
-│   │   ├── Models/Entities/         # League, Team, Season, Arena, Player, Personnel, FranchiseHistory, Game, GamePeriodScore, StandingsSnapshot
+│   │   ├── Models/Entities/         # League, Team, Season, Arena, Player, Personnel, FranchiseHistory, Game, GamePeriodScore, StandingsSnapshot, Trade, TradeAsset
 │   │   ├── Providers/               # INhlDataProvider interface + DTOs, IScoreBroadcaster
 │   │   └── NhlDateHelper.cs         # Shared NHL game day boundary logic (3 AM ET cutoff, DST-aware)
 │   ├── HockeyHub.Data/             # Data access (depends on Core)
@@ -20,10 +20,10 @@ backend/
 │   │   ├── Providers/NhlWebApiProvider.cs
 │   │   └── Services/
 │   │       ├── Cache/               # Redis cache service
-│   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync, ScheduleSync jobs
-│   │       └── Queries/             # ScoresQueryService, StandingsQueryService, ScheduleQueryService
+│   │       ├── Sync/                # DataSeed, ScoresSync, StandingsSync, ScheduleSync, TradeSync jobs
+│   │       └── Queries/             # Scores, Standings, Schedule, Teams, GameHub, Trades query services
 │   └── HockeyHub.Api/              # HTTP host (depends on Data + Core)
-│       ├── Controllers/             # ScoresController (5), StandingsController, ScheduleController, SearchController, HealthController
+│       ├── Controllers/             # Scores (5), Standings, Schedule, Teams (2), GameHub, Trades, Search, Health
 │       ├── Hubs/                    # GameHub, SignalRScoreBroadcaster
 │       ├── Middleware/              # Error handling, DataAsOf wrapper
 │       ├── Program.cs              # App startup + DI wiring
@@ -51,12 +51,15 @@ frontend/
 │   │   ├── scores/                # ScoresPage, ScoreBox, ExpandedScoreBox, PregameMatchup, CalendarPicker
 │   │   ├── standings/             # StandingsPage (4 views: wildcard/division/conference/league)
 │   │   ├── schedule/              # SchedulePage (monthly game list with navigation)
-│   │   └── [stats,...]/           # Placeholder route components (8 remaining)
+│   │   ├── teams/                 # TeamsIndex (card grid) + TeamProfile (roster table)
+│   │   ├── game-hub/              # GameHubPage (team stats, player stats, goals/penalties)
+│   │   ├── trades/                # TradesList (chronological trade cards)
+│   │   └── [stats,...]/           # Placeholder route components (5 remaining)
 │   ├── constants.ts               # Shared constants (league ID, polling intervals, SignalR config, close-game thresholds, getPeriodLabel)
-│   ├── services/                  # ThemeService, SignalRService, ScoresApiService, GameClockService, StandingsApiService, ScheduleApiService, SearchApiService
+│   ├── services/                  # Theme, SignalR, ScoresApi, StandingsApi, ScheduleApi, SearchApi, TeamsApi, GameHubApi, TradesApi, GameClock
 │   ├── directives/                # TooltipDirective
 │   ├── pipes/                     # EraPipe, TimezonePipe
-│   ├── app.routes.ts              # 14 lazy-loaded routes (incl. game-hub/:gameId)
+│   ├── app.routes.ts              # 15 lazy-loaded routes (incl. game-hub/:gameId, teams/:teamId)
 │   └── app.ts                     # Shell: banner + score bar + nav + router-outlet
 ├── src/assets/fonts/              # Courier Prime (WOFF2)
 ├── src/styles/                    # Design tokens (light/dark)
@@ -103,7 +106,7 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - NHL data sourced via `INhlDataProvider` interface (Core) — implemented by `NhlWebApiProvider` (Data), swappable to licensed provider later
 - `IScoreBroadcaster` interface (Core) abstracts SignalR broadcasting — implemented by `SignalRScoreBroadcaster` (Api) to maintain dependency flow
 - SignalR `GameHub` at `/hubs/scores` for live score push, Redis backplane for multi-server
-- Hangfire recurring jobs: `ScoresSyncJob` (every 15s), `StandingsSyncJob` (every 5min), `ScheduleSyncJob` (daily 6 AM UTC), dashboard at `/hangfire`
+- Hangfire recurring jobs: `ScoresSyncJob` (every 15s), `StandingsSyncJob` (every 5min), `ScheduleSyncJob` (daily 6 AM UTC), `TradeSyncJob` (daily 7 AM UTC), dashboard at `/hangfire`
 - Response wrappers: `DataAsOfResponse<T>` and `PaginatedResponse<T>` in Api/Middleware/
 - Connection strings in appsettings.json for local dev (DefaultConnection: SQL Server on port 1433, Redis: `localhost:6379`); deployed environments inject via Key Vault secret refs → Container App env vars (`ConnectionStrings__DefaultConnection`, `ConnectionStrings__Redis`)
 - EF migrations live in HockeyHub.Data; run `dotnet ef` from Api project with `--project ../HockeyHub.Data`
@@ -114,6 +117,9 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - Subscription cleanup uses `takeUntilDestroyed(destroyRef)` — do not use manual `Subscription[]` + `ngOnDestroy` patterns
 
 ## Recent Changes
+- Trades page: Trade + TradeAsset entities (simplified — TradeSide flattened into TradeAsset), `TradeSyncJob` (daily 7 AM UTC Hangfire) calls `GetTradesAsync` to populate trades for current season, `TradesController` exposes `GET /api/leagues/{leagueId}/trades` with optional team filter, frontend shows chronological trade cards with team logos and acquired/traded asset lists
+- Game Hub page: `GameHubController` exposes `GET /api/games/{gameId}/hub` — combined response with period box scores, team stats comparison, game events (goals/penalties), and per-player box scores (skaters + goalies). Sources from DB game record + live NHL API via `GetGameDetailAsync` with Redis cache (10s live, 1h final). Frontend has Team Stats + Player Stats tabs with responsive layout
+- Teams pages: `TeamsController` with `GET /api/leagues/{id}/teams` (list with standings summary, 24h cache) and `GET /api/teams/{id}` (profile with record, Stanley Cups, franchise history, full roster, 1h cache). Frontend: teams index as 4-column card grid, team profile with header/detail cards/roster table. New route `:leagueId/teams/:teamId`. Search navigates directly to team profiles
 - Search: `GET /api/search?q=...&limit=10` queries Players (name) and Teams (location/name/abbreviation) with grouped results; banner search input wired with 300ms debounce and live dropdown showing Teams/Players sections with navigation links
 - Schedule page: `ScheduleSyncJob` (daily 6 AM UTC Hangfire job) calls `GetScheduleAsync` to populate the full season of games into the Games table; `ScheduleQueryService` groups games by month/day with optional month + team filters (6h Redis cache); `ScheduleController` exposes `GET /api/leagues/{leagueId}/schedule`; frontend page with month navigation, day cards showing matchups/times/scores
 - Standings page (US3): Added `GoalDifferential`, `DivisionRank`, `ConferenceRank`, and nullable `WildCardRank` to `StandingsSnapshot` (closes the data-model.md gap) with EF migration `AddStandingsRanks`; `StandingsSyncJob` now computes all four during the sync loop with NHL wild-card rules (top 3 per division qualify, top 2 of remaining per conference get WC1/WC2, rest are eliminated) and busts `standings:*` cache keys after save; new `StandingsQueryService` shapes 4 view modes (wildcard / division / conference / league) with 1h Redis TTL; new `StandingsController` exposes `GET /api/leagues/{leagueId}/standings?view=...` with view validation; frontend placeholder replaced with full responsive page (side-by-side conferences ≥1200px, tabbed below) using OnPush + signals + `takeUntilDestroyed`; sortable column headers with WC1/WC2 labels, dashed cut line, and muted styling for eliminated teams in default sort order
@@ -147,9 +153,9 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - **SQL admin password rotation**: Initial deploy password is in shell history
 
 ### Missing Implementation
-- **Database entities (14 missing)**: PlayerPosition, PlayerHeadshot, PlayerStyle, PlayerSeason, PlayerTeamHistory, PlayerAward, Contract, ContractYear, GameEvent, GamePlayerStat, Trade, TradeAsset, ImportantDate, RuleBook
-- **API endpoints (17 missing)**: Game Hub (3), Stats (1), Teams (4), Players (2), Salary Cap (5), Trades (2), Free Agents (1), Personnel (1)
-- **Frontend pages (8 placeholders)**: Stats, Players, Teams, Salary Cap, Trades, Free Agents, Personnel, Game Hub — all currently render placeholder text
+- **Database entities (12 missing)**: PlayerPosition, PlayerHeadshot, PlayerStyle, PlayerSeason, PlayerTeamHistory, PlayerAward, Contract, ContractYear, GameEvent, GamePlayerStat, ImportantDate, RuleBook
+- **API endpoints (12 missing)**: Stats (1), Players (2), Salary Cap (5), Free Agents (1), Personnel (1), Teams roster (1), Teams depth chart (1)
+- **Frontend pages (5 placeholders)**: Stats, Players, Salary Cap, Free Agents, Personnel — all currently render placeholder text
 
 ### Data Quality Bugs in NhlWebApiProvider
 - **`GetStandingsAsync` doesn't populate `PowerPlayPct`, `PenaltyKillPct`, `FaceoffPct`** — they come back as `0.0` / `null` for every team. Surfaced 2026-04-08 during standings smoke test. The standings page renders "0.0" / "—" until the provider extracts those fields from the NHL API response.
