@@ -2,15 +2,16 @@ import { Component, inject, signal, DestroyRef, ChangeDetectionStrategy, OnInit 
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlayoffsApiService, PlayoffBracketResponse } from '../../../services/playoffs-api.service';
+import { DataAsOf } from '../../shared/data-as-of/data-as-of';
 
 @Component({
   selector: 'app-playoff-bracket-page',
-  imports: [RouterLink],
+  imports: [RouterLink, DataAsOf],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page">
       <h2 class="page__title">{{ data()?.season || '' }} NHL Playoffs</h2>
-      <p class="page__subtitle">Playoff brackets</p>
+      <p class="page__subtitle"><app-data-as-of [timestamp]="data()?.dataAsOf ?? null" /></p>
 
       <div class="conf-tabs">
         @for (tab of conferenceTabs; track tab.value) {
