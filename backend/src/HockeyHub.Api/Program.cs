@@ -60,8 +60,10 @@ builder.Services.AddSingleton<RedisCacheService>();
 builder.Services.AddScoped<DataSeedService>();
 builder.Services.AddScoped<ScoresQueryService>();
 builder.Services.AddScoped<StandingsQueryService>();
+builder.Services.AddScoped<ScheduleQueryService>();
 builder.Services.AddScoped<ScoresSyncJob>();
 builder.Services.AddScoped<StandingsSyncJob>();
+builder.Services.AddScoped<ScheduleSyncJob>();
 builder.Services.AddSingleton<IScoreBroadcaster, SignalRScoreBroadcaster>();
 
 // Response compression
@@ -147,6 +149,11 @@ app.Services.GetRequiredService<IRecurringJobManager>().AddOrUpdate<StandingsSyn
     "standings-sync",
     job => job.SyncAsync(CancellationToken.None),
     "*/5 * * * *"); // Every 5 minutes
+
+app.Services.GetRequiredService<IRecurringJobManager>().AddOrUpdate<ScheduleSyncJob>(
+    "schedule-sync",
+    job => job.SyncAsync(CancellationToken.None),
+    "0 6 * * *"); // Daily at 6 AM UTC
 
 // Data seed command: dotnet run -- --seed [--current-only]
 if (args.Contains("--seed"))
