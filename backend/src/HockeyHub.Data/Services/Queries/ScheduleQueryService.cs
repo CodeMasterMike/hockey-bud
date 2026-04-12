@@ -66,9 +66,13 @@ public class ScheduleQueryService(HockeyHubDbContext db, RedisCacheService cache
                 )).ToList();
         }, RedisCacheService.ScheduleTtl, ct);
 
+        var lastUpdated = await db.Games
+            .Where(g => g.SeasonId == season.Id)
+            .MaxAsync(g => (DateTimeOffset?)g.LastUpdated, ct) ?? DateTimeOffset.UtcNow;
+
         return new ScheduleResponse(
             Season: season.Label,
-            DataAsOf: DateTimeOffset.UtcNow,
+            DataAsOf: lastUpdated,
             Months: months ?? []
         );
     }

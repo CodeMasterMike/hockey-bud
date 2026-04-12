@@ -39,10 +39,14 @@ public class StandingsQueryService(HockeyHubDbContext db, RedisCacheService cach
             };
         }, RedisCacheService.StandingsTtl, ct);
 
+        var lastUpdated = await db.StandingsSnapshots
+            .Where(s => s.SeasonId == season.Id)
+            .MaxAsync(s => (DateTimeOffset?)s.LastUpdated, ct) ?? DateTimeOffset.UtcNow;
+
         return new StandingsResponse(
             Season: season.Label,
             View: view,
-            DataAsOf: DateTimeOffset.UtcNow,
+            DataAsOf: lastUpdated,
             Groups: groups ?? []
         );
     }

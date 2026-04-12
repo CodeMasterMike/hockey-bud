@@ -8,12 +8,13 @@ import {
   GameHubApiService, GameHubResponse, GameEvent,
 } from '../../../services/gamehub-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
+import { DataAsOf } from '../../shared/data-as-of/data-as-of';
 
 type Tab = 'team-stats' | 'player-stats';
 
 @Component({
   selector: 'app-game-hub-page',
-  imports: [RouterLink],
+  imports: [RouterLink, DataAsOf],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="hub-page">
@@ -40,6 +41,7 @@ type Tab = 'team-stats' | 'player-stats';
           @if (g.arena) {
             <div class="game-header__detail">{{ g.arena.name }}{{ g.arena.city ? ', ' + g.arena.city : '' }}</div>
           }
+          <div class="game-header__detail"><app-data-as-of [timestamp]="g.dataAsOf" /></div>
         </div>
 
         <!-- Tab Bar -->

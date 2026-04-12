@@ -60,11 +60,15 @@ public class ScoresQueryService(
                 showPreviousDay = true;
         }
 
+        var lastUpdated = await db.Games
+            .Where(g => g.Season.LeagueId == leagueId && g.GameDateLocal == date)
+            .MaxAsync(g => (DateTimeOffset?)g.LastUpdated, ct) ?? DateTimeOffset.UtcNow;
+
         return new ScoresResponse(
             Date: date.ToString("yyyy-MM-dd"),
             DateDisplay: date.ToString("MM/dd"),
             ShowPreviousDay: showPreviousDay,
-            DataAsOf: DateTimeOffset.UtcNow,
+            DataAsOf: lastUpdated,
             Games: games ?? []
         );
     }

@@ -60,9 +60,13 @@ public class TradesQueryService(HockeyHubDbContext db, RedisCacheService cache)
             }).ToList();
         }, TimeSpan.FromHours(3), ct);
 
+        var lastUpdated = await db.Trades
+            .Where(t => t.SeasonId == season.Id)
+            .MaxAsync(t => (DateTimeOffset?)t.LastUpdated, ct) ?? DateTimeOffset.UtcNow;
+
         return new TradesListResponse(
             Season: season.Label,
-            DataAsOf: DateTimeOffset.UtcNow,
+            DataAsOf: lastUpdated,
             Trades: trades ?? []
         );
     }
