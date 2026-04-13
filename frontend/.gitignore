@@ -41,6 +41,10 @@ __screenshots__/
 /test-results/
 /playwright-report/
 
+# Temp files
+*_tmp.json
+*_tmp.*.json
+
 # System files
 .DS_Store
 Thumbs.db
