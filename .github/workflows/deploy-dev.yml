@@ -65,6 +65,10 @@ jobs:
       - name: Install EF Core tools
         run: dotnet tool install --global dotnet-ef
 
+      - name: Restore backend packages
+        working-directory: backend
+        run: dotnet restore
+
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -78,7 +82,11 @@ jobs:
             --name DatabaseConnectionString \
             --query value -o tsv)
           echo "::add-mask::$conn"
-          echo "db-connection=$conn" >> "$GITHUB_OUTPUT"
+          {
+            echo "db-connection<<CONNEOF"
+            echo "$conn"
+            echo "CONNEOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Add runner IP to SQL Server firewall
         id: firewall
