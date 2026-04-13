@@ -49,9 +49,67 @@ jobs:
           docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
           docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
 
+  migrate-database:
+    name: Run EF Migrations
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Fetch DB connection string from Key Vault
+        id: secrets
+        run: |
+          conn=$(az keyvault secret show \
+            --vault-name hockeyhub-dev-kv \
+            --name db-connection \
+            --query value -o tsv)
+          echo "::add-mask::$conn"
+          echo "db-connection=$conn" >> "$GITHUB_OUTPUT"
+
+      - name: Add runner IP to SQL Server firewall
+        id: firewall
+        run: |
+          runner_ip=$(curl -s https://api.ipify.org)
+          echo "runner-ip=$runner_ip" >> "$GITHUB_OUTPUT"
+          az sql server firewall-rule create \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --server hockeyhub-dev-sql \
+            --name "GitHubActions-${{ github.run_id }}" \
+            --start-ip-address "$runner_ip" \
+            --end-ip-address "$runner_ip"
+
+      - name: Apply EF migrations
+        working-directory: backend/src/HockeyHub.Api
+        env:
+          ConnectionStrings__DefaultConnection: ${{ steps.secrets.outputs.db-connection }}
+        run: dotnet ef database update --project ../HockeyHub.Data
+
+      - name: Remove runner IP from SQL Server firewall
+        if: always()
+        run: |
+          az sql server firewall-rule delete \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --server hockeyhub-dev-sql \
+            --name "GitHubActions-${{ github.run_id }}" \
+            --yes || true
+
   deploy-backend:
     name: Deploy Backend Container App
-    needs: build-and-push
+    needs: [build-and-push, migrate-database]
     runs-on: ubuntu-latest
     outputs:
       backend-url: ${{ steps.deploy.outputs.url }}
