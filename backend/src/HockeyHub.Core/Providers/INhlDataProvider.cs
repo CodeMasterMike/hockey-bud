@@ -11,6 +11,7 @@ public interface INhlDataProvider
     Task<IReadOnlyList<NhlTradeData>> GetTradesAsync(string season, CancellationToken ct = default);
     Task<IReadOnlyList<NhlScheduleGame>> GetScheduleAsync(string season, CancellationToken ct = default);
     Task<IReadOnlyList<NhlSeasonData>> GetSeasonsAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<NhlTeamSeasonStats>> GetTeamSeasonStatsAsync(string season, CancellationToken ct = default);
     Task<NhlPlayoffBracketData?> GetPlayoffBracketAsync(string season, CancellationToken ct = default);
     Task<NhlDraftData?> GetDraftAsync(int year, CancellationToken ct = default);
 }
@@ -187,6 +188,15 @@ public record NhlSeasonData(
     int YearEnd,
     string Label,
     bool IsCurrent
+);
+
+// ── Team Season Stats ─────────────────────────────────────────────
+
+public record NhlTeamSeasonStats(
+    string TeamFullName,
+    decimal PowerPlayPct,
+    decimal PenaltyKillPct,
+    decimal FaceoffWinPct
 );
 
 // ── Playoff Bracket DTOs ──────────────────────────────────────────

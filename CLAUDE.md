@@ -174,7 +174,7 @@ C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standa
 - **Frontend pages (5 placeholders + 1 new)**: Stats, Players, Salary Cap, Free Agents, Personnel — all currently render placeholder text. Off-Season Schedule not yet started. _(Playoff Brackets, Matchup Detail, and Draft pages are now implemented)_
 
 ### Data Quality Bugs in NhlWebApiProvider
-- **`GetStandingsAsync` doesn't populate `PowerPlayPct`, `PenaltyKillPct`, `FaceoffPct`** — they come back as `0.0` / `null` for every team. Surfaced 2026-04-08 during standings smoke test. The standings page renders "0.0" / "—" until the provider extracts those fields from the NHL API response.
+- _~~`GetStandingsAsync` PP%/PK%/FO% always 0~~ — Fixed. The NHL standings endpoint (`api-web.nhle.com/v1/standings`) doesn't include these fields. `StandingsSyncJob` now fetches them from the NHL Stats REST API (`api.nhle.com/stats/rest/en/team/summary`) and merges them during sync. Values stored as percentages (e.g. 24.8, not 0.248)._
 
 ### Testing
 - **Playwright e2e tests**: 87 tests across desktop + mobile (7 spec files, 3 page objects). Run via `npm run test:e2e` locally or with `PLAYWRIGHT_TEST_BASE_URL` against deployed SWA. Game Hub tests use `PLAYWRIGHT_API_URL` to fetch game IDs.
