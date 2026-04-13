@@ -65,9 +65,9 @@ jobs:
       - name: Install EF Core tools
         run: dotnet tool install --global dotnet-ef
 
-      - name: Restore backend packages
+      - name: Build backend
         working-directory: backend
-        run: dotnet restore
+        run: dotnet build --configuration Release
 
       - name: Azure Login
         uses: azure/login@v2
@@ -104,7 +104,7 @@ jobs:
         working-directory: backend/src/HockeyHub.Api
         env:
           ConnectionStrings__DefaultConnection: ${{ steps.secrets.outputs.db-connection }}
-        run: dotnet ef database update --project ../HockeyHub.Data
+        run: dotnet ef database update --project ../HockeyHub.Data --no-build --configuration Release
 
       - name: Remove runner IP from SQL Server firewall
         if: always()
