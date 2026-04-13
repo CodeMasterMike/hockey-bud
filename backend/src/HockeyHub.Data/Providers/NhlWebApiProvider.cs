@@ -229,6 +229,51 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         return seasons;
     }
 
+    public async Task<IReadOnlyList<NhlTeamSeasonStats>> GetTeamSeasonStatsAsync(string season, CancellationToken ct = default)
+    {
+        // Uses the NHL Stats REST API (different base URL from the Web API)
+        var seasonId = season.Replace("-", "");
+        var url = $"https://api.nhle.com/stats/rest/en/team/summary?cayenneExp=seasonId={seasonId}%20and%20gameTypeId=2";
+
+        var stats = new List<NhlTeamSeasonStats>();
+        try
+        {
+            using var lease = await _rateLimiter.AcquireAsync(1, ct);
+            if (!lease.IsAcquired) return [];
+
+            _logger.LogDebug("NHL Stats API request: team/summary for season {Season}", season);
+            using var response = await _http.GetAsync(url, ct);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions, ct);
+
+            if (json.TryGetProperty("data", out var data))
+            {
+                foreach (var t in data.EnumerateArray())
+                {
+                    try
+                    {
+                        stats.Add(new NhlTeamSeasonStats(
+                            TeamFullName: t.TryGetProperty("teamFullName", out var name) ? name.GetString() ?? "" : "",
+                            PowerPlayPct: t.TryGetProperty("powerPlayPct", out var pp) ? pp.GetDecimal() : 0,
+                            PenaltyKillPct: t.TryGetProperty("penaltyKillPct", out var pk) ? pk.GetDecimal() : 0,
+                            FaceoffWinPct: t.TryGetProperty("faceoffWinPct", out var fo) ? fo.GetDecimal() : 0
+                        ));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to parse team stats entry, skipping");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch team season stats from NHL Stats API");
+        }
+
+        return stats;
+    }
+
     public async Task<NhlPlayoffBracketData?> GetPlayoffBracketAsync(string season, CancellationToken ct = default)
     {
         if (await GetJsonAsync($"v1/playoff-bracket/{season}", ct) is not { } json) return null;

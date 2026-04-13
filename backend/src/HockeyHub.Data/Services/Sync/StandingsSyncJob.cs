@@ -39,9 +39,25 @@ public class StandingsSyncJob(
             return;
         }
 
+        // Fetch PP%, PK%, FO% from the NHL Stats REST API (not available in standings endpoint)
+        var seasonLabel = $"{season.YearStart}{season.YearEnd}";
+        var teamStats = await nhlProvider.GetTeamSeasonStatsAsync(seasonLabel, ct);
+        var teamStatsLookup = teamStats.ToDictionary(
+            s => s.TeamFullName,
+            s => s,
+            StringComparer.OrdinalIgnoreCase
+        );
+
         var teams = await db.Teams
             .Where(t => t.LeagueId == league.Id)
             .ToDictionaryAsync(t => t.Abbreviation, ct);
+
+        // Build a name→abbreviation lookup for matching stats API names to standings entries
+        var fullNameToAbbrev = teams.Values.ToDictionary(
+            t => $"{t.LocationName} {t.Name}",
+            t => t.Abbreviation,
+            StringComparer.OrdinalIgnoreCase
+        );
 
         var existing = await db.StandingsSnapshots
             .Where(s => s.SeasonId == season.Id)
@@ -58,6 +74,15 @@ public class StandingsSyncJob(
                 continue;
             }
 
+            // Look up PP%, PK%, FO% from the Stats REST API data
+            var teamFullName = $"{team.LocationName} {team.Name}";
+            teamStatsLookup.TryGetValue(teamFullName, out var extraStats);
+
+            // Convert from decimal (0.248) to percentage (24.8)
+            var ppPct = extraStats is not null ? Math.Round(extraStats.PowerPlayPct * 100, 1) : entry.PowerPlayPct;
+            var pkPct = extraStats is not null ? Math.Round(extraStats.PenaltyKillPct * 100, 1) : entry.PenaltyKillPct;
+            var foPct = extraStats is not null ? Math.Round(extraStats.FaceoffWinPct * 100, 1) : entry.FaceoffPct;
+
             if (existing.TryGetValue(team.Id, out var snapshot))
             {
                 snapshot.Division = entry.Division;
@@ -73,9 +98,9 @@ public class StandingsSyncJob(
                 snapshot.GoalsFor = entry.GoalsFor;
                 snapshot.GoalsAgainst = entry.GoalsAgainst;
                 snapshot.GoalDifferential = entry.GoalsFor - entry.GoalsAgainst;
-                snapshot.PowerPlayPct = entry.PowerPlayPct;
-                snapshot.PenaltyKillPct = entry.PenaltyKillPct;
-                snapshot.FaceoffPct = entry.FaceoffPct;
+                snapshot.PowerPlayPct = ppPct;
+                snapshot.PenaltyKillPct = pkPct;
+                snapshot.FaceoffPct = foPct;
                 snapshot.DivisionRank = computed.DivisionRank;
                 snapshot.ConferenceRank = computed.ConferenceRank;
                 snapshot.LeagueRank = computed.LeagueRank;
@@ -101,9 +126,9 @@ public class StandingsSyncJob(
                     GoalsFor = entry.GoalsFor,
                     GoalsAgainst = entry.GoalsAgainst,
                     GoalDifferential = entry.GoalsFor - entry.GoalsAgainst,
-                    PowerPlayPct = entry.PowerPlayPct,
-                    PenaltyKillPct = entry.PenaltyKillPct,
-                    FaceoffPct = entry.FaceoffPct,
+                    PowerPlayPct = ppPct,
+                    PenaltyKillPct = pkPct,
+                    FaceoffPct = foPct,
                     DivisionRank = computed.DivisionRank,
                     ConferenceRank = computed.ConferenceRank,
                     LeagueRank = computed.LeagueRank,
