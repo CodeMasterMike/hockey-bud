@@ -75,7 +75,7 @@ jobs:
         run: |
           conn=$(az keyvault secret show \
             --vault-name hockeyhub-dev-kv \
-            --name db-connection \
+            --name DatabaseConnectionString \
             --query value -o tsv)
           echo "::add-mask::$conn"
           echo "db-connection=$conn" >> "$GITHUB_OUTPUT"
