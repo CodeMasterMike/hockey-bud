@@ -65,6 +65,10 @@ jobs:
       - name: Install EF Core tools
         run: dotnet tool install --global dotnet-ef
 
+      - name: Build backend
+        working-directory: backend
+        run: dotnet build --configuration Release
+
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -78,7 +82,11 @@ jobs:
             --name DatabaseConnectionString \
             --query value -o tsv)
           echo "::add-mask::$conn"
-          echo "db-connection=$conn" >> "$GITHUB_OUTPUT"
+          {
+            echo "db-connection<<CONNEOF"
+            echo "$conn"
+            echo "CONNEOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Add runner IP to SQL Server firewall
         id: firewall
@@ -96,7 +104,7 @@ jobs:
         working-directory: backend/src/HockeyHub.Api
         env:
           ConnectionStrings__DefaultConnection: ${{ steps.secrets.outputs.db-connection }}
-        run: dotnet ef database update --project ../HockeyHub.Data
+        run: dotnet ef database update --project ../HockeyHub.Data --no-build --configuration Release
 
       - name: Remove runner IP from SQL Server firewall
         if: always()
