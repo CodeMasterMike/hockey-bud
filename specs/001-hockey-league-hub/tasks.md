@@ -199,16 +199,16 @@
 
 ### Backend — US4
 
-- [ ] T074 [P] [US4] Create PlayerSeason entity (with Era, all nullable historical stats, goalie fields) in `backend/src/HockeyHub.Core/Models/Entities/PlayerSeason.cs`
-- [ ] T075 [US4] Add PlayerSeason to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
-- [ ] T076 [US4] Create StatsQueryService (section filtering, sorting across full dataset, pagination) in `backend/src/HockeyHub.Data/Services/Queries/StatsQueryService.cs`
-- [ ] T077 [US4] Create StatsController with GET stats endpoint (section, sort, sortDir, page, pageSize, season params) per standings-stats-api contract in `backend/src/HockeyHub.Api/Controllers/StatsController.cs`
-- [ ] T078 [US4] Create StatsSyncJob (syncs player season stats, triggered by game events) in `backend/src/HockeyHub.Data/Services/Sync/StatsSyncJob.cs`
+- [x] T074 [P] [US4] Create PlayerSeason entity (with Era, all nullable historical stats, goalie fields) in `backend/src/HockeyHub.Core/Models/Entities/PlayerSeason.cs`
+- [x] T075 [US4] Add PlayerSeason to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
+- [x] T076 [US4] Create StatsQueryService (section filtering, sorting across full dataset, pagination) in `backend/src/HockeyHub.Data/Services/Queries/StatsQueryService.cs`
+- [x] T077 [US4] Create StatsController with GET stats endpoint (section, sort, sortDir, page, pageSize, season params) per standings-stats-api contract in `backend/src/HockeyHub.Api/Controllers/StatsController.cs`
+- [x] T078 [US4] Create StatsSyncJob (syncs player season stats, triggered by game events) in `backend/src/HockeyHub.Data/Services/Sync/StatsSyncJob.cs`
 
 ### Frontend — US4
 
-- [ ] T079 [US4] Create stats page component (section tabs, stat table with all columns per spec, default sorts, pagination) in `frontend/src/app/components/stats/stats-page/`
-- [ ] T080 [US4] Create stats API service in `frontend/src/app/services/stats-api.service.ts`
+- [x] T079 [US4] Create stats page component (section tabs, stat table with all columns per spec, default sorts, pagination) in `frontend/src/app/components/stats/stats-page/`
+- [x] T080 [US4] Create stats API service in `frontend/src/app/services/stats-api.service.ts`
 
 **Checkpoint**: Stats page with all six sections, sorting, and pagination
 
