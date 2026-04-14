@@ -82,9 +82,9 @@ export class StatsApiService {
     leagueId: string,
     section: StatsSection,
     sort?: string,
-    sortDir: string = 'desc',
-    page: number = 1,
-    pageSize: number = 50
+    sortDir = 'desc',
+    page = 1,
+    pageSize = 50
   ): Observable<StatsResponse> {
     const params: Record<string, string | number> = {
       section,
