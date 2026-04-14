@@ -274,6 +274,133 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         return stats;
     }
 
+    public async Task<IReadOnlyList<NhlSkaterSeasonStats>> GetSkaterStatsAsync(string season, CancellationToken ct = default)
+    {
+        var seasonId = season.Replace("-", "");
+        var stats = new List<NhlSkaterSeasonStats>();
+        var start = 0;
+        const int limit = 100;
+
+        try
+        {
+            while (true)
+            {
+                using var lease = await _rateLimiter.AcquireAsync(1, ct);
+                if (!lease.IsAcquired) break;
+
+                var url = $"https://api.nhle.com/stats/rest/en/skater/summary?cayenneExp=seasonId={seasonId}%20and%20gameTypeId=2&start={start}&limit={limit}";
+                _logger.LogDebug("NHL Stats API request: skater/summary start={Start}", start);
+                using var response = await _http.GetAsync(url, ct);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions, ct);
+
+                if (!json.TryGetProperty("data", out var data)) break;
+                var count = 0;
+
+                foreach (var p in data.EnumerateArray())
+                {
+                    try
+                    {
+                        stats.Add(new NhlSkaterSeasonStats(
+                            PlayerId: p.TryGetProperty("playerId", out var id) ? id.GetInt32() : 0,
+                            FullName: p.TryGetProperty("skaterFullName", out var name) ? name.GetString() ?? "" : "",
+                            TeamAbbreviation: p.TryGetProperty("teamAbbrevs", out var team) ? team.GetString()?.Split(",")[0].Trim() ?? "" : "",
+                            PositionCode: p.TryGetProperty("positionCode", out var pos) ? pos.GetString() ?? "C" : "C",
+                            GamesPlayed: p.TryGetProperty("gamesPlayed", out var gp) ? gp.GetInt32() : 0,
+                            Goals: p.TryGetProperty("goals", out var g) ? g.GetInt32() : 0,
+                            Assists: p.TryGetProperty("assists", out var a) ? a.GetInt32() : 0,
+                            Points: p.TryGetProperty("points", out var pts) ? pts.GetInt32() : 0,
+                            PlusMinus: p.TryGetProperty("plusMinus", out var pm) ? pm.GetInt32() : 0,
+                            PenaltyMinutes: p.TryGetProperty("penaltyMinutes", out var pim) ? pim.GetInt32() : 0,
+                            Hits: p.TryGetProperty("hits", out var hits) ? hits.GetInt32() : null,
+                            TimeOnIcePerGame: p.TryGetProperty("timeOnIcePerGame", out var toi) ? toi.GetDecimal() : null,
+                            Shots: p.TryGetProperty("shots", out var sh) ? sh.GetInt32() : null,
+                            ShootingPct: p.TryGetProperty("shootingPct", out var spct) ? Math.Round(spct.GetDecimal() * 100, 1) : null,
+                            BlockedShots: p.TryGetProperty("blockedShots", out var bs) ? bs.GetInt32() : null,
+                            EvenStrengthPoints: p.TryGetProperty("evPoints", out var evp) ? evp.GetInt32() : null,
+                            PowerPlayPoints: p.TryGetProperty("ppPoints", out var ppp) ? ppp.GetInt32() : null,
+                            ShortHandedPoints: p.TryGetProperty("shPoints", out var shp) ? shp.GetInt32() : null,
+                            Giveaways: p.TryGetProperty("giveaways", out var gv) ? gv.GetInt32() : null,
+                            Takeaways: p.TryGetProperty("takeaways", out var tk) ? tk.GetInt32() : null,
+                            FaceoffPct: p.TryGetProperty("faceoffWinPct", out var fo) ? Math.Round(fo.GetDecimal() * 100, 1) : null
+                        ));
+                        count++;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to parse skater stats entry, skipping");
+                    }
+                }
+
+                if (count < limit) break;
+                start += limit;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch skater season stats from NHL Stats API");
+        }
+
+        _logger.LogInformation("Fetched {Count} skater stat lines", stats.Count);
+        return stats;
+    }
+
+    public async Task<IReadOnlyList<NhlGoalieSeasonStats>> GetGoalieStatsAsync(string season, CancellationToken ct = default)
+    {
+        var seasonId = season.Replace("-", "");
+        var url = $"https://api.nhle.com/stats/rest/en/goalie/summary?cayenneExp=seasonId={seasonId}%20and%20gameTypeId=2&limit=100";
+        var stats = new List<NhlGoalieSeasonStats>();
+
+        try
+        {
+            using var lease = await _rateLimiter.AcquireAsync(1, ct);
+            if (!lease.IsAcquired) return [];
+
+            _logger.LogDebug("NHL Stats API request: goalie/summary for season {Season}", season);
+            using var response = await _http.GetAsync(url, ct);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions, ct);
+
+            if (json.TryGetProperty("data", out var data))
+            {
+                foreach (var g in data.EnumerateArray())
+                {
+                    try
+                    {
+                        stats.Add(new NhlGoalieSeasonStats(
+                            PlayerId: g.TryGetProperty("playerId", out var id) ? id.GetInt32() : 0,
+                            FullName: g.TryGetProperty("goalieFullName", out var name) ? name.GetString() ?? "" : "",
+                            TeamAbbreviation: g.TryGetProperty("teamAbbrevs", out var team) ? team.GetString()?.Split(",")[0].Trim() ?? "" : "",
+                            GamesPlayed: g.TryGetProperty("gamesPlayed", out var gp) ? gp.GetInt32() : 0,
+                            GamesStarted: g.TryGetProperty("gamesStarted", out var gs) ? gs.GetInt32() : 0,
+                            Wins: g.TryGetProperty("wins", out var w) ? w.GetInt32() : 0,
+                            Losses: g.TryGetProperty("losses", out var l) ? l.GetInt32() : 0,
+                            OvertimeLosses: g.TryGetProperty("otLosses", out var otl) ? otl.GetInt32() : 0,
+                            SavePct: g.TryGetProperty("savePct", out var svp) ? svp.GetDecimal() : 0,
+                            GoalsAgainstAvg: g.TryGetProperty("goalsAgainstAverage", out var gaa) ? Math.Round(gaa.GetDecimal(), 2) : 0,
+                            ShotsAgainst: g.TryGetProperty("shotsAgainst", out var sa) ? sa.GetInt32() : 0,
+                            Saves: g.TryGetProperty("saves", out var sv) ? sv.GetInt32() : 0,
+                            GoalsAgainst: g.TryGetProperty("goalsAgainst", out var ga) ? ga.GetInt32() : 0,
+                            Goals: g.TryGetProperty("goals", out var goals) ? goals.GetInt32() : 0,
+                            Assists: g.TryGetProperty("assists", out var assists) ? assists.GetInt32() : 0
+                        ));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to parse goalie stats entry, skipping");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch goalie season stats from NHL Stats API");
+        }
+
+        _logger.LogInformation("Fetched {Count} goalie stat lines", stats.Count);
+        return stats;
+    }
+
     public async Task<NhlPlayoffBracketData?> GetPlayoffBracketAsync(string season, CancellationToken ct = default)
     {
         if (await GetJsonAsync($"v1/playoff-bracket/{season}", ct) is not { } json) return null;

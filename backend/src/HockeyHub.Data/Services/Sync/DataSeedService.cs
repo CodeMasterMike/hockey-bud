@@ -140,6 +140,7 @@ public class DataSeedService(
                     Height = p.HeightInches,
                     Weight = p.WeightPounds,
                     ShootsCatches = p.ShootsCatches,
+                    Position = p.Position,
                     JerseyNumber = p.JerseyNumber,
                     CurrentTeamId = team.Id,
                     IsActive = p.IsActive,

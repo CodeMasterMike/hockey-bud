@@ -67,10 +67,12 @@ builder.Services.AddScoped<TradesQueryService>();
 builder.Services.AddScoped<SeasonModeService>();
 builder.Services.AddScoped<PlayoffBracketQueryService>();
 builder.Services.AddScoped<DraftQueryService>();
+builder.Services.AddScoped<StatsQueryService>();
 builder.Services.AddScoped<TradeSyncJob>();
 builder.Services.AddScoped<ScoresSyncJob>();
 builder.Services.AddScoped<StandingsSyncJob>();
 builder.Services.AddScoped<ScheduleSyncJob>();
+builder.Services.AddScoped<StatsSyncJob>();
 builder.Services.AddSingleton<IScoreBroadcaster, SignalRScoreBroadcaster>();
 
 // Response compression
@@ -166,6 +168,11 @@ app.Services.GetRequiredService<IRecurringJobManager>().AddOrUpdate<TradeSyncJob
     "trade-sync",
     job => job.SyncAsync(CancellationToken.None),
     "0 7 * * *"); // Daily at 7 AM UTC
+
+app.Services.GetRequiredService<IRecurringJobManager>().AddOrUpdate<StatsSyncJob>(
+    "stats-sync",
+    job => job.SyncAsync(CancellationToken.None),
+    "*/10 * * * *"); // Every 10 minutes
 
 // Data seed command: dotnet run -- --seed [--current-only]
 if (args.Contains("--seed"))
