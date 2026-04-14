@@ -313,7 +313,7 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
                             PlusMinus: p.TryGetProperty("plusMinus", out var pm) ? pm.GetInt32() : 0,
                             PenaltyMinutes: p.TryGetProperty("penaltyMinutes", out var pim) ? pim.GetInt32() : 0,
                             Hits: p.TryGetProperty("hits", out var hits) ? hits.GetInt32() : null,
-                            TimeOnIcePerGame: p.TryGetProperty("timeOnIcePerGame", out var toi) ? toi.GetDecimal() : null,
+                            TimeOnIcePerGame: p.TryGetProperty("timeOnIcePerGame", out var toi) ? Math.Round(toi.GetDecimal() / 60m, 2) : null,
                             Shots: p.TryGetProperty("shots", out var sh) ? sh.GetInt32() : null,
                             ShootingPct: p.TryGetProperty("shootingPct", out var spct) ? Math.Round(spct.GetDecimal() * 100, 1) : null,
                             BlockedShots: p.TryGetProperty("blockedShots", out var bs) ? bs.GetInt32() : null,
