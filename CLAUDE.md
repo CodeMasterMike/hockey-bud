@@ -4,7 +4,7 @@ Auto-generated from all feature plans. Last updated: 2026-04-11
 
 ## Active Technologies
 - C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend) + ASP.NET Core 10, Entity Framework Core 10, Hangfire, SignalR, Angular SSR, RxJS, Tailwind CSS v3, Angular CDK (001-hockey-league-hub)
-- SQL Server (Azure SQL Database Serverless for deployed, SQL Server 2022 Developer for local Docker), Redis 7 (cache + pub/sub for real-time) (001-hockey-league-hub)
+- SQL Server (Azure SQL Database Basic for deployed dev, SQL Server 2022 Developer for local Docker), Redis 7 (cache + pub/sub for real-time) (001-hockey-league-hub)
 
 ## Project Structure
 
@@ -102,7 +102,7 @@ az deployment group create -g hockeyhub-dev-rg -f infra/main.bicep -p infra/para
 C# 14 / .NET 10 (backend), TypeScript 5.x / Angular 19 (frontend): Follow standard conventions
 
 ## Deployment Architecture
-- **Azure hosting**: Container Apps (backend API + dev Redis), Azure SQL Database Serverless (GP_S_Gen5_1, auto-pause after 60min idle), Static Web Apps (frontend with CDN), Container Registry, Key Vault, Application Insights
+- **Azure hosting**: Container Apps (backend API + dev Redis), Azure SQL Database Basic (5 DTU, 2GB), Static Web Apps (frontend with CDN), Container Registry, Key Vault, Application Insights
 - **CI/CD**: GitHub Actions — `ci.yml` gates PRs (build/test/lint), `deploy-dev.yml` auto-deploys on merge to main, `deploy-prod.yml` requires manual trigger + approval gate
 - **Health probes**: `HealthController` exposes `/api/health/live` (liveness) and `/api/health/ready` (readiness, checks DB + Redis) — used by Container Apps for revision routing
 - **IaC**: All Azure resources in Bicep templates (`infra/main.bicep`) with env-specific parameter files
