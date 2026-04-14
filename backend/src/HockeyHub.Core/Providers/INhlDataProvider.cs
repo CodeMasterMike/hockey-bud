@@ -14,6 +14,8 @@ public interface INhlDataProvider
     Task<IReadOnlyList<NhlTeamSeasonStats>> GetTeamSeasonStatsAsync(string season, CancellationToken ct = default);
     Task<NhlPlayoffBracketData?> GetPlayoffBracketAsync(string season, CancellationToken ct = default);
     Task<NhlDraftData?> GetDraftAsync(int year, CancellationToken ct = default);
+    Task<IReadOnlyList<NhlSkaterSeasonStats>> GetSkaterStatsAsync(string season, CancellationToken ct = default);
+    Task<IReadOnlyList<NhlGoalieSeasonStats>> GetGoalieStatsAsync(string season, CancellationToken ct = default);
 }
 
 public record NhlTeamData(
@@ -263,4 +265,48 @@ public record NhlDraftPick(
     string? PreviousClub,
     string? PreviousLeague,
     int? PlayerId
+);
+
+// ── Player Season Stats DTOs ─────────────────────────────────────
+
+public record NhlSkaterSeasonStats(
+    int PlayerId,
+    string FullName,
+    string TeamAbbreviation,
+    string PositionCode,
+    int GamesPlayed,
+    int Goals,
+    int Assists,
+    int Points,
+    int PlusMinus,
+    int PenaltyMinutes,
+    int? Hits,
+    decimal? TimeOnIcePerGame,
+    int? Shots,
+    decimal? ShootingPct,
+    int? BlockedShots,
+    int? EvenStrengthPoints,
+    int? PowerPlayPoints,
+    int? ShortHandedPoints,
+    int? Giveaways,
+    int? Takeaways,
+    decimal? FaceoffPct
+);
+
+public record NhlGoalieSeasonStats(
+    int PlayerId,
+    string FullName,
+    string TeamAbbreviation,
+    int GamesPlayed,
+    int GamesStarted,
+    int Wins,
+    int Losses,
+    int OvertimeLosses,
+    decimal SavePct,
+    decimal GoalsAgainstAvg,
+    int ShotsAgainst,
+    int Saves,
+    int GoalsAgainst,
+    int Goals,
+    int Assists
 );

@@ -18,6 +18,7 @@ public class Player
     public int? DraftPick { get; set; }
     public int? DraftTeamId { get; set; }
     public int? CurrentTeamId { get; set; }
+    public required string Position { get; set; }
     public int? JerseyNumber { get; set; }
     public bool IsActive { get; set; }
     public bool IsEbug { get; set; }

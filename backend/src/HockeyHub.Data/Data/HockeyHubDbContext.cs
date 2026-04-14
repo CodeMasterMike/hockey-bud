@@ -18,6 +18,7 @@ public class HockeyHubDbContext(DbContextOptions<HockeyHubDbContext> options) : 
     public DbSet<StandingsSnapshot> StandingsSnapshots => Set<StandingsSnapshot>();
     public DbSet<Trade> Trades => Set<Trade>();
     public DbSet<TradeAsset> TradeAssets => Set<TradeAsset>();
+    public DbSet<PlayerSeason> PlayerSeasons => Set<PlayerSeason>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,6 +77,7 @@ public class HockeyHubDbContext(DbContextOptions<HockeyHubDbContext> options) : 
             entity.HasIndex(e => e.ExternalId).IsUnique();
             entity.HasIndex(e => e.CurrentTeamId);
             entity.HasIndex(e => e.IsActive);
+            entity.HasIndex(e => e.Position);
 
             entity.HasOne(e => e.CurrentTeam)
                 .WithMany(t => t.Players)
@@ -183,6 +185,38 @@ public class HockeyHubDbContext(DbContextOptions<HockeyHubDbContext> options) : 
             entity.HasOne(e => e.Team)
                 .WithMany()
                 .HasForeignKey(e => e.TeamId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<PlayerSeason>(entity =>
+        {
+            entity.HasIndex(e => new { e.PlayerId, e.TeamId, e.SeasonId, e.LeagueAbbreviation }).IsUnique();
+            entity.HasIndex(e => new { e.SeasonId, e.LeagueAbbreviation });
+            entity.HasIndex(e => new { e.TeamId, e.SeasonId });
+
+            entity.Property(e => e.TimeOnIcePerGame).HasPrecision(5, 2);
+            entity.Property(e => e.ShootingPct).HasPrecision(5, 1);
+            entity.Property(e => e.FaceoffPct).HasPrecision(5, 1);
+            entity.Property(e => e.ShootoutPct).HasPrecision(5, 1);
+            entity.Property(e => e.War).HasPrecision(5, 2);
+            entity.Property(e => e.XGFPer60).HasPrecision(5, 2);
+            entity.Property(e => e.XGAPer60).HasPrecision(5, 2);
+            entity.Property(e => e.SavePct).HasPrecision(5, 3);
+            entity.Property(e => e.GoalsAgainstAvg).HasPrecision(5, 2);
+
+            entity.HasOne(e => e.Player)
+                .WithMany()
+                .HasForeignKey(e => e.PlayerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Team)
+                .WithMany()
+                .HasForeignKey(e => e.TeamId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Season)
+                .WithMany()
+                .HasForeignKey(e => e.SeasonId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
