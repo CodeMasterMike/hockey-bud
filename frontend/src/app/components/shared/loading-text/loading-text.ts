@@ -10,15 +10,15 @@ import { Component, input, ChangeDetectionStrategy } from '@angular/core';
   selector: 'app-loading-text',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <span class="loading-text">
-      {{ label() }}<span class="dots">...</span>
+    <span class="loading-text" role="status" aria-live="polite">
+      {{ label() }}<span class="dots" aria-hidden="true">...</span>
     </span>
   `,
   styles: [`
     .loading-text {
       color: var(--text-muted);
       font-family: var(--font-primary);
-      font-size: 0.88rem;
+      font-size: inherit;
       letter-spacing: 0.02em;
       display: inline-block;
     }

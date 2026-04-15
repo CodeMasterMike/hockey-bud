@@ -213,10 +213,10 @@ const COLUMNS: readonly ColumnDef[] = [
       <table class="standings-table">
         <thead>
           <tr>
-            <th class="col-left col-rank-header">#</th>
-            <th class="col-left col-team-header">Team</th>
+            <th class="col-left col-rank-header col-skeleton">#</th>
+            <th class="col-left col-team-header col-skeleton">Team</th>
             @for (col of columns; track col.key) {
-              <th [class.col-stat-wide]="col.wide">{{ col.label }}</th>
+              <th class="col-skeleton" [class.col-stat-wide]="col.wide">{{ col.label }}</th>
             }
           </tr>
         </thead>
@@ -226,7 +226,7 @@ const COLUMNS: readonly ColumnDef[] = [
               <td class="col-rank"><app-skeleton width="18px" height="10px" /></td>
               <td class="col-left col-team"><app-skeleton width="140px" height="12px" /></td>
               @for (col of columns; track col.key) {
-                <td><app-skeleton width="28px" height="10px" /></td>
+                <td><app-skeleton [width]="col.wide ? '40px' : '28px'" height="10px" /></td>
               }
             </tr>
           }
@@ -260,7 +260,8 @@ const COLUMNS: readonly ColumnDef[] = [
 
     .standings-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
     .standings-table th { padding: 8px; text-align: right; font-weight: 700; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); border-bottom: 2px solid var(--border-strong); cursor: pointer; user-select: none; white-space: nowrap; }
-    .standings-table th:hover { background: var(--bg-row-alt); color: var(--text-primary); }
+    .standings-table th:hover:not(.col-skeleton) { background: var(--bg-row-alt); color: var(--text-primary); }
+    .standings-table th.col-skeleton { cursor: default; }
     .standings-table th.col-left { text-align: left; }
     .standings-table th.sorted { color: var(--text-primary); }
     .standings-table th.col-rank-header { width: 38px; }

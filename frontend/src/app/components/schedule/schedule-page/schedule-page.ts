@@ -49,7 +49,7 @@ import { Skeleton } from '../../shared/skeleton/skeleton';
           <div class="day-card">
             <div class="day-header"><app-skeleton width="120px" height="10px" /></div>
             @for (__ of skeletonGamesPerDay; track $index) {
-              <div class="game-row">
+              <div class="game-row game-row-skeleton">
                 <span class="game-teams">
                   <app-skeleton width="36px" height="12px" />
                   <span class="at">at</span>
@@ -112,7 +112,8 @@ import { Skeleton } from '../../shared/skeleton/skeleton';
 
     .game-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--border-default); text-decoration: none; color: var(--text-primary); font-size: 0.82rem; }
     .game-row:last-child { border-bottom: none; }
-    .game-row:hover { background: var(--bg-row-alt); }
+    .game-row:hover:not(.game-row-skeleton) { background: var(--bg-row-alt); }
+    .game-row-skeleton { cursor: default; }
     .game-teams { display: flex; align-items: center; gap: 6px; }
     .team-abbr { font-weight: 700; }
     .at { font-size: 0.68rem; color: var(--text-muted); }

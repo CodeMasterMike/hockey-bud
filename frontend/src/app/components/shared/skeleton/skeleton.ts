@@ -13,6 +13,7 @@ import { Component, input, booleanAttribute, ChangeDetectionStrategy } from '@an
   template: `
     <span
       class="skeleton"
+      aria-hidden="true"
       [class.skeleton-circle]="circle()"
       [style.width]="width()"
       [style.height]="height()">

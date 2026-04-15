@@ -121,7 +121,7 @@ function formatPlusMinus(value: number): string {
                     <th class="col-pos-header">Pos</th>
                   }
                   @for (col of (isGoalieSection() ? goalieColumns : skaterColumns); track col.key) {
-                    <th [class.col-stat-wide]="col.wide" [title]="col.title">{{ col.label }}</th>
+                    <th class="col-skeleton" [class.col-stat-wide]="col.wide" [title]="col.title">{{ col.label }}</th>
                   }
                 </tr>
               </thead>
@@ -135,7 +135,7 @@ function formatPlusMinus(value: number): string {
                       <td class="col-pos"><app-skeleton width="20px" height="10px" /></td>
                     }
                     @for (col of (isGoalieSection() ? goalieColumns : skaterColumns); track col.key) {
-                      <td><app-skeleton width="28px" height="10px" /></td>
+                      <td><app-skeleton [width]="col.wide ? '40px' : '28px'" height="10px" /></td>
                     }
                   </tr>
                 }
@@ -264,7 +264,8 @@ function formatPlusMinus(value: number): string {
 
     .stats-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
     .stats-table th { padding: 8px; text-align: right; font-weight: 700; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); border-bottom: 2px solid var(--border-strong); cursor: pointer; user-select: none; white-space: nowrap; }
-    .stats-table th:hover { background: var(--bg-row-alt); color: var(--text-primary); }
+    .stats-table th:hover:not(.col-skeleton) { background: var(--bg-row-alt); color: var(--text-primary); }
+    .stats-table th.col-skeleton { cursor: default; }
     .stats-table th.col-left { text-align: left; }
     .stats-table th.sorted { color: var(--text-primary); }
     .stats-table th.col-rank-header { width: 38px; }
