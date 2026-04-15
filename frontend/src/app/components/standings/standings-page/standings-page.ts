@@ -19,6 +19,8 @@ import {
 } from '../../../services/standings-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
 import { DataAsOf } from '../../shared/data-as-of/data-as-of';
+import { LoadingText } from '../../shared/loading-text/loading-text';
+import { Skeleton } from '../../shared/skeleton/skeleton';
 
 type SortColumn =
   | 'gamesPlayed'
@@ -62,14 +64,18 @@ const COLUMNS: readonly ColumnDef[] = [
 
 @Component({
   selector: 'app-standings-page',
-  imports: [NgTemplateOutlet, DataAsOf],
+  imports: [NgTemplateOutlet, DataAsOf, LoadingText, Skeleton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="standings-page">
       <header class="page-header">
         <h1 class="page-title">{{ data()?.season ?? '...' }} NHL Standings</h1>
         <p class="page-subtitle">
-          <app-data-as-of [timestamp]="data()?.dataAsOf ?? null" />
+          @if (loading()) {
+            <app-loading-text label="Loading standings" />
+          } @else {
+            <app-data-as-of [timestamp]="data()?.dataAsOf ?? null" />
+          }
         </p>
       </header>
 
@@ -87,7 +93,12 @@ const COLUMNS: readonly ColumnDef[] = [
       @if (errorMessage()) {
         <div class="state-message state-error">{{ errorMessage() }}</div>
       } @else if (loading()) {
-        <div class="state-message">Loading standings...</div>
+        <section class="conference single">
+          <div class="card-header">Standings</div>
+          <div class="table-scroll">
+            <ng-container [ngTemplateOutlet]="skeletonTpl" />
+          </div>
+        </section>
       } @else if (view() === 'league') {
         <section class="conference single">
           <div class="card-header">League</div>
@@ -197,6 +208,31 @@ const COLUMNS: readonly ColumnDef[] = [
         </tbody>
       </table>
     </ng-template>
+
+    <ng-template #skeletonTpl>
+      <table class="standings-table">
+        <thead>
+          <tr>
+            <th class="col-left col-rank-header">#</th>
+            <th class="col-left col-team-header">Team</th>
+            @for (col of columns; track col.key) {
+              <th [class.col-stat-wide]="col.wide">{{ col.label }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (_ of skeletonRows; track $index; let i = $index) {
+            <tr [class.row-alt]="i % 2 === 1">
+              <td class="col-rank"><app-skeleton width="18px" height="10px" /></td>
+              <td class="col-left col-team"><app-skeleton width="140px" height="12px" /></td>
+              @for (col of columns; track col.key) {
+                <td><app-skeleton width="28px" height="10px" /></td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </ng-template>
   `,
   styles: [`
     .standings-page { max-width: 1400px; margin: 0 auto; padding: 28px 20px 48px; font-family: var(--font-primary); }
@@ -262,6 +298,7 @@ export class StandingsPage implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   readonly columns = COLUMNS;
+  readonly skeletonRows = Array(16);
   readonly views: { value: StandingsView; label: string }[] = [
     { value: 'wildcard', label: 'Wild Card' },
     { value: 'division', label: 'Division' },

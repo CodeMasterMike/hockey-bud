@@ -3,15 +3,16 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlayoffsApiService, PlayoffMatchupDetailResponse } from '../../../services/playoffs-api.service';
 import { DataAsOf } from '../../shared/data-as-of/data-as-of';
+import { LoadingText } from '../../shared/loading-text/loading-text';
 
 @Component({
   selector: 'app-matchup-detail-page',
-  imports: [RouterLink, DataAsOf],
+  imports: [RouterLink, DataAsOf, LoadingText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page">
       @if (loading()) {
-        <p class="loading">Loading matchup&hellip;</p>
+        <p class="loading"><app-loading-text label="Loading matchup" /></p>
       } @else if (errorMessage()) {
         <p class="error">{{ errorMessage() }}</p>
       } @else if (data()) {

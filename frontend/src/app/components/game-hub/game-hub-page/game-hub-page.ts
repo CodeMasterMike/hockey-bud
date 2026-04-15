@@ -9,19 +9,20 @@ import {
 } from '../../../services/gamehub-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
 import { DataAsOf } from '../../shared/data-as-of/data-as-of';
+import { LoadingText } from '../../shared/loading-text/loading-text';
 
 type Tab = 'team-stats' | 'player-stats';
 
 @Component({
   selector: 'app-game-hub-page',
-  imports: [RouterLink, DataAsOf],
+  imports: [RouterLink, DataAsOf, LoadingText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="hub-page">
       @if (errorMessage()) {
         <div class="state-msg state-error">{{ errorMessage() }}</div>
       } @else if (loading()) {
-        <div class="state-msg">Loading game...</div>
+        <div class="state-msg"><app-loading-text label="Loading game" /></div>
       } @else if (game(); as g) {
 
         <!-- Game Header -->

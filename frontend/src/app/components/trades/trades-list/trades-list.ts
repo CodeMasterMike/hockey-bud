@@ -7,22 +7,49 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TradesApiService, TradeItem } from '../../../services/trades-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
 import { DataAsOf } from '../../shared/data-as-of/data-as-of';
+import { LoadingText } from '../../shared/loading-text/loading-text';
+import { Skeleton } from '../../shared/skeleton/skeleton';
 
 @Component({
   selector: 'app-trades-list',
-  imports: [DataAsOf],
+  imports: [DataAsOf, LoadingText, Skeleton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="trades-page">
       <h1 class="page-title">{{ data()?.season ?? '...' }} NHL Trades</h1>
       <p class="page-subtitle">
-        @if (data()) { {{ data()!.trades.length }} trades this season &mdash; <app-data-as-of [timestamp]="data()!.dataAsOf" /> } @else { &nbsp; }
+        @if (loading()) {
+          <app-loading-text label="Loading trades" />
+        } @else if (data()) {
+          {{ data()!.trades.length }} trades this season &mdash; <app-data-as-of [timestamp]="data()!.dataAsOf" />
+        } @else {
+          &nbsp;
+        }
       </p>
 
       @if (errorMessage()) {
         <div class="state-msg state-error">{{ errorMessage() }}</div>
       } @else if (loading()) {
-        <div class="state-msg">Loading trades...</div>
+        @for (_ of skeletonCards; track $index) {
+          <div class="trade-card">
+            <div class="trade-date"><app-skeleton width="120px" height="10px" /></div>
+            <div class="trade-sides">
+              @for (__ of skeletonSides; track $index) {
+                <div class="trade-side">
+                  <div class="side-header">
+                    <app-skeleton width="28px" height="28px" circle />
+                    <app-skeleton width="36px" height="12px" />
+                  </div>
+                  <div class="asset-group">
+                    <app-skeleton width="60px" height="10px" />
+                    <div class="asset"><app-skeleton width="180px" height="12px" /></div>
+                    <div class="asset"><app-skeleton width="160px" height="12px" /></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
       } @else if (trades().length === 0) {
         <div class="state-msg">No trades found.</div>
       } @else {
@@ -94,6 +121,9 @@ export class TradesList implements OnInit {
   private route = inject(ActivatedRoute);
   private api = inject(TradesApiService);
   private destroyRef = inject(DestroyRef);
+
+  readonly skeletonCards = Array(4);
+  readonly skeletonSides = Array(2);
 
   leagueId = signal(DEFAULT_LEAGUE_ID);
   data = signal<{ season: string; trades: TradeItem[]; dataAsOf: string } | null>(null);

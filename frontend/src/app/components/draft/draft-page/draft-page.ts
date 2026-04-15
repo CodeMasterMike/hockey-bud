@@ -3,10 +3,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DraftApiService, DraftResponse } from '../../../services/draft-api.service';
 import { DataAsOf } from '../../shared/data-as-of/data-as-of';
+import { LoadingText } from '../../shared/loading-text/loading-text';
 
 @Component({
   selector: 'app-draft-page',
-  imports: [RouterLink, DataAsOf],
+  imports: [RouterLink, DataAsOf, LoadingText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page">
@@ -21,7 +22,7 @@ import { DataAsOf } from '../../shared/data-as-of/data-as-of';
       </p>
 
       @if (loading()) {
-        <p class="loading">Loading draft data&hellip;</p>
+        <p class="loading"><app-loading-text label="Loading draft data" /></p>
       } @else if (errorMessage()) {
         <p class="error">{{ errorMessage() }}</p>
       } @else if (data()) {

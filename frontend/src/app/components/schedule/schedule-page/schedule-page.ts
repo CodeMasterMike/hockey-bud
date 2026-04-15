@@ -16,17 +16,23 @@ import {
 } from '../../../services/schedule-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
 import { DataAsOf } from '../../shared/data-as-of/data-as-of';
+import { LoadingText } from '../../shared/loading-text/loading-text';
+import { Skeleton } from '../../shared/skeleton/skeleton';
 
 @Component({
   selector: 'app-schedule-page',
-  imports: [RouterLink, DataAsOf],
+  imports: [RouterLink, DataAsOf, LoadingText, Skeleton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="schedule-page">
       <header class="page-header">
         <h1 class="page-title">{{ data()?.season ?? '...' }} NHL Schedule</h1>
         <p class="page-subtitle">
-          <app-data-as-of [timestamp]="data()?.dataAsOf ?? null" />
+          @if (loading()) {
+            <app-loading-text label="Loading schedule" />
+          } @else {
+            <app-data-as-of [timestamp]="data()?.dataAsOf ?? null" />
+          }
         </p>
       </header>
 
@@ -39,7 +45,21 @@ import { DataAsOf } from '../../shared/data-as-of/data-as-of';
       @if (errorMessage()) {
         <div class="state-msg state-error">{{ errorMessage() }}</div>
       } @else if (loading()) {
-        <div class="state-msg">Loading schedule...</div>
+        @for (_ of skeletonDays; track $index) {
+          <div class="day-card">
+            <div class="day-header"><app-skeleton width="120px" height="10px" /></div>
+            @for (__ of skeletonGamesPerDay; track $index) {
+              <div class="game-row">
+                <span class="game-teams">
+                  <app-skeleton width="36px" height="12px" />
+                  <span class="at">at</span>
+                  <app-skeleton width="36px" height="12px" />
+                </span>
+                <app-skeleton width="56px" height="12px" />
+              </div>
+            }
+          </div>
+        }
       } @else if (currentMonth(); as m) {
         @for (day of m.days; track day.date) {
           <div class="day-card">
@@ -109,6 +129,9 @@ export class SchedulePage implements OnInit {
   private route = inject(ActivatedRoute);
   private api = inject(ScheduleApiService);
   private destroyRef = inject(DestroyRef);
+
+  readonly skeletonDays = Array(5);
+  readonly skeletonGamesPerDay = Array(3);
 
   leagueId = signal(DEFAULT_LEAGUE_ID);
   data = signal<ScheduleResponse | null>(null);
