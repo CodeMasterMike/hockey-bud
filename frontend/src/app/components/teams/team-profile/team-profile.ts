@@ -4,17 +4,18 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TeamsApiService, TeamProfile } from '../../../services/teams-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
 import { DataAsOf } from '../../shared/data-as-of/data-as-of';
+import { LoadingText } from '../../shared/loading-text/loading-text';
 
 @Component({
   selector: 'app-team-profile',
-  imports: [RouterLink, DataAsOf],
+  imports: [RouterLink, DataAsOf, LoadingText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="profile-page">
       @if (errorMessage()) {
         <div class="state-msg state-error">{{ errorMessage() }}</div>
       } @else if (loading()) {
-        <div class="state-msg">Loading team...</div>
+        <div class="state-msg"><app-loading-text label="Loading team" /></div>
       } @else if (team(); as t) {
         <header class="profile-header">
           @if (t.logoUrl) {

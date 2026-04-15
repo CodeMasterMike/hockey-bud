@@ -4,20 +4,39 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TeamsApiService, TeamListItem } from '../../../services/teams-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
 import { DataAsOf } from '../../shared/data-as-of/data-as-of';
+import { LoadingText } from '../../shared/loading-text/loading-text';
+import { Skeleton } from '../../shared/skeleton/skeleton';
 
 @Component({
   selector: 'app-teams-index',
-  imports: [RouterLink, DataAsOf],
+  imports: [RouterLink, DataAsOf, LoadingText, Skeleton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="teams-page">
       <h1 class="page-title">NHL Teams</h1>
-      <p class="page-subtitle"><app-data-as-of [timestamp]="dataAsOf()" /></p>
+      <p class="page-subtitle">
+        @if (loading()) {
+          <app-loading-text label="Loading teams" />
+        } @else {
+          <app-data-as-of [timestamp]="dataAsOf()" />
+        }
+      </p>
 
       @if (errorMessage()) {
         <div class="state-msg state-error">{{ errorMessage() }}</div>
       } @else if (loading()) {
-        <div class="state-msg">Loading teams...</div>
+        <div class="teams-grid">
+          @for (_ of skeletonTeams; track $index) {
+            <div class="team-card team-card-skeleton">
+              <app-skeleton width="40px" height="40px" />
+              <div class="team-info">
+                <div class="team-name"><app-skeleton width="120px" height="12px" /></div>
+                <div class="team-meta"><app-skeleton width="60px" height="10px" /></div>
+                <div class="team-record"><app-skeleton width="80px" height="10px" /></div>
+              </div>
+            </div>
+          }
+        </div>
       } @else {
         <div class="teams-grid">
           @for (team of teams(); track team.id) {
@@ -52,7 +71,9 @@ import { DataAsOf } from '../../shared/data-as-of/data-as-of';
     .teams-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
     .team-card { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 4px; text-decoration: none; color: var(--text-primary); }
-    .team-card:hover { border-color: var(--border-strong); background: var(--bg-row-alt); }
+    .team-card:hover:not(.team-card-skeleton) { border-color: var(--border-strong); background: var(--bg-row-alt); }
+    .team-card-skeleton { cursor: default; }
+    .team-card-skeleton .team-record { margin-top: 4px; }
 
     .team-logo { width: 40px; height: 40px; object-fit: contain; flex-shrink: 0; }
     .team-logo-placeholder { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font: 700 0.72rem var(--font-primary); border: 1px solid var(--border-default); border-radius: 4px; color: var(--text-muted); flex-shrink: 0; }
@@ -74,6 +95,8 @@ export class TeamsIndex implements OnInit {
   private route = inject(ActivatedRoute);
   private api = inject(TeamsApiService);
   private destroyRef = inject(DestroyRef);
+
+  readonly skeletonTeams = Array(32);
 
   leagueId = signal(DEFAULT_LEAGUE_ID);
   teams = signal<TeamListItem[]>([]);

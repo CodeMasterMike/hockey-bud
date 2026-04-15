@@ -18,6 +18,8 @@ import {
 } from '../../../services/stats-api.service';
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
 import { DataAsOf } from '../../shared/data-as-of/data-as-of';
+import { LoadingText } from '../../shared/loading-text/loading-text';
+import { Skeleton } from '../../shared/skeleton/skeleton';
 
 // ── Skater column definitions ────────────────────────────────────
 
@@ -78,14 +80,18 @@ function formatPlusMinus(value: number): string {
 
 @Component({
   selector: 'app-stats-page',
-  imports: [DataAsOf],
+  imports: [DataAsOf, LoadingText, Skeleton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="stats-page">
       <header class="page-header">
         <h1 class="page-title">{{ data()?.season ?? '...' }} NHL Stats</h1>
         <p class="page-subtitle">
-          <app-data-as-of [timestamp]="data()?.dataAsOf ?? null" />
+          @if (loading()) {
+            <app-loading-text label="Loading stats" />
+          } @else {
+            <app-data-as-of [timestamp]="data()?.dataAsOf ?? null" />
+          }
         </p>
       </header>
 
@@ -103,7 +109,40 @@ function formatPlusMinus(value: number): string {
       @if (errorMessage()) {
         <div class="state-message state-error">{{ errorMessage() }}</div>
       } @else if (loading()) {
-        <div class="state-message">Loading stats...</div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="stats-table">
+              <thead>
+                <tr>
+                  <th class="col-left col-rank-header">#</th>
+                  <th class="col-left col-player-header">Player</th>
+                  <th class="col-left col-team-header">Team</th>
+                  @if (!isGoalieSection()) {
+                    <th class="col-pos-header">Pos</th>
+                  }
+                  @for (col of (isGoalieSection() ? goalieColumns : skaterColumns); track col.key) {
+                    <th class="col-skeleton" [class.col-stat-wide]="col.wide" [title]="col.title">{{ col.label }}</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (_ of skeletonRows; track $index; let i = $index) {
+                  <tr [class.row-alt]="i % 2 === 1">
+                    <td class="col-rank"><app-skeleton width="18px" height="10px" /></td>
+                    <td class="col-left col-player"><app-skeleton width="140px" height="12px" /></td>
+                    <td class="col-left col-team"><app-skeleton width="32px" height="12px" /></td>
+                    @if (!isGoalieSection()) {
+                      <td class="col-pos"><app-skeleton width="20px" height="10px" /></td>
+                    }
+                    @for (col of (isGoalieSection() ? goalieColumns : skaterColumns); track col.key) {
+                      <td><app-skeleton [width]="col.wide ? '40px' : '28px'" height="10px" /></td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
       } @else {
         <div class="table-card">
           <div class="table-scroll">
@@ -225,7 +264,8 @@ function formatPlusMinus(value: number): string {
 
     .stats-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
     .stats-table th { padding: 8px; text-align: right; font-weight: 700; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); border-bottom: 2px solid var(--border-strong); cursor: pointer; user-select: none; white-space: nowrap; }
-    .stats-table th:hover { background: var(--bg-row-alt); color: var(--text-primary); }
+    .stats-table th:hover:not(.col-skeleton) { background: var(--bg-row-alt); color: var(--text-primary); }
+    .stats-table th.col-skeleton { cursor: default; }
     .stats-table th.col-left { text-align: left; }
     .stats-table th.sorted { color: var(--text-primary); }
     .stats-table th.col-rank-header { width: 38px; }
@@ -266,6 +306,7 @@ export class StatsPage implements OnInit {
 
   readonly skaterColumns = SKATER_COLUMNS;
   readonly goalieColumns = GOALIE_COLUMNS;
+  readonly skeletonRows = Array(10);
 
   readonly sections: { value: StatsSection; label: string }[] = [
     { value: 'all-players', label: 'All Skaters' },

@@ -3,10 +3,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlayoffsApiService, PlayoffBracketResponse } from '../../../services/playoffs-api.service';
 import { DataAsOf } from '../../shared/data-as-of/data-as-of';
+import { LoadingText } from '../../shared/loading-text/loading-text';
 
 @Component({
   selector: 'app-playoff-bracket-page',
-  imports: [RouterLink, DataAsOf],
+  imports: [RouterLink, DataAsOf, LoadingText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page">
@@ -24,7 +25,7 @@ import { DataAsOf } from '../../shared/data-as-of/data-as-of';
       </div>
 
       @if (loading()) {
-        <p class="loading">Loading bracket&hellip;</p>
+        <p class="loading"><app-loading-text label="Loading bracket" /></p>
       } @else if (errorMessage()) {
         <p class="error">{{ errorMessage() }}</p>
       } @else if (data()) {
