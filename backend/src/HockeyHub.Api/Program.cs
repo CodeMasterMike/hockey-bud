@@ -139,7 +139,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<GameHub>("/hubs/scores");
+app.MapHub<GameHub>("/hubs/scores").RequireCors("AppCors");
 
 // Hangfire dashboard only accessible in Development (no auth required locally).
 // Deployed environments (Staging/Production) do not expose the dashboard.
