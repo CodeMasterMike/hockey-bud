@@ -219,8 +219,8 @@ resource redisApp 'Microsoft.App/containerApps@2024-03-01' = if (isDev) {
           name: 'redis'
           image: 'redis:7-alpine'
           resources: {
-            cpu: json('0.125')
-            memory: '0.25Gi'
+            cpu: json('0.25')
+            memory: '0.5Gi'
           }
         }
       ]
