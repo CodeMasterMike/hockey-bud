@@ -32,7 +32,7 @@ param sqlConnectionString string = ''
 @description('Redis connection string override (for prod managed Redis)')
 param redisConnectionString string = ''
 
-@description('Allowed CORS origins for the backend API (prod only, dev defaults to localhost)')
+@description('Allowed CORS origins for the backend API (prod only — first entry used as Cors__AllowedOrigins__2)')
 param allowedOrigins array = []
 
 // ─── Variables ────────────────────────────────────────────────────────────────
@@ -219,8 +219,8 @@ resource redisApp 'Microsoft.App/containerApps@2024-03-01' = if (isDev) {
           name: 'redis'
           image: 'redis:7-alpine'
           resources: {
-            cpu: json('0.125')
-            memory: '0.25Gi'
+            cpu: json('0.25')
+            memory: '0.5Gi'
           }
         }
       ]
@@ -246,12 +246,9 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
         external: true
         targetPort: 8080
         transport: 'http'
-        corsPolicy: {
-          allowedOrigins: isDev ? ['http://localhost:4200', 'https://localhost:4200', 'https://yellow-pond-0bd57f50f.1.azurestaticapps.net'] : allowedOrigins
-          allowedMethods: ['GET', 'POST', 'OPTIONS']
-          allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
-          allowCredentials: true
-        }
+        // CORS is handled by ASP.NET Core middleware (not Container Apps ingress) so that
+        // AllowAnyHeader() covers SignalR's x-signalr-user-agent and any future custom headers.
+        // Origins are passed via Cors__AllowedOrigins__* env vars below.
       }
       registries: [
         {
@@ -291,6 +288,10 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'ConnectionStrings__Redis', secretRef: 'redis-connection' }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', secretRef: 'appinsights-connection' }
             { name: 'ASPNETCORE_ENVIRONMENT', value: isDev ? 'Staging' : 'Production' }
+            // CORS origins for ASP.NET Core middleware — array binding via __0, __1, __2
+            { name: 'Cors__AllowedOrigins__0', value: 'http://localhost:4200' }
+            { name: 'Cors__AllowedOrigins__1', value: 'https://localhost:4200' }
+            { name: 'Cors__AllowedOrigins__2', value: isDev ? 'https://yellow-pond-0bd57f50f.1.azurestaticapps.net' : (length(allowedOrigins) > 0 ? allowedOrigins[0] : 'https://localhost:4200') }
           ]
           probes: [
             {
