@@ -119,6 +119,62 @@ public class ScoresSyncJob(
         await cache.RemoveAsync("scores:live", ct);
 
         logger.LogInformation("Synced {Count} games, {LiveCount} live", nhlGames.Count, liveGames.Count);
+
+        // Reconcile stale games: any Live/Scheduled game whose start is >6 hours ago
+        await ReconcileStaleGamesAsync(league.Id, teams, ct);
+    }
+
+    private async Task ReconcileStaleGamesAsync(int leagueId, Dictionary<string, Team> teams, CancellationToken ct)
+    {
+        var cutoff = DateTimeOffset.UtcNow.AddHours(-6);
+
+        var staleGames = await db.Games
+            .Where(g => g.Season.LeagueId == leagueId
+                && (g.Status == "Live" || g.Status == "Scheduled" || g.Status == "Pre-Game")
+                && g.ScheduledStart < cutoff)
+            .ToListAsync(ct);
+
+        if (staleGames.Count == 0) return;
+
+        logger.LogInformation("Found {Count} stale games to reconcile", staleGames.Count);
+
+        // Group by game date and re-fetch each date from the NHL API
+        var datesToRefresh = staleGames
+            .Select(g => g.GameDateLocal)
+            .Distinct()
+            .ToList();
+
+        foreach (var gameDate in datesToRefresh)
+        {
+            var freshGames = await nhlProvider.GetScoresAsync(gameDate, ct);
+            var freshLookup = freshGames.ToDictionary(g => g.Id);
+
+            var gamesForDate = staleGames.Where(g => g.GameDateLocal == gameDate).ToList();
+            foreach (var stale in gamesForDate)
+            {
+                if (freshLookup.TryGetValue(stale.ExternalId, out var fresh))
+                {
+                    UpdateGame(stale, fresh);
+                    logger.LogInformation("Reconciled game {ExternalId} on {Date}: {OldStatus} → {NewStatus}",
+                        stale.ExternalId, gameDate, "stale", fresh.Status);
+
+                    // Sync detail data for games that finished (to capture final stats)
+                    if (fresh.Status == "Final")
+                    {
+                        await SyncGameDetailAsync(fresh.Id, ct);
+                    }
+                }
+            }
+
+            // Invalidate cache for each reconciled date
+            await cache.RemoveAsync($"scores:{leagueId}:{gameDate:yyyy-MM-dd}", ct);
+        }
+
+        await db.SaveChangesAsync(ct);
+        await cache.RemoveAsync($"scores:ticker:{leagueId}", ct);
+
+        logger.LogInformation("Reconciled {Count} stale games across {DateCount} dates",
+            staleGames.Count, datesToRefresh.Count);
     }
 
     private async Task SyncGameDetailAsync(int externalGameId, CancellationToken ct)
