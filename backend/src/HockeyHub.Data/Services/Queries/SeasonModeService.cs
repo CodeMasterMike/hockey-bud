@@ -54,34 +54,36 @@ public class SeasonModeService(HockeyHubDbContext db, RedisCacheService cache)
         // Regular season is ~1312 games; if we have >1200 final games and no upcoming ones, it's likely over
         var regularSeasonLikelyOver = totalFinalGames > 1200 && !hasLiveOrScheduledGames;
 
-        if (!regularSeasonLikelyOver && hasLiveOrScheduledGames)
+        // Also check if we're past the regularSeasonEnd date
+        var pastRegularSeasonEnd = regularSeasonEnd is not null && today > regularSeasonEnd.Value;
+
+        if (!regularSeasonLikelyOver && !pastRegularSeasonEnd && hasLiveOrScheduledGames)
         {
             return new SeasonModeResponse("regular-season", seasonLabel, regularSeasonEnd, false, false);
         }
 
-        // If regular season is over, check if playoffs are happening
-        // The playoffs tab activates 2 days after the last regular season game
-        if (regularSeasonEnd is not null && today >= regularSeasonEnd.Value.AddDays(2))
+        // Regular season is over — determine if we're in playoffs or off-season
+        if (regularSeasonEnd is not null)
         {
-            // Check if there are any playoff games (they'd be scheduled or live after regular season ends)
-            var hasPlayoffActivity = await db.Games
-                .Where(g => g.SeasonId == season.Id)
-                .Where(g => g.ScheduledStart > lastRegularSeasonGame)
-                .AnyAsync(ct);
-
             // Simple heuristic: if the season ended months ago, it's off-season
             if (regularSeasonEnd.Value.AddMonths(3) < today)
             {
                 return new SeasonModeResponse("off-season", seasonLabel, regularSeasonEnd, false, true);
             }
 
-            if (hasPlayoffActivity || regularSeasonLikelyOver)
-            {
-                return new SeasonModeResponse("playoffs", seasonLabel, regularSeasonEnd, true, false);
-            }
+            // Check if there are any playoff games (they'd be scheduled or live after regular season ends)
+            var hasPlayoffActivity = await db.Games
+                .Where(g => g.SeasonId == season.Id)
+                .Where(g => g.ScheduledStart > lastRegularSeasonGame)
+                .AnyAsync(ct);
+
+            // Between regular season end and playoffs: report playoffs mode
+            // so the nav can show the Playoffs link when the bracket becomes available
+            return new SeasonModeResponse("playoffs", seasonLabel, regularSeasonEnd,
+                hasPlayoffActivity, false);
         }
 
-        // Default to regular season
+        // Default to regular season (no final games yet)
         return new SeasonModeResponse("regular-season", seasonLabel, regularSeasonEnd, false, false);
     }
 }

@@ -67,7 +67,7 @@ public class StandingsQueryService(HockeyHubDbContext db, RedisCacheService cach
             if (teams.Count == 0) continue;
 
             groups.Add(new StandingsGroupDto(
-                Label: $"{divisionName} Division",
+                Label: divisionName,
                 Conference: snapshots.First(s => s.Division == divisionName).Conference,
                 Teams: teams
             ));

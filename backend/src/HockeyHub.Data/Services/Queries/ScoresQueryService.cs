@@ -194,15 +194,46 @@ public class ScoresQueryService(
         var homeStandings = standings.GetValueOrDefault(game.HomeTeamId);
         var awayStandings = standings.GetValueOrDefault(game.AwayTeamId);
 
+        // Fetch team leaders from PlayerSeason stats
+        var homeLeaders = await GetTeamLeadersAsync(game.HomeTeamId, game.SeasonId, ct);
+        var awayLeaders = await GetTeamLeadersAsync(game.AwayTeamId, game.SeasonId, ct);
+
+        // Compute H2H record for this season
+        var h2hGames = await db.Games
+            .Where(g => g.SeasonId == game.SeasonId && g.Status == "Final"
+                && ((g.HomeTeamId == game.HomeTeamId && g.AwayTeamId == game.AwayTeamId)
+                    || (g.HomeTeamId == game.AwayTeamId && g.AwayTeamId == game.HomeTeamId)))
+            .Select(g => new { g.HomeTeamId, g.HomeScore, g.AwayScore, g.IsOvertime, g.IsShootout })
+            .ToListAsync(ct);
+
+        int homeWins = 0, homeOtw = 0, homeSow = 0, awayWins = 0, awayOtw = 0, awaySow = 0;
+        foreach (var g in h2hGames)
+        {
+            var homeTeamWon = (g.HomeTeamId == game.HomeTeamId && g.HomeScore > g.AwayScore)
+                || (g.HomeTeamId == game.AwayTeamId && g.AwayScore > g.HomeScore);
+            if (homeTeamWon)
+            {
+                if (g.IsShootout) homeSow++;
+                else if (g.IsOvertime) homeOtw++;
+                else homeWins++;
+            }
+            else
+            {
+                if (g.IsShootout) awaySow++;
+                else if (g.IsOvertime) awayOtw++;
+                else awayWins++;
+            }
+        }
+
         return new PregameDto(
             GameId: game.Id,
             Status: game.Status,
             HomeTeam: new PregameTeamDto(
                 Id: game.HomeTeam.Id,
                 Abbreviation: game.HomeTeam.Abbreviation,
-                TopGoalScorers: [],
-                TopAssistGetters: [],
-                TopPointGetters: [],
+                TopGoalScorers: homeLeaders.Goals,
+                TopAssistGetters: homeLeaders.Assists,
+                TopPointGetters: homeLeaders.Points,
                 StartingGoalie: new PregameGoalieDto(null, null, null, null, false),
                 PowerPlayPct: homeStandings?.PowerPlayPct ?? 0,
                 PenaltyKillPct: homeStandings?.PenaltyKillPct ?? 0
@@ -210,17 +241,17 @@ public class ScoresQueryService(
             AwayTeam: new PregameTeamDto(
                 Id: game.AwayTeam.Id,
                 Abbreviation: game.AwayTeam.Abbreviation,
-                TopGoalScorers: [],
-                TopAssistGetters: [],
-                TopPointGetters: [],
+                TopGoalScorers: awayLeaders.Goals,
+                TopAssistGetters: awayLeaders.Assists,
+                TopPointGetters: awayLeaders.Points,
                 StartingGoalie: new PregameGoalieDto(null, null, null, null, false),
                 PowerPlayPct: awayStandings?.PowerPlayPct ?? 0,
                 PenaltyKillPct: awayStandings?.PenaltyKillPct ?? 0
             ),
             HeadToHead: new HeadToHeadDto(
                 CurrentSeason: new H2HSeasonDto(
-                    Home: new H2HRecordDto(0, 0, 0, null),
-                    Away: new H2HRecordDto(0, 0, 0, null)
+                    Home: new H2HRecordDto(homeWins, homeOtw, homeSow, null),
+                    Away: new H2HRecordDto(awayWins, awayOtw, awaySow, null)
                 ),
                 AllTime: new H2HSeasonDto(
                     Home: new H2HRecordDto(0, 0, 0, 0),
@@ -228,6 +259,29 @@ public class ScoresQueryService(
                 )
             )
         );
+    }
+
+    private async Task<(List<TopScorerDto> Goals, List<TopScorerDto> Assists, List<TopScorerDto> Points)>
+        GetTeamLeadersAsync(int teamId, int seasonId, CancellationToken ct)
+    {
+        var teamStats = await db.PlayerSeasons
+            .Include(ps => ps.Player)
+            .Where(ps => ps.TeamId == teamId && ps.SeasonId == seasonId && ps.Player.Position != "G")
+            .ToListAsync(ct);
+
+        var topGoal = teamStats.OrderByDescending(ps => ps.Goals).Take(1)
+            .Select(ps => new TopScorerDto(ps.PlayerId, $"{ps.Player.FirstName} {ps.Player.LastName}", ps.Goals))
+            .ToList();
+
+        var topAssist = teamStats.OrderByDescending(ps => ps.Assists).Take(1)
+            .Select(ps => new TopScorerDto(ps.PlayerId, $"{ps.Player.FirstName} {ps.Player.LastName}", ps.Assists))
+            .ToList();
+
+        var topPoints = teamStats.OrderByDescending(ps => ps.Points).Take(1)
+            .Select(ps => new TopScorerDto(ps.PlayerId, $"{ps.Player.FirstName} {ps.Player.LastName}", ps.Points))
+            .ToList();
+
+        return (topGoal, topAssist, topPoints);
     }
 
     private static ScoreGameDto MapToDto(Game game, Dictionary<int, StandingsSnapshot> standings)

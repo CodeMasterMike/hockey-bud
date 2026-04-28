@@ -18,7 +18,7 @@ import { LoadingText } from '../../shared/loading-text/loading-text';
         } @else {
           Draft results
         }
-        &mdash; <app-data-as-of [timestamp]="data()?.dataAsOf ?? null" />
+        @if (data()?.dataAsOf) { &mdash; <app-data-as-of [timestamp]="data()!.dataAsOf" /> }
       </p>
 
       @if (loading()) {
