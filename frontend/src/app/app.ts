@@ -1,9 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Banner } from './components/layout/banner/banner';
 import { ScoreBar } from './components/layout/score-bar/score-bar';
 import { NavBar } from './components/layout/nav-bar/nav-bar';
 import { HamburgerMenu } from './components/layout/hamburger-menu/hamburger-menu';
+import { ThemeService } from './services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -27,5 +28,6 @@ import { HamburgerMenu } from './components/layout/hamburger-menu/hamburger-menu
   `]
 })
 export class App {
+  private themeService = inject(ThemeService);
   menuOpen = signal(false);
 }

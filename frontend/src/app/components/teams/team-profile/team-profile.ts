@@ -76,7 +76,7 @@ import { LoadingText } from '../../shared/loading-text/loading-text';
                     <th class="col-num">#</th>
                     <th class="col-left">Name</th>
                     <th>S/C</th>
-                    <th>Born</th>
+                    <th>Age</th>
                     <th>Birthplace</th>
                     <th>Draft</th>
                   </tr>
