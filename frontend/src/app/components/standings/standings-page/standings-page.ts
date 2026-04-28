@@ -256,7 +256,7 @@ const COLUMNS: readonly ColumnDef[] = [
     .conference.single { grid-column: 1 / -1; }
     .card-header { padding: 12px 16px 10px; font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border-default); display: flex; align-items: center; justify-content: space-between; color: var(--text-primary); }
     .card-header-meta { font-size: 0.68rem; color: var(--text-muted); font-weight: 400; letter-spacing: 0.04em; }
-    .table-scroll { overflow-x: auto; }
+    .table-scroll { overflow-x: hidden; }
 
     .standings-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
     .standings-table th { padding: 8px; text-align: right; font-weight: 700; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); border-bottom: 2px solid var(--border-strong); cursor: pointer; user-select: none; white-space: nowrap; }
@@ -420,7 +420,7 @@ export class StandingsPage implements OnInit {
       if (team.wildCardRank !== null) return `WC${team.wildCardRank}`;
       return team.conferenceRank.toString();
     }
-    if (group.label.endsWith('Division')) return team.divisionRank.toString();
+    if (!group.label.endsWith('Conference')) return team.divisionRank.toString();
     if (group.label.endsWith('Conference')) return team.conferenceRank.toString();
     return team.leagueRank.toString();
   }

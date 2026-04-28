@@ -341,8 +341,71 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
             _logger.LogWarning(ex, "Failed to fetch skater season stats from NHL Stats API");
         }
 
-        _logger.LogInformation("Fetched {Count} skater stat lines", stats.Count);
+        _logger.LogInformation("Fetched {Count} skater stat lines from summary", stats.Count);
+
+        // Merge realtime stats (hits, blocked shots, giveaways, takeaways) from a separate report
+        // since the summary endpoint may not include these fields
+        await MergeRealtimeStatsAsync(seasonId, stats, ct);
+
         return stats;
+    }
+
+    private async Task MergeRealtimeStatsAsync(string seasonId, List<NhlSkaterSeasonStats> stats, CancellationToken ct)
+    {
+        // Build lookup: (playerId, teamAbbrev) → index in stats list
+        var lookup = new Dictionary<(int, string), int>();
+        for (var i = 0; i < stats.Count; i++)
+            lookup[(stats[i].PlayerId, stats[i].TeamAbbreviation)] = i;
+
+        var start = 0;
+        const int limit = 100;
+        var merged = 0;
+
+        try
+        {
+            while (true)
+            {
+                using var lease = await _rateLimiter.AcquireAsync(1, ct);
+                if (!lease.IsAcquired) break;
+
+                var url = $"https://api.nhle.com/stats/rest/en/skater/realtime?cayenneExp=seasonId={seasonId}%20and%20gameTypeId=2&start={start}&limit={limit}";
+                _logger.LogDebug("NHL Stats API request: skater/realtime start={Start}", start);
+                using var response = await _http.GetAsync(url, ct);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions, ct);
+
+                if (!json.TryGetProperty("data", out var data)) break;
+                var count = 0;
+
+                foreach (var p in data.EnumerateArray())
+                {
+                    count++;
+                    var playerId = p.TryGetProperty("playerId", out var pid) ? pid.GetInt32() : 0;
+                    var teamAbbrev = p.TryGetProperty("teamAbbrevs", out var ta) ? ta.GetString()?.Split(",")[0].Trim() ?? "" : "";
+
+                    if (!lookup.TryGetValue((playerId, teamAbbrev), out var idx)) continue;
+
+                    var existing = stats[idx];
+                    stats[idx] = existing with
+                    {
+                        Hits = p.TryGetProperty("hits", out var h) ? h.GetInt32() : existing.Hits,
+                        BlockedShots = p.TryGetProperty("blockedShots", out var bs) ? bs.GetInt32() : existing.BlockedShots,
+                        Giveaways = p.TryGetProperty("giveaways", out var gv) ? gv.GetInt32() : existing.Giveaways,
+                        Takeaways = p.TryGetProperty("takeaways", out var tk) ? tk.GetInt32() : existing.Takeaways,
+                    };
+                    merged++;
+                }
+
+                if (count < limit) break;
+                start += limit;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch skater realtime stats — HIT/BLK/GV/TK may be missing");
+        }
+
+        _logger.LogInformation("Merged realtime stats for {Count} skaters", merged);
     }
 
     public async Task<IReadOnlyList<NhlGoalieSeasonStats>> GetGoalieStatsAsync(string season, CancellationToken ct = default)
