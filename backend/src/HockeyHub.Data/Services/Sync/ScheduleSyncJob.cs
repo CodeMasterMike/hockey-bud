@@ -43,17 +43,14 @@ public class ScheduleSyncJob(
             .Where(t => t.LeagueId == league.Id)
             .ToDictionaryAsync(t => t.Abbreviation, ct);
 
-        var existingIds = await db.Games
+        var existingGames = await db.Games
             .Where(g => g.SeasonId == season.Id)
-            .Select(g => g.ExternalId)
-            .ToHashSetAsync(ct);
+            .ToDictionaryAsync(g => g.ExternalId, ct);
 
         var inserted = 0;
+        var updated = 0;
         foreach (var sg in scheduleGames)
         {
-            // Don't touch games that already exist — ScoresSyncJob manages score updates.
-            if (existingIds.Contains(sg.GameId)) continue;
-
             if (!teams.TryGetValue(sg.HomeTeamAbbreviation, out var homeTeam) ||
                 !teams.TryGetValue(sg.AwayTeamAbbreviation, out var awayTeam))
             {
@@ -62,21 +59,35 @@ public class ScheduleSyncJob(
                 continue;
             }
 
-            db.Games.Add(new Game
+            if (existingGames.TryGetValue(sg.GameId, out var existing))
             {
-                ExternalId = sg.GameId,
-                SeasonId = season.Id,
-                HomeTeamId = homeTeam.Id,
-                AwayTeamId = awayTeam.Id,
-                ScheduledStart = sg.ScheduledStart,
-                GameDateLocal = sg.GameDate,
-                Status = sg.Status,
-                LastUpdated = DateTimeOffset.UtcNow
-            });
-            inserted++;
+                // Update status for games that have progressed since they were inserted
+                if (existing.Status != sg.Status)
+                {
+                    existing.Status = sg.Status;
+                    existing.ScheduledStart = sg.ScheduledStart;
+                    existing.LastUpdated = DateTimeOffset.UtcNow;
+                    updated++;
+                }
+            }
+            else
+            {
+                db.Games.Add(new Game
+                {
+                    ExternalId = sg.GameId,
+                    SeasonId = season.Id,
+                    HomeTeamId = homeTeam.Id,
+                    AwayTeamId = awayTeam.Id,
+                    ScheduledStart = sg.ScheduledStart,
+                    GameDateLocal = sg.GameDate,
+                    Status = sg.Status,
+                    LastUpdated = DateTimeOffset.UtcNow
+                });
+                inserted++;
+            }
         }
 
-        if (inserted > 0)
+        if (inserted > 0 || updated > 0)
         {
             await db.SaveChangesAsync(ct);
 
@@ -84,7 +95,7 @@ public class ScheduleSyncJob(
             await cache.RemoveAsync($"schedule:{league.Id}", ct);
         }
 
-        logger.LogInformation("Schedule sync complete: {Inserted} new games inserted ({Total} total in API response)",
-            inserted, scheduleGames.Count);
+        logger.LogInformation("Schedule sync complete: {Inserted} new, {Updated} updated ({Total} total in API response)",
+            inserted, updated, scheduleGames.Count);
     }
 }
