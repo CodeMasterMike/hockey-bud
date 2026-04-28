@@ -87,32 +87,63 @@ public class DataSeedService(
     {
         var nhlTeams = await nhlProvider.GetTeamsAsync(ct);
         var league = await db.Leagues.FirstAsync(l => l.Abbreviation == "NHL", ct);
-        var existingAbbrevs = await db.Teams
+        var existingTeams = await db.Teams
             .Where(t => t.LeagueId == league.Id)
-            .Select(t => t.Abbreviation)
-            .ToHashSetAsync(ct);
+            .ToDictionaryAsync(t => t.Abbreviation, ct);
 
-        var teamsToAdd = nhlTeams
-            .Where(t => !existingAbbrevs.Contains(t.Abbreviation))
-            .Select(t => new Team
-            {
-                LeagueId = league.Id,
-                LocationName = t.LocationName,
-                Name = t.Name,
-                Abbreviation = t.Abbreviation,
-                LogoUrl = t.LogoUrl,
-                PrimaryColor = t.PrimaryColor,
-                IsActive = true
-            })
-            .ToList();
-
-        if (teamsToAdd.Count > 0)
+        var added = 0;
+        var updated = 0;
+        foreach (var t in nhlTeams)
         {
-            db.Teams.AddRange(teamsToAdd);
+            FranchiseData.TryGetValue(t.Abbreviation, out var franchise);
+
+            if (existingTeams.TryGetValue(t.Abbreviation, out var existing))
+            {
+                // Update franchise data on existing teams if missing
+                if (franchise.Founded > 0 && existing.OriginalJoinYear == 0)
+                {
+                    existing.OriginalJoinYear = franchise.Founded;
+                    existing.StanleyCupsTotal = franchise.Cups;
+                    updated++;
+                }
+            }
+            else
+            {
+                db.Teams.Add(new Team
+                {
+                    LeagueId = league.Id,
+                    LocationName = t.LocationName,
+                    Name = t.Name,
+                    Abbreviation = t.Abbreviation,
+                    LogoUrl = t.LogoUrl,
+                    PrimaryColor = t.PrimaryColor,
+                    OriginalJoinYear = franchise.Founded,
+                    StanleyCupsTotal = franchise.Cups,
+                    IsActive = true
+                });
+                added++;
+            }
+        }
+
+        if (added > 0 || updated > 0)
+        {
             await db.SaveChangesAsync(ct);
-            logger.LogInformation("Seeded {Count} teams", teamsToAdd.Count);
+            logger.LogInformation("Teams: {Added} added, {Updated} updated with franchise data", added, updated);
         }
     }
+
+    // Franchise founding years and Stanley Cup totals (historical facts, updated annually)
+    private static readonly Dictionary<string, (int Founded, int Cups)> FranchiseData = new()
+    {
+        ["ANA"] = (1993, 1), ["BOS"] = (1924, 6), ["BUF"] = (1970, 0), ["CGY"] = (1972, 1),
+        ["CAR"] = (1972, 1), ["CHI"] = (1926, 6), ["COL"] = (1972, 3), ["CBJ"] = (2000, 0),
+        ["DAL"] = (1967, 1), ["DET"] = (1926, 11), ["EDM"] = (1972, 5), ["FLA"] = (1993, 1),
+        ["LAK"] = (1967, 2), ["MIN"] = (2000, 0), ["MTL"] = (1909, 24), ["NSH"] = (1998, 0),
+        ["NJD"] = (1974, 3), ["NYI"] = (1972, 4), ["NYR"] = (1926, 4), ["OTT"] = (1992, 0),
+        ["PHI"] = (1967, 2), ["PIT"] = (1967, 5), ["SJS"] = (1991, 0), ["SEA"] = (2021, 0),
+        ["STL"] = (1967, 1), ["TBL"] = (1992, 3), ["TOR"] = (1917, 13), ["UTA"] = (1979, 0),
+        ["VAN"] = (1970, 0), ["VGK"] = (2017, 1), ["WSH"] = (1974, 1), ["WPG"] = (1999, 0),
+    };
 
     private async Task SeedRostersAsync(CancellationToken ct)
     {
