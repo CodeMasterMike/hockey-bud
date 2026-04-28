@@ -983,14 +983,113 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         var homeStats = ParseTeamStats(boxscore, "homeTeam");
         var awayStats = ParseTeamStats(boxscore, "awayTeam");
 
+        // Parse player stats from boxscore (forwards, defense, goalies for each team)
+        var playerStats = new List<NhlGamePlayerStat>();
+        ParsePlayerGroup(boxscore, "homeTeam", true, playerStats);
+        ParsePlayerGroup(boxscore, "awayTeam", false, playerStats);
+
         return new NhlGameDetailData(
             GameId: gameId,
             PeriodScores: periodScores,
             Events: events,
-            PlayerStats: [],
+            PlayerStats: playerStats,
             HomeStats: homeStats,
             AwayStats: awayStats
         );
+    }
+
+    private static void ParsePlayerGroup(JsonElement boxscore, string teamKey, bool isHome, List<NhlGamePlayerStat> result)
+    {
+        if (!boxscore.TryGetProperty(teamKey, out var team)) return;
+
+        var teamAbbrev = team.TryGetProperty("abbrev", out var a) ? a.GetString() ?? "" : "";
+
+        foreach (var group in new[] { "forwards", "defense" })
+        {
+            if (!team.TryGetProperty(group, out var players)) continue;
+            foreach (var p in players.EnumerateArray())
+            {
+                try
+                {
+                    var toi = p.TryGetProperty("toi", out var t) ? ParseTimeOnIce(t.GetString()) : TimeSpan.Zero;
+                    result.Add(new NhlGamePlayerStat(
+                        PlayerId: p.GetProperty("playerId").GetInt32(),
+                        TeamAbbreviation: teamAbbrev,
+                        IsHome: isHome,
+                        JerseyNumber: p.TryGetProperty("sweaterNumber", out var sn) ? sn.GetInt32() : 0,
+                        Position: p.TryGetProperty("position", out var pos) ? pos.GetString() ?? "F" : "F",
+                        Goals: p.TryGetProperty("goals", out var g) ? g.GetInt32() : 0,
+                        Assists: p.TryGetProperty("assists", out var ast) ? ast.GetInt32() : 0,
+                        Points: p.TryGetProperty("points", out var pts) ? pts.GetInt32() : 0,
+                        PlusMinus: p.TryGetProperty("plusMinus", out var pm) ? pm.GetInt32() : 0,
+                        Hits: p.TryGetProperty("hits", out var h) ? h.GetInt32() : 0,
+                        PenaltyMinutes: p.TryGetProperty("pim", out var pim) ? pim.GetInt32() : 0,
+                        TimeOnIce: toi,
+                        Shots: p.TryGetProperty("shots", out var sh) ? sh.GetInt32() : 0,
+                        ShotsAgainst: null,
+                        Saves: null,
+                        SavePct: null
+                    ));
+                }
+                catch { /* skip malformed player entries */ }
+            }
+        }
+
+        // Goalies
+        if (!team.TryGetProperty("goalies", out var goalies)) return;
+        foreach (var p in goalies.EnumerateArray())
+        {
+            try
+            {
+                var toi = p.TryGetProperty("toi", out var t) ? ParseTimeOnIce(t.GetString()) : TimeSpan.Zero;
+                // saveShotsAgainst format: "saves-shotsAgainst" e.g. "22-25"
+                int shotsAgainst = 0, saves = 0;
+                if (p.TryGetProperty("saveShotsAgainst", out var ssa))
+                {
+                    var parts = (ssa.GetString() ?? "").Split('-');
+                    if (parts.Length == 2)
+                    {
+                        int.TryParse(parts[0], out saves);
+                        int.TryParse(parts[1], out shotsAgainst);
+                    }
+                }
+
+                result.Add(new NhlGamePlayerStat(
+                    PlayerId: p.GetProperty("playerId").GetInt32(),
+                    TeamAbbreviation: teamAbbrev,
+                    IsHome: isHome,
+                    JerseyNumber: p.TryGetProperty("sweaterNumber", out var sn) ? sn.GetInt32() : 0,
+                    Position: "G",
+                    Goals: 0,
+                    Assists: 0,
+                    Points: 0,
+                    PlusMinus: 0,
+                    Hits: 0,
+                    PenaltyMinutes: p.TryGetProperty("pim", out var pim) ? pim.GetInt32() : 0,
+                    TimeOnIce: toi,
+                    Shots: 0,
+                    ShotsAgainst: shotsAgainst,
+                    Saves: saves,
+                    SavePct: p.TryGetProperty("savePctg", out var sp)
+                        ? (sp.ValueKind == JsonValueKind.String
+                            ? decimal.TryParse(sp.GetString(), out var spv) ? spv : 0
+                            : sp.GetDecimal())
+                        : 0
+                ));
+            }
+            catch { /* skip malformed goalie entries */ }
+        }
+    }
+
+    private static TimeSpan ParseTimeOnIce(string? toi)
+    {
+        if (string.IsNullOrEmpty(toi)) return TimeSpan.Zero;
+        var parts = toi.Split(':');
+        return parts.Length == 2
+            && int.TryParse(parts[0], out var min)
+            && int.TryParse(parts[1], out var sec)
+            ? new TimeSpan(0, min, sec)
+            : TimeSpan.Zero;
     }
 
     private static NhlGameTeamStats ParseTeamStats(JsonElement boxscore, string teamKey)
@@ -998,28 +1097,38 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
         if (!boxscore.TryGetProperty(teamKey, out var team))
             return new NhlGameTeamStats(0, 0, 0, 0, 0, 0, 0, null);
 
-        var teamStats = team.TryGetProperty("teamGameStats", out var stats) ? stats : (JsonElement?)null;
+        int GetInt(string key) =>
+            team.TryGetProperty(key, out var v) && v.ValueKind == JsonValueKind.Number ? v.GetInt32() : 0;
 
-        int GetStat(string key) =>
-            teamStats?.EnumerateArray()
-                .Where(s => s.GetProperty("category").GetString() == key)
-                .Select(s => (int?)s.GetProperty("value").GetInt32())
-                .FirstOrDefault() ?? 0;
+        decimal GetDecimal(string key) =>
+            team.TryGetProperty(key, out var v)
+                ? v.ValueKind == JsonValueKind.Number ? v.GetDecimal()
+                : v.ValueKind == JsonValueKind.String && decimal.TryParse(v.GetString(), out var d) ? d
+                : 0
+                : 0;
 
-        decimal GetDecimalStat(string key) =>
-            teamStats?.EnumerateArray()
-                .Where(s => s.GetProperty("category").GetString() == key)
-                .Select(s => (decimal?)s.GetProperty("value").GetDecimal())
-                .FirstOrDefault() ?? 0;
+        // powerPlay format is "goals/opportunities" e.g. "1/3"
+        int ppGoals = 0, ppOpps = 0;
+        if (team.TryGetProperty("powerPlay", out var pp))
+        {
+            var ppStr = pp.ValueKind == JsonValueKind.String ? pp.GetString() ?? ""
+                : pp.ValueKind == JsonValueKind.Number ? pp.GetInt32().ToString() : "";
+            var parts = ppStr.Split('/');
+            if (parts.Length == 2)
+            {
+                int.TryParse(parts[0], out ppGoals);
+                int.TryParse(parts[1], out ppOpps);
+            }
+        }
 
         return new NhlGameTeamStats(
-            ShotsOnGoal: GetStat("sog"),
-            Hits: GetStat("hits"),
-            PowerPlayGoals: GetStat("powerPlay"),      // boxscore format: "x/y"
-            PowerPlayOpps: GetStat("powerPlayPctg"),    // may need adjustment per API version
-            FaceoffPct: GetDecimalStat("faceoffWinningPctg"),
-            Takeaways: GetStat("takeaways"),
-            Giveaways: GetStat("giveaways"),
+            ShotsOnGoal: GetInt("sog"),
+            Hits: GetInt("hits"),
+            PowerPlayGoals: ppGoals,
+            PowerPlayOpps: ppOpps,
+            FaceoffPct: GetDecimal("faceoffWinningPctg"),
+            Takeaways: GetInt("takeaways"),
+            Giveaways: GetInt("giveaways"),
             TimeOnAttack: null
         );
     }

@@ -42,10 +42,10 @@ import { DEFAULT_LEAGUE_ID } from '../../../constants';
               <div class="search-group">
                 <div class="search-group__label">Players</div>
                 @for (player of results()!.players; track player.playerId) {
-                  <button class="search-result" (mousedown)="goToPlayer(player.playerId)">
+                  <div class="search-result search-result--disabled">
                     <span class="search-result__name">{{ player.firstName }} {{ player.lastName }}</span>
-                    <span class="search-result__meta">{{ player.teamAbbreviation ?? '' }}</span>
-                  </button>
+                    <span class="search-result__meta">{{ player.teamAbbreviation ?? '' }} · Profile coming soon</span>
+                  </div>
                 }
               </div>
             }
@@ -76,6 +76,8 @@ import { DEFAULT_LEAGUE_ID } from '../../../constants';
     .search-group__label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); padding: 10px 14px 4px; }
     .search-result { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 8px 14px; border: none; background: none; cursor: pointer; font-family: var(--font-primary); font-size: 0.82rem; color: var(--text-primary); text-align: left; }
     .search-result:hover { background: var(--bg-row-alt); }
+    .search-result--disabled { cursor: default; opacity: 0.6; }
+    .search-result--disabled:hover { background: none; }
     .search-result__meta { font-size: 0.72rem; color: var(--text-muted); }
     .search-empty { font-size: 0.78rem; color: var(--text-muted); padding: 16px 14px; text-align: center; }
     .search-group + .search-group { border-top: 1px solid var(--border-default); }

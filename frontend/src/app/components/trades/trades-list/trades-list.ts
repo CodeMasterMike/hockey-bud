@@ -51,7 +51,7 @@ import { Skeleton } from '../../shared/skeleton/skeleton';
           </div>
         }
       } @else if (trades().length === 0) {
-        <div class="state-msg">No trades found.</div>
+        <div class="state-msg">Trade data is not yet available. This feature requires a data source that is not currently provided by the NHL API.</div>
       } @else {
         @for (trade of trades(); track trade.id) {
           <div class="trade-card">
