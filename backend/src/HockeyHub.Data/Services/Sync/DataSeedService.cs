@@ -117,6 +117,7 @@ public class DataSeedService(
     private async Task SeedRostersAsync(CancellationToken ct)
     {
         var teams = await db.Teams.Where(t => t.IsActive).ToListAsync(ct);
+        var teamsByAbbrev = teams.ToDictionary(t => t.Abbreviation);
 
         foreach (var team in teams)
         {
@@ -142,6 +143,12 @@ public class DataSeedService(
                     ShootsCatches = p.ShootsCatches,
                     Position = p.Position,
                     JerseyNumber = p.JerseyNumber,
+                    DraftYear = p.DraftYear,
+                    DraftRound = p.DraftRound,
+                    DraftPick = p.DraftPick,
+                    DraftTeamId = p.DraftTeamAbbreviation != null
+                        && teamsByAbbrev.TryGetValue(p.DraftTeamAbbreviation, out var draftTeam)
+                        ? draftTeam.Id : null,
                     CurrentTeamId = team.Id,
                     IsActive = p.IsActive,
                     IsEbug = false
