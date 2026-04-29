@@ -19,6 +19,7 @@ public class DataSeedService(
         await SeedSeasonsAsync(currentOnly, ct);
         await SeedTeamsAsync(ct);
         await SeedRostersAsync(ct);
+        await BackfillDraftDataAsync(ct);
 
         logger.LogInformation("Data seed complete");
     }
@@ -153,46 +154,120 @@ public class DataSeedService(
         foreach (var team in teams)
         {
             var roster = await nhlProvider.GetRosterAsync(team.Abbreviation, ct);
-            var existingExternalIds = await db.Players
+            var existingPlayers = await db.Players
                 .Where(p => p.CurrentTeamId == team.Id)
-                .Select(p => p.ExternalId)
-                .ToHashSetAsync(ct);
+                .ToDictionaryAsync(p => p.ExternalId, ct);
 
-            var playersToAdd = roster
-                .Where(p => !existingExternalIds.Contains(p.Id.ToString()))
-                .Select(p => new Player
-                {
-                    ExternalId = p.Id.ToString(),
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    DateOfBirth = p.DateOfBirth,
-                    BirthCity = p.BirthCity,
-                    BirthStateProvince = p.BirthStateProvince,
-                    BirthCountry = p.BirthCountry,
-                    Height = p.HeightInches,
-                    Weight = p.WeightPounds,
-                    ShootsCatches = p.ShootsCatches,
-                    Position = p.Position,
-                    JerseyNumber = p.JerseyNumber,
-                    DraftYear = p.DraftYear,
-                    DraftRound = p.DraftRound,
-                    DraftPick = p.DraftPick,
-                    DraftTeamId = p.DraftTeamAbbreviation != null
-                        && teamsByAbbrev.TryGetValue(p.DraftTeamAbbreviation, out var draftTeam)
-                        ? draftTeam.Id : null,
-                    CurrentTeamId = team.Id,
-                    IsActive = p.IsActive,
-                    IsEbug = false
-                })
-                .ToList();
+            var added = 0;
+            var updated = 0;
 
-            if (playersToAdd.Count > 0)
+            foreach (var p in roster)
             {
-                db.Players.AddRange(playersToAdd);
+                var externalId = p.Id.ToString();
+                int? draftTeamId = p.DraftTeamAbbreviation != null
+                    && teamsByAbbrev.TryGetValue(p.DraftTeamAbbreviation, out var dt)
+                    ? dt.Id : null;
+
+                if (existingPlayers.TryGetValue(externalId, out var existing))
+                {
+                    // Update draft fields if missing on existing players
+                    if (existing.DraftYear is null && p.DraftYear is not null)
+                    {
+                        existing.DraftYear = p.DraftYear;
+                        existing.DraftRound = p.DraftRound;
+                        existing.DraftPick = p.DraftPick;
+                        existing.DraftTeamId = draftTeamId;
+                        updated++;
+                    }
+                }
+                else
+                {
+                    db.Players.Add(new Player
+                    {
+                        ExternalId = externalId,
+                        FirstName = p.FirstName,
+                        LastName = p.LastName,
+                        DateOfBirth = p.DateOfBirth,
+                        BirthCity = p.BirthCity,
+                        BirthStateProvince = p.BirthStateProvince,
+                        BirthCountry = p.BirthCountry,
+                        Height = p.HeightInches,
+                        Weight = p.WeightPounds,
+                        ShootsCatches = p.ShootsCatches,
+                        Position = p.Position,
+                        JerseyNumber = p.JerseyNumber,
+                        DraftYear = p.DraftYear,
+                        DraftRound = p.DraftRound,
+                        DraftPick = p.DraftPick,
+                        DraftTeamId = draftTeamId,
+                        CurrentTeamId = team.Id,
+                        IsActive = p.IsActive,
+                        IsEbug = false
+                    });
+                    added++;
+                }
+            }
+
+            if (added > 0 || updated > 0)
+            {
                 await db.SaveChangesAsync(ct);
-                logger.LogInformation("Seeded {Count} players for {Team}", playersToAdd.Count, team.Abbreviation);
+                logger.LogInformation("Roster {Team}: {Added} added, {Updated} draft fields updated",
+                    team.Abbreviation, added, updated);
             }
         }
+    }
+
+    private async Task BackfillDraftDataAsync(CancellationToken ct)
+    {
+        var teamsByAbbrev = await db.Teams
+            .Where(t => t.IsActive)
+            .ToDictionaryAsync(t => t.Abbreviation, ct);
+
+        var playersWithoutDraft = await db.Players
+            .Where(p => p.IsActive && p.DraftYear == null)
+            .ToListAsync(ct);
+
+        if (playersWithoutDraft.Count == 0)
+        {
+            logger.LogInformation("Draft backfill: all players already have draft data");
+            return;
+        }
+
+        logger.LogInformation("Backfilling draft data for {Count} players via individual lookups",
+            playersWithoutDraft.Count);
+
+        var updated = 0;
+        foreach (var player in playersWithoutDraft)
+        {
+            if (!int.TryParse(player.ExternalId, out var externalId)) continue;
+
+            var data = await nhlProvider.GetPlayerAsync(externalId, ct);
+            if (data?.DraftYear is not null)
+            {
+                player.DraftYear = data.DraftYear;
+                player.DraftRound = data.DraftRound;
+                player.DraftPick = data.DraftPick;
+                player.DraftTeamId = data.DraftTeamAbbreviation != null
+                    && teamsByAbbrev.TryGetValue(data.DraftTeamAbbreviation, out var draftTeam)
+                    ? draftTeam.Id : null;
+                updated++;
+            }
+
+            // Save in batches of 50 to avoid large transactions
+            if (updated > 0 && updated % 50 == 0)
+            {
+                await db.SaveChangesAsync(ct);
+                logger.LogInformation("Draft backfill: {Updated} players updated so far", updated);
+            }
+        }
+
+        if (updated > 0)
+        {
+            await db.SaveChangesAsync(ct);
+        }
+
+        logger.LogInformation("Draft backfill complete: {Updated} of {Total} players had draft data",
+            updated, playersWithoutDraft.Count);
     }
 
     private static string ClassifyEra(int yearEnd) => yearEnd switch
