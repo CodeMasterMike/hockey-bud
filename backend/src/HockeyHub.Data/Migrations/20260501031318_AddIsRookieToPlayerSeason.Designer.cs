@@ -4,6 +4,7 @@ using HockeyHub.Data.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HockeyHub.Data.Migrations
 {
     [DbContext(typeof(HockeyHubDbContext))]
-    partial class HockeyHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260501031318_AddIsRookieToPlayerSeason")]
+    partial class AddIsRookieToPlayerSeason
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,9 +220,6 @@ namespace HockeyHub.Data.Migrations
 
                     b.Property<int>("SeasonId")
                         .HasColumnType("int");
-
-                    b.Property<string>("SeriesStatus")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()

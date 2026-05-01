@@ -65,7 +65,8 @@ public record NhlGameData(
     int? PeriodTimeRemainingSeconds,
     bool ClockRunning,
     bool IsOvertime,
-    bool IsShootout
+    bool IsShootout,
+    string? SeriesStatus
 );
 
 public record NhlGameDetailData(
@@ -151,7 +152,8 @@ public record NhlStandingsEntry(
     int GoalsAgainst,
     decimal PowerPlayPct,
     decimal PenaltyKillPct,
-    decimal? FaceoffPct
+    decimal? FaceoffPct,
+    string? ClinchIndicator
 );
 
 public record NhlTradeData(
@@ -290,7 +292,8 @@ public record NhlSkaterSeasonStats(
     int? ShortHandedPoints,
     int? Giveaways,
     int? Takeaways,
-    decimal? FaceoffPct
+    decimal? FaceoffPct,
+    bool IsRookie
 );
 
 public record NhlGoalieSeasonStats(
@@ -308,5 +311,6 @@ public record NhlGoalieSeasonStats(
     int Saves,
     int GoalsAgainst,
     int Goals,
-    int Assists
+    int Assists,
+    bool IsRookie
 );

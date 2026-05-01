@@ -48,6 +48,9 @@ import { LoadingText } from '../../shared/loading-text/loading-text';
                   <tr>
                     <th class="col-center">Pick</th>
                     <th>Team</th>
+                    @if (round.roundNumber === 1) {
+                      <th class="col-center">Odds</th>
+                    }
                     <th>Player</th>
                     <th class="col-center">Pos</th>
                     <th>Previous Club</th>
@@ -66,6 +69,9 @@ import { LoadingText } from '../../shared/loading-text/loading-text';
                           {{ pick.teamAbbreviation }}
                         </div>
                       </td>
+                      @if (round.roundNumber === 1) {
+                        <td class="col-odds">{{ lotteryOdds(pick.overallPick) }}</td>
+                      }
                       <td class="col-player">
                         @if (pick.playerId) {
                           <a [routerLink]="['/', leagueId(), 'players', pick.playerId]">{{ pick.playerName }}</a>
@@ -153,6 +159,7 @@ import { LoadingText } from '../../shared/loading-text/loading-text';
     .col-player a { color: var(--text-primary); text-decoration: none; }
     .col-player a:hover { color: var(--color-link); text-decoration: underline; }
     .col-prev { color: var(--text-secondary); }
+    .col-odds { text-align: center; font-weight: 600; color: var(--text-secondary); font-size: 0.72rem; font-variant-numeric: tabular-nums; }
   `]
 })
 export class DraftPage implements OnInit {
@@ -179,6 +186,17 @@ export class DraftPage implements OnInit {
         this.leagueId.set(params.get('leagueId') ?? 'nhl');
         this.loadDraft();
       });
+  }
+
+  /** NHL Draft Lottery odds by original pick position (bottom 16 non-playoff teams). */
+  private readonly LOTTERY_ODDS = [
+    25.5, 13.5, 11.5, 9.5, 8.5, 7.5, 6.5, 6.0,
+    5.0, 3.5, 3.0, 2.5, 2.0, 1.5, 0.5, 0.5
+  ];
+
+  lotteryOdds(pick: number): string {
+    if (pick <= this.LOTTERY_ODDS.length) return `${this.LOTTERY_ODDS[pick - 1]}%`;
+    return '—';
   }
 
   private loadDraft() {

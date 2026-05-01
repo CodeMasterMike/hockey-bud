@@ -36,6 +36,8 @@ export interface TeamProfile {
   pointsPct: number | null;
   leagueRank: number | null;
   divisionRank: number | null;
+  conferenceRank: number | null;
+  clinchIndicator: string | null;
   joinedSeasonYear: number;
   originalJoinYear: number;
   stanleyCups: { total: number; since1973: number; since2006: number };

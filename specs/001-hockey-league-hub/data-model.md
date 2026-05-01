@@ -227,6 +227,7 @@ Per-player, per-team, per-season stat line.
 | LowDangerSaves | int? | |
 | GoalieGoals | int? | Rare — goalie scoring while playing goalie |
 | GoalieAssists | int? | |
+| IsRookie | bool | From NHL API `rookieFlag` — true for the player's rookie season |
 
 **Unique constraint**: (PlayerId, TeamId, SeasonId, LeagueAbbreviation)
 
@@ -338,6 +339,7 @@ Per-player, per-team, per-season stat line.
 | AwayTimeOnAttack | TimeSpan? | |
 | IsOvertime | bool | |
 | IsShootout | bool | |
+| SeriesStatus | string? | Playoff series status from NHL API (e.g. "COL 3 - LAK 0"), null for regular season |
 | LastUpdated | DateTimeOffset | For "Data as of" indicator |
 
 **Relationships**: Has many GameEvents, GamePlayerStats, GamePeriodScores. Belongs to Season, Arena, HomeTeam, AwayTeam.
@@ -497,6 +499,7 @@ Denormalized standings computed and cached on each sync.
 | DivisionRank | int | |
 | ConferenceRank | int | |
 | LeagueRank | int | |
+| ClinchIndicator | string? | From NHL API: x=playoffs, y=division, z=conference, p=presidents, e=eliminated |
 | LastUpdated | DateTimeOffset | |
 
 **Unique constraint**: (SeasonId, TeamId)

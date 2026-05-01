@@ -150,18 +150,18 @@
 - [ ] T054 [P] [US2] Create GamePlayerStat entity (with FaceoffPct last, goalie stats) in `backend/src/HockeyHub.Core/Models/Entities/GamePlayerStat.cs`
 - [ ] T055 [P] [US2] Create RuleBookEntry entity in `backend/src/HockeyHub.Core/Models/Entities/RuleBookEntry.cs`
 - [ ] T056 [US2] Add GameEvent, GamePlayerStat, RuleBookEntry to DbContext and create migration in `backend/src/HockeyHub.Data/Data/`
-- [ ] T057 [US2] Create GameHubQueryService (team stats, player stats, rink events with arena layout) in `backend/src/HockeyHub.Data/Services/Queries/GameHubQueryService.cs`
-- [ ] T058 [US2] Create GamesController with GET game, GET player-stats, GET rink-events endpoints per games-api contract in `backend/src/HockeyHub.Api/Controllers/GamesController.cs`
+- [x] T057 [US2] Create GameHubQueryService (team stats, player stats, rink events with arena layout) in `backend/src/HockeyHub.Data/Services/Queries/GameHubQueryService.cs`
+- [x] T058 [US2] Create GamesController with GET game, GET player-stats, GET rink-events endpoints per games-api contract in `backend/src/HockeyHub.Api/Controllers/GamesController.cs`
 - [ ] T059 [US2] Create GameEventsSyncJob (syncs play-by-play during live games, handles pending/review states) in `backend/src/HockeyHub.Data/Services/Sync/GameEventsSyncJob.cs`
 
 ### Frontend — US2
 
-- [ ] T060 [US2] Create Game Hub page component with tab navigation (Team Stats default, Player Stats, Lineups, Rink Instances) in `frontend/src/app/components/game-hub/game-hub-page/`
-- [ ] T061 [US2] Create Team Stats tab (box score by period, central stat column SOG/HIT/PP/FO/GV/TK/TOI, goal summaries left/right, penalty summaries, official score sheet) in `frontend/src/app/components/game-hub/team-stats-tab/`
-- [ ] T062 [US2] Create goal summary component (period/time, scorer first initial + last name with goal number, assists with assist numbers, video hover) in `frontend/src/app/components/game-hub/goal-summary/`
-- [ ] T063 [US2] Create penalty summary component (period/time, offending player first initial + last name, penalty type, season PIM, rule book link, video hover) in `frontend/src/app/components/game-hub/penalty-summary/`
+- [x] T060 [US2] Create Game Hub page component with tab navigation (Team Stats default, Player Stats, Lineups, Rink Instances) in `frontend/src/app/components/game-hub/game-hub-page/`
+- [x] T061 [US2] Create Team Stats tab (box score by period, central stat column SOG/HIT/PP/FO/GV/TK/TOI, goal summaries left/right, penalty summaries, official score sheet) in `frontend/src/app/components/game-hub/team-stats-tab/`
+- [x] T062 [US2] Create goal summary component (period/time, scorer first initial + last name with goal number, assists with assist numbers, video hover) in `frontend/src/app/components/game-hub/goal-summary/`
+- [x] T063 [US2] Create penalty summary component (period/time, offending player first initial + last name, penalty type, season PIM, rule book link, video hover) in `frontend/src/app/components/game-hub/penalty-summary/`
 - [ ] T064 [US2] Create player hover card component (headshot, GP, G, A, +/-, PIM) in `frontend/src/app/components/shared/player-hover-card/`
-- [ ] T065 [US2] Create Player Stats tab (side-by-side grids: away left/home right, skater stats with FO% last, goalie stats, horizontal scroll) in `frontend/src/app/components/game-hub/player-stats-tab/`
+- [x] T065 [US2] Create Player Stats tab (side-by-side grids: away left/home right, skater stats with FO% last, goalie stats, horizontal scroll) in `frontend/src/app/components/game-hub/player-stats-tab/`
 - [ ] T066 [US2] Create rink diagram SVG component using plain Angular bindings (accurately dimensioned rink via SVG viewBox, measurements, bench labels, penalty boxes, stands from LayoutJson with seat colors or gray fallback, coordinate scaling from feet to SVG units) in `frontend/src/app/components/shared/rink-diagram/`
 - [ ] T067 [US2] Create Rink Instances tab (switchable views: goals/shots/hits/giveaways/takeaways, event dots positioned via Angular `[attr.cx]`/`[attr.cy]` bindings, team colors, goal dots half-green/half-team, video indicator black dot, hover tooltip, click-to-video) in `frontend/src/app/components/game-hub/rink-instances-tab/`
 - [ ] T068 [US2] Create Lineups tab placeholder (tab present, content deferred per spec) in `frontend/src/app/components/game-hub/lineups-tab/`

@@ -105,9 +105,9 @@ public class StatsQueryService(HockeyHubDbContext db, RedisCacheService cache)
                 ps.Player.Position == "D" || ps.Player.Position == "LD" ||
                 ps.Player.Position == "RD"),
             "rookie-players" => query.Where(ps =>
-                ps.Player.Position != "G" && ps.GamesPlayed <= 25),
+                ps.Player.Position != "G" && ps.IsRookie),
             "rookie-goalies" => query.Where(ps =>
-                ps.Player.Position == "G" && ps.GamesPlayed <= 25),
+                ps.Player.Position == "G" && ps.IsRookie),
             _ => query
         };
     }

@@ -86,6 +86,7 @@ public class ScoresSyncJob(
                     ClockLastSyncedAt = DateTimeOffset.UtcNow,
                     IsOvertime = nhlGame.IsOvertime,
                     IsShootout = nhlGame.IsShootout,
+                    SeriesStatus = nhlGame.SeriesStatus,
                     LastUpdated = DateTimeOffset.UtcNow
                 };
                 db.Games.Add(game);
@@ -256,6 +257,7 @@ public class ScoresSyncJob(
         game.ClockLastSyncedAt = DateTimeOffset.UtcNow;
         game.IsOvertime = data.IsOvertime;
         game.IsShootout = data.IsShootout;
+        game.SeriesStatus = data.SeriesStatus;
         game.LastUpdated = DateTimeOffset.UtcNow;
     }
 }

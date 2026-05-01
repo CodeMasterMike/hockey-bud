@@ -131,7 +131,7 @@ import { DataAsOf } from '../../shared/data-as-of/data-as-of';
       gap: 12px;
     }
     .scores-grid__cell--expanded {
-      grid-column: 1 / -1;
+      grid-column: span 3;
     }
     .scores-error {
       font-family: var(--font-primary);

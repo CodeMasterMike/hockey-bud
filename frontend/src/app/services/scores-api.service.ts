@@ -24,6 +24,7 @@ export interface ScoreGame {
   clockRunning: boolean;
   isOvertime: boolean;
   isShootout: boolean;
+  seriesStatus: string | null;
   homeTeam: ScoreTeam;
   awayTeam: ScoreTeam;
 }

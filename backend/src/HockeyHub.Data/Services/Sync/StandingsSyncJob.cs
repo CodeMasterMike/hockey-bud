@@ -105,6 +105,7 @@ public class StandingsSyncJob(
                 snapshot.ConferenceRank = computed.ConferenceRank;
                 snapshot.LeagueRank = computed.LeagueRank;
                 snapshot.WildCardRank = computed.WildCardRank;
+                snapshot.ClinchIndicator = entry.ClinchIndicator;
                 snapshot.LastUpdated = DateTimeOffset.UtcNow;
             }
             else
@@ -133,6 +134,7 @@ public class StandingsSyncJob(
                     ConferenceRank = computed.ConferenceRank,
                     LeagueRank = computed.LeagueRank,
                     WildCardRank = computed.WildCardRank,
+                    ClinchIndicator = entry.ClinchIndicator,
                     LastUpdated = DateTimeOffset.UtcNow
                 });
             }

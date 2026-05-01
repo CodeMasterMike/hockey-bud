@@ -25,13 +25,16 @@ import { LoadingText } from '../../shared/loading-text/loading-text';
             <h1 class="profile-title">{{ t.locationName }} {{ t.name }}</h1>
             <div class="profile-meta">
               {{ t.abbreviation }}
-              @if (t.division) { &middot; {{ t.division }} Division }
+              @if (t.division) { &middot; {{ t.division }} Division @if (t.divisionRank) { ({{ ordinal(t.divisionRank) }}) } }
               @if (t.conference) { &middot; {{ t.conference }} Conference }
             </div>
             @if (t.currentSeasonRecord; as r) {
               <div class="profile-record">
                 {{ r.wins }}-{{ r.losses }}-{{ r.overtimeLosses }} &middot; {{ t.points }} pts
-                @if (t.divisionRank) { &middot; {{ ordinal(t.divisionRank) }} in division }
+                @if (t.leagueRank) { ({{ ordinal(t.leagueRank) }} in league) }
+                @if (t.clinchIndicator) {
+                  <span class="clinch clinch-{{ t.clinchIndicator }}">{{ clinchLabel(t.clinchIndicator) }}</span>
+                }
               </div>
             }
             <app-data-as-of [timestamp]="t.dataAsOf" />
@@ -112,7 +115,13 @@ import { LoadingText } from '../../shared/loading-text/loading-text';
     .profile-logo { width: 72px; height: 72px; object-fit: contain; }
     .profile-title { font-size: 1.3rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-primary); margin: 0; }
     .profile-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
-    .profile-record { font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .profile-record { font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .clinch { font-size: 0.62rem; font-weight: 700; padding: 2px 6px; border-radius: 3px; }
+    .clinch-x { background: #2E7D32; color: #fff; }
+    .clinch-y { background: #1565C0; color: #fff; }
+    .clinch-z { background: #6A1B9A; color: #fff; }
+    .clinch-p { background: #E65100; color: #fff; }
+    .clinch-e { background: #757575; color: #fff; }
 
     .profile-details { display: flex; gap: 12px; margin-bottom: 28px; }
     .detail-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 4px; padding: 12px 18px; }
@@ -183,5 +192,16 @@ export class TeamProfilePage implements OnInit {
     const s = ['th', 'st', 'nd', 'rd'];
     const v = n % 100;
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  clinchLabel(indicator: string): string {
+    switch (indicator) {
+      case 'x': return 'Clinched Playoffs';
+      case 'y': return 'Clinched Division';
+      case 'z': return 'Clinched Conference';
+      case 'p': return 'Presidents\' Trophy';
+      case 'e': return 'Eliminated';
+      default: return indicator;
+    }
   }
 }

@@ -46,6 +46,10 @@ import { DEFAULT_LEAGUE_ID, CLOSE_GAME_PERIOD_THRESHOLD, CLOSE_GAME_TIME_THRESHO
           <span>Final{{ game().isOvertime ? '/OT' : '' }}{{ game().isShootout ? '/SO' : '' }}</span>
         }
       </div>
+      <!-- Series status (playoffs) -->
+      @if (game().seriesStatus) {
+        <div class="box__series">{{ game().seriesStatus }}</div>
+      }
       <!-- SOG -->
       @if (game().status !== 'Scheduled') {
         <div class="box__sog">
@@ -135,6 +139,14 @@ import { DEFAULT_LEAGUE_ID, CLOSE_GAME_PERIOD_THRESHOLD, CLOSE_GAME_TIME_THRESHO
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
+    }
+    .box__series {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 2px 0;
+      letter-spacing: 0.03em;
     }
     .box__sog {
       font-size: 11px;

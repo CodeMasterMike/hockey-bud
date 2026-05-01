@@ -30,74 +30,75 @@ import { DEFAULT_LEAGUE_ID } from '../../../constants';
       @if (error()) {
         <div class="expanded__loading">Failed to load details.</div>
       } @else if (data()) {
-        <!-- Period box scores side by side -->
-        <div class="expanded__box-scores">
-          <!-- Goals box score -->
-          <div class="expanded__box">
-            <div class="expanded__box-title">Goals</div>
-            <table class="expanded__table">
-              <thead>
-                <tr>
-                  <th></th>
-                  @for (ps of data()!.periodScores; track ps.period) {
-                    <th>{{ ps.period }}</th>
-                  }
-                  <th>T</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="expanded__team-cell">{{ game().awayTeam.abbreviation }}</td>
-                  @for (ps of data()!.periodScores; track ps.period) {
-                    <td>{{ ps.awayGoals }}</td>
-                  }
-                  <td class="expanded__total">{{ game().awayTeam.score }}</td>
-                </tr>
-                <tr>
-                  <td class="expanded__team-cell">{{ game().homeTeam.abbreviation }}</td>
-                  @for (ps of data()!.periodScores; track ps.period) {
-                    <td>{{ ps.homeGoals }}</td>
-                  }
-                  <td class="expanded__total">{{ game().homeTeam.score }}</td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- Box scores (stacked) + Stats (right) -->
+        <div class="expanded__main-row">
+          <div class="expanded__box-scores">
+            <!-- Goals box score -->
+            <div class="expanded__box">
+              <div class="expanded__box-title">Goals</div>
+              <table class="expanded__table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    @for (ps of data()!.periodScores; track ps.period) {
+                      <th>{{ ps.period }}</th>
+                    }
+                    <th>T</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="expanded__team-cell">{{ game().awayTeam.abbreviation }}</td>
+                    @for (ps of data()!.periodScores; track ps.period) {
+                      <td>{{ ps.awayGoals }}</td>
+                    }
+                    <td class="expanded__total">{{ game().awayTeam.score }}</td>
+                  </tr>
+                  <tr>
+                    <td class="expanded__team-cell">{{ game().homeTeam.abbreviation }}</td>
+                    @for (ps of data()!.periodScores; track ps.period) {
+                      <td>{{ ps.homeGoals }}</td>
+                    }
+                    <td class="expanded__total">{{ game().homeTeam.score }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Shots box score (stacked below goals) -->
+            <div class="expanded__box">
+              <div class="expanded__box-title">Shots on Goal</div>
+              <table class="expanded__table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    @for (ps of data()!.periodScores; track ps.period) {
+                      <th>{{ ps.period }}</th>
+                    }
+                    <th>T</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="expanded__team-cell">{{ game().awayTeam.abbreviation }}</td>
+                    @for (ps of data()!.periodScores; track ps.period) {
+                      <td>{{ ps.awayShots }}</td>
+                    }
+                    <td class="expanded__total">{{ game().awayTeam.shotsOnGoal ?? '-' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="expanded__team-cell">{{ game().homeTeam.abbreviation }}</td>
+                    @for (ps of data()!.periodScores; track ps.period) {
+                      <td>{{ ps.homeShots }}</td>
+                    }
+                    <td class="expanded__total">{{ game().homeTeam.shotsOnGoal ?? '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <!-- Shots box score -->
-          <div class="expanded__box">
-            <div class="expanded__box-title">Shots on Goal</div>
-            <table class="expanded__table">
-              <thead>
-                <tr>
-                  <th></th>
-                  @for (ps of data()!.periodScores; track ps.period) {
-                    <th>{{ ps.period }}</th>
-                  }
-                  <th>T</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="expanded__team-cell">{{ game().awayTeam.abbreviation }}</td>
-                  @for (ps of data()!.periodScores; track ps.period) {
-                    <td>{{ ps.awayShots }}</td>
-                  }
-                  <td class="expanded__total">{{ game().awayTeam.shotsOnGoal ?? '-' }}</td>
-                </tr>
-                <tr>
-                  <td class="expanded__team-cell">{{ game().homeTeam.abbreviation }}</td>
-                  @for (ps of data()!.periodScores; track ps.period) {
-                    <td>{{ ps.homeShots }}</td>
-                  }
-                  <td class="expanded__total">{{ game().homeTeam.shotsOnGoal ?? '-' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
 
-        <!-- Stats + H2H side by side -->
-        <div class="expanded__stats-h2h">
+          <!-- Stats + H2H (right of box scores) -->
+          <div class="expanded__stats-h2h">
           <!-- Condensed stats table (half width) -->
           <div class="expanded__stats-compact">
             <div class="expanded__stat-row">
@@ -175,6 +176,7 @@ import { DEFAULT_LEAGUE_ID } from '../../../constants';
               </table>
             </div>
           }
+          </div>
         </div>
 
         <!-- Goal summaries -->
@@ -263,11 +265,16 @@ import { DEFAULT_LEAGUE_ID } from '../../../constants';
       padding: 0 4px;
     }
     .expanded__close:hover { color: var(--text-primary); }
-    .expanded__box-scores {
+    .expanded__main-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 16px;
       margin-bottom: 12px;
+    }
+    .expanded__box-scores {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
     .expanded__box-title {
       font-size: 11px;
@@ -296,12 +303,9 @@ import { DEFAULT_LEAGUE_ID } from '../../../constants';
     .expanded__team-cell { text-align: left; font-weight: 700; font-size: 11px; }
     .expanded__total { font-weight: 700; }
     .expanded__stats-h2h {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      border-top: 1px solid var(--border-default);
-      padding-top: 10px;
-      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
     .expanded__stats-compact {}
     .expanded__stat-row {

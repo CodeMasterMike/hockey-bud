@@ -56,6 +56,8 @@ public class PlayerSeason
     public int? GoalieGoals { get; set; }
     public int? GoalieAssists { get; set; }
 
+    public bool IsRookie { get; set; }
+
     public DateTimeOffset LastUpdated { get; set; }
 
     // Navigation

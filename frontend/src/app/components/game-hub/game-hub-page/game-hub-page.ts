@@ -151,7 +151,8 @@ type Tab = 'team-stats' | 'player-stats';
                 @for (ev of penalties(g, 'away'); track $index) {
                   <div class="summary-item">
                     <span class="ev-time">{{ periodLabel(ev.period) }} &bull; {{ ev.gameClockTime }}</span> &mdash;
-                    {{ ev.description }}{{ ev.penaltyType ? ', ' + ev.penaltyType : '' }}
+                    @if (ev.description) { <span class="ev-player">{{ ev.description }}</span> &mdash; }
+                    {{ ev.penaltyType ?? 'Penalty' }}
                     @if (ev.penaltyMinutes) { ({{ ev.penaltyMinutes }}:00) }
                   </div>
                 }
@@ -162,7 +163,8 @@ type Tab = 'team-stats' | 'player-stats';
                 @for (ev of penalties(g, 'home'); track $index) {
                   <div class="summary-item">
                     <span class="ev-time">{{ periodLabel(ev.period) }} &bull; {{ ev.gameClockTime }}</span> &mdash;
-                    {{ ev.description }}{{ ev.penaltyType ? ', ' + ev.penaltyType : '' }}
+                    @if (ev.description) { <span class="ev-player">{{ ev.description }}</span> &mdash; }
+                    {{ ev.penaltyType ?? 'Penalty' }}
                     @if (ev.penaltyMinutes) { ({{ ev.penaltyMinutes }}:00) }
                   </div>
                 }
@@ -264,6 +266,7 @@ type Tab = 'team-stats' | 'player-stats';
     .summary-item { font-size: 0.76rem; color: var(--text-secondary); padding: 4px 0; line-height: 1.5; }
     .summary-empty { font-size: 0.76rem; color: var(--text-muted); }
     .ev-time { color: var(--text-muted); }
+    .ev-player { font-weight: 600; color: var(--text-primary); }
     .ev-tag { font-size: 0.62rem; background: var(--border-default); padding: 1px 4px; border-radius: 2px; margin-left: 4px; vertical-align: middle; color: var(--text-muted); }
     .divider { border: none; border-top: 2px solid var(--border-strong); margin: 16px 0; }
 

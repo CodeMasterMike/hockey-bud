@@ -303,6 +303,7 @@ public class ScoresQueryService(
             ClockRunning: game.ClockRunning,
             IsOvertime: game.IsOvertime,
             IsShootout: game.IsShootout,
+            SeriesStatus: game.SeriesStatus,
             HomeTeam: new ScoreTeamDto(
                 Id: game.HomeTeam.Id,
                 Abbreviation: game.HomeTeam.Abbreviation,
@@ -363,6 +364,7 @@ public record ScoreGameDto(
     bool ClockRunning,
     bool IsOvertime,
     bool IsShootout,
+    string? SeriesStatus,
     ScoreTeamDto HomeTeam,
     ScoreTeamDto AwayTeam
 );
