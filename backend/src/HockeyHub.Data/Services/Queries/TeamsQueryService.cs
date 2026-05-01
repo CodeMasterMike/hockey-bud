@@ -75,7 +75,7 @@ public class TeamsQueryService(HockeyHubDbContext db, RedisCacheService cache)
 
             var roster = await db.Players
                 .Where(p => p.CurrentTeamId == teamId && p.IsActive)
-                .OrderBy(p => p.LastName).ThenBy(p => p.FirstName)
+                .OrderBy(p => p.JerseyNumber ?? int.MaxValue).ThenBy(p => p.LastName)
                 .Select(p => new RosterPlayerDto(
                     p.Id,
                     p.FirstName,
@@ -106,6 +106,8 @@ public class TeamsQueryService(HockeyHubDbContext db, RedisCacheService cache)
                 PointsPct: standings?.PointsPct,
                 LeagueRank: standings?.LeagueRank,
                 DivisionRank: standings?.DivisionRank,
+                ConferenceRank: standings?.ConferenceRank,
+                ClinchIndicator: standings?.ClinchIndicator,
                 JoinedSeasonYear: team.JoinedSeasonYear,
                 OriginalJoinYear: team.OriginalJoinYear,
                 StanleyCups: new StanleyCupsDto(team.StanleyCupsTotal, team.StanleyCupsSince1973, team.StanleyCupsSince2006),
@@ -154,6 +156,8 @@ public record TeamProfileResponse(
     decimal? PointsPct,
     int? LeagueRank,
     int? DivisionRank,
+    int? ConferenceRank,
+    string? ClinchIndicator,
     int JoinedSeasonYear,
     int OriginalJoinYear,
     StanleyCupsDto StanleyCups,

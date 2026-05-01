@@ -41,6 +41,7 @@ export interface StandingsTeam {
   conferenceRank: number;
   leagueRank: number;
   wildCardRank: number | null;
+  clinchIndicator: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

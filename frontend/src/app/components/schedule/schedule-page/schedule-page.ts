@@ -13,7 +13,15 @@ import {
   ScheduleApiService,
   ScheduleResponse,
   ScheduleMonth,
+  ScheduleGame,
 } from '../../../services/schedule-api.service';
+
+interface CalendarCell {
+  day: number;
+  date: string;
+  isToday: boolean;
+  games: ScheduleGame[];
+}
 import { DEFAULT_LEAGUE_ID } from '../../../constants';
 import { DataAsOf } from '../../shared/data-as-of/data-as-of';
 import { LoadingText } from '../../shared/loading-text/loading-text';
@@ -45,57 +53,48 @@ import { Skeleton } from '../../shared/skeleton/skeleton';
       @if (errorMessage()) {
         <div class="state-msg state-error">{{ errorMessage() }}</div>
       } @else if (loading()) {
-        @for (_ of skeletonDays; track $index) {
-          <div class="day-card">
-            <div class="day-header"><app-skeleton width="120px" height="10px" /></div>
-            @for (__ of skeletonGamesPerDay; track $index) {
-              <div class="game-row game-row-skeleton">
-                <span class="game-teams">
-                  <app-skeleton width="36px" height="12px" />
-                  <span class="at">at</span>
-                  <app-skeleton width="36px" height="12px" />
-                </span>
-                <app-skeleton width="56px" height="12px" />
+        <div class="cal-grid">
+          @for (h of dayHeaders; track h) {
+            <div class="cal-hdr">{{ h }}</div>
+          }
+          @for (_ of skeletonDays; track $index) {
+            <div class="cal-cell cal-cell--empty"><app-skeleton width="20px" height="10px" /></div>
+          }
+        </div>
+      } @else if (calendarWeeks().length > 0) {
+        <div class="cal-grid">
+          @for (h of dayHeaders; track h) {
+            <div class="cal-hdr">{{ h }}</div>
+          }
+          @for (cell of calendarCells(); track $index) {
+            @if (cell) {
+              <div class="cal-cell" [class.cal-cell--today]="cell.isToday" [class.cal-cell--has-games]="cell.games.length > 0">
+                <div class="cal-day-num">{{ cell.day }}</div>
+                @for (game of cell.games; track game.gameId) {
+                  <a class="cal-game" [routerLink]="['/', leagueId(), 'game-hub', game.gameId]">
+                    <span class="cal-matchup">{{ game.awayTeam.abbreviation }}@{{ game.homeTeam.abbreviation }}</span>
+                    @if (game.status === 'Final' || game.status === 'Official') {
+                      <span class="cal-result">{{ game.awayScore }}-{{ game.homeScore }}</span>
+                    } @else if (game.status === 'Live') {
+                      <span class="cal-live">LIVE</span>
+                    } @else {
+                      <span class="cal-time">{{ game.scheduledStartLocal }}</span>
+                    }
+                  </a>
+                }
               </div>
-            }
-          </div>
-        }
-      } @else if (currentMonth(); as m) {
-        @for (day of m.days; track day.date) {
-          <div class="day-card">
-            <div class="day-header">{{ formatDayHeader(day.date) }}</div>
-            @if (day.games.length === 0) {
-              <div class="day-empty">No games</div>
             } @else {
-              @for (game of day.games; track game.gameId) {
-                <a class="game-row" [routerLink]="['/', leagueId(), 'game-hub', game.gameId]">
-                  <span class="game-teams">
-                    <span class="team-abbr">{{ game.awayTeam.abbreviation }}</span>
-                    <span class="at">@<!---->at</span>
-                    <span class="team-abbr">{{ game.homeTeam.abbreviation }}</span>
-                  </span>
-                  @if (game.status === 'Final' || game.status === 'Official') {
-                    <span class="game-score">
-                      {{ game.awayScore }}–{{ game.homeScore }}
-                      <span class="game-status">Final</span>
-                    </span>
-                  } @else if (game.status === 'Live') {
-                    <span class="game-score game-live">Live</span>
-                  } @else {
-                    <span class="game-time">{{ game.scheduledStartLocal }}</span>
-                  }
-                </a>
-              }
+              <div class="cal-cell cal-cell--empty"></div>
             }
-          </div>
-        }
+          }
+        </div>
       } @else {
         <div class="state-msg">No games found for this month.</div>
       }
     </div>
   `,
   styles: [`
-    .schedule-page { max-width: 900px; margin: 0 auto; padding: 28px 20px 48px; font-family: var(--font-primary); }
+    .schedule-page { max-width: 1100px; margin: 0 auto; padding: 28px 20px 48px; font-family: var(--font-primary); }
     .page-header { margin-bottom: 20px; }
     .page-title { font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-primary); margin: 0 0 4px; }
     .page-subtitle { font-size: 0.78rem; color: var(--text-muted); margin: 0; }
@@ -106,21 +105,25 @@ import { Skeleton } from '../../shared/skeleton/skeleton';
     .month-btn:disabled { opacity: 0.3; cursor: default; }
     .month-label { font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-primary); min-width: 160px; text-align: center; }
 
-    .day-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
-    .day-header { font: 700 0.76rem var(--font-primary); text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); padding: 8px 14px; background: var(--bg-row-alt); border-bottom: 1px solid var(--border-default); }
-    .day-empty { font-size: 0.76rem; color: var(--text-muted); padding: 10px 14px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); border: 1px solid var(--border-default); border-radius: 4px; overflow: hidden; background: var(--bg-card); }
+    .cal-hdr { font: 700 0.68rem var(--font-primary); text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); text-align: center; padding: 8px 4px; background: var(--bg-row-alt); border-bottom: 2px solid var(--border-strong); }
+    .cal-cell { min-height: 80px; padding: 4px 6px; border-bottom: 1px solid var(--border-default); border-right: 1px solid var(--border-default); overflow: hidden; }
+    .cal-cell:nth-child(7n) { border-right: none; }
+    .cal-cell--empty { background: var(--bg-row-alt); opacity: 0.5; }
+    .cal-cell--today { background: color-mix(in srgb, var(--color-link) 8%, transparent); }
+    .cal-day-num { font: 700 0.72rem var(--font-primary); color: var(--text-secondary); margin-bottom: 2px; }
+    .cal-cell--today .cal-day-num { color: var(--color-link); }
+    .cal-game { display: block; font-size: 0.62rem; padding: 1px 0; text-decoration: none; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cal-game:hover { text-decoration: underline; }
+    .cal-matchup { font-weight: 700; }
+    .cal-result { color: var(--text-secondary); margin-left: 2px; }
+    .cal-live { color: #C62828; font-weight: 700; margin-left: 2px; }
+    .cal-time { color: var(--text-muted); margin-left: 2px; }
 
-    .game-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--border-default); text-decoration: none; color: var(--text-primary); font-size: 0.82rem; }
-    .game-row:last-child { border-bottom: none; }
-    .game-row:hover:not(.game-row-skeleton) { background: var(--bg-row-alt); }
-    .game-row-skeleton { cursor: default; }
-    .game-teams { display: flex; align-items: center; gap: 6px; }
-    .team-abbr { font-weight: 700; }
-    .at { font-size: 0.68rem; color: var(--text-muted); }
-    .game-score { font-weight: 700; font-variant-numeric: tabular-nums; }
-    .game-status { font-size: 0.68rem; color: var(--text-muted); font-weight: 400; margin-left: 6px; }
-    .game-live { color: #C62828; }
-    .game-time { font-size: 0.76rem; color: var(--text-muted); }
+    @media (max-width: 768px) {
+      .cal-cell { min-height: 60px; padding: 3px 4px; }
+      .cal-game { font-size: 0.56rem; }
+    }
 
     .state-msg { color: var(--text-muted); text-align: center; padding: 48px 0; font-size: 14px; }
     .state-error { color: #c44; }
@@ -131,8 +134,8 @@ export class SchedulePage implements OnInit {
   private api = inject(ScheduleApiService);
   private destroyRef = inject(DestroyRef);
 
-  readonly skeletonDays = Array(5);
-  readonly skeletonGamesPerDay = Array(3);
+  readonly skeletonDays = Array(35);
+  readonly dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   leagueId = signal(DEFAULT_LEAGUE_ID);
   data = signal<ScheduleResponse | null>(null);
@@ -145,6 +148,47 @@ export class SchedulePage implements OnInit {
   currentMonthLabel = computed(() => this.currentMonth()?.label ?? '...');
   canGoPrev = computed(() => this.monthIndex() > 0);
   canGoNext = computed(() => this.monthIndex() < this.allMonths().length - 1);
+
+  /** Build a flat array of calendar cells (null = empty padding day). */
+  calendarCells = computed<(CalendarCell | null)[]>(() => {
+    const m = this.currentMonth();
+    if (!m) return [];
+
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    // Build a lookup from date string to games
+    const dayMap = new Map(m.days.map(d => [d.date, d.games]));
+
+    // First day of the month
+    const firstDay = new Date(m.year, m.month - 1, 1);
+    const startDow = firstDay.getDay(); // 0=Sun
+    const daysInMonth = new Date(m.year, m.month, 0).getDate();
+
+    const cells: (CalendarCell | null)[] = [];
+    // Leading empty cells
+    for (let i = 0; i < startDow; i++) cells.push(null);
+    // Day cells
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${m.year}-${String(m.month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      cells.push({
+        day: d,
+        date: dateStr,
+        isToday: dateStr === todayStr,
+        games: dayMap.get(dateStr) ?? [],
+      });
+    }
+    // Trailing empty cells to fill last week
+    while (cells.length % 7 !== 0) cells.push(null);
+    return cells;
+  });
+
+  calendarWeeks = computed(() => {
+    const cells = this.calendarCells();
+    const weeks: (CalendarCell | null)[][] = [];
+    for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+    return weeks;
+  });
 
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {

@@ -94,6 +94,7 @@ public class StatsSyncJob(
                 ps.Giveaways = stat.Giveaways;
                 ps.Takeaways = stat.Takeaways;
                 ps.FaceoffPct = stat.FaceoffPct;
+                ps.IsRookie = stat.IsRookie;
                 ps.LastUpdated = DateTimeOffset.UtcNow;
             }
             else
@@ -122,6 +123,7 @@ public class StatsSyncJob(
                     Giveaways = stat.Giveaways,
                     Takeaways = stat.Takeaways,
                     FaceoffPct = stat.FaceoffPct,
+                    IsRookie = stat.IsRookie,
                     LastUpdated = DateTimeOffset.UtcNow
                 };
                 db.PlayerSeasons.Add(newPs);
@@ -158,6 +160,7 @@ public class StatsSyncJob(
                 ps.Goals = stat.Goals;
                 ps.Assists = stat.Assists;
                 ps.Points = stat.Goals + stat.Assists;
+                ps.IsRookie = stat.IsRookie;
                 ps.LastUpdated = DateTimeOffset.UtcNow;
             }
             else
@@ -184,6 +187,7 @@ public class StatsSyncJob(
                     Goals = stat.Goals,
                     Assists = stat.Assists,
                     Points = stat.Goals + stat.Assists,
+                    IsRookie = stat.IsRookie,
                     LastUpdated = DateTimeOffset.UtcNow
                 };
                 db.PlayerSeasons.Add(newPs);

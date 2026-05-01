@@ -149,7 +149,8 @@ public class StandingsQueryService(HockeyHubDbContext db, RedisCacheService cach
         DivisionRank: s.DivisionRank,
         ConferenceRank: s.ConferenceRank,
         LeagueRank: s.LeagueRank,
-        WildCardRank: s.WildCardRank
+        WildCardRank: s.WildCardRank,
+        ClinchIndicator: s.ClinchIndicator
     );
 }
 
@@ -188,5 +189,6 @@ public record StandingsTeamDto(
     int DivisionRank,
     int ConferenceRank,
     int LeagueRank,
-    int? WildCardRank
+    int? WildCardRank,
+    string? ClinchIndicator
 );

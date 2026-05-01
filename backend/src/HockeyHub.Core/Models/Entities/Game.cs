@@ -49,6 +49,9 @@ public class Game
     public bool IsOvertime { get; set; }
     public bool IsShootout { get; set; }
 
+    // Playoff series status (e.g. "COL 3 - LAK 0"), null for regular season
+    public string? SeriesStatus { get; set; }
+
     public DateTimeOffset LastUpdated { get; set; }
 
     // Navigation

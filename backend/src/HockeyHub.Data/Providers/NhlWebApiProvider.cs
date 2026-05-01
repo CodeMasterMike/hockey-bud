@@ -322,7 +322,8 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
                             ShortHandedPoints: p.TryGetProperty("shPoints", out var shp) ? shp.GetInt32() : null,
                             Giveaways: p.TryGetProperty("giveaways", out var gv) ? gv.GetInt32() : null,
                             Takeaways: p.TryGetProperty("takeaways", out var tk) ? tk.GetInt32() : null,
-                            FaceoffPct: p.TryGetProperty("faceoffWinPct", out var fo) ? Math.Round(fo.GetDecimal() * 100, 1) : null
+                            FaceoffPct: p.TryGetProperty("faceoffWinPct", out var fo) ? Math.Round(fo.GetDecimal() * 100, 1) : null,
+                            IsRookie: p.TryGetProperty("rookieFlag", out var rf) && rf.ValueKind == System.Text.Json.JsonValueKind.True
                         ));
                         count++;
                     }
@@ -445,7 +446,8 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
                             Saves: g.TryGetProperty("saves", out var sv) ? sv.GetInt32() : 0,
                             GoalsAgainst: g.TryGetProperty("goalsAgainst", out var ga) ? ga.GetInt32() : 0,
                             Goals: g.TryGetProperty("goals", out var goals) ? goals.GetInt32() : 0,
-                            Assists: g.TryGetProperty("assists", out var assists) ? assists.GetInt32() : 0
+                            Assists: g.TryGetProperty("assists", out var assists) ? assists.GetInt32() : 0,
+                            IsRookie: g.TryGetProperty("rookieFlag", out var rf2) && rf2.ValueKind == System.Text.Json.JsonValueKind.True
                         ));
                     }
                     catch (Exception ex)
@@ -840,8 +842,26 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
             PeriodTimeRemainingSeconds: timeRemainingSeconds,
             ClockRunning: clockRunning,
             IsOvertime: period > 3,
-            IsShootout: periodLabel == "SO"
+            IsShootout: periodLabel == "SO",
+            SeriesStatus: ParseSeriesStatus(g)
         );
+    }
+
+    /// <summary>
+    /// Parses the seriesStatus from playoff games (e.g., "COL 3 - LAK 0").
+    /// Returns null for regular season games.
+    /// </summary>
+    private static string? ParseSeriesStatus(JsonElement g)
+    {
+        if (!g.TryGetProperty("seriesStatus", out var ss)) return null;
+
+        var topAbbrev = ss.TryGetProperty("topSeedTeamAbbrev", out var ta) ? ta.GetString() : null;
+        var botAbbrev = ss.TryGetProperty("bottomSeedTeamAbbrev", out var ba) ? ba.GetString() : null;
+        var topWins = ss.TryGetProperty("topSeedWins", out var tw) ? tw.GetInt32() : 0;
+        var botWins = ss.TryGetProperty("bottomSeedWins", out var bw) ? bw.GetInt32() : 0;
+
+        if (topAbbrev is null || botAbbrev is null) return null;
+        return $"{topAbbrev} {topWins} - {botAbbrev} {botWins}";
     }
 
     private static NhlPlayerData ParsePlayer(JsonElement p, string teamAbbreviation)
@@ -907,7 +927,8 @@ public class NhlWebApiProvider : INhlDataProvider, IDisposable
             GoalsAgainst: entry.GetProperty("goalAgainst").GetInt32(),
             PowerPlayPct: entry.TryGetProperty("powerPlayPctg", out var pp) ? pp.GetDecimal() : 0,
             PenaltyKillPct: entry.TryGetProperty("penaltyKillPctg", out var pk) ? pk.GetDecimal() : 0,
-            FaceoffPct: entry.TryGetProperty("faceoffWinPctg", out var fo) ? fo.GetDecimal() : null
+            FaceoffPct: entry.TryGetProperty("faceoffWinPctg", out var fo) ? fo.GetDecimal() : null,
+            ClinchIndicator: entry.TryGetProperty("clinchIndicator", out var ci) ? ci.GetString() : null
         );
     }
 

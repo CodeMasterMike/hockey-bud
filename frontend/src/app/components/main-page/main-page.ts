@@ -11,7 +11,9 @@ import { RouterLink } from '@angular/router';
       <p class="main-page__subtitle">Select a league to explore</p>
       <div class="main-page__leagues">
         <a routerLink="/nhl/scores" class="main-page__league">
-          <div class="main-page__league-icon">NHL</div>
+          <img src="assets/images/nhl-classic.svg"
+               alt="NHL"
+               class="main-page__league-logo" />
           <span class="main-page__league-name">National Hockey League</span>
         </a>
       </div>
@@ -62,16 +64,13 @@ import { RouterLink } from '@angular/router';
       border-color: var(--border-strong);
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
-    .main-page__league-icon {
-      width: 80px;
-      height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 3px solid var(--text-primary);
-      border-radius: 50%;
-      font-size: 24px;
-      font-weight: 700;
+    .main-page__league-logo {
+      width: 120px;
+      height: auto;
+      transition: transform 0.2s;
+    }
+    .main-page__league:hover .main-page__league-logo {
+      transform: scale(1.05);
     }
     .main-page__league-name {
       font-size: 14px;

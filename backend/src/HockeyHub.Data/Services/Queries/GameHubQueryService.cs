@@ -60,24 +60,91 @@ public class GameHubQueryService(
                 Giveaways: new StatPairDto(game.HomeGiveaways ?? 0, game.AwayGiveaways ?? 0),
                 Takeaways: new StatPairDto(game.HomeTakeaways ?? 0, game.AwayTakeaways ?? 0)
             ),
-            Events: detail?.Events.Select(e => new GameHubEventDto(
-                e.EventType,
-                e.Period,
-                e.GameClockTime,
-                e.TeamAbbreviation,
-                e.Description,
-                e.IsPowerPlay,
-                e.IsShortHanded,
-                e.IsEmptyNet,
-                e.PenaltyType,
-                e.PenaltyMinutes,
-                e.CoordinateX,
-                e.CoordinateY,
-                e.VideoUrl
-            )).ToList() ?? [],
+            Events: await BuildEvents(detail, db, ct),
             PlayerStats: BuildPlayerStats(detail),
             DataAsOf: game.LastUpdated
         );
+    }
+
+    private static async Task<IReadOnlyList<GameHubEventDto>> BuildEvents(
+        NhlGameDetailData? detail, HockeyHubDbContext db, CancellationToken ct)
+    {
+        if (detail is null || detail.Events.Count == 0) return [];
+
+        // Collect all referenced player external IDs
+        var playerIds = detail.Events
+            .SelectMany(e => new[] { e.PrimaryPlayerId, e.SecondaryPlayerId, e.TertiaryPlayerId })
+            .Where(id => id.HasValue)
+            .Select(id => id!.Value.ToString())
+            .Distinct()
+            .ToList();
+
+        // Look up player names from DB by external ID
+        var players = playerIds.Count > 0
+            ? await db.Players
+                .Where(p => playerIds.Contains(p.ExternalId))
+                .Select(p => new { p.ExternalId, p.FirstName, p.LastName, p.JerseyNumber })
+                .ToDictionaryAsync(p => p.ExternalId, ct)
+            : [];
+
+        string PlayerName(int? id)
+        {
+            if (id is null) return "";
+            return players.TryGetValue(id.Value.ToString(), out var p)
+                ? $"{p.FirstName[0]}. {p.LastName}"
+                : "";
+        }
+
+        string PlayerNameWithNumber(int? id)
+        {
+            if (id is null) return "";
+            if (!players.TryGetValue(id.Value.ToString(), out var p)) return "";
+            var num = p.JerseyNumber.HasValue ? $"#{p.JerseyNumber} " : "";
+            return $"{num}{p.FirstName[0]}. {p.LastName}";
+        }
+
+        return detail.Events.Select(e =>
+        {
+            string? description;
+            string? penaltyType = null;
+
+            if (e.EventType == "Goal")
+            {
+                var scorer = PlayerName(e.PrimaryPlayerId);
+                var assists = new[] { PlayerName(e.SecondaryPlayerId), PlayerName(e.TertiaryPlayerId) }
+                    .Where(n => n.Length > 0).ToList();
+                description = scorer.Length > 0 ? scorer : e.Description;
+                if (assists.Count > 0)
+                    description += $" ({string.Join(", ", assists)})";
+                else if (scorer.Length > 0)
+                    description += " (unassisted)";
+            }
+            else if (e.EventType == "Penalty")
+            {
+                var player = PlayerNameWithNumber(e.PrimaryPlayerId);
+                penaltyType = FormatPenaltyDesc(e.Description);
+                description = player.Length > 0 ? player : null;
+            }
+            else
+            {
+                description = e.Description;
+            }
+
+            return new GameHubEventDto(
+                e.EventType, e.Period, e.GameClockTime,
+                e.TeamAbbreviation, description,
+                e.IsPowerPlay, e.IsShortHanded, e.IsEmptyNet,
+                penaltyType, e.PenaltyMinutes,
+                e.CoordinateX, e.CoordinateY, e.VideoUrl);
+        }).ToList();
+    }
+
+    /// <summary>Converts descKey like "high-sticking" to "High sticking".</summary>
+    private static string? FormatPenaltyDesc(string? descKey)
+    {
+        if (string.IsNullOrEmpty(descKey)) return null;
+        var formatted = descKey.Replace('-', ' ');
+        return char.ToUpper(formatted[0]) + formatted[1..];
     }
 
     private static GameHubPlayerStatsDto BuildPlayerStats(NhlGameDetailData? detail)

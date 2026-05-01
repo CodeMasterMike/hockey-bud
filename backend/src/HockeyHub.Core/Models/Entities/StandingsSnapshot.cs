@@ -26,6 +26,7 @@ public class StandingsSnapshot
     public int ConferenceRank { get; set; }
     public int LeagueRank { get; set; }
     public int? WildCardRank { get; set; }
+    public string? ClinchIndicator { get; set; }
 
     public DateTimeOffset LastUpdated { get; set; }
 

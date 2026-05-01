@@ -260,10 +260,10 @@ function formatPlusMinus(value: number): string {
     .section-tabs button.active { background: var(--text-primary); color: var(--bg-card); font-weight: 700; }
 
     .table-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 4px; overflow: hidden; }
-    .table-scroll { overflow-x: auto; }
+    .table-scroll { overflow-x: auto; max-height: 70vh; overflow-y: auto; }
 
     .stats-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
-    .stats-table th { padding: 8px; text-align: right; font-weight: 700; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); border-bottom: 2px solid var(--border-strong); cursor: pointer; user-select: none; white-space: nowrap; }
+    .stats-table th { padding: 8px; text-align: right; font-weight: 700; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); border-bottom: 2px solid var(--border-strong); cursor: pointer; user-select: none; white-space: nowrap; position: sticky; top: 0; background: var(--bg-card); z-index: 2; }
     .stats-table th:hover:not(.col-skeleton) { background: var(--bg-row-alt); color: var(--text-primary); }
     .stats-table th.col-skeleton { cursor: default; }
     .stats-table th.col-left { text-align: left; }

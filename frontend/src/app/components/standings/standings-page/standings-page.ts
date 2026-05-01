@@ -185,7 +185,12 @@ const COLUMNS: readonly ColumnDef[] = [
                 [class.row-eliminated]="isEliminated(group, team)"
                 [class.wc-divider]="isCutLine(group, team, i)">
                 <td class="col-rank">{{ rankDisplay(group, team, i) }}</td>
-                <td class="col-left col-team">{{ team.name }}</td>
+                <td class="col-left col-team">
+                  {{ team.name }}
+                  @if (team.clinchIndicator) {
+                    <span class="clinch clinch-{{ team.clinchIndicator }}">{{ team.clinchIndicator }}</span>
+                  }
+                </td>
                 <td>{{ team.gamesPlayed }}</td>
                 <td>{{ team.wins }}</td>
                 <td>{{ team.losses }}</td>
@@ -256,10 +261,13 @@ const COLUMNS: readonly ColumnDef[] = [
     .conference.single { grid-column: 1 / -1; }
     .card-header { padding: 12px 16px 10px; font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border-default); display: flex; align-items: center; justify-content: space-between; color: var(--text-primary); }
     .card-header-meta { font-size: 0.68rem; color: var(--text-muted); font-weight: 400; letter-spacing: 0.04em; }
-    .table-scroll { overflow-x: hidden; }
+    .table-scroll { overflow-x: auto; scrollbar-color: var(--border-strong) var(--bg-row-alt); scrollbar-width: thin; }
+    .table-scroll::-webkit-scrollbar { height: 8px; }
+    .table-scroll::-webkit-scrollbar-track { background: var(--bg-row-alt); }
+    .table-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
 
     .standings-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
-    .standings-table th { padding: 8px; text-align: right; font-weight: 700; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); border-bottom: 2px solid var(--border-strong); cursor: pointer; user-select: none; white-space: nowrap; }
+    .standings-table th { padding: 8px; text-align: right; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-secondary); border-bottom: 2px solid var(--border-strong); cursor: pointer; user-select: none; white-space: nowrap; }
     .standings-table th:hover:not(.col-skeleton) { background: var(--bg-row-alt); color: var(--text-primary); }
     .standings-table th.col-skeleton { cursor: default; }
     .standings-table th.col-left { text-align: left; }
@@ -270,12 +278,19 @@ const COLUMNS: readonly ColumnDef[] = [
 
     .group-header td { background: var(--bg-row-alt); font: 700 0.72rem var(--font-primary); text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); padding: 8px 10px; border-top: 2px solid var(--border-strong); }
 
-    .standings-table tbody td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--border-default); white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+    .standings-table tbody td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--border-default); white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--text-primary); font-size: 0.78rem; }
     .standings-table tbody td.col-left { text-align: left; }
     .standings-table tbody td.col-rank { text-align: center; color: var(--text-muted); font-size: 0.68rem; }
     .standings-table tbody td.col-team, .standings-table tbody td.col-pts { font-weight: 700; }
-    .standings-table tbody td.col-diff-pos { color: #2E7D32; }
-    .standings-table tbody td.col-diff-neg { color: #C62828; }
+    .standings-table tbody td.col-diff-pos { color: #2E7D32; font-weight: 600; }
+    .standings-table tbody td.col-diff-neg { color: #C62828; font-weight: 600; }
+
+    .clinch { font-size: 0.62rem; font-weight: 700; text-transform: lowercase; margin-left: 4px; padding: 1px 4px; border-radius: 3px; vertical-align: middle; }
+    .clinch-x { background: #2E7D32; color: #fff; }
+    .clinch-y { background: #1565C0; color: #fff; }
+    .clinch-z { background: #6A1B9A; color: #fff; }
+    .clinch-p { background: #E65100; color: #fff; }
+    .clinch-e { background: #757575; color: #fff; }
 
     .standings-table tbody tr.row-alt td { background: var(--bg-row-alt); }
     .standings-table tbody tr.row-eliminated td { opacity: 0.6; }
